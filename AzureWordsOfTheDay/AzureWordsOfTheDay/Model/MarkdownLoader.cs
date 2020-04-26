@@ -10,9 +10,6 @@ namespace AzureWordsOfTheDay.Model
     public class MarkdownHelper
     {
         private const string UrlMask = "https://raw.githubusercontent.com/lbugnion/wordsoftheday-md/master/{0}.md";
-        private const string YouTubeMarker = "> YouTube: ";
-        private const string YouTubeEmbedMarker = "<!--YOUTUBEEMBED -->";
-        private const string H1 = "# ";
 
         private const string YouTubeEmbed = "<iframe width=\"560\" height=\"560\" src=\"https://www.youtube.com/embed/{0}\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>";
 
