@@ -44,7 +44,7 @@ namespace WordsOfTheDayApp
             var client = account.CreateCloudBlobClient();
 
             var jsonContainer = client.GetContainerReference(
-                Constants.SettingsContainer);
+                Environment.GetEnvironmentVariable("SettingsFolder"));
             var jsonBlob = jsonContainer.GetBlockBlobReference(Constants.KeywordsBlob);
 
             if (!await jsonBlob.ExistsAsync())
@@ -56,7 +56,7 @@ namespace WordsOfTheDayApp
             var keywordsList = JsonConvert.DeserializeObject<List<KeywordPair>>(json);
 
             var newContainer = client.GetContainerReference(
-                Constants.TargetMarkdownContainer);
+                Environment.GetEnvironmentVariable("MarkdownTransformedFolder"));
             var newBlob = newContainer.GetBlockBlobReference($"{file}.md");
             var markdown = await newBlob.DownloadTextAsync();
 

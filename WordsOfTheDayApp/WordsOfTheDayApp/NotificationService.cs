@@ -20,7 +20,7 @@ namespace WordsOfTheDayApp
             var content = new StringContent(json);
 
             var request = new HttpRequestMessage(HttpMethod.Post, NotificationsUrl);
-            request.Headers.Add("x-functions-key", Environment.GetEnvironmentVariable("FunctionCode"));
+            request.Headers.Add("x-functions-key", Environment.GetEnvironmentVariable("NotifyFunctionCode"));
             request.Content = content;
             var response = await client.SendAsync(request);
             var result = await response.Content.ReadAsStringAsync();

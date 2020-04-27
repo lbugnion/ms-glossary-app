@@ -93,7 +93,7 @@ namespace WordsOfTheDayApp
                 if (!string.IsNullOrEmpty(keywordsLine))
                 {
                     var jsonContainer = client.GetContainerReference(
-                        Constants.SettingsContainer);
+                        Environment.GetEnvironmentVariable("SettingsFolder"));
                     var jsonBlob = jsonContainer.GetBlockBlobReference(Constants.KeywordsBlob);
 
                     string json = null;
@@ -137,7 +137,7 @@ namespace WordsOfTheDayApp
                 }
 
                 var newContainer = client.GetContainerReference(
-                    Constants.TargetMarkdownContainer);
+                    Environment.GetEnvironmentVariable("MarkdownTransformedFolder"));
                 var newBlob = newContainer.GetBlockBlobReference($"{topic}.md");
 
                 await newBlob.DeleteIfExistsAsync();
