@@ -31,6 +31,7 @@ namespace WordsOfTheDayApp
         private const string YouTubeEmbedMarker = "<!--YOUTUBEEMBED -->";
         private const string H1 = "# ";
         private const string SideBarTemplate = "- [{0}](/topic/{1})";
+        private const string SideBarBoldTemplate = "- [**{0}**](/topic/{1})";
 
 #if DEBUG
         public const string SemaphorePath = "c:\\temp\\semaphore.txt";
@@ -177,7 +178,14 @@ namespace WordsOfTheDayApp
 
                         foreach (var k in pair.Value)
                         {
-                            md.AppendLine(string.Format(SideBarTemplate, k.Keyword, k.Topic));
+                            if (k.Topic.ToLower().Replace('-', ' ') == k.Keyword.ToLower())
+                            {
+                                md.AppendLine(string.Format(SideBarBoldTemplate, k.Keyword, k.Topic));
+                            }
+                            else
+                            {
+                                md.AppendLine(string.Format(SideBarTemplate, k.Keyword, k.Topic));
+                            }
                         }
 
                         md.AppendLine();
