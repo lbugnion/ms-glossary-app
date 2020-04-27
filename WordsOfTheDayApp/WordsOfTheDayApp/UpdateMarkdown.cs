@@ -1,5 +1,9 @@
 // Default URL for triggering event grid function in the local environment.
 // http://localhost:7071/runtime/webhooks/EventGrid?functionName=UpdateMarkdown
+
+// /blobServices/default/containers/markdown/blobs
+// /blobServices/default/containers/test-markdown/blobs
+
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.EventGrid.Models;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
@@ -40,12 +44,12 @@ namespace WordsOfTheDayApp
             {
                 log.LogError($"Semaphore found at {SemaphorePath}");
                 return;
-                //return new BadRequestObjectResult("Already running in DEBUG mode");
             }
 
             File.CreateText(SemaphorePath);
 #endif
-            
+
+            log.LogInformation("Executing UpdateMarkdown");
             log.LogInformation(eventGridEvent.Data.ToString());
 
             if (eventGridEvent.Data is JObject blobEvent)
@@ -53,6 +57,7 @@ namespace WordsOfTheDayApp
                 var uri = new Uri(blobEvent["url"].Value<string>());
                 var oldBlob = new CloudBlockBlob(uri);
                 var topic = Path.GetFileNameWithoutExtension(oldBlob.Name);
+                log.LogInformation($"Topic: {topic}");
 
                 var account = CloudStorageAccount.Parse(
                     Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorage));
@@ -76,10 +81,12 @@ namespace WordsOfTheDayApp
                     else if (line.StartsWith(YouTubeMarker))
                     {
                         youTubeCode = line.Substring(YouTubeMarker.Length).Trim();
+                        log.LogInformation($"youTubeCode: {youTubeCode}");
                     }
                     else if (line.StartsWith(KeywordsMarker))
                     {
                         keywordsLine = line.Substring(KeywordsMarker.Length).Trim();
+                        log.LogInformation($"keywordsLine: {keywordsLine}");
                     }
                 }
 
@@ -94,6 +101,9 @@ namespace WordsOfTheDayApp
                 {
                     var jsonContainer = client.GetContainerReference(
                         Environment.GetEnvironmentVariable("SettingsFolder"));
+
+                    log.LogInformation($"jsonContainer: {jsonContainer}");
+
                     var jsonBlob = jsonContainer.GetBlockBlobReference(Constants.KeywordsBlob);
 
                     string json = null;
@@ -134,19 +144,26 @@ namespace WordsOfTheDayApp
 
                     json = JsonConvert.SerializeObject(keywordsList);
                     await jsonBlob.UploadTextAsync(json);
+                    log.LogInformation("Saved the keywords");
                 }
 
                 var newContainer = client.GetContainerReference(
                     Environment.GetEnvironmentVariable("MarkdownTransformedFolder"));
+                log.LogInformation($"newContainer: {newContainer}");
+
                 var newBlob = newContainer.GetBlockBlobReference($"{topic}.md");
 
                 await newBlob.DeleteIfExistsAsync();
                 await newBlob.UploadTextAsync(newMarkdown);
 
+                log.LogInformation($"Sending notification");
+
                 await NotificationService.Notify(
                     "Uploaded", 
                     $"{topic}.md: Markdown file updated and uploaded", 
                     log);
+
+                log.LogInformation($"Done");
             }
         }
     }

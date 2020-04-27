@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Build.Framework;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -11,7 +12,8 @@ namespace WordsOfTheDayApp.Model
         public string ReplaceInMarkdown(
             string markdown, 
             List<KeywordPair> keywordsList,
-            string currentFile = null)
+            string currentFile = null,
+            ILogger log = null)
         {
             var builder = new StringBuilder(markdown);
 

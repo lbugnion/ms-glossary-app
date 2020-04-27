@@ -7,7 +7,6 @@ namespace WordsOfTheDayApp
 {
     public class NotificationService
     {
-        // TODO Put this in KeyVault
         private const string NotificationsUrl = "https://notificationsendpoint.azurewebsites.net/api/send";
 
         public static async Task Notify(

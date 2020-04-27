@@ -5,8 +5,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection.Metadata;
-using System.Text;
 using System.Threading.Tasks;
 using WordsOfTheDayApp.Model;
 
@@ -37,7 +35,8 @@ namespace WordsOfTheDayApp
             File.CreateText(path);
 #endif
 
-            log.LogInformation($"C# Queue trigger function processed: {file}");
+            log.LogInformation("Executing EnqueueMarkdownEdition");
+            log.LogInformation($"File: {file}");
 
             var account = CloudStorageAccount.Parse(
                 Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorage));
@@ -46,6 +45,8 @@ namespace WordsOfTheDayApp
 
             var jsonContainer = client.GetContainerReference(
                 Environment.GetEnvironmentVariable("SettingsFolder"));
+            log.LogInformation($"jsonContainer: {jsonContainer}");
+
             var jsonBlob = jsonContainer.GetBlockBlobReference(Constants.KeywordsBlob);
 
             if (!await jsonBlob.ExistsAsync())
@@ -58,14 +59,23 @@ namespace WordsOfTheDayApp
 
             var newContainer = client.GetContainerReference(
                 Environment.GetEnvironmentVariable("MarkdownTransformedFolder"));
+            log.LogInformation($"newContainer: {newContainer}");
+
             var newBlob = newContainer.GetBlockBlobReference($"{file}.md");
             var markdown = await newBlob.DownloadTextAsync();
 
             var replacer = new KeywordReplacer();
 
-            var newMarkdown = replacer.ReplaceInMarkdown(markdown, keywordsList, file);
+            var newMarkdown = replacer.ReplaceInMarkdown(markdown, keywordsList, file, log);
 
-            await NotificationService.Notify("Replaced keywords", $"Replaced all found keywords in {file}.md", log);
+            log.LogInformation($"newContainer: {newContainer}");
+
+            await NotificationService.Notify(
+                "Replaced keywords", 
+                $"Replaced all found keywords in {file}.md", 
+                log);
+
+            log.LogInformation($"Done");
         }
     }
 }
