@@ -124,6 +124,8 @@ namespace WordsOfTheDayApp
                         json = await keywordsBlob.DownloadTextAsync();
                         keywordsDictionary = JsonConvert.DeserializeObject<Dictionary<char, List<KeywordPair>>>(json);
 
+                        var duplicates = string.Empty;
+
                         foreach (var k in newKeywords)
                         {
                             var key = k.ToUpper()[0];
@@ -132,13 +134,25 @@ namespace WordsOfTheDayApp
                             {
                                 var list = keywordsDictionary[key];
 
-                                var item = list
-                                    .FirstOrDefault(
-                                        k2 => k2.Keyword.ToLower() == k.ToLower() && k2.Topic.ToLower() == k.ToLower());
+                                var items = list
+                                    .Where(
+                                        k2 => k2.Keyword.ToLower() == k.ToLower())
+                                    .ToList();
 
-                                if (item != null)
+                                foreach (var item in items)
                                 {
+                                    duplicates += $"{item.Keyword} / {item.Topic} | ";
                                     list.Remove(item);
+                                }
+
+                                if (!string.IsNullOrEmpty(duplicates))
+                                {
+                                    log.LogInformation($"{oldBlob.Name}: Duplicates found: {duplicates}");
+
+                                    await NotificationService.Notify(
+                                        $"{oldBlob.Name}: Duplicates found",
+                                        duplicates,
+                                        log);
                                 }
                             }
                         }
@@ -150,19 +164,18 @@ namespace WordsOfTheDayApp
 
                     foreach (var newKeyword in newKeywords)
                     {
-                        var textInfo = CultureInfo.InvariantCulture.TextInfo;
-                        var formattedKeyword = textInfo.ToTitleCase(newKeyword.Trim());
-                        var pair = new KeywordPair(topic, formattedKeyword);
+                        var pair = new KeywordPair(topic, newKeyword);
+                        var letter = newKeyword.ToUpper()[0];
 
                         List<KeywordPair> list;
-                        if (keywordsDictionary.ContainsKey(formattedKeyword[0]))
+                        if (keywordsDictionary.ContainsKey(letter))
                         {
-                            list = keywordsDictionary[formattedKeyword[0]];
+                            list = keywordsDictionary[letter];
                         }
                         else
                         {
                             list = new List<KeywordPair>();
-                            keywordsDictionary.Add(formattedKeyword[0], list);
+                            keywordsDictionary.Add(letter, list);
                         }
 
                         list.Add(pair);
