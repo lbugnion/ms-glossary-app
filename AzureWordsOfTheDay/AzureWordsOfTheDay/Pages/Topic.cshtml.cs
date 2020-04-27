@@ -16,20 +16,27 @@ namespace AzureWordsOfTheDay.Pages
             private set;
         }
 
+        public HtmlString TopicBarHtml
+        {
+            get;
+            private set;
+        }
+
         public HtmlString TopicHtml
         {
             get;
             private set;
         }
 
-        public TopicModel(MarkdownHelper markdown)
+        public TopicModel(
+            MarkdownHelper markdown)
         {
             _markdown = markdown;
         }
 
         public async Task<IActionResult> OnGet(string topic)
         {
-            Topic = topic;
+            Topic = topic.ToLower();
 
             if (string.IsNullOrEmpty(Topic))
             {
@@ -37,6 +44,7 @@ namespace AzureWordsOfTheDay.Pages
             }
 
             TopicHtml = await _markdown.LoadMarkdown(Topic);
+            TopicBarHtml = await _markdown.LoadTopicsBar();
             return null;
         }
     }

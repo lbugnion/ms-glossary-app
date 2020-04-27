@@ -1,7 +1,6 @@
 ﻿using MarkdownSharp;
 using Microsoft.AspNetCore.Html;
 using System;
-using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -9,22 +8,31 @@ namespace AzureWordsOfTheDay.Model
 {
     public class MarkdownHelper
     {
-        private const string UrlMask = "https://raw.githubusercontent.com/lbugnion/wordsoftheday-md/master/{0}.md";
+        private const string TopicUrlMask = "https://wordsoftheday.blob.core.windows.net/{0}/{1}.md";
+        private const string TopicsBarUrl = "https://wordsoftheday.blob.core.windows.net/{0}/keywords.md";
+        private HttpClient _client;
 
-        private const string YouTubeEmbed = "<iframe width=\"560\" height=\"560\" src=\"https://www.youtube.com/embed/{0}\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>";
+        private HttpClient Client
+        {
+            get
+            {
+                if (_client == null)
+                {
+                    _client = new HttpClient();
+                }
+
+                return _client;
+            }
+        }
 
         public async Task<HtmlString> LoadMarkdown(string topic)
         {
-            var uri = new Uri(string.Format(UrlMask, topic));
-            
-            // TODO Cache HTTP client?
-            var client = new HttpClient();
-
+            var uri = new Uri(string.Format(TopicUrlMask, Startup.Configuration["TopicsFolder"], topic));
             string markdown = null;
 
             try
             {
-                markdown = await client.GetStringAsync(uri);
+                markdown = await Client.GetStringAsync(uri);
             }
             catch (Exception ex)
             {
@@ -33,35 +41,32 @@ namespace AzureWordsOfTheDay.Model
 
             if (!string.IsNullOrEmpty(markdown))
             {
-                var reader = new StringReader(markdown);
-                var done = false;
-                string youTubeCode = null;
-
-                while (!done)
-                {
-                    var line = reader.ReadLine();
-
-                    if (line.StartsWith(H1))
-                    {
-                        markdown = markdown.Substring(markdown.IndexOf(H1));
-                        done = true;
-                    }
-                    else if (line.StartsWith(YouTubeMarker))
-                    {
-                        youTubeCode = line.Substring(YouTubeMarker.Length).Trim();
-                    }
-                }
-
                 var md = new Markdown();
                 var html = md.Transform(markdown);
+                return new HtmlString(html);
+            }
 
-                if (!string.IsNullOrEmpty(youTubeCode))
-                {
-                    html = html.Replace(
-                        YouTubeEmbedMarker,
-                        string.Format(YouTubeEmbed, youTubeCode));
-                }
+            return null;
+        }
 
+        public async Task<HtmlString> LoadTopicsBar()
+        {
+            var uri = new Uri(string.Format(TopicsBarUrl, Startup.Configuration["SettingsFolder"]));
+            string markdown = null;
+
+            try
+            {
+                markdown = await Client.GetStringAsync(uri);
+            }
+            catch (Exception ex)
+            {
+                // TODO What to do if this fails?
+            }
+
+            if (!string.IsNullOrEmpty(markdown))
+            {
+                var md = new Markdown();
+                var html = md.Transform(markdown);
                 return new HtmlString(html);
             }
 

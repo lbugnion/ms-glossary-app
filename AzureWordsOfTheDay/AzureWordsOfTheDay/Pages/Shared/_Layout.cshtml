@@ -12,7 +12,13 @@
 
 <body>
 
-    @RenderBody()
+    <div id="topics">
+        @RenderSection("topics", true);
+    </div>
+
+    <div id="main">
+        @RenderBody()
+    </div>
 
     <footer class="border-top footer text-muted">
         <div class="container">
