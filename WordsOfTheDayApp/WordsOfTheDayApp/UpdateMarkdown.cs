@@ -162,7 +162,7 @@ namespace WordsOfTheDayApp
                         keywordsDictionary = new Dictionary<char, List<KeywordPair>>();
                     }
 
-                    foreach (var newKeyword in newKeywords)
+                    foreach (var newKeyword in newKeywords.Select(k => k.Trim()))
                     {
                         var pair = new KeywordPair(topic, newKeyword);
                         var letter = newKeyword.ToUpper()[0];
