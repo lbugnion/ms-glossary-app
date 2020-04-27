@@ -13,6 +13,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Queue;
 using System.Linq;
 using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace WordsOfTheDayApp
 {
@@ -33,7 +34,6 @@ namespace WordsOfTheDayApp
             {
                 log.LogError($"Semaphore found at {SemaphorePath}");
                 return;
-                //return new BadRequestObjectResult("Already running in DEBUG mode");
             }
 
             File.CreateText(SemaphorePath);
@@ -41,33 +41,44 @@ namespace WordsOfTheDayApp
 
             log.LogInformation(eventGridEvent.Data.ToString());
 
-            var account = CloudStorageAccount.Parse(
+            if (eventGridEvent.Data is JObject blobEvent)
+            {
+                var uri = new Uri(blobEvent["url"].Value<string>());
+                var newBlob = new CloudBlockBlob(uri);
+
+                var account = CloudStorageAccount.Parse(
                 Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
 
-            var queueClient = account.CreateCloudQueueClient();
-            var blobClient = account.CreateCloudBlobClient();
+                var queueClient = account.CreateCloudQueueClient();
+                var blobClient = account.CreateCloudBlobClient();
 
-            var queue = queueClient.GetQueueReference(Constants.QueueName);
-            await queue.CreateIfNotExistsAsync();
+                var queue = queueClient.GetQueueReference(Constants.QueueName);
+                await queue.CreateIfNotExistsAsync();
 
-            var container = blobClient.GetContainerReference(Constants.TargetMarkdownContainer);
-            BlobContinuationToken continuationToken = null;
+                var container = blobClient.GetContainerReference(Constants.TargetMarkdownContainer);
+                BlobContinuationToken continuationToken = null;
 
-            do
-            {
-                var response = await container.ListBlobsSegmentedAsync(continuationToken);
-                continuationToken = response.ContinuationToken;
-
-                foreach (var blob in response.Results)
+                do
                 {
-                    var name = blob.Uri.Segments.Last();
+                    var response = await container.ListBlobsSegmentedAsync(continuationToken);
+                    continuationToken = response.ContinuationToken;
 
-                    // Enqueue the blob's name for processing
-                    var message = new CloudQueueMessage(name);
-                    await queue.AddMessageAsync(message);
+                    foreach (var blob in response.Results)
+                    {
+                        var name = blob.Uri.Segments.Last();
+
+                        // Enqueue the blob's name for processing
+                        var message = new CloudQueueMessage(Path.GetFileNameWithoutExtension(name));
+                        await queue.AddMessageAsync(message);
+                    }
                 }
+                while (continuationToken != null);
+
+                await NotificationService.Notify(
+                    "Enqueued", 
+                    $"{newBlob.Name}: Enqueued all markdown files for processing", 
+                    log);
             }
-            while (continuationToken != null);
         }
     }
 }

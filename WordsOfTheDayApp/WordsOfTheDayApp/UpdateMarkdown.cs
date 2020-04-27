@@ -52,7 +52,7 @@ namespace WordsOfTheDayApp
             {
                 var uri = new Uri(blobEvent["url"].Value<string>());
                 var oldBlob = new CloudBlockBlob(uri);
-                var topic = oldBlob.Name;
+                var topic = Path.GetFileNameWithoutExtension(oldBlob.Name);
 
                 var account = CloudStorageAccount.Parse(
                     Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorage));
@@ -138,10 +138,15 @@ namespace WordsOfTheDayApp
 
                 var newContainer = client.GetContainerReference(
                     Constants.TargetMarkdownContainer);
-                var newBlob = newContainer.GetBlockBlobReference(topic);
+                var newBlob = newContainer.GetBlockBlobReference($"{topic}.md");
 
                 await newBlob.DeleteIfExistsAsync();
                 await newBlob.UploadTextAsync(newMarkdown);
+
+                await NotificationService.Notify(
+                    "Uploaded", 
+                    $"{topic}.md: Markdown file updated and uploaded", 
+                    log);
             }
         }
     }
