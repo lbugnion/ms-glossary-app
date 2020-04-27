@@ -18,6 +18,8 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Globalization;
 
 namespace WordsOfTheDayApp
 {
@@ -28,6 +30,7 @@ namespace WordsOfTheDayApp
         private const string KeywordsMarker = "> Keywords: ";
         private const string YouTubeEmbedMarker = "<!--YOUTUBEEMBED -->";
         private const string H1 = "# ";
+        private const string SideBarTemplate = "- [{0}](/topic/{1})";
 
 #if DEBUG
         public const string SemaphorePath = "c:\\temp\\semaphore.txt";
@@ -99,51 +102,89 @@ namespace WordsOfTheDayApp
                 // Process keywords first
                 if (!string.IsNullOrEmpty(keywordsLine))
                 {
-                    var jsonContainer = client.GetContainerReference(
+                    var settingsContainer = client.GetContainerReference(
                         Environment.GetEnvironmentVariable("SettingsFolder"));
 
-                    log.LogInformation($"jsonContainer: {jsonContainer.Uri}");
+                    log.LogInformation($"settingsContainer: {settingsContainer.Uri}");
 
-                    var jsonBlob = jsonContainer.GetBlockBlobReference(Constants.KeywordsBlob);
+                    var keywordsBlob = settingsContainer.GetBlockBlobReference(Constants.KeywordsBlob);
+                    var sideBarMarkdownBlob = settingsContainer.GetBlockBlobReference(Constants.SideBarMarkdownBlob);
 
                     string json = null;
-                    List<KeywordPair> keywordsList;
-
-                    if (await jsonBlob.ExistsAsync())
-                    {
-                        json = await jsonBlob.DownloadTextAsync();
-                        keywordsList = JsonConvert.DeserializeObject<List<KeywordPair>>(json);
-                        var keyWordsForThisTopic = keywordsList.Where(k => k.Topic == topic).ToList();
-
-                        foreach (var k in keyWordsForThisTopic)
-                        {
-                            var existingKeyword = keywordsList
-                                .FirstOrDefault(k2 => k2.Keyword == k.Keyword && k2.Topic == k.Topic);
-
-                            if (existingKeyword != null)
-                            {
-                                keywordsList.Remove(existingKeyword);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        keywordsList = new List<KeywordPair>();
-                    }
+                    Dictionary<char, List<KeywordPair>> keywordsDictionary;
 
                     var newKeywords = keywordsLine.Split(new char[]
                     {
                         ','
                     }, StringSplitOptions.RemoveEmptyEntries);
 
-                    foreach (var newKeyword in newKeywords)
+                    if (await keywordsBlob.ExistsAsync())
                     {
-                        var pair = new KeywordPair(topic, newKeyword.Trim());
-                        keywordsList.Add(pair);
+                        json = await keywordsBlob.DownloadTextAsync();
+                        keywordsDictionary = JsonConvert.DeserializeObject<Dictionary<char, List<KeywordPair>>>(json);
+
+                        foreach (var k in newKeywords)
+                        {
+                            var key = k.ToUpper()[0];
+
+                            if (keywordsDictionary.ContainsKey(key))
+                            {
+                                var list = keywordsDictionary[key];
+
+                                var item = list
+                                    .FirstOrDefault(
+                                        k2 => k2.Keyword.ToLower() == k.ToLower() && k2.Topic.ToLower() == k.ToLower());
+
+                                if (item != null)
+                                {
+                                    list.Remove(item);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        keywordsDictionary = new Dictionary<char, List<KeywordPair>>();
                     }
 
-                    json = JsonConvert.SerializeObject(keywordsList);
-                    await jsonBlob.UploadTextAsync(json);
+                    foreach (var newKeyword in newKeywords)
+                    {
+                        var textInfo = CultureInfo.InvariantCulture.TextInfo;
+                        var formattedKeyword = textInfo.ToTitleCase(newKeyword.Trim());
+                        var pair = new KeywordPair(topic, formattedKeyword);
+
+                        List<KeywordPair> list;
+                        if (keywordsDictionary.ContainsKey(formattedKeyword[0]))
+                        {
+                            list = keywordsDictionary[formattedKeyword[0]];
+                        }
+                        else
+                        {
+                            list = new List<KeywordPair>();
+                            keywordsDictionary.Add(formattedKeyword[0], list);
+                        }
+
+                        list.Add(pair);
+                    }
+
+                    json = JsonConvert.SerializeObject(keywordsDictionary);
+
+                    var md = new StringBuilder();
+                    foreach (var pair in keywordsDictionary.OrderBy(p => p.Key))
+                    {
+                        md.AppendLine($"# {pair.Key}");
+                        md.AppendLine();
+
+                        foreach (var k in pair.Value)
+                        {
+                            md.AppendLine(string.Format(SideBarTemplate, k.Keyword, k.Topic));
+                        }
+
+                        md.AppendLine();
+                    }
+
+                    await sideBarMarkdownBlob.UploadTextAsync(md.ToString());
+                    await keywordsBlob.UploadTextAsync(json);
                     log.LogInformation("Saved the keywords");
                 }
 

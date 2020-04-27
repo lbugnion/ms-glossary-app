@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using WordsOfTheDayApp.Model;
 
@@ -55,7 +56,11 @@ namespace WordsOfTheDayApp
             }
 
             var json = await jsonBlob.DownloadTextAsync();
-            var keywordsList = JsonConvert.DeserializeObject<List<KeywordPair>>(json);
+            var keywordsDictionary = JsonConvert.DeserializeObject<Dictionary<char, List<KeywordPair>>>(json);
+
+            var keywordsList = keywordsDictionary.Values
+                .SelectMany(x => x)
+                .ToList();
 
             var newContainer = client.GetContainerReference(
                 Environment.GetEnvironmentVariable("MarkdownTransformedFolder"));
