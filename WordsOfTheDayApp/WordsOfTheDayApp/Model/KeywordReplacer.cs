@@ -6,7 +6,7 @@ namespace WordsOfTheDayApp.Model
 {
     public class KeywordReplacer
     {
-        public const string KeywordLinkTemplate = "[{0}](https://wordsoftheday.azurewebsites.net/topic/{1})";
+        public const string KeywordLinkTemplate = "[{0}](/topic/{1})";
 
         public string ReplaceInMarkdown(
             string markdown, 
