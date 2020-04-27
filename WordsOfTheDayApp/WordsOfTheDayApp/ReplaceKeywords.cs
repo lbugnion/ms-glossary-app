@@ -17,8 +17,6 @@ namespace WordsOfTheDayApp
         public const string SemaphorePath = "c:\\temp\\{0}.txt";
 #endif
 
-        private const string KeywordLinkTemplate = "[{0}](https://wordsoftheday.azurewebsites.net/topic/{1})";
-
         [FunctionName("ReplaceKeywords")]
         public static async Task Run(
             [QueueTrigger(
@@ -62,44 +60,9 @@ namespace WordsOfTheDayApp
             var newBlob = newContainer.GetBlockBlobReference($"{file}.md");
             var markdown = await newBlob.DownloadTextAsync();
 
-            var builder = new StringBuilder(markdown);
+            var replacer = new KeywordReplacer();
 
-            foreach (var k in keywordsList)
-            {
-                if (k.Topic == file)
-                {
-                    continue;
-                }
-
-                var indexOfKeyword = markdown.IndexOf(k.Keyword, StringComparison.InvariantCultureIgnoreCase);
-                var oldKeyword = markdown.Substring(indexOfKeyword, k.Keyword.Length);
-                var newUrl = string.Format(KeywordLinkTemplate, oldKeyword, k.Topic);
-
-                if (indexOfKeyword > -1)
-                {
-                    var indexOfLink = markdown.IndexOf(
-                        $"[{k.Keyword}](", 
-                        StringComparison.InvariantCultureIgnoreCase);
-
-                    if (indexOfLink > -1)
-                    {
-                        // Link was already created ==> replace the URL
-                        var indexOfUrl = indexOfLink + $"[{k.Keyword}](".Length;
-                        var indexOfEndOfUrl = markdown.IndexOf(")", indexOfUrl);
-                        var oldUrl = markdown.Substring(indexOfUrl, indexOfEndOfUrl - indexOfUrl);
-
-                        if (oldUrl != newUrl)
-                        {
-                            builder.Replace(oldUrl, newUrl, indexOfUrl, indexOfEndOfUrl - indexOfUrl);
-                        }
-                    }
-                    else
-                    {
-                        // Keyword was never encoded
-                        builder.Replace(oldKeyword, newUrl, indexOfKeyword, oldKeyword.Length);
-                    }
-                }
-            }
+            var newMarkdown = replacer.ReplaceInMarkdown(markdown, keywordsList, file);
 
             await NotificationService.Notify("Replaced keywords", $"Replaced all found keywords in {file}.md", log);
         }
