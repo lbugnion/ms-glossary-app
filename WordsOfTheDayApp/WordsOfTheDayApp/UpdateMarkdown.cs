@@ -176,8 +176,12 @@ namespace WordsOfTheDayApp
                         md.AppendLine($"# {pair.Key}");
                         md.AppendLine();
 
+                        log.LogInformation($"Side bar: {pair.Key}");
+
                         foreach (var k in pair.Value)
                         {
+                            log.LogInformation($"Side bar: {k.Keyword} | {k.Topic}");
+
                             if (k.Topic.ToLower().Replace('-', ' ') == k.Keyword.ToLower())
                             {
                                 md.AppendLine(string.Format(SideBarBoldTemplate, k.Keyword, k.Topic));
