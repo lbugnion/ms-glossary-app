@@ -62,7 +62,7 @@ namespace WordsOfTheDayApp
                 await queue.CreateIfNotExistsAsync();
 
                 var container = blobClient.GetContainerReference(Environment.GetEnvironmentVariable("MarkdownFolder"));
-                log.LogInformation($"container: {container}");
+                log.LogInformation($"container: {container.Uri}");
                 BlobContinuationToken continuationToken = null;
 
                 do

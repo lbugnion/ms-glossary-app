@@ -102,7 +102,7 @@ namespace WordsOfTheDayApp
                     var jsonContainer = client.GetContainerReference(
                         Environment.GetEnvironmentVariable("SettingsFolder"));
 
-                    log.LogInformation($"jsonContainer: {jsonContainer}");
+                    log.LogInformation($"jsonContainer: {jsonContainer.Uri}");
 
                     var jsonBlob = jsonContainer.GetBlockBlobReference(Constants.KeywordsBlob);
 
@@ -149,7 +149,7 @@ namespace WordsOfTheDayApp
 
                 var newContainer = client.GetContainerReference(
                     Environment.GetEnvironmentVariable("MarkdownTransformedFolder"));
-                log.LogInformation($"newContainer: {newContainer}");
+                log.LogInformation($"newContainer: {newContainer.Uri}");
 
                 var newBlob = newContainer.GetBlockBlobReference($"{topic}.md");
 
