@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Html;
 using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -59,6 +60,35 @@ namespace AzureWordsOfTheDay.Model
             }
 
             return null;
+        }
+
+        public HtmlString LoadLocalMarkdown(string filePath, ILogger logger = null)
+        {
+            logger?.LogInformation($"In MarkdownLoader.LoadLocalMarkdown: {filePath}");
+
+            var fileContent = "Nothing found";
+
+            try
+            {
+                using (var stream = File.OpenRead(filePath))
+                {
+                    using (var reader = new StreamReader(stream))
+                    {
+                        fileContent = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError(ex.Message);
+                fileContent = $"Error: {ex.Message}";
+                return new HtmlString(fileContent);
+            }
+
+            var md = new Markdown();
+            var html = md.Transform(fileContent);
+
+            return new HtmlString(html);
         }
 
         public async Task<HtmlString> LoadTopicsBar(ILogger logger = null)

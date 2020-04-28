@@ -1,7 +1,9 @@
 ﻿using AzureWordsOfTheDay.Model;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace AzureWordsOfTheDay.Pages
@@ -10,6 +12,7 @@ namespace AzureWordsOfTheDay.Pages
     {
         private MarkdownHelper _markdown;
         private readonly ILogger _logger;
+        private IHostingEnvironment _env;
 
         public HtmlString TopicBarHtml
         {
@@ -17,10 +20,24 @@ namespace AzureWordsOfTheDay.Pages
             private set;
         }
 
+        public HtmlString SelectedTopicHtml
+        {
+            get;
+            private set;
+        }
+
+        public HtmlString IndexContent
+        {
+            get;
+            private set;
+        }
+
         public IndexModel(
             ILogger<IndexModel> logger,
-            MarkdownHelper markdown)
+            MarkdownHelper markdown,
+            IHostingEnvironment env)
         {
+            _env = env;
             _logger = logger;
             _markdown = markdown;
         }
@@ -29,7 +46,13 @@ namespace AzureWordsOfTheDay.Pages
         {
             _logger.LogInformation($"OnGet in Index");
 
+            var docName = "index.md";
+            var root = new DirectoryInfo(Path.Combine(_env.WebRootPath));
+            var folder = Path.Combine(root.Parent.FullName, "Markdown");
+            var file = Path.Combine(folder, docName);
+
             TopicBarHtml = await _markdown.LoadTopicsBar(_logger);
+            IndexContent = _markdown.LoadLocalMarkdown(file);
 
             _logger.LogInformation("Done rendering in Index");
         }
