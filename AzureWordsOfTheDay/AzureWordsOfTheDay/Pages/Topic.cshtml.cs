@@ -2,13 +2,15 @@
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace AzureWordsOfTheDay.Pages
 {
     public class TopicModel : PageModel
     {
-        private MarkdownHelper _markdown;
+        private readonly MarkdownHelper _markdown;
+        private readonly ILogger _logger;
 
         public string Topic
         {
@@ -29,22 +31,30 @@ namespace AzureWordsOfTheDay.Pages
         }
 
         public TopicModel(
+            ILogger<TopicModel> logger,
             MarkdownHelper markdown)
         {
+            _logger = logger;
             _markdown = markdown;
         }
 
         public async Task<IActionResult> OnGet(string topic)
         {
+            _logger.LogInformation($"OnGet in Topic: {topic}");
+
             Topic = topic.ToLower();
 
             if (string.IsNullOrEmpty(Topic))
             {
+                _logger.LogInformation("No topic found, redirecting to index");
                 return Redirect("/");
             }
 
             TopicHtml = await _markdown.LoadMarkdown(Topic);
             TopicBarHtml = await _markdown.LoadTopicsBar();
+
+            _logger.LogInformation("Done rendering in Topic");
+
             return null;
         }
     }
