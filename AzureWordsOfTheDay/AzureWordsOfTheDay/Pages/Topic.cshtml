@@ -2,12 +2,12 @@
 @model AzureWordsOfTheDay.Pages.TopicModel
 @{
     ViewData["Title"] = Model.Topic;
+    Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 
 @section Topics {
 
     @Model.TopicBarHtml
 }
-
 
 @Model.TopicHtml

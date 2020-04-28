@@ -18,7 +18,7 @@ namespace AzureWordsOfTheDay.Pages
         }
 
         public IndexModel(
-            ILogger<TopicModel> logger,
+            ILogger<IndexModel> logger,
             MarkdownHelper markdown)
         {
             _logger = logger;
