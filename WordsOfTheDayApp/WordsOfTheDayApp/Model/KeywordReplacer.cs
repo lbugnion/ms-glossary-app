@@ -7,7 +7,7 @@ namespace WordsOfTheDayApp.Model
 {
     public class KeywordReplacer
     {
-        public const string KeywordLinkTemplate = "[{0}](/topic/{1})";
+        public const string KeywordLinkTemplate = "[{0}](/topic/{1}/{2})";
 
         public string ReplaceInMarkdown(
             string markdown, 
@@ -17,6 +17,8 @@ namespace WordsOfTheDayApp.Model
         {
             log?.LogInformation("In ReplaceInMarkdown");
             var builder = new StringBuilder(markdown);
+
+            var indexOfTranscript = markdown.IndexOf(Environment.NewLine + "## Transcript"+ Environment.NewLine);
 
             foreach (var k in keywordsList)
             {
@@ -28,42 +30,125 @@ namespace WordsOfTheDayApp.Model
                     continue;
                 }
 
-                var indexOfKeyword = markdown.IndexOf(k.Keyword, StringComparison.InvariantCultureIgnoreCase);
+                var previousIndexOfKeyword = -1;
+                var indexOfKeyword = -1;
+                var stop = false;
 
-                if (indexOfKeyword > -1)
+                do
                 {
-                    var oldKeyword = markdown.Substring(indexOfKeyword, k.Keyword.Length);
-                    log?.LogInformation($"oldKeyword: {oldKeyword}");
-                    var newUrl = string.Format(KeywordLinkTemplate, oldKeyword, k.Topic);
-                    log?.LogInformation($"newUrl: {newUrl}");
-
-                    var indexOfLink = markdown.IndexOf(
-                        $"[{k.Keyword}](",
+                    indexOfKeyword = markdown.IndexOf(
+                        k.Keyword,
+                        previousIndexOfKeyword + 1,
                         StringComparison.InvariantCultureIgnoreCase);
 
-                    if (indexOfLink > -1)
+                    if (indexOfKeyword > -1
+                        && indexOfKeyword > indexOfTranscript)
                     {
-                        // Link was already created ==> replace the URL
-                        var indexOfUrl = indexOfLink + $"[{k.Keyword}](".Length;
-                        var indexOfEndOfUrl = markdown.IndexOf(")", indexOfUrl) + 1;
-                        var oldUrl = markdown.Substring(indexOfLink, indexOfEndOfUrl - indexOfLink);
-                        log?.LogInformation($"oldUrl: {oldUrl}");
+                        // Preserve casing
+                        var oldKeyword = markdown.Substring(indexOfKeyword, k.Keyword.Length);
+                        log?.LogInformation($"oldKeyword: {oldKeyword}");
 
-                        if (oldUrl != newUrl)
+                        var newUrl = string.Format(KeywordLinkTemplate, oldKeyword, k.Topic, k.Subtopic);
+                        log?.LogInformation($"newUrl: {newUrl}");
+
+                        var foundOpeningSquare = false;
+                        var foundOpening = false;
+                        var indexOfOpening = -1;
+                        var foundClosingSquare = false;
+                        var indexOfClosingSquare = -1;
+                        var foundClosing = false;
+                        var doNotEncode = false;
+
+                        for (var index = indexOfKeyword - 1; index >= 0; index--)
                         {
-                            builder.Replace(oldUrl, newUrl, indexOfLink, indexOfEndOfUrl - indexOfLink);
-                            log?.LogInformation("Replaced!");
-                        }
-                    }
-                    else
-                    {
-                        // Keyword was never encoded
-                        builder.Replace(oldKeyword, newUrl, indexOfKeyword, oldKeyword.Length);
-                        log?.LogInformation("Created!");
-                    }
-                }
+                            if (doNotEncode)
+                            {
+                                break;
+                            }
 
-                markdown = builder.ToString();
+                            if (foundOpening
+                                && markdown[index] != ']')
+                            {
+                                break;
+                            }
+
+                            if (markdown[index] == '[')
+                            {
+                                foundOpeningSquare = true;
+
+                                for (var index2 = indexOfKeyword + oldKeyword.Length;
+                                     index2 < markdown.Length;
+                                     index2++)
+                                {
+                                    if (markdown[index2] == ']')
+                                    {
+                                        foundClosingSquare = true;
+                                        indexOfClosingSquare = index2;
+                                        continue;
+                                    }
+
+                                    if (markdown[index2] == '('
+                                        && index2 == indexOfClosingSquare + 1)
+                                    {
+                                        doNotEncode = true;
+                                        break;
+                                    }
+                                }
+
+                                continue;
+                            }
+
+                            if (markdown[index] == ']')
+                            {
+                                foundClosingSquare = true;
+
+                                if (foundOpening
+                                    && indexOfOpening == index + 1)
+                                {
+                                    doNotEncode = true;
+                                    break;
+                                }
+
+                                continue;
+                            }
+
+                            if (markdown[index] == '(')
+                            {
+                                foundOpening = true;
+                                indexOfOpening = index;
+
+                                if (foundClosing
+                                    && index > 0
+                                    && markdown[index - 1] == ']')
+                                {
+                                    break;
+                                }
+
+                                continue;
+                            }
+
+                            if (markdown[index] == ')')
+                            {
+                                foundClosing = true;
+                                continue;
+                            }
+                        }
+
+                        if (doNotEncode)
+                        {
+                            previousIndexOfKeyword = indexOfKeyword;
+                            continue;
+                        }
+
+                        builder.Replace(oldKeyword, newUrl, indexOfKeyword, oldKeyword.Length);
+                        stop = true;
+                        break;
+                    }
+
+                    previousIndexOfKeyword = indexOfKeyword;
+                    markdown = builder.ToString();
+                }
+                while (indexOfKeyword > -1 && !stop);
             }
 
             log?.LogInformation("Done replacing keywords");
