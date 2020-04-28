@@ -50,8 +50,8 @@ namespace AzureWordsOfTheDay.Pages
                 return Redirect("/");
             }
 
-            TopicHtml = await _markdown.LoadMarkdown(Topic);
-            TopicBarHtml = await _markdown.LoadTopicsBar();
+            TopicHtml = await _markdown.LoadMarkdown(Topic, _logger);
+            TopicBarHtml = await _markdown.LoadTopicsBar(_logger);
 
             _logger.LogInformation("Done rendering in Topic");
 
