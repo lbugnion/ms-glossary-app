@@ -54,6 +54,8 @@ namespace AzureWordsOfTheDay.Pages
             TopicBarHtml = await _markdown.LoadTopicsBar(_logger);
             IndexContent = _markdown.LoadLocalMarkdown(file);
 
+            SelectedTopicHtml = await _markdown.LoadRandomTopic();
+
             _logger.LogInformation("Done rendering in Index");
         }
     }

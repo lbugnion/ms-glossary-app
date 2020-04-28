@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace AzureWordsOfTheDay.Pages
@@ -13,6 +14,12 @@ namespace AzureWordsOfTheDay.Pages
         private readonly ILogger _logger;
 
         public string Topic
+        {
+            get;
+            private set;
+        }
+
+        public string Subtopic
         {
             get;
             private set;
@@ -38,11 +45,21 @@ namespace AzureWordsOfTheDay.Pages
             _markdown = markdown;
         }
 
-        public async Task<IActionResult> OnGet(string topic)
+        public async Task<IActionResult> OnGet(string topic, string subtopic)
         {
-            _logger.LogInformation($"OnGet in Topic: {topic}");
+            _logger.LogInformation($"OnGet in Topic: {topic} / {subtopic}");
 
             Topic = topic.ToLower();
+
+            if (subtopic != topic)
+            {
+                var textInfo = CultureInfo.InvariantCulture.TextInfo;
+                Subtopic = textInfo.ToTitleCase(subtopic.Replace('-', ' '));
+            }
+            else
+            {
+                Subtopic = string.Empty;
+            }
 
             if (string.IsNullOrEmpty(Topic))
             {

@@ -1,7 +1,9 @@
 ﻿using MarkdownSharp;
 using Microsoft.AspNetCore.Html;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -12,6 +14,7 @@ namespace AzureWordsOfTheDay.Model
     {
         private const string TopicUrlMask = "https://wordsoftheday.blob.core.windows.net/{0}/{1}.md";
         private const string TopicsBarUrl = "https://wordsoftheday.blob.core.windows.net/{0}/keywords.md";
+        private const string MainTopicListUrl = "https://wordsoftheday.blob.core.windows.net/{0}/topics.json";
         private HttpClient _client;
 
         private HttpClient Client
@@ -124,6 +127,26 @@ namespace AzureWordsOfTheDay.Model
             }
 
             return null;
+        }
+
+        public async Task<HtmlString> LoadRandomTopic(ILogger logger = null)
+        {
+            logger?.LogInformation("In MarkdownLoader.LoadRandomTopic");
+
+            var url = string.Format(MainTopicListUrl, Startup.Configuration["SettingsFolder"]);
+            var json = await Client.GetStringAsync(url);
+
+            logger?.LogInformation("JSON loaded");
+
+            var list = JsonConvert.DeserializeObject<List<string>>(json);
+
+            var random = new Random();
+            var index = random.Next(0, list.Count);
+            var topic = list[index];
+
+            logger?.LogInformation($"Random topic: {topic}");
+
+            return await LoadMarkdown(topic, logger);
         }
     }
 }
