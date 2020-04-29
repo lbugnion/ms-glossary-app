@@ -1,13 +1,16 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace WordsOfTheDayApp.Model
 {
     public class KeywordReplacer
     {
-        public const string KeywordLinkTemplate = "[{0}](/topic/{1})";
+        public const string KeywordLinkTemplate = "[{0}]({1})";
+        public const string LinkTemplate = "/topic/{0}/{1}";
+        public const string SingleWordCharacter = " [](){}*!&-_+=|/':;.,<>?\"";
 
         public string ReplaceInMarkdown(
             string markdown, 
@@ -17,6 +20,8 @@ namespace WordsOfTheDayApp.Model
         {
             log?.LogInformation("In ReplaceInMarkdown");
             var builder = new StringBuilder(markdown);
+
+            var indexOfTranscript = markdown.IndexOf(Environment.NewLine + "## Transcript"+ Environment.NewLine);
 
             foreach (var k in keywordsList)
             {
@@ -28,42 +33,165 @@ namespace WordsOfTheDayApp.Model
                     continue;
                 }
 
-                var indexOfKeyword = markdown.IndexOf(k.Keyword, StringComparison.InvariantCultureIgnoreCase);
+                var previousIndexOfKeyword = -1;
+                var indexOfKeyword = -1;
+                var stop = false;
 
-                if (indexOfKeyword > -1)
+                do
                 {
-                    var oldKeyword = markdown.Substring(indexOfKeyword, k.Keyword.Length);
-                    log?.LogInformation($"oldKeyword: {oldKeyword}");
-                    var newUrl = string.Format(KeywordLinkTemplate, oldKeyword, k.Topic);
-                    log?.LogInformation($"newUrl: {newUrl}");
-
-                    var indexOfLink = markdown.IndexOf(
-                        $"[{k.Keyword}](",
+                    indexOfKeyword = markdown.IndexOf(
+                        k.Keyword,
+                        previousIndexOfKeyword + 1,
                         StringComparison.InvariantCultureIgnoreCase);
 
-                    if (indexOfLink > -1)
+                    if (indexOfKeyword > 0
+                        && !SingleWordCharacter.Contains(markdown[indexOfKeyword - 1]))
                     {
-                        // Link was already created ==> replace the URL
-                        var indexOfUrl = indexOfLink + $"[{k.Keyword}](".Length;
-                        var indexOfEndOfUrl = markdown.IndexOf(")", indexOfUrl) + 1;
-                        var oldUrl = markdown.Substring(indexOfLink, indexOfEndOfUrl - indexOfLink);
-                        log?.LogInformation($"oldUrl: {oldUrl}");
+                        previousIndexOfKeyword = indexOfKeyword;
+                        continue;
+                    }
 
-                        if (oldUrl != newUrl)
+                    if (indexOfKeyword + k.Keyword.Length < markdown.Length
+                        && !SingleWordCharacter.Contains(markdown[indexOfKeyword + k.Keyword.Length]))
+                    {
+                        previousIndexOfKeyword = indexOfKeyword;
+                        continue;
+                    }
+
+                    if (indexOfKeyword > -1
+                        && indexOfKeyword > indexOfTranscript)
+                    {
+                        // Preserve casing
+                        var oldKeyword = markdown.Substring(indexOfKeyword, k.Keyword.Length);
+                        log?.LogInformation($"oldKeyword: {oldKeyword}");
+
+                        var newUrlAlone = string.Format(LinkTemplate, k.Topic, k.Subtopic);
+                        log?.LogInformation($"newUrlAlone: {newUrlAlone}");
+
+                        var newUrl = string.Format(KeywordLinkTemplate, oldKeyword, newUrlAlone);
+                        log?.LogInformation($"newUrl: {newUrl}");
+
+                        var foundOpening = false;
+                        var indexOfOpening = -1;
+                        var indexOfClosingSquare = -1;
+                        var foundClosing = false;
+                        var foundLink = false;
+                        var doNotEncode = false;
+
+                        for (var index = indexOfKeyword - 1; index > indexOfTranscript; index--)
                         {
-                            builder.Replace(oldUrl, newUrl, indexOfLink, indexOfEndOfUrl - indexOfLink);
-                            log?.LogInformation("Replaced!");
-                        }
-                    }
-                    else
-                    {
-                        // Keyword was never encoded
-                        builder.Replace(oldKeyword, newUrl, indexOfKeyword, oldKeyword.Length);
-                        log?.LogInformation("Created!");
-                    }
-                }
+                            if (doNotEncode
+                                || stop)
+                            {
+                                break;
+                            }
 
-                markdown = builder.ToString();
+                            if (foundOpening
+                                && markdown[index] != ']')
+                            {
+                                break;
+                            }
+
+                            if (markdown[index] == '[')
+                            {
+                                for (var index2 = indexOfKeyword + oldKeyword.Length;
+                                     index2 < markdown.Length;
+                                     index2++)
+                                {
+                                    if (markdown[index2] == ']')
+                                    {
+                                        indexOfClosingSquare = index2;
+                                        continue;
+                                    }
+
+                                    if (markdown[index2] == '('
+                                        && index2 == indexOfClosingSquare + 1)
+                                    {
+                                        // Check if we need to replace the link
+                                        indexOfOpening = index2;
+                                        foundLink = true;
+                                        continue;
+                                    }
+
+                                    if (foundLink)
+                                    {
+                                        if (markdown[index2] == '/')
+                                        {
+                                            // Replace the link
+                                            var indexOfClosing = markdown.IndexOf(')', index2);
+                                            builder.Replace(
+                                                markdown.Substring(indexOfOpening + 1, indexOfClosing - indexOfOpening - 1),
+                                                newUrlAlone,
+                                                indexOfOpening + 1,
+                                                indexOfClosing - indexOfOpening - 1);
+                                            stop = true;
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            doNotEncode = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                continue;
+                            }
+
+                            if (markdown[index] == ']')
+                            {
+                                if (foundOpening
+                                    && indexOfOpening == index + 1)
+                                {
+                                    doNotEncode = true;
+                                    break;
+                                }
+
+                                continue;
+                            }
+
+                            if (markdown[index] == '(')
+                            {
+                                foundOpening = true;
+                                indexOfOpening = index;
+
+                                if (foundClosing
+                                    && index > 0
+                                    && markdown[index - 1] == ']')
+                                {
+                                    break;
+                                }
+
+                                continue;
+                            }
+
+                            if (markdown[index] == ')')
+                            {
+                                foundClosing = true;
+                                continue;
+                            }
+                        }
+
+                        if (doNotEncode)
+                        {
+                            previousIndexOfKeyword = indexOfKeyword;
+                            doNotEncode = false;
+                            continue;
+                        }
+
+                        if (!stop)
+                        {
+                            builder.Replace(oldKeyword, newUrl, indexOfKeyword, oldKeyword.Length);
+                            stop = true;
+                        }
+
+                        break;
+                    }
+
+                    previousIndexOfKeyword = indexOfKeyword;
+                    markdown = builder.ToString();
+                }
+                while (indexOfKeyword > -1 && !stop);
             }
 
             log?.LogInformation("Done replacing keywords");

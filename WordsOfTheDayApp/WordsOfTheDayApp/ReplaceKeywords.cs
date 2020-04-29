@@ -73,6 +73,11 @@ namespace WordsOfTheDayApp
 
             var newMarkdown = replacer.ReplaceInMarkdown(markdown, keywordsList, file, log);
 
+            if (newMarkdown != markdown)
+            {
+                await newBlob.UploadTextAsync(newMarkdown);
+            }
+
             log.LogInformation("Sending notification");
 
             await NotificationService.Notify(
