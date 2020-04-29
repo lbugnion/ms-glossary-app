@@ -1,6 +1,4 @@
-﻿# Welcome to Microsoft Azure WORDS OF THE DAY!!
-
-This is the show that teaches you Azure Vocabulary.
+﻿This is the show that teaches you Azure Vocabulary.
 
 On this site, you will find a compilation of all the past episodes, with additional information:
 
@@ -11,4 +9,4 @@ On this site, you will find a compilation of all the past episodes, with additio
 
 We hope that you find this content helpful!! 
 
-For more information, suggestions, bug reports and more: [Talk to me on Twitter!](https://twitter.com/LBugnion)
+For more information, suggestions, bug reports and more: [Talk to us on Twitter!](https://twitter.com/AzWordsOfTheDay)

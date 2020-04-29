@@ -18,16 +18,19 @@
     line-height: 60px; /* Vertically center the text there */
 }
 
+.center {
+    margin: auto;
+    width: 200px;
+}
+
 #azure-logo {
     width: 150px;
-    margin-left: 20px;
-    margin-top: 20px;
+    margin: 20px 0 0 25px;
 }
 
 #topics-bar #title {
     font-family: 'Times New Roman', Times, serif;
     text-align: center;
-    margin-right: 20px;
     color: #0078D7;
 }
 
@@ -49,8 +52,7 @@
 
 #topics-bar {
     height: 100%;
-    width: 200px;
-    padding: 0 0 0 15px;
+    width: 220px;
     position: fixed;
     z-index: 1;
     top: 0;
@@ -65,11 +67,13 @@
     font-size: 30px;
     margin-top: 20px;
     margin-bottom: 20px;
+    margin-left: 15px;
 }
 
 #topics-bar ul {
     border-top: 2px groove lightgray;
     margin-right: 15px;
+    margin-left: 15px;
     margin-top: -18px;
 }
 
@@ -89,6 +93,11 @@
 
 #intro h1 {
     margin-top: 10px;
+    color: #0078D7;
+}
+
+#intro h1 #second-line{
+    margin-top: -10px;
 }
 
 #main {
@@ -109,6 +118,24 @@
     font-family: Segoe UI Light, Arial, Helvetica, sans-serif;
     font-size: 50px;
     margin-bottom: 20px;
+}
+
+#main h1 a {
+    color: #0078D7;
+    text-decoration: none;
+}
+
+#main h1 a:hover {
+    text-decoration: underline;
+}
+
+#main a {
+    color: #0066B5;
+    text-decoration: none;
+}
+
+#main a:hover {
+    text-decoration: underline;
 }
 
 #main h2 {
