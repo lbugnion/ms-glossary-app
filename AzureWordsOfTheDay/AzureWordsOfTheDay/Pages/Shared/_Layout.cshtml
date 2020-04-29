@@ -14,13 +14,15 @@
 
     <div id="topics-bar">
 
-        <a href="/">
-            <img src="~/img/Azure_216_blue.png"
-                 id="azure-logo" />
-        </a>
+        <div class="center">
+            <a href="/">
+                <img src="~/img/Azure_216_blue.png"
+                     id="azure-logo" />
+            </a>
 
-        <div id="title">
-            <span id="title1">Microsoft Azure</span><br /><span id="title2">Words of the Day</span>
+            <div id="title">
+                <span id="title1">Microsoft Azure</span><br /><span id="title2">Words of the Day</span>
+            </div>
         </div>
 
         @RenderSection("topics", true)
@@ -30,9 +32,9 @@
         @RenderBody()
 
         <footer class="footer">
-            &copy; 2020 - Azure Words Of The Day -
+            &copy; @DateTime.Now.Year - Azure Words Of The Day -
             <a asp-area="" asp-page="/Privacy">Privacy</a> -
-            <a href="https://twitter.com/LBugnion">Contact me</a>
+            <a href="https://twitter.com/AzWordsOfTheDay">Contact us</a>
         </footer>
     </div>
 
