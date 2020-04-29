@@ -26,6 +26,7 @@ namespace WordsOfTheDayApp.Test
             var list = MakeList1();
 
             var markdown = "This is a piece of text with the word app service in it once";
+            var expected = "This is a piece of text with the word [app service](/topic/app-service/app-service) in it once";
 
             var replacer = new KeywordReplacer();
 
@@ -33,11 +34,7 @@ namespace WordsOfTheDayApp.Test
                 markdown,
                 list);
 
-            var expectedResult = markdown.Replace(
-                "app service",
-                string.Format(KeywordReplacer.KeywordLinkTemplate, "app service", "app-service", "app-service"));
-
-            Assert.AreEqual(expectedResult, result);
+            Assert.AreEqual(expected, result);
         }
 
         [TestMethod]
@@ -46,6 +43,7 @@ namespace WordsOfTheDayApp.Test
             var list = MakeList1();
 
             var markdown = "This is a piece of text with the word web server in it once";
+            var expected = "This is a piece of text with the word [web server](/topic/app-service/web-server) in it once";
 
             var replacer = new KeywordReplacer();
 
@@ -53,11 +51,7 @@ namespace WordsOfTheDayApp.Test
                 markdown,
                 list);
 
-            var expectedResult = markdown.Replace(
-                "web server",
-                string.Format(KeywordReplacer.KeywordLinkTemplate, "web server", "app-service", "web-server"));
-
-            Assert.AreEqual(expectedResult, result);
+            Assert.AreEqual(expected, result);
         }
 
         [TestMethod]
@@ -66,6 +60,7 @@ namespace WordsOfTheDayApp.Test
             var list = MakeList1();
 
             var markdown = "This is a piece of text with the word App Service in it once";
+            var expected = "This is a piece of text with the word [App Service](/topic/app-service/app-service) in it once";
 
             var replacer = new KeywordReplacer();
 
@@ -73,11 +68,7 @@ namespace WordsOfTheDayApp.Test
                 markdown,
                 list);
 
-            var expectedResult = markdown.Replace(
-                "App Service",
-                string.Format(KeywordReplacer.KeywordLinkTemplate, "App Service", "app-service", "app-service"));
-
-            Assert.AreEqual(expectedResult, result);
+            Assert.AreEqual(expected, result);
         }
 
         [TestMethod]
@@ -86,6 +77,7 @@ namespace WordsOfTheDayApp.Test
             var list = MakeList1();
 
             var markdown = "This is a piece of text with the word App Service in it twice because of app service.";
+            var expected = "This is a piece of text with the word [App Service](/topic/app-service/app-service) in it twice because of app service.";
 
             var replacer = new KeywordReplacer();
 
@@ -93,11 +85,7 @@ namespace WordsOfTheDayApp.Test
                 markdown,
                 list);
 
-            var expectedResult = markdown.Substring(0, markdown.IndexOf("App Service"))
-                + string.Format(KeywordReplacer.KeywordLinkTemplate, "App Service", "app-service", "app-service")
-                + markdown.Substring(markdown.IndexOf("App Service") + "App Service".Length);
-
-            Assert.AreEqual(expectedResult, result);
+            Assert.AreEqual(expected, result);
         }
 
         [TestMethod]
@@ -105,7 +93,7 @@ namespace WordsOfTheDayApp.Test
         {
             var list = MakeList1();
 
-            var markdown = "This is a piece of text with the word [App Service](/topic/app-service) in it once.";
+            var markdown = "This is a piece of text with the word [App Service](/topic/app-service/app-service) in it once.";
 
             var replacer = new KeywordReplacer();
 
@@ -124,7 +112,7 @@ namespace WordsOfTheDayApp.Test
             var list = MakeList1();
 
             var markdown = "This is a piece of text with the word [App Service](https://wordsoftheday.azurewebsites.net/topic/app-serv) in it once.";
-            var expectedMarkdown = "This is a piece of text with the word [App Service](https://wordsoftheday.azurewebsites.net/topic/app-service) in it once.";
+            var expectedMarkdown = "This is a piece of text with the word [App Service](https://wordsoftheday.azurewebsites.net/topic/app-serv) in it once.";
 
             var replacer = new KeywordReplacer();
 
@@ -141,6 +129,7 @@ namespace WordsOfTheDayApp.Test
             var list = MakeList1();
 
             var markdown = "This is a piece of text with the word app service in it once and also the word asp.net to check it.";
+            var expected = "This is a piece of text with the word [app service](/topic/app-service/app-service) in it once and also the word [asp.net](/topic/app-service/asp.net) to check it.";
 
             var replacer = new KeywordReplacer();
 
@@ -148,15 +137,7 @@ namespace WordsOfTheDayApp.Test
                 markdown,
                 list);
 
-            var expectedResult = markdown
-                .Replace(
-                    "app service",
-                    string.Format(KeywordReplacer.KeywordLinkTemplate, "app service", "app-service", "app-service"))
-                .Replace(
-                    "asp.net",
-                    string.Format(KeywordReplacer.KeywordLinkTemplate, "asp.net", "app-service", "asp.net"));
-
-            Assert.AreEqual(expectedResult, result);
+            Assert.AreEqual(expected, result);
         }
 
         [TestMethod]
@@ -363,6 +344,168 @@ namespace WordsOfTheDayApp.Test
         {
             var markdown = "Hello [a link](http://xxxx) and )my AAD is here)";
             var expected = "Hello [a link](http://xxxx) and )my [AAD](/topic/aad/aad) is here)";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase17()
+        {
+            var markdown = "Hello my [AAD](/topic/aad2/aad2) is here)";
+            var expected = "Hello my [AAD](/topic/aad/aad) is here)";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase18()
+        {
+            var markdown = "Hello my [AAD](http://xxxx) is here)";
+            var expected = "Hello my [AAD](http://xxxx) is here)";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase18A()
+        {
+            var markdown = "Hello my [AAD](http://xxxx) is here and another AAD here";
+            var expected = "Hello my [AAD](http://xxxx) is here and another [AAD](/topic/aad/aad) here";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase19()
+        {
+            var markdown = "Hello [a link](http://xxxx) and my [AAD](/topic/aad2/aad2) is here)";
+            var expected = "Hello [a link](http://xxxx) and my [AAD](/topic/aad/aad) is here)";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase20()
+        {
+            var markdown = "Hello my [something else AAD](http://xxxx)";
+            var expected = "Hello my [something else AAD](http://xxxx)";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase20A()
+        {
+            var markdown = "Hello my [something else AAD](/topic/aad/aad2)";
+            var expected = "Hello my [something else AAD](/topic/aad/aad)";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase21()
+        {
+            var markdown = "Hello my [something AAD else](http://xxxx) is here)";
+            var expected = "Hello my [something AAD else](http://xxxx) is here)";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase21A()
+        {
+            var markdown = "Hello my [something AAD else](/topic/aad/aad2) is here)";
+            var expected = "Hello my [something AAD else](/topic/aad/aad) is here)";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase22()
+        {
+            var markdown = "[This is MAADAM](http://test.com/aad/hello)";
+            var expected = "[This is MAADAM](http://test.com/aad/hello)";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase23()
+        {
+            var markdown = "[This is MAADAM](http://test.com/aad/hello) and this is also MAADAM to be ignored";
+            var expected = "[This is MAADAM](http://test.com/aad/hello) and this is also MAADAM to be ignored";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase24()
+        {
+            var markdown = "This is MAADAM and this is also AAD to be encoded";
+            var expected = "This is MAADAM and this is also [AAD](/topic/aad/aad) to be encoded";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase25()
+        {
+            var markdown = "[This is MAADAM](http://test.com/aad/hello) and this is also MAADAM to be ignored and this is also AAD to be encoded";
+            var expected = "[This is MAADAM](http://test.com/aad/hello) and this is also MAADAM to be ignored and this is also [AAD](/topic/aad/aad) to be encoded";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase26()
+        {
+            var markdown = "This is MAADAM and nothing else";
+            var expected = "This is MAADAM and nothing else";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase26A()
+        {
+            var markdown = "This is AADAM and nothing else";
+            var expected = "This is AADAM and nothing else";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase26B()
+        {
+            var markdown = "This is MAAD and nothing else";
+            var expected = "This is MAAD and nothing else";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase26C()
+        {
+            var markdown = "AAD and nothing else";
+            var expected = "[AAD](/topic/aad/aad) and nothing else";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase26D()
+        {
+            var markdown = "Nothing else but AAD";
+            var expected = "Nothing else but [AAD](/topic/aad/aad)";
+            var result = DoTestCase(markdown);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestCase27()
+        {
+            var markdown = "Hello my [AAD](/topic/aad2/aad2) is here and another AAD to be ignored";
+            var expected = "Hello my [AAD](/topic/aad/aad) is here and another AAD to be ignored";
             var result = DoTestCase(markdown);
             Assert.AreEqual(expected, result);
         }

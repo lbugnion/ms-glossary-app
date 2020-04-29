@@ -1,13 +1,16 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace WordsOfTheDayApp.Model
 {
     public class KeywordReplacer
     {
-        public const string KeywordLinkTemplate = "[{0}](/topic/{1}/{2})";
+        public const string KeywordLinkTemplate = "[{0}]({1})";
+        public const string LinkTemplate = "/topic/{0}/{1}";
+        public const string SingleWordCharacter = " [](){}*!&-_+=|/':;.,<>?\"";
 
         public string ReplaceInMarkdown(
             string markdown, 
@@ -41,6 +44,20 @@ namespace WordsOfTheDayApp.Model
                         previousIndexOfKeyword + 1,
                         StringComparison.InvariantCultureIgnoreCase);
 
+                    if (indexOfKeyword > 0
+                        && !SingleWordCharacter.Contains(markdown[indexOfKeyword - 1]))
+                    {
+                        previousIndexOfKeyword = indexOfKeyword;
+                        continue;
+                    }
+
+                    if (indexOfKeyword + k.Keyword.Length < markdown.Length
+                        && !SingleWordCharacter.Contains(markdown[indexOfKeyword + k.Keyword.Length]))
+                    {
+                        previousIndexOfKeyword = indexOfKeyword;
+                        continue;
+                    }
+
                     if (indexOfKeyword > -1
                         && indexOfKeyword > indexOfTranscript)
                     {
@@ -48,20 +65,23 @@ namespace WordsOfTheDayApp.Model
                         var oldKeyword = markdown.Substring(indexOfKeyword, k.Keyword.Length);
                         log?.LogInformation($"oldKeyword: {oldKeyword}");
 
-                        var newUrl = string.Format(KeywordLinkTemplate, oldKeyword, k.Topic, k.Subtopic);
+                        var newUrlAlone = string.Format(LinkTemplate, k.Topic, k.Subtopic);
+                        log?.LogInformation($"newUrlAlone: {newUrlAlone}");
+
+                        var newUrl = string.Format(KeywordLinkTemplate, oldKeyword, newUrlAlone);
                         log?.LogInformation($"newUrl: {newUrl}");
 
-                        var foundOpeningSquare = false;
                         var foundOpening = false;
                         var indexOfOpening = -1;
-                        var foundClosingSquare = false;
                         var indexOfClosingSquare = -1;
                         var foundClosing = false;
+                        var foundLink = false;
                         var doNotEncode = false;
 
                         for (var index = indexOfKeyword - 1; index >= 0; index--)
                         {
-                            if (doNotEncode)
+                            if (doNotEncode
+                                || stop)
                             {
                                 break;
                             }
@@ -74,15 +94,12 @@ namespace WordsOfTheDayApp.Model
 
                             if (markdown[index] == '[')
                             {
-                                foundOpeningSquare = true;
-
                                 for (var index2 = indexOfKeyword + oldKeyword.Length;
                                      index2 < markdown.Length;
                                      index2++)
                                 {
                                     if (markdown[index2] == ']')
                                     {
-                                        foundClosingSquare = true;
                                         indexOfClosingSquare = index2;
                                         continue;
                                     }
@@ -90,8 +107,31 @@ namespace WordsOfTheDayApp.Model
                                     if (markdown[index2] == '('
                                         && index2 == indexOfClosingSquare + 1)
                                     {
-                                        doNotEncode = true;
-                                        break;
+                                        // Check if we need to replace the link
+                                        indexOfOpening = index2;
+                                        foundLink = true;
+                                        continue;
+                                    }
+
+                                    if (foundLink)
+                                    {
+                                        if (markdown[index2] == '/')
+                                        {
+                                            // Replace the link
+                                            var indexOfClosing = markdown.IndexOf(')', index2);
+                                            builder.Replace(
+                                                markdown.Substring(indexOfOpening + 1, indexOfClosing - indexOfOpening - 1),
+                                                newUrlAlone,
+                                                indexOfOpening + 1,
+                                                indexOfClosing - indexOfOpening - 1);
+                                            stop = true;
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            doNotEncode = true;
+                                            break;
+                                        }
                                     }
                                 }
 
@@ -100,8 +140,6 @@ namespace WordsOfTheDayApp.Model
 
                             if (markdown[index] == ']')
                             {
-                                foundClosingSquare = true;
-
                                 if (foundOpening
                                     && indexOfOpening == index + 1)
                                 {
@@ -137,11 +175,16 @@ namespace WordsOfTheDayApp.Model
                         if (doNotEncode)
                         {
                             previousIndexOfKeyword = indexOfKeyword;
+                            doNotEncode = false;
                             continue;
                         }
 
-                        builder.Replace(oldKeyword, newUrl, indexOfKeyword, oldKeyword.Length);
-                        stop = true;
+                        if (!stop)
+                        {
+                            builder.Replace(oldKeyword, newUrl, indexOfKeyword, oldKeyword.Length);
+                            stop = true;
+                        }
+
                         break;
                     }
 
