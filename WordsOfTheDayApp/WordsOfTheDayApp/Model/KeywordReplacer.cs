@@ -78,7 +78,7 @@ namespace WordsOfTheDayApp.Model
                         var foundLink = false;
                         var doNotEncode = false;
 
-                        for (var index = indexOfKeyword - 1; index >= 0; index--)
+                        for (var index = indexOfKeyword - 1; index > indexOfTranscript; index--)
                         {
                             if (doNotEncode
                                 || stop)
