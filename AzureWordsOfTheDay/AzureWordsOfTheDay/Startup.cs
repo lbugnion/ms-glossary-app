@@ -2,10 +2,11 @@ using AzureWordsOfTheDay.Model;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Internal;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace AzureWordsOfTheDay
 {
@@ -21,14 +22,6 @@ namespace AzureWordsOfTheDay
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
-
-
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
@@ -52,7 +45,30 @@ namespace AzureWordsOfTheDay
 
             //app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
+
+            // Redirect rules
+
+            app.Use(async (context, next) =>
+            {
+                var url = context.Request.Path.Value;
+
+                if (url.Contains("/topic/"))
+                {
+                    var parts = url.Split(new char[]
+                    {
+                        '/'
+                    }, StringSplitOptions.RemoveEmptyEntries);
+
+                    if (parts.Length < 3)
+                    {
+                        url = $"/{parts[0]}/{parts[1]}/{parts[1]}";
+                        context.Request.Path = url;
+                    }
+                }
+
+                await next();
+            });
+
 
             app.UseMvc();
         }

@@ -106,6 +106,10 @@ namespace WordsOfTheDayApp.Model
                         {
                             var list = keywordsDictionary[key];
 
+                            // TODO Change this code.
+                            // We need to find out if this keyword is already used by another topic.
+                            // 
+
                             var items = list
                                 .Where(
                                     k2 => k2.Keyword.ToLower() == trimmedKeyword.ToLower())
