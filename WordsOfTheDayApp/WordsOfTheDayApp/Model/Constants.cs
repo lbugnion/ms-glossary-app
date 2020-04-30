@@ -2,6 +2,10 @@
 {
     public static class Constants
     {
+#if DEBUG
+        public const bool UseSemaphores = false;
+#endif
+
         public const string AzureWebJobsStorage = "AzureWebJobsStorage";
         public const string KeywordsBlob = "keywords.json";
         public const string TopicsBlob = "topics.json";

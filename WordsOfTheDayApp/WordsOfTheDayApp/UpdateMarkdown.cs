@@ -29,7 +29,7 @@ namespace WordsOfTheDayApp
             ILogger log)
         {
 #if DEBUG
-            if (File.Exists(SemaphorePath))
+            if (Constants.UseSemaphores && File.Exists(SemaphorePath))
             {
                 log.LogError($"Semaphore found at {SemaphorePath}");
                 return;

@@ -9,10 +9,11 @@ namespace WordsOfTheDayApp.Model
     public class KeywordReplacer
     {
         public const string KeywordLinkTemplate = "[{0}]({1})";
-        public const string LinkTemplate = "/topic/{0}/{1}";
+        public const string TopicLinkTemplate = "/topic/{0}";
+        public const string SubtopicLinkTemplate = "/topic/{0}/{1}";
         public const string SingleWordCharacter = " [](){}*!&-_+=|/':;.,<>?\"";
 
-        public string ReplaceInMarkdown(
+        public (string markdown, string replaced) ReplaceInMarkdown(
             string markdown, 
             List<KeywordPair> keywordsList,
             string currentFile = null,
@@ -21,6 +22,7 @@ namespace WordsOfTheDayApp.Model
             log?.LogInformation("In ReplaceInMarkdown");
             var builder = new StringBuilder(markdown);
 
+            var replaced = string.Empty;
             var indexOfTranscript = markdown.IndexOf(Environment.NewLine + "## Transcript"+ Environment.NewLine);
 
             foreach (var k in keywordsList)
@@ -65,7 +67,17 @@ namespace WordsOfTheDayApp.Model
                         var oldKeyword = markdown.Substring(indexOfKeyword, k.Keyword.Length);
                         log?.LogInformation($"oldKeyword: {oldKeyword}");
 
-                        var newUrlAlone = string.Format(LinkTemplate, k.Topic, k.Subtopic);
+                        string newUrlAlone;
+
+                        if (k.Topic == k.Subtopic)
+                        {
+                            newUrlAlone = string.Format(TopicLinkTemplate, k.Topic);
+                        }
+                        else
+                        {
+                            newUrlAlone = string.Format(SubtopicLinkTemplate, k.Topic, k.Subtopic);
+                        }
+
                         log?.LogInformation($"newUrlAlone: {newUrlAlone}");
 
                         var newUrl = string.Format(KeywordLinkTemplate, oldKeyword, newUrlAlone);
@@ -124,6 +136,8 @@ namespace WordsOfTheDayApp.Model
                                                 newUrlAlone,
                                                 indexOfOpening + 1,
                                                 indexOfClosing - indexOfOpening - 1);
+                                            replaced += $"{oldKeyword}, ";
+                                            markdown = builder.ToString();
                                             stop = true;
                                             break;
                                         }
@@ -182,6 +196,8 @@ namespace WordsOfTheDayApp.Model
                         if (!stop)
                         {
                             builder.Replace(oldKeyword, newUrl, indexOfKeyword, oldKeyword.Length);
+                            replaced += $"{oldKeyword}, ";
+                            markdown = builder.ToString();
                             stop = true;
                         }
 
@@ -189,13 +205,12 @@ namespace WordsOfTheDayApp.Model
                     }
 
                     previousIndexOfKeyword = indexOfKeyword;
-                    markdown = builder.ToString();
                 }
                 while (indexOfKeyword > -1 && !stop);
             }
 
             log?.LogInformation("Done replacing keywords");
-            return builder.ToString();
+            return (builder.ToString(), replaced);
         }
     }
 }

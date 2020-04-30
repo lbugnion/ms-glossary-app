@@ -19,7 +19,7 @@ namespace WordsOfTheDayApp.Model
             log.LogInformation($"newBlobName: {newBlob.Name}");
 
             var account = CloudStorageAccount.Parse(
-            Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
+                Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
 
             var queueClient = account.CreateCloudQueueClient();
             var blobClient = account.CreateCloudBlobClient();

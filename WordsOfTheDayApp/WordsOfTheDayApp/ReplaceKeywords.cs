@@ -27,7 +27,7 @@ namespace WordsOfTheDayApp
         {
 #if DEBUG
             var path = string.Format(SemaphorePath, file);
-            if (File.Exists(path))
+            if (Constants.UseSemaphores && File.Exists(path))
             {
                 log.LogError($"Semaphore found at {path}");
                 return;
@@ -71,19 +71,24 @@ namespace WordsOfTheDayApp
 
             var replacer = new KeywordReplacer();
 
-            var newMarkdown = replacer.ReplaceInMarkdown(markdown, keywordsList, file, log);
+            var (newMarkdown, replaced) = replacer.ReplaceInMarkdown(markdown, keywordsList, file, log);
 
-            if (newMarkdown != markdown)
+            if (newMarkdown == markdown)
             {
-                await newBlob.UploadTextAsync(newMarkdown);
+                await NotificationService.Notify(
+                    $"No keywords replaced in file {file}",
+                    "No keywords found",
+                    log);
             }
-
-            log.LogInformation("Sending notification");
-
-            await NotificationService.Notify(
-                "Replaced keywords", 
-                $"Replaced all found keywords in {file}.md", 
-                log);
+            else
+            {
+                log.LogInformation("Uploading");
+                await newBlob.UploadTextAsync(newMarkdown);
+                await NotificationService.Notify(
+                    $"Replaced keywords in file {file}",
+                    $"The following keywords were replaced: {replaced}",
+                    log);
+            }
 
             log.LogInformation($"Done");
         }

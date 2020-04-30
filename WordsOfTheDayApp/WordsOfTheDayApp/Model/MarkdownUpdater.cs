@@ -19,7 +19,7 @@ namespace WordsOfTheDayApp.Model
         private const string YouTubeEmbedMarker = "<!--YOUTUBEEMBED -->";
         private const string H1 = "# ";
         private const string SideBarTemplate = "- [{0}](/topic/{1}/{2})";
-        private const string SideBarBoldTemplate = "- [**{0}**](/topic/{1}/{2})";
+        private const string SideBarBoldTemplate = "- [**{0}**](/topic/{1})";
 
         public static async Task<string> Update(Uri uri, ILogger log)
         {
@@ -97,45 +97,43 @@ namespace WordsOfTheDayApp.Model
 
                     var duplicates = string.Empty;
 
-                    foreach (var k in newKeywords)
-                    {
-                        var trimmedKeyword = k.Trim();
-                        var key = trimmedKeyword.ToUpper()[0];
+                    var existingPairs = keywordsDictionary.Values
+                        .SelectMany(pair => pair)
+                        .Where(pair => pair.Topic.ToLower() == topic.ToLower())
+                        .ToList();
 
+                    foreach (var existingPair in existingPairs)
+                    {
+                        var key = existingPair.Keyword.ToUpper()[0];
+
+                        // Just making sure                            
                         if (keywordsDictionary.ContainsKey(key))
                         {
                             var list = keywordsDictionary[key];
-
-                            // TODO Change this code.
-                            // We need to find out if this keyword is already used by another topic.
-                            // 
-
-                            var items = list
-                                .Where(
-                                    k2 => k2.Keyword.ToLower() == trimmedKeyword.ToLower())
-                                .ToList();
-
-                            foreach (var item in items)
+                            if (list.Contains(existingPair))
                             {
-                                duplicates += $"{item.Keyword} / {item.Topic} | ";
-                                list.Remove(item);
-                            }
-
-                            if (list.Count == 0)
-                            {
-                                keywordsDictionary.Remove(key);
+                                list.Remove(existingPair);
                             }
                         }
                     }
 
-                    if (!string.IsNullOrEmpty(duplicates))
+                    foreach (var k in newKeywords)
                     {
-                        log.LogInformation($"{oldBlob.Name}: Duplicates found: {duplicates}");
+                        var trimmedKeyword = k.Trim();
+                        var existingPair = keywordsDictionary.Values
+                            .SelectMany(pair => pair)
+                            .FirstOrDefault(pair => pair.Keyword.ToLower() == trimmedKeyword.ToLower());
 
-                        await NotificationService.Notify(
-                            $"{oldBlob.Name}: Duplicates found",
-                            duplicates,
-                            log);
+                        if (existingPair != null)
+                        {
+                            // We got a problem, notify the process owner, add anyway
+                            // (this creates a duplicate in the topics bar).
+
+                            await NotificationService.Notify(
+                                "Duplicate found in new markdown",
+                                $"Keyword:{trimmedKeyword} / Old topic: {existingPair.Topic} / New topic: {topic}",
+                                log);
+                        }
                     }
                 }
                 else
@@ -172,13 +170,13 @@ namespace WordsOfTheDayApp.Model
 
                     log.LogInformation($"Side bar: {pair.Key}");
 
-                    foreach (var k in pair.Value)
+                    foreach (var k in pair.Value.OrderBy(v => v.Keyword))
                     {
                         log.LogInformation($"Side bar: {k.Keyword} | {k.Topic}");
 
                         if (k.Topic == k.Subtopic)
                         {
-                            md.AppendLine(string.Format(SideBarBoldTemplate, k.Keyword, k.Topic, k.Subtopic));
+                            md.AppendLine(string.Format(SideBarBoldTemplate, k.Keyword, k.Topic));
                         }
                         else
                         {
