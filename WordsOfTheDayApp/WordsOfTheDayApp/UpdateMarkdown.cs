@@ -29,13 +29,16 @@ namespace WordsOfTheDayApp
             ILogger log)
         {
 #if DEBUG
-            if (Constants.UseSemaphores && File.Exists(SemaphorePath))
+            if (Constants.UseSemaphores)
             {
-                log.LogError($"Semaphore found at {SemaphorePath}");
-                return;
-            }
+                if (File.Exists(SemaphorePath))
+                {
+                    log.LogError($"Semaphore found at {SemaphorePath}");
+                    return;
+                }
 
-            File.CreateText(SemaphorePath);
+                File.CreateText(SemaphorePath);
+            }
 #endif
 
             log.LogInformation("Executing UpdateMarkdown");

@@ -24,11 +24,11 @@ namespace WordsOfTheDayApp.Model
             var queueClient = account.CreateCloudQueueClient();
             var blobClient = account.CreateCloudBlobClient();
 
-            var queue = queueClient.GetQueueReference(Constants.QueueName);
-            log.LogInformation($"QueueName: {Constants.QueueName}");
+            var queue = queueClient.GetQueueReference(Environment.GetEnvironmentVariable("QueueName"));
+            log.LogInformation($"QueueName: {queue.Name}");
             await queue.CreateIfNotExistsAsync();
 
-            var container = blobClient.GetContainerReference(Environment.GetEnvironmentVariable("MarkdownFolder"));
+            var container = blobClient.GetContainerReference(Environment.GetEnvironmentVariable("MarkdownTransformedFolder"));
             log.LogInformation($"container: {container.Uri}");
             BlobContinuationToken continuationToken = null;
             var topics = new List<string>();
