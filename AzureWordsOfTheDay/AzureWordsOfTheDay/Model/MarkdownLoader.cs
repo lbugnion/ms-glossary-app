@@ -34,10 +34,14 @@ namespace AzureWordsOfTheDay.Model
         {
             logger?.LogInformation($"In MarkdownLoader.LoadMarkdown: topic = {topic}");
 
-            var topicsFolder = Startup.Configuration["TopicsFolder"];
-            logger?.LogInformation($"topicsFolder: {topicsFolder}");
+            var topicsContainer = Startup.Configuration[Constants.TopicsContainerVariableName];
+            logger?.LogInformation($"topicsContainer: {topicsContainer}");
 
-            var uri = new Uri(string.Format(TopicUrlMask, Startup.Configuration["TopicsFolder"], topic));
+            var uri = new Uri(
+                string.Format(
+                    TopicUrlMask,
+                    topicsContainer, 
+                    topic));
             logger?.LogInformation($"uri: {uri}");
 
             string markdown = null;
@@ -65,7 +69,9 @@ namespace AzureWordsOfTheDay.Model
             return null;
         }
 
-        public HtmlString LoadLocalMarkdown(string filePath, ILogger logger = null)
+        public HtmlString LoadLocalMarkdown(
+            string filePath,
+            ILogger logger = null)
         {
             logger?.LogInformation($"In MarkdownLoader.LoadLocalMarkdown: {filePath}");
 
@@ -98,7 +104,7 @@ namespace AzureWordsOfTheDay.Model
         {
             logger?.LogInformation("In MarkdownLoader.LoadTopicsBar");
 
-            var settingsFolder = Startup.Configuration["SettingsFolder"];
+            var settingsFolder = Startup.Configuration[Constants.SettingsContainerVariableName];
             logger?.LogInformation($"settingsFolder: {settingsFolder}");
 
             var uri = new Uri(string.Format(TopicsBarUrl, settingsFolder));
@@ -133,7 +139,7 @@ namespace AzureWordsOfTheDay.Model
         {
             logger?.LogInformation("In MarkdownLoader.LoadRandomTopic");
 
-            var url = string.Format(MainTopicListUrl, Startup.Configuration["SettingsFolder"]);
+            var url = string.Format(MainTopicListUrl, Startup.Configuration[Constants.SettingsContainerVariableName]);
             var json = await Client.GetStringAsync(url);
 
             logger?.LogInformation("JSON loaded");

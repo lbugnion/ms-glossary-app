@@ -6,11 +6,11 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using WordsOfTheDayApp.Model;
 
 namespace WordsOfTheDayApp
 {
@@ -28,15 +28,15 @@ namespace WordsOfTheDayApp
             log.LogInformation("Cleanup was called");
 
             var account = CloudStorageAccount.Parse(
-                Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
+                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
 
             var blobClient = account.CreateCloudBlobClient();
             var markdownContainer = blobClient.GetContainerReference(
-                Environment.GetEnvironmentVariable("MarkdownFolder"));
+                Environment.GetEnvironmentVariable(Constants.TopicsUploadContainerVariableName));
             var newMarkdownContainer = blobClient.GetContainerReference(
-                Environment.GetEnvironmentVariable("MarkdownTransformedFolder"));
+                Environment.GetEnvironmentVariable(Constants.TopicsContainerVariableName));
             var settingsContainer = blobClient.GetContainerReference(
-                Environment.GetEnvironmentVariable("SettingsFolder"));
+                Environment.GetEnvironmentVariable(Constants.SettingsContainerVariableName));
 
             BlobContinuationToken continuationToken = null;
             var result = string.Empty;

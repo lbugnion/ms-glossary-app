@@ -1,11 +1,7 @@
-﻿namespace WordsOfTheDayApp.Model
+﻿namespace AzureWordsOfTheDay.Model
 {
     public static class Constants
     {
-#if DEBUG
-        public const bool UseSemaphores = false;
-#endif
-
         public const string AzureWebJobsStorageVariableName = "AzureWebJobsStorage";
         public const string KeywordsBlob = "keywords.json";
         public const string TopicsBlob = "topics.json";
@@ -17,5 +13,7 @@
         public const string QueueNameVariableName = "QueueName";
         public const string CaptionsContainerVariableName = "CaptionsContainer";
         public const string NotifyFunctionCodeVariableName = "NotifyFunctionCode";
+
+        public const string LocalMarkdownFolderName = "Markdown";
     }
 }

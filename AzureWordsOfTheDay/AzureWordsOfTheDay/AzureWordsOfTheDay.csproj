@@ -21,6 +21,9 @@
 
 
   <ItemGroup>
+    <None Update="Markdown\captions.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Markdown\index.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

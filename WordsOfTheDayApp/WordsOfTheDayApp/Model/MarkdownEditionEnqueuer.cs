@@ -19,16 +19,19 @@ namespace WordsOfTheDayApp.Model
             log.LogInformation($"newBlobName: {newBlob.Name}");
 
             var account = CloudStorageAccount.Parse(
-                Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
+                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
 
             var queueClient = account.CreateCloudQueueClient();
             var blobClient = account.CreateCloudBlobClient();
 
-            var queue = queueClient.GetQueueReference(Environment.GetEnvironmentVariable("QueueName"));
+            var queue = queueClient.GetQueueReference(
+                Environment.GetEnvironmentVariable(Constants.QueueNameVariableName));
             log.LogInformation($"QueueName: {queue.Name}");
             await queue.CreateIfNotExistsAsync();
 
-            var container = blobClient.GetContainerReference(Environment.GetEnvironmentVariable("MarkdownTransformedFolder"));
+            var container = blobClient.GetContainerReference(
+                Environment.GetEnvironmentVariable(Constants.TopicsContainerVariableName));
+
             log.LogInformation($"container: {container.Uri}");
             BlobContinuationToken continuationToken = null;
             var topics = new List<string>();
@@ -52,7 +55,8 @@ namespace WordsOfTheDayApp.Model
             }
             while (continuationToken != null);
 
-            var settingsContainer = blobClient.GetContainerReference(Environment.GetEnvironmentVariable("SettingsFolder"));
+            var settingsContainer = blobClient.GetContainerReference(
+                Environment.GetEnvironmentVariable(Constants.SettingsContainerVariableName));
             var topicsJsonBlob = settingsContainer.GetBlockBlobReference(Constants.TopicsBlob);
             var json = JsonConvert.SerializeObject(topics);
             await topicsJsonBlob.UploadTextAsync(json);

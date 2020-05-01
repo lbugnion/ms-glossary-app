@@ -23,7 +23,11 @@ namespace WordsOfTheDayApp
         {
             string blobName = req.Query["name"];
 
-            var uri = new Uri(string.Format(UriMask, Environment.GetEnvironmentVariable("MarkdownFolder"), blobName));
+            var uri = new Uri(
+                string.Format(
+                    UriMask, 
+                    Environment.GetEnvironmentVariable(Constants.TopicsUploadContainerVariableName), 
+                    blobName));
             var topic = await MarkdownUpdater.Update(uri, log);
 
             return new OkObjectResult($"OK {topic}");

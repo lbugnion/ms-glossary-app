@@ -3,16 +3,23 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace AzureWordsOfTheDay.Pages
 {
-    public class IndexModel : PageModel
+    public class CaptionsModel : PageModel
     {
-        private MarkdownHelper _markdown;
-        private readonly ILogger _logger;
         private IHostingEnvironment _env;
+        private ILogger<IndexModel> _logger;
+        private MarkdownHelper _markdown;
+
+        public HtmlString BodyHtml
+        {
+            get;
+            private set;
+        }
 
         public HtmlString TopicBarHtml
         {
@@ -20,19 +27,7 @@ namespace AzureWordsOfTheDay.Pages
             private set;
         }
 
-        public HtmlString SelectedTopicHtml
-        {
-            get;
-            private set;
-        }
-
-        public HtmlString IndexContent
-        {
-            get;
-            private set;
-        }
-
-        public IndexModel(
+        public CaptionsModel(
             ILogger<IndexModel> logger,
             MarkdownHelper markdown,
             IHostingEnvironment env)
@@ -44,19 +39,17 @@ namespace AzureWordsOfTheDay.Pages
 
         public async Task OnGet()
         {
-            _logger.LogInformation($"OnGet in Index");
+            _logger.LogInformation($"OnGet in Captions");
 
-            var docName = "index.md";
+            var docName = "captions.md";
             var root = new DirectoryInfo(Path.Combine(_env.WebRootPath));
             var folder = Path.Combine(root.Parent.FullName, Constants.LocalMarkdownFolderName);
             var file = Path.Combine(folder, docName);
-            IndexContent = _markdown.LoadLocalMarkdown(file);
+            BodyHtml = _markdown.LoadLocalMarkdown(file);
 
             TopicBarHtml = await _markdown.LoadTopicsBar(_logger);
 
-            SelectedTopicHtml = await _markdown.LoadRandomTopic();
-
-            _logger.LogInformation("Done rendering in Index");
+            _logger.LogInformation("Done rendering in Captions");
         }
     }
 }

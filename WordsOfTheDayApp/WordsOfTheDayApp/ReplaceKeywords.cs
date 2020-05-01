@@ -22,7 +22,7 @@ namespace WordsOfTheDayApp
         public static async Task Run(
             [QueueTrigger(
                 "%QueueName%", 
-                Connection = Constants.AzureWebJobsStorage)]
+                Connection = Constants.AzureWebJobsStorageVariableName)]
             string file, 
             ILogger log)
         {
@@ -45,12 +45,12 @@ namespace WordsOfTheDayApp
             log.LogInformation($"File: {file}");
 
             var account = CloudStorageAccount.Parse(
-                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorage));
+                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
 
             var client = account.CreateCloudBlobClient();
 
             var jsonContainer = client.GetContainerReference(
-                Environment.GetEnvironmentVariable("SettingsFolder"));
+                Environment.GetEnvironmentVariable(Constants.SettingsContainerVariableName));
             log.LogInformation($"jsonContainer: {jsonContainer.Uri}");
 
             var jsonBlob = jsonContainer.GetBlockBlobReference(Constants.KeywordsBlob);
@@ -68,7 +68,7 @@ namespace WordsOfTheDayApp
                 .ToList();
 
             var newContainer = client.GetContainerReference(
-                Environment.GetEnvironmentVariable("MarkdownTransformedFolder"));
+                Environment.GetEnvironmentVariable(Constants.TopicsContainerVariableName));
             log.LogInformation($"newContainer: {newContainer.Uri}");
 
             CloudBlockBlob newBlob = null;

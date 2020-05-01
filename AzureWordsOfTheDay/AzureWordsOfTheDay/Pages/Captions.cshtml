@@ -1,0 +1,13 @@
+﻿@page
+@model AzureWordsOfTheDay.Pages.CaptionsModel
+@{
+    ViewData["Title"] = "Captions";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@section Topics {
+
+    @Model.TopicBarHtml
+}
+
+@Model.BodyHtml

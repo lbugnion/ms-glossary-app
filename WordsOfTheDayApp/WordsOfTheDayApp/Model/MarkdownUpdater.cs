@@ -4,6 +4,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,10 +17,15 @@ namespace WordsOfTheDayApp.Model
         private const string YouTubeEmbed = "<iframe width=\"560\" height=\"560\" src=\"https://www.youtube.com/embed/{0}\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>";
         private const string YouTubeMarker = "> YouTube: ";
         private const string KeywordsMarker = "> Keywords: ";
-        private const string YouTubeEmbedMarker = "<!--YOUTUBEEMBED -->";
+        private const string YouTubeEmbedMarker = "<!-- YOUTUBEEMBED -->";
         private const string H1 = "# ";
         private const string SideBarTemplate = "- [{0}](/topic/{1}/{2})";
         private const string SideBarBoldTemplate = "- [**{0}**](/topic/{1})";
+
+        private const string DownloadMarker = "<!-- DOWNLOAD -->";
+        private const string DownloadCaptionsMarker = "<!-- DOWNLOAD-CAPTIONS -->";
+        private const string DownloadLinkTemplate = "https://wordsoftheday.blob.core.windows.net/videos/{0}.mp4";
+        private const string DownloadCaptionTemplate = "- [{0}](https://wordsoftheday.blob.core.windows.net/captions/{1})";
 
         public static async Task<string> Update(Uri uri, ILogger log)
         {
@@ -28,7 +34,7 @@ namespace WordsOfTheDayApp.Model
             log.LogInformation($"Topic: {topic}");
 
             var account = CloudStorageAccount.Parse(
-                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorage));
+                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
 
             string oldMarkdown = await oldBlob.DownloadTextAsync();
             var markdownReader = new StringReader(oldMarkdown);
@@ -65,17 +71,66 @@ namespace WordsOfTheDayApp.Model
                 }
             }
 
-            var newMarkdown = oldMarkdown.Replace(
-                YouTubeEmbedMarker,
-                string.Format(YouTubeEmbed, youTubeCode));
-
+            // Check SRT files
+            BlobContinuationToken continuationToken = null;
             var client = account.CreateCloudBlobClient();
+            var captionsContainer = client.GetContainerReference(
+                Environment.GetEnvironmentVariable(Constants.CaptionsContainerVariableName));
+
+            log.LogInformation($"Captions container: {captionsContainer.Uri}");
+
+            var captionsFilesList = new StringBuilder();
+            var textInfo = CultureInfo.InvariantCulture.TextInfo;
+
+            do
+            {
+                var response = await captionsContainer.ListBlobsSegmentedAsync(continuationToken);
+                continuationToken = response.ContinuationToken;
+
+                foreach (CloudBlockBlob captionBlob in response.Results)
+                {
+                    var nameParts = captionBlob.Name.Split(new[]
+                    {
+                        '.'
+                    });
+
+                    if (nameParts.Length != 3
+                        || !captionBlob.Name.EndsWith(".srt"))
+                    {
+                        log.LogError($"Invalid SRT in {captionsContainer.Uri}: {captionBlob.Name}");
+                        continue;
+                    }
+
+                    if (nameParts[0].ToLower() != $"{topic.ToLower()}")
+                    {
+                        continue;
+                    }
+
+                    captionsFilesList.AppendLine(
+                        string.Format(
+                            DownloadCaptionTemplate,
+                            textInfo.ToTitleCase(nameParts[1]),
+                            captionBlob.Name));
+                }
+            }
+            while (continuationToken != null);
+
+            var newMarkdown = oldMarkdown
+                .Replace(
+                    YouTubeEmbedMarker,
+                    string.Format(YouTubeEmbed, youTubeCode))
+                .Replace(
+                    DownloadMarker,
+                    string.Format(DownloadLinkTemplate, topic))
+                .Replace(
+                    DownloadCaptionsMarker,
+                    captionsFilesList.ToString());
 
             // Process keywords first
             if (!string.IsNullOrEmpty(keywordsLine))
             {
                 var settingsContainer = client.GetContainerReference(
-                    Environment.GetEnvironmentVariable("SettingsFolder"));
+                    Environment.GetEnvironmentVariable(Constants.SettingsContainerVariableName));
 
                 log.LogInformation($"settingsContainer: {settingsContainer.Uri}");
 
@@ -87,7 +142,7 @@ namespace WordsOfTheDayApp.Model
 
                 var newKeywords = keywordsLine.Split(new char[]
                 {
-                        ','
+                    ','
                 }, StringSplitOptions.RemoveEmptyEntries);
 
                 if (await keywordsBlob.ExistsAsync())
@@ -193,7 +248,7 @@ namespace WordsOfTheDayApp.Model
             }
 
             var newContainer = client.GetContainerReference(
-                Environment.GetEnvironmentVariable("MarkdownTransformedFolder"));
+                Environment.GetEnvironmentVariable(Constants.TopicsContainerVariableName));
             log.LogInformation($"newContainer: {newContainer.Uri}");
 
             var newBlob = newContainer.GetBlockBlobReference($"{topic}.md");
