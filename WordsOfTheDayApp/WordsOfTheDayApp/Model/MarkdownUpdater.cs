@@ -244,7 +244,12 @@ namespace WordsOfTheDayApp.Model
 
                 await sideBarMarkdownBlob.UploadTextAsync(md.ToString());
                 await keywordsBlob.UploadTextAsync(json);
-                log.LogInformation("Saved the keywords");
+
+                var list = keywordsDictionary.Values
+                    .SelectMany(pair => pair)
+                    .ToList();
+
+                log.LogInformation($"Saved the keywords for {topic}: {list.Count} keywords");
             }
 
             var newContainer = client.GetContainerReference(

@@ -1,8 +1,9 @@
 // Default URL for triggering event grid function in the local environment.
 // http://localhost:7071/runtime/webhooks/EventGrid?functionName=UpdateMarkdown
 
-// /blobServices/default/containers/markdown/blobs
-// /blobServices/default/containers/test-markdown/blobs
+// /blobServices/default/containers/topics-upload/blobs
+// /blobServices/default/containers/staging-topics-upload/blobs
+// /blobServices/default/containers/test-topics-upload/blobs
 
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.EventGrid.Models;
