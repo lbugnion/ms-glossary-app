@@ -107,21 +107,30 @@ namespace AzureWordsOfTheDay.Model
             var url = string.Format(MainTopicListUrl, Startup.Configuration[Constants.SettingsContainerVariableName]);
             logger?.LogInformation($"url: {url}");
 
-            var json = await Client.GetStringAsync(url);
+            try
+            {
+                var json = await Client.GetStringAsync(url);
 
-            logger?.LogInformation($"JSON loaded: {json}");
+                logger?.LogInformation($"JSON loaded: {json}");
 
-            var list = JsonConvert.DeserializeObject<List<string>>(json);
+                var list = JsonConvert.DeserializeObject<List<string>>(json);
 
-            logger?.LogInformation($"List loaded: {list.Count} topics found");
+                logger?.LogInformation($"List loaded: {list.Count} topics found");
 
-            var random = new Random();
-            var index = random.Next(0, list.Count);
-            var topic = list[index];
+                var random = new Random();
+                var index = random.Next(0, list.Count);
+                var topic = list[index];
 
-            logger?.LogInformation($"Random topic: {topic}");
+                logger?.LogInformation($"Random topic: {topic}");
 
-            return await LoadMarkdown(topic, logger);
+                return await LoadMarkdown(topic, logger);
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError($"Error loading random topic: {ex.Message}");
+            }
+
+            return null;
         }
 
         public async Task<HtmlString> LoadTopicsBar(ILogger logger = null)
