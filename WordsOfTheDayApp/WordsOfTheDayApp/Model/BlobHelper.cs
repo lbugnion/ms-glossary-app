@@ -6,6 +6,10 @@ namespace WordsOfTheDayApp.Model
 {
     public class BlobHelper
     {
+        public CloudBlobClient _client;
+
+        public ILogger _logger;
+
         public BlobHelper(CloudBlobClient client, ILogger logger = null)
         {
             if (client == null)
@@ -16,9 +20,6 @@ namespace WordsOfTheDayApp.Model
             _logger = logger;
             _client = client;
         }
-
-        public ILogger _logger;
-        public CloudBlobClient _client;
 
         public CloudBlobContainer GetContainer(string variableName)
         {

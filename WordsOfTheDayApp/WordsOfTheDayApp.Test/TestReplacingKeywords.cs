@@ -8,6 +8,22 @@ namespace WordsOfTheDayApp.Test
     [TestClass]
     public class TestReplacingLinks
     {
+        private string DoTestCase(string markdown)
+        {
+            var list = new List<KeywordPair>
+            {
+                new KeywordPair("aad", "aad", "AAD")
+            };
+
+            var replacer = new KeywordReplacer();
+
+            var (result, replaced) = replacer.ReplaceInMarkdown(
+                markdown,
+                list);
+
+            return result;
+        }
+
         public List<KeywordPair> MakeList1()
         {
             return new List<KeywordPair>
@@ -18,191 +34,6 @@ namespace WordsOfTheDayApp.Test
                 new KeywordPair("app-service", "web-api", "Web Api"),
                 new KeywordPair("aad", "aad", "AAD")
             };
-        }
-
-        [TestMethod]
-        public void TestOneOccurence()
-        {
-            var list = MakeList1();
-
-            var markdown = "This is a piece of text with the word app service in it once";
-            var expected = "This is a piece of text with the word [app service](/topic/app-service) in it once";
-
-            var replacer = new KeywordReplacer();
-
-            var result = replacer.ReplaceInMarkdown(
-                markdown,
-                list);
-
-            Assert.AreEqual(expected, result);
-        }
-
-        [TestMethod]
-        public void TestOneOccurenceOfSubtopic()
-        {
-            var list = MakeList1();
-
-            var markdown = "This is a piece of text with the word web server in it once";
-            var expected = "This is a piece of text with the word [web server](/topic/app-service/web-server) in it once";
-
-            var replacer = new KeywordReplacer();
-
-            var result = replacer.ReplaceInMarkdown(
-                markdown,
-                list);
-
-            Assert.AreEqual(expected, result);
-        }
-
-        [TestMethod]
-        public void TestOneOccurenceWithCaps()
-        {
-            var list = MakeList1();
-
-            var markdown = "This is a piece of text with the word App Service in it once";
-            var expected = "This is a piece of text with the word [App Service](/topic/app-service) in it once";
-
-            var replacer = new KeywordReplacer();
-
-            var result = replacer.ReplaceInMarkdown(
-                markdown,
-                list);
-
-            Assert.AreEqual(expected, result);
-        }
-
-        [TestMethod]
-        public void TestTwoOccurence()
-        {
-            var list = MakeList1();
-
-            var markdown = "This is a piece of text with the word App Service in it twice because of app service.";
-            var expected = "This is a piece of text with the word [App Service](/topic/app-service) in it twice because of app service.";
-
-            var replacer = new KeywordReplacer();
-
-            var result = replacer.ReplaceInMarkdown(
-                markdown,
-                list);
-
-            Assert.AreEqual(expected, result);
-        }
-
-        [TestMethod]
-        public void TestOneOccurenceWhichAlreadyHadTheSameLink()
-        {
-            var list = MakeList1();
-
-            var markdown = "This is a piece of text with the word [App Service](/topic/app-service) in it once.";
-
-            var replacer = new KeywordReplacer();
-
-            var result = replacer.ReplaceInMarkdown(
-                markdown,
-                list);
-
-            var expectedResult = markdown;
-
-            Assert.AreEqual(expectedResult, result);
-        }
-
-        [TestMethod]
-        public void TestOneOccurenceWhichAlreadyHadAnotherLink()
-        {
-            var list = MakeList1();
-
-            var markdown = "This is a piece of text with the word [App Service](https://wordsoftheday.azurewebsites.net/topic/app-serv) in it once.";
-            var expectedMarkdown = "This is a piece of text with the word [App Service](https://wordsoftheday.azurewebsites.net/topic/app-serv) in it once.";
-
-            var replacer = new KeywordReplacer();
-
-            var result = replacer.ReplaceInMarkdown(
-                markdown,
-                list);
-
-            Assert.AreEqual(expectedMarkdown, result);
-        }
-
-        [TestMethod]
-        public void TestTwoKeywordsOccurence()
-        {
-            var list = MakeList1();
-
-            var markdown = "This is a piece of text with the word app service in it once and also the word asp.net to check it.";
-            var expected = "This is a piece of text with the word [app service](/topic/app-service) in it once and also the word [asp.net](/topic/app-service/asp.net) to check it.";
-
-            var replacer = new KeywordReplacer();
-
-            var result = replacer.ReplaceInMarkdown(
-                markdown,
-                list);
-
-            Assert.AreEqual(expected, result);
-        }
-
-        [TestMethod]
-        public void TestKeywordInLink()
-        {
-            var list = MakeList1();
-
-            var markdown = "This is a piece of text with the word App Service and [a link to the AAD topic](http://abcd.com/aad) in it once and also the word asp.net to check it.";
-            var expectedMarkdown = "This is a piece of text with the word [App Service](/topic/app-service) and [a link to the AAD topic](http://abcd.com/aad) in it once and also the word [asp.net](/topic/app-service/asp.net) to check it.";
-
-            var replacer = new KeywordReplacer();
-
-            var result = replacer.ReplaceInMarkdown(
-                markdown,
-                list);
-
-            Assert.AreEqual(expectedMarkdown, result);
-        }
-
-
-        [TestMethod]
-        public void TestKeywordInParenthesis()
-        {
-            var list = MakeList1();
-
-            var markdown = "This is a piece of text with the word (App Service) and [a link to the AAD topic](http://abcd.com/aad) in it once and also the word asp.net to check it.";
-            var expectedMarkdown = "This is a piece of text with the word ([App Service](/topic/app-service)) and [a link to the AAD topic](http://abcd.com/aad) in it once and also the word [asp.net](/topic/app-service/asp.net) to check it.";
-
-            var replacer = new KeywordReplacer();
-
-            var result = replacer.ReplaceInMarkdown(
-                markdown,
-                list);
-
-            Assert.AreEqual(expectedMarkdown, result);
-        }
-
-        [TestMethod]
-        public void TestKeywordBeforeAndInTranscript()
-        {
-            var list = MakeList1();
-
-            var markdown = "This is a piece of text with the word App Service in the intro"
-                + Environment.NewLine
-                + Environment.NewLine
-                + "## Transcript"
-                + Environment.NewLine
-                + Environment.NewLine
-                + "and the words App Service in the transcript";
-
-            var expectedMarkdown = "This is a piece of text with the word App Service in the intro"
-                + Environment.NewLine
-                + Environment.NewLine
-                + "## Transcript"
-                + Environment.NewLine
-                + Environment.NewLine
-                + "and the words [App Service](/topic/app-service) in the transcript";
-
-            var replacer = new KeywordReplacer();
-
-            var result = replacer.ReplaceInMarkdown(
-                markdown,
-                list);
-
-            Assert.AreEqual(expectedMarkdown, result);
         }
 
         [TestMethod]
@@ -510,20 +341,188 @@ namespace WordsOfTheDayApp.Test
             Assert.AreEqual(expected, result);
         }
 
-        private string DoTestCase(string markdown)
+        [TestMethod]
+        public void TestKeywordBeforeAndInTranscript()
         {
-            var list = new List<KeywordPair>
-            {
-                new KeywordPair("aad", "aad", "AAD")
-            };
+            var list = MakeList1();
+
+            var markdown = "This is a piece of text with the word App Service in the intro"
+                + Environment.NewLine
+                + Environment.NewLine
+                + "## Transcript"
+                + Environment.NewLine
+                + Environment.NewLine
+                + "and the words App Service in the transcript";
+
+            var expectedMarkdown = "This is a piece of text with the word App Service in the intro"
+                + Environment.NewLine
+                + Environment.NewLine
+                + "## Transcript"
+                + Environment.NewLine
+                + Environment.NewLine
+                + "and the words [App Service](/topic/app-service) in the transcript";
 
             var replacer = new KeywordReplacer();
 
-            var (result, replaced) = replacer.ReplaceInMarkdown(
+            var result = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
-            return result;
+            Assert.AreEqual(expectedMarkdown, result);
+        }
+
+        [TestMethod]
+        public void TestKeywordInLink()
+        {
+            var list = MakeList1();
+
+            var markdown = "This is a piece of text with the word App Service and [a link to the AAD topic](http://abcd.com/aad) in it once and also the word asp.net to check it.";
+            var expectedMarkdown = "This is a piece of text with the word [App Service](/topic/app-service) and [a link to the AAD topic](http://abcd.com/aad) in it once and also the word [asp.net](/topic/app-service/asp.net) to check it.";
+
+            var replacer = new KeywordReplacer();
+
+            var result = replacer.ReplaceInMarkdown(
+                markdown,
+                list);
+
+            Assert.AreEqual(expectedMarkdown, result);
+        }
+
+        [TestMethod]
+        public void TestKeywordInParenthesis()
+        {
+            var list = MakeList1();
+
+            var markdown = "This is a piece of text with the word (App Service) and [a link to the AAD topic](http://abcd.com/aad) in it once and also the word asp.net to check it.";
+            var expectedMarkdown = "This is a piece of text with the word ([App Service](/topic/app-service)) and [a link to the AAD topic](http://abcd.com/aad) in it once and also the word [asp.net](/topic/app-service/asp.net) to check it.";
+
+            var replacer = new KeywordReplacer();
+
+            var result = replacer.ReplaceInMarkdown(
+                markdown,
+                list);
+
+            Assert.AreEqual(expectedMarkdown, result);
+        }
+
+        [TestMethod]
+        public void TestOneOccurence()
+        {
+            var list = MakeList1();
+
+            var markdown = "This is a piece of text with the word app service in it once";
+            var expected = "This is a piece of text with the word [app service](/topic/app-service) in it once";
+
+            var replacer = new KeywordReplacer();
+
+            var result = replacer.ReplaceInMarkdown(
+                markdown,
+                list);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestOneOccurenceOfSubtopic()
+        {
+            var list = MakeList1();
+
+            var markdown = "This is a piece of text with the word web server in it once";
+            var expected = "This is a piece of text with the word [web server](/topic/app-service/web-server) in it once";
+
+            var replacer = new KeywordReplacer();
+
+            var result = replacer.ReplaceInMarkdown(
+                markdown,
+                list);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestOneOccurenceWhichAlreadyHadAnotherLink()
+        {
+            var list = MakeList1();
+
+            var markdown = "This is a piece of text with the word [App Service](https://wordsoftheday.azurewebsites.net/topic/app-serv) in it once.";
+            var expectedMarkdown = "This is a piece of text with the word [App Service](https://wordsoftheday.azurewebsites.net/topic/app-serv) in it once.";
+
+            var replacer = new KeywordReplacer();
+
+            var result = replacer.ReplaceInMarkdown(
+                markdown,
+                list);
+
+            Assert.AreEqual(expectedMarkdown, result);
+        }
+
+        [TestMethod]
+        public void TestOneOccurenceWhichAlreadyHadTheSameLink()
+        {
+            var list = MakeList1();
+
+            var markdown = "This is a piece of text with the word [App Service](/topic/app-service) in it once.";
+
+            var replacer = new KeywordReplacer();
+
+            var result = replacer.ReplaceInMarkdown(
+                markdown,
+                list);
+
+            var expectedResult = markdown;
+
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        [TestMethod]
+        public void TestOneOccurenceWithCaps()
+        {
+            var list = MakeList1();
+
+            var markdown = "This is a piece of text with the word App Service in it once";
+            var expected = "This is a piece of text with the word [App Service](/topic/app-service) in it once";
+
+            var replacer = new KeywordReplacer();
+
+            var result = replacer.ReplaceInMarkdown(
+                markdown,
+                list);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestTwoKeywordsOccurence()
+        {
+            var list = MakeList1();
+
+            var markdown = "This is a piece of text with the word app service in it once and also the word asp.net to check it.";
+            var expected = "This is a piece of text with the word [app service](/topic/app-service) in it once and also the word [asp.net](/topic/app-service/asp.net) to check it.";
+
+            var replacer = new KeywordReplacer();
+
+            var result = replacer.ReplaceInMarkdown(
+                markdown,
+                list);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void TestTwoOccurence()
+        {
+            var list = MakeList1();
+
+            var markdown = "This is a piece of text with the word App Service in it twice because of app service.";
+            var expected = "This is a piece of text with the word [App Service](/topic/app-service) in it twice because of app service.";
+
+            var replacer = new KeywordReplacer();
+
+            var result = replacer.ReplaceInMarkdown(
+                markdown,
+                list);
+
+            Assert.AreEqual(expected, result);
         }
     }
 }

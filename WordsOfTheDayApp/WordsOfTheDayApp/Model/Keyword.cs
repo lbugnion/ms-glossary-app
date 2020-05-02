@@ -2,7 +2,7 @@
 {
     public class KeywordPair
     {
-        public string Topic
+        public string Keyword
         {
             get;
         }
@@ -12,7 +12,7 @@
             get;
         }
 
-        public string Keyword
+        public string Topic
         {
             get;
         }

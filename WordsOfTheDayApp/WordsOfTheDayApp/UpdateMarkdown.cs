@@ -5,15 +5,15 @@
 // /blobServices/default/containers/staging-topics-upload/blobs
 // /blobServices/default/containers/test-topics-upload/blobs
 
-using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.EventGrid.Models;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
-using WordsOfTheDayApp.Model;
-using System.Threading.Tasks;
 using System.IO;
+using System.Threading.Tasks;
+using WordsOfTheDayApp.Model;
 
 namespace WordsOfTheDayApp
 {
@@ -26,7 +26,7 @@ namespace WordsOfTheDayApp
         [FunctionName("UpdateMarkdown")]
         public static async Task Run(
             [EventGridTrigger]
-            EventGridEvent eventGridEvent, 
+            EventGridEvent eventGridEvent,
             ILogger log)
         {
 #if DEBUG
@@ -54,8 +54,8 @@ namespace WordsOfTheDayApp
                 log.LogInformation($"Sending notification");
 
                 await NotificationService.Notify(
-                    "Uploaded", 
-                    $"{topic}.md: Markdown file updated and uploaded", 
+                    "Uploaded",
+                    $"{topic}.md: Markdown file updated and uploaded",
                     log);
 
                 log.LogInformation($"Done");

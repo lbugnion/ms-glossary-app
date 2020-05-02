@@ -14,18 +14,17 @@ namespace WordsOfTheDayApp.Model
 {
     public static class MarkdownUpdater
     {
-        private const string YouTubeEmbed = "<iframe width=\"560\" height=\"560\" src=\"https://www.youtube.com/embed/{0}\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>";
-        private const string YouTubeMarker = "> YouTube: ";
-        private const string KeywordsMarker = "> Keywords: ";
-        private const string YouTubeEmbedMarker = "<!-- YOUTUBEEMBED -->";
-        private const string H1 = "# ";
-        private const string SideBarTemplate = "- [{0}](/topic/{1}/{2})";
-        private const string SideBarBoldTemplate = "- [**{0}**](/topic/{1})";
-
-        private const string DownloadMarker = "<!-- DOWNLOAD -->";
         private const string DownloadCaptionsMarker = "<!-- DOWNLOAD-CAPTIONS -->";
-        private const string DownloadLinkTemplate = "https://wordsoftheday.blob.core.windows.net/videos/{0}.mp4";
         private const string DownloadCaptionTemplate = "- [{0}](https://wordsoftheday.blob.core.windows.net/captions/{1})";
+        private const string DownloadLinkTemplate = "https://wordsoftheday.blob.core.windows.net/videos/{0}.mp4";
+        private const string DownloadMarker = "<!-- DOWNLOAD -->";
+        private const string H1 = "# ";
+        private const string KeywordsMarker = "> Keywords: ";
+        private const string SideBarBoldTemplate = "- [**{0}**](/topic/{1})";
+        private const string SideBarTemplate = "- [{0}](/topic/{1}/{2})";
+        private const string YouTubeEmbed = "<iframe width=\"560\" height=\"560\" src=\"https://www.youtube.com/embed/{0}\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>";
+        private const string YouTubeEmbedMarker = "<!-- YOUTUBEEMBED -->";
+        private const string YouTubeMarker = "> YouTube: ";
 
         public static async Task<string> Update(Uri uri, ILogger log)
         {
@@ -156,7 +155,7 @@ namespace WordsOfTheDayApp.Model
                     {
                         var key = existingPair.Keyword.ToUpper()[0];
 
-                        // Just making sure                            
+                        // Just making sure
                         if (keywordsDictionary.ContainsKey(key))
                         {
                             var keywordsList = keywordsDictionary[key];

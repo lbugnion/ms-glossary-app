@@ -21,14 +21,14 @@ namespace WordsOfTheDayApp
         [FunctionName("ReplaceKeywords")]
         public static async Task Run(
             [QueueTrigger(
-                "%QueueName%", 
+                "%QueueName%",
                 Connection = Constants.AzureWebJobsStorageVariableName)]
-            string file, 
+            string file,
             ILogger log)
         {
 #if DEBUG
             var path = string.Format(SemaphorePath, file);
-            
+
             if (Constants.UseSemaphores)
             {
                 if (File.Exists(path))

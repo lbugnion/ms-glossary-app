@@ -5,15 +5,15 @@
 // /blobServices/default/containers/staging-topics/blobs
 // /blobServices/default/containers/test-topics/blobs
 
-using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.EventGrid.Models;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using Microsoft.Extensions.Logging;
-using System;
-using WordsOfTheDayApp.Model;
-using System.Threading.Tasks;
-using System.IO;
 using Newtonsoft.Json.Linq;
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using WordsOfTheDayApp.Model;
 
 namespace WordsOfTheDayApp
 {
@@ -26,7 +26,7 @@ namespace WordsOfTheDayApp
         [FunctionName("EnqueueMarkdownEdition")]
         public static async Task Run(
             [EventGridTrigger]
-            EventGridEvent eventGridEvent, 
+            EventGridEvent eventGridEvent,
             ILogger log)
         {
 #if DEBUG

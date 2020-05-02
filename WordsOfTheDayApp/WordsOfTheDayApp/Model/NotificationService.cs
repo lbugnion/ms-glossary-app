@@ -10,7 +10,7 @@ namespace WordsOfTheDayApp.Model
         private const string NotificationsUrl = "https://notificationsendpoint.azurewebsites.net/api/send";
 
         public static async Task Notify(
-            string title, 
+            string title,
             string message,
             ILogger log)
         {

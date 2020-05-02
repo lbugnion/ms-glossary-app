@@ -8,12 +8,12 @@ namespace WordsOfTheDayApp.Model
     public class KeywordReplacer
     {
         public const string KeywordLinkTemplate = "[{0}]({1})";
-        public const string TopicLinkTemplate = "/topic/{0}";
-        public const string SubtopicLinkTemplate = "/topic/{0}/{1}";
         public const string SingleWordCharacter = " [](){}*!&-_+=|/':;.,<>?\"";
+        public const string SubtopicLinkTemplate = "/topic/{0}/{1}";
+        public const string TopicLinkTemplate = "/topic/{0}";
 
         public (string markdown, string replaced) ReplaceInMarkdown(
-            string markdown, 
+            string markdown,
             List<KeywordPair> keywordsList,
             string currentFile = null,
             ILogger log = null)
@@ -22,7 +22,7 @@ namespace WordsOfTheDayApp.Model
             var builder = new StringBuilder(markdown);
 
             var replaced = string.Empty;
-            var indexOfTranscript = markdown.IndexOf(Environment.NewLine + "## Transcript"+ Environment.NewLine);
+            var indexOfTranscript = markdown.IndexOf(Environment.NewLine + "## Transcript" + Environment.NewLine);
 
             foreach (var k in keywordsList)
             {
