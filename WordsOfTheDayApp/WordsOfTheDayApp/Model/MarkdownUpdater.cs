@@ -164,10 +164,10 @@ namespace WordsOfTheDayApp.Model
                         // Just making sure                            
                         if (keywordsDictionary.ContainsKey(key))
                         {
-                            var list = keywordsDictionary[key];
-                            if (list.Contains(existingPair))
+                            var keywordsList = keywordsDictionary[key];
+                            if (keywordsList.Contains(existingPair))
                             {
-                                list.Remove(existingPair);
+                                keywordsList.Remove(existingPair);
                             }
                         }
                     }
@@ -201,18 +201,18 @@ namespace WordsOfTheDayApp.Model
                     var pair = new KeywordPair(topic, newKeyword.ToLower().Replace(' ', '-'), newKeyword);
                     var letter = newKeyword.ToUpper()[0];
 
-                    List<KeywordPair> list;
+                    List<KeywordPair> keywordsList;
                     if (keywordsDictionary.ContainsKey(letter))
                     {
-                        list = keywordsDictionary[letter];
+                        keywordsList = keywordsDictionary[letter];
                     }
                     else
                     {
-                        list = new List<KeywordPair>();
-                        keywordsDictionary.Add(letter, list);
+                        keywordsList = new List<KeywordPair>();
+                        keywordsDictionary.Add(letter, keywordsList);
                     }
 
-                    list.Add(pair);
+                    keywordsList.Add(pair);
                 }
 
                 json = JsonConvert.SerializeObject(keywordsDictionary);
@@ -245,11 +245,12 @@ namespace WordsOfTheDayApp.Model
                 await sideBarMarkdownBlob.UploadTextAsync(md.ToString());
                 await keywordsBlob.UploadTextAsync(json);
 
-                var list = keywordsDictionary.Values
+                // TODO REMOVE
+                var wholeList = keywordsDictionary.Values
                     .SelectMany(pair => pair)
                     .ToList();
 
-                log.LogInformation($"Saved the keywords for {topic}: {list.Count} keywords");
+                log.LogInformation($"Saved the keywords for {topic}: {wholeList.Count} keywords");
             }
 
             var newContainer = client.GetContainerReference(
