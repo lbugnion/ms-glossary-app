@@ -26,7 +26,7 @@ namespace WordsOfTheDayApp.Model
 
             if (!await jsonBlob.ExistsAsync())
             {
-                log.LogError($"jsonBlob not found: {jsonBlob.Uri}");
+                log?.LogError($"jsonBlob not found: {jsonBlob.Uri}");
                 return string.Empty;
             }
 
@@ -60,7 +60,7 @@ namespace WordsOfTheDayApp.Model
                     $"Error when loading blob {file}.md : {error.Message}",
                     log);
 
-                log.LogError($"Cannot load blob: {file}.md");
+                log?.LogError($"Cannot load blob: {file}.md");
                 return string.Empty;
             }
 
@@ -79,7 +79,7 @@ namespace WordsOfTheDayApp.Model
             {
                 try
                 {
-                    log.LogInformation("Uploading");
+                    log?.LogInformation("Uploading");
                     await newBlob.UploadTextAsync(newMarkdown);
                     await NotificationService.Notify(
                         $"Replaced keywords in file {file}",
@@ -98,12 +98,12 @@ namespace WordsOfTheDayApp.Model
                         $"Error when uploading blob {file}.md : {error.Message}",
                         log);
 
-                    log.LogError($"Cannot upload blob: {file}.md");
+                    log?.LogError($"Cannot upload blob: {file}.md");
                     return string.Empty;
                 }
             }
 
-            log.LogInformation($"Done replacing keywords in {file}");
+            log?.LogInformation($"Done replacing keywords in {file}");
             return file;
         }
     }

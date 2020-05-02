@@ -30,8 +30,8 @@ namespace WordsOfTheDayApp.Model
         {
             var oldBlob = new CloudBlockBlob(uri);
             var topic = Path.GetFileNameWithoutExtension(oldBlob.Name);
-            log.LogInformation("In MarkdownUpdater.Update");
-            log.LogInformation($"Topic: {topic}");
+            log?.LogInformation("In MarkdownUpdater.Update");
+            log?.LogInformation($"Topic: {topic}");
 
             var account = CloudStorageAccount.Parse(
                 Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
@@ -49,7 +49,7 @@ namespace WordsOfTheDayApp.Model
 
                 if (line == null)
                 {
-                    log.LogError($"Invalid markdown file: {topic}");
+                    log?.LogError($"Invalid markdown file: {topic}");
                     await NotificationService.Notify("ERROR in UpdateMarkdown", $"Invalid markdown file: {topic}", log);
                     return topic;
                 }
@@ -62,12 +62,12 @@ namespace WordsOfTheDayApp.Model
                 else if (line.StartsWith(YouTubeMarker))
                 {
                     youTubeCode = line.Substring(YouTubeMarker.Length).Trim();
-                    log.LogInformation($"youTubeCode: {youTubeCode}");
+                    log?.LogInformation($"youTubeCode: {youTubeCode}");
                 }
                 else if (line.StartsWith(KeywordsMarker))
                 {
                     keywordsLine = line.Substring(KeywordsMarker.Length).Trim();
-                    log.LogInformation($"keywordsLine: {keywordsLine}");
+                    log?.LogInformation($"keywordsLine: {keywordsLine}");
                 }
             }
 
@@ -79,7 +79,7 @@ namespace WordsOfTheDayApp.Model
             var captionsContainer = helper.GetContainer(Constants.CaptionsContainerVariableName);
             var captionsFilesList = new StringBuilder();
             var textInfo = CultureInfo.InvariantCulture.TextInfo;
-            log.LogInformation($"Checking captions for {topic}.");
+            log?.LogInformation($"Checking captions for {topic}.");
 
             do
             {
@@ -88,7 +88,7 @@ namespace WordsOfTheDayApp.Model
 
                 foreach (CloudBlockBlob captionBlob in response.Results)
                 {
-                    log.LogInformation($"Found caption {captionBlob.Name} for {topic}.");
+                    log?.LogInformation($"Found caption {captionBlob.Name} for {topic}.");
 
                     var nameParts = captionBlob.Name.Split(new[]
                     {
@@ -98,17 +98,17 @@ namespace WordsOfTheDayApp.Model
                     if (nameParts.Length != 3
                         || !captionBlob.Name.EndsWith(".srt"))
                     {
-                        log.LogError($"Invalid SRT in {captionsContainer.Uri}: {captionBlob.Name}");
+                        log?.LogError($"Invalid SRT in {captionsContainer.Uri}: {captionBlob.Name}");
                         continue;
                     }
 
                     if (nameParts[0].ToLower() != $"{topic.ToLower()}")
                     {
-                        log.LogInformation($"{captionBlob.Name} is NOT used for {topic}.");
+                        log?.LogInformation($"{captionBlob.Name} is NOT used for {topic}.");
                         continue;
                     }
 
-                    log.LogInformation($"{captionBlob.Name} is used for {topic}.");
+                    log?.LogInformation($"{captionBlob.Name} is used for {topic}.");
 
                     captionsFilesList.AppendLine(
                         string.Format(
@@ -131,7 +131,6 @@ namespace WordsOfTheDayApp.Model
                     captionsFilesList.ToString());
 
             // Process keywords first
-            // TODO can we optimize this?
             if (!string.IsNullOrEmpty(keywordsLine))
             {
                 var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
@@ -224,11 +223,11 @@ namespace WordsOfTheDayApp.Model
                     md.AppendLine($"#### {pair.Key}");
                     md.AppendLine();
 
-                    log.LogInformation($"Side bar: {pair.Key}");
+                    log?.LogInformation($"Side bar: {pair.Key}");
 
                     foreach (var k in pair.Value.OrderBy(v => v.Keyword))
                     {
-                        log.LogInformation($"Side bar: {k.Keyword} | {k.Topic}");
+                        log?.LogInformation($"Side bar: {k.Keyword} | {k.Topic}");
 
                         if (k.Topic == k.Subtopic)
                         {
@@ -251,7 +250,7 @@ namespace WordsOfTheDayApp.Model
                     .SelectMany(pair => pair)
                     .ToList();
 
-                log.LogInformation($"Saved the keywords for {topic}: {wholeList.Count} keywords");
+                log?.LogInformation($"Saved the keywords for {topic}: {wholeList.Count} keywords");
             }
 
             var newContainer = helper.GetContainer(Constants.TopicsContainerVariableName);

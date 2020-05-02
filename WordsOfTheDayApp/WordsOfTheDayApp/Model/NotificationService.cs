@@ -31,7 +31,7 @@ namespace WordsOfTheDayApp.Model
             request.Content = content;
             var response = await client.SendAsync(request);
             var result = await response.Content.ReadAsStringAsync();
-            log.LogInformation(result);
+            log?.LogInformation(result);
         }
     }
 }
