@@ -1,49 +1,20 @@
-using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using WordsOfTheDayApp.Model;
 
-namespace WordsOfTheDayApp
+namespace WordsOfTheDayApp.Model
 {
-    public static class ReplaceKeywords
+    public static class MarkdownReplacer
     {
-#if DEBUG
-        public const string SemaphorePath = "c:\\temp\\{0}.txt";
-#endif
-
-        [FunctionName("ReplaceKeywords")]
-        public static async Task Run(
-            [QueueTrigger(
-                "%QueueName%",
-                Connection = Constants.AzureWebJobsStorageVariableName)]
+        public static async Task<string> Replace(
             string file,
             ILogger log)
         {
-#if DEBUG
-            var path = string.Format(SemaphorePath, file);
-
-            if (Constants.UseSemaphores)
-            {
-                if (File.Exists(path))
-                {
-                    log.LogError($"Semaphore found at {path}");
-                    return;
-                }
-
-                File.CreateText(path);
-            }
-#endif
-
-            log.LogInformation("Executing EnqueueMarkdownEdition");
-            log.LogInformation($"File: {file}");
-
             var account = CloudStorageAccount.Parse(
                 Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
 
@@ -55,7 +26,8 @@ namespace WordsOfTheDayApp
 
             if (!await jsonBlob.ExistsAsync())
             {
-                return;
+                log.LogError($"jsonBlob not found: {jsonBlob.Uri}");
+                return string.Empty;
             }
 
             var json = await jsonBlob.DownloadTextAsync();
@@ -89,7 +61,7 @@ namespace WordsOfTheDayApp
                     log);
 
                 log.LogError($"Cannot load blob: {file}.md");
-                return;
+                return string.Empty;
             }
 
             var replacer = new KeywordReplacer();
@@ -127,11 +99,12 @@ namespace WordsOfTheDayApp
                         log);
 
                     log.LogError($"Cannot upload blob: {file}.md");
-                    return;
+                    return string.Empty;
                 }
             }
 
-            log.LogInformation($"Done");
+            log.LogInformation($"Done replacing keywords in {file}");
+            return file;
         }
     }
 }

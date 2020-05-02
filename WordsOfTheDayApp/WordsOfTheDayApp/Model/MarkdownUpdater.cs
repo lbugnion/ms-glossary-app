@@ -131,6 +131,7 @@ namespace WordsOfTheDayApp.Model
                     captionsFilesList.ToString());
 
             // Process keywords first
+            // TODO can we optimize this?
             if (!string.IsNullOrEmpty(keywordsLine))
             {
                 var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);

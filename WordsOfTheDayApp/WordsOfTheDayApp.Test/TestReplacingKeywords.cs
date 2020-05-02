@@ -364,7 +364,7 @@ namespace WordsOfTheDayApp.Test
 
             var replacer = new KeywordReplacer();
 
-            var result = replacer.ReplaceInMarkdown(
+            var (result, replaced) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -381,7 +381,7 @@ namespace WordsOfTheDayApp.Test
 
             var replacer = new KeywordReplacer();
 
-            var result = replacer.ReplaceInMarkdown(
+            var (result, replaced) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -398,7 +398,7 @@ namespace WordsOfTheDayApp.Test
 
             var replacer = new KeywordReplacer();
 
-            var result = replacer.ReplaceInMarkdown(
+            var (result, replaced) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -415,7 +415,7 @@ namespace WordsOfTheDayApp.Test
 
             var replacer = new KeywordReplacer();
 
-            var result = replacer.ReplaceInMarkdown(
+            var (result, replaced) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -432,7 +432,7 @@ namespace WordsOfTheDayApp.Test
 
             var replacer = new KeywordReplacer();
 
-            var result = replacer.ReplaceInMarkdown(
+            var (result, replaced) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -449,7 +449,7 @@ namespace WordsOfTheDayApp.Test
 
             var replacer = new KeywordReplacer();
 
-            var result = replacer.ReplaceInMarkdown(
+            var (result, replaced) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -465,7 +465,7 @@ namespace WordsOfTheDayApp.Test
 
             var replacer = new KeywordReplacer();
 
-            var result = replacer.ReplaceInMarkdown(
+            var (result, replaced) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -484,7 +484,7 @@ namespace WordsOfTheDayApp.Test
 
             var replacer = new KeywordReplacer();
 
-            var result = replacer.ReplaceInMarkdown(
+            var (result, replaced) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -501,7 +501,7 @@ namespace WordsOfTheDayApp.Test
 
             var replacer = new KeywordReplacer();
 
-            var result = replacer.ReplaceInMarkdown(
+            var (result, replaced) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -518,7 +518,7 @@ namespace WordsOfTheDayApp.Test
 
             var replacer = new KeywordReplacer();
 
-            var result = replacer.ReplaceInMarkdown(
+            var (result, replaced) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
