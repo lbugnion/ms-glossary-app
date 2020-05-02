@@ -79,6 +79,7 @@ namespace WordsOfTheDayApp.Model
             var captionsContainer = helper.GetContainer(Constants.CaptionsContainerVariableName);
             var captionsFilesList = new StringBuilder();
             var textInfo = CultureInfo.InvariantCulture.TextInfo;
+            log.LogInformation($"Checking captions for {topic}.");
 
             do
             {
@@ -87,6 +88,8 @@ namespace WordsOfTheDayApp.Model
 
                 foreach (CloudBlockBlob captionBlob in response.Results)
                 {
+                    log.LogInformation($"Found caption {captionBlob.Name} for {topic}.");
+
                     var nameParts = captionBlob.Name.Split(new[]
                     {
                         '.'
@@ -101,8 +104,11 @@ namespace WordsOfTheDayApp.Model
 
                     if (nameParts[0].ToLower() != $"{topic.ToLower()}")
                     {
+                        log.LogInformation($"{captionBlob.Name} is NOT used for {topic}.");
                         continue;
                     }
+
+                    log.LogInformation($"{captionBlob.Name} is used for {topic}.");
 
                     captionsFilesList.AppendLine(
                         string.Format(
