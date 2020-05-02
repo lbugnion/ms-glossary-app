@@ -1,12 +1,10 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using WordsOfTheDayApp.Model;
 
 namespace WordsOfTheDayApp
@@ -26,10 +24,14 @@ namespace WordsOfTheDayApp
         {
             string blobName = req.Query["name"];
 
+            var topicsContainerName = Environment.GetEnvironmentVariable(
+                Constants.TopicsContainerVariableName);
+            log?.LogInformation($"topicsContainerName: {topicsContainerName}");
+
             var uri = new Uri(
                 string.Format(
-                    UriMask, 
-                    Environment.GetEnvironmentVariable(Constants.TopicsContainerVariableName), 
+                    UriMask,
+                    topicsContainerName, 
                     blobName));
             var topic = await MarkdownEditionEnqueuer.Enqueue(uri, log);
 

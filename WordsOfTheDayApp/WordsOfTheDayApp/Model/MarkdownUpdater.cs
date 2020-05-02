@@ -31,6 +31,7 @@ namespace WordsOfTheDayApp.Model
         {
             var oldBlob = new CloudBlockBlob(uri);
             var topic = Path.GetFileNameWithoutExtension(oldBlob.Name);
+            log.LogInformation("In MarkdownUpdater.Update");
             log.LogInformation($"Topic: {topic}");
 
             var account = CloudStorageAccount.Parse(
@@ -74,11 +75,9 @@ namespace WordsOfTheDayApp.Model
             // Check SRT files
             BlobContinuationToken continuationToken = null;
             var client = account.CreateCloudBlobClient();
-            var captionsContainer = client.GetContainerReference(
-                Environment.GetEnvironmentVariable(Constants.CaptionsContainerVariableName));
+            var helper = new BlobHelper(client, log);
 
-            log.LogInformation($"Captions container: {captionsContainer.Uri}");
-
+            var captionsContainer = helper.GetContainer(Constants.CaptionsContainerVariableName);
             var captionsFilesList = new StringBuilder();
             var textInfo = CultureInfo.InvariantCulture.TextInfo;
 
@@ -129,11 +128,7 @@ namespace WordsOfTheDayApp.Model
             // Process keywords first
             if (!string.IsNullOrEmpty(keywordsLine))
             {
-                var settingsContainer = client.GetContainerReference(
-                    Environment.GetEnvironmentVariable(Constants.SettingsContainerVariableName));
-
-                log.LogInformation($"settingsContainer: {settingsContainer.Uri}");
-
+                var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
                 var keywordsBlob = settingsContainer.GetBlockBlobReference(Constants.KeywordsBlob);
                 var sideBarMarkdownBlob = settingsContainer.GetBlockBlobReference(Constants.SideBarMarkdownBlob);
 
@@ -253,12 +248,8 @@ namespace WordsOfTheDayApp.Model
                 log.LogInformation($"Saved the keywords for {topic}: {wholeList.Count} keywords");
             }
 
-            var newContainer = client.GetContainerReference(
-                Environment.GetEnvironmentVariable(Constants.TopicsContainerVariableName));
-            log.LogInformation($"newContainer: {newContainer.Uri}");
-
+            var newContainer = helper.GetContainer(Constants.TopicsContainerVariableName);
             var newBlob = newContainer.GetBlockBlobReference($"{topic}.md");
-
             await newBlob.DeleteIfExistsAsync();
             await newBlob.UploadTextAsync(newMarkdown);
             return topic;

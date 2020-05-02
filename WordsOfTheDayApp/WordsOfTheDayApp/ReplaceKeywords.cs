@@ -48,12 +48,10 @@ namespace WordsOfTheDayApp
                 Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
 
             var client = account.CreateCloudBlobClient();
+            var helper = new BlobHelper(client, log);
+            var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
 
-            var jsonContainer = client.GetContainerReference(
-                Environment.GetEnvironmentVariable(Constants.SettingsContainerVariableName));
-            log.LogInformation($"jsonContainer: {jsonContainer.Uri}");
-
-            var jsonBlob = jsonContainer.GetBlockBlobReference(Constants.KeywordsBlob);
+            var jsonBlob = settingsContainer.GetBlockBlobReference(Constants.KeywordsBlob);
 
             if (!await jsonBlob.ExistsAsync())
             {
@@ -67,9 +65,7 @@ namespace WordsOfTheDayApp
                 .SelectMany(x => x)
                 .ToList();
 
-            var newContainer = client.GetContainerReference(
-                Environment.GetEnvironmentVariable(Constants.TopicsContainerVariableName));
-            log.LogInformation($"newContainer: {newContainer.Uri}");
+            var newContainer = helper.GetContainer(Constants.TopicsContainerVariableName);
 
             CloudBlockBlob newBlob = null;
             string markdown = null;

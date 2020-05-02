@@ -22,23 +22,21 @@ namespace WordsOfTheDayApp.Model
                 Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
 
             var queueClient = account.CreateCloudQueueClient();
-            var blobClient = account.CreateCloudBlobClient();
-
-            var queue = queueClient.GetQueueReference(
-                Environment.GetEnvironmentVariable(Constants.QueueNameVariableName));
-            log.LogInformation($"QueueName: {queue.Name}");
+            var queueName = Environment.GetEnvironmentVariable(Constants.QueueNameVariableName);
+            log?.LogInformation($"queueName: {queueName}");
+            var queue = queueClient.GetQueueReference(queueName);
             await queue.CreateIfNotExistsAsync();
 
-            var container = blobClient.GetContainerReference(
-                Environment.GetEnvironmentVariable(Constants.TopicsContainerVariableName));
+            var blobClient = account.CreateCloudBlobClient();
+            var blobHelper = new BlobHelper(blobClient, log);
 
-            log.LogInformation($"container: {container.Uri}");
+            var topicsContainer = blobHelper.GetContainer(Constants.TopicsContainerVariableName);
             BlobContinuationToken continuationToken = null;
             var topics = new List<string>();
 
             do
             {
-                var response = await container.ListBlobsSegmentedAsync(continuationToken);
+                var response = await topicsContainer.ListBlobsSegmentedAsync(continuationToken);
                 continuationToken = response.ContinuationToken;
 
                 foreach (var blob in response.Results)
@@ -55,13 +53,12 @@ namespace WordsOfTheDayApp.Model
             }
             while (continuationToken != null);
 
-            var settingsContainer = blobClient.GetContainerReference(
-                Environment.GetEnvironmentVariable(Constants.SettingsContainerVariableName));
+            var settingsContainer = blobHelper.GetContainer(Constants.SettingsContainerVariableName);
             var topicsJsonBlob = settingsContainer.GetBlockBlobReference(Constants.TopicsBlob);
             var json = JsonConvert.SerializeObject(topics);
             await topicsJsonBlob.UploadTextAsync(json);
 
-            log.LogInformation($"Sending notification");
+            log.LogInformation($"Sending notification in MarkdownEditionEnqueuer.Enqueue");
 
             await NotificationService.Notify(
                 "Enqueued",

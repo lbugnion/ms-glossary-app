@@ -2,9 +2,8 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using WordsOfTheDayApp.Model;
 
-namespace WordsOfTheDayApp
+namespace WordsOfTheDayApp.Model
 {
     public class NotificationService
     {
@@ -20,9 +19,15 @@ namespace WordsOfTheDayApp
             var content = new StringContent(json);
 
             var request = new HttpRequestMessage(HttpMethod.Post, NotificationsUrl);
-            request.Headers.Add(
-                "x-functions-key", 
-                Environment.GetEnvironmentVariable(Constants.NotifyFunctionCodeVariableName));
+
+            var code = Environment.GetEnvironmentVariable(Constants.NotifyFunctionCodeVariableName);
+
+            if (string.IsNullOrEmpty(code))
+            {
+                log?.LogError("Function code not found in NotificationService.Notify");
+                return;
+            }
+            request.Headers.Add("x-functions-key", code);
             request.Content = content;
             var response = await client.SendAsync(request);
             var result = await response.Content.ReadAsStringAsync();

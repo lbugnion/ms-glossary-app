@@ -23,10 +23,18 @@ namespace WordsOfTheDayApp
         {
             string blobName = req.Query["name"];
 
+            var topicsUploadContainerName = Environment.GetEnvironmentVariable(Constants.TopicsUploadContainerVariableName);
+
+            if (string.IsNullOrEmpty(topicsUploadContainerName))
+            {
+                log.LogError("topicsUploadContainerName is null in UpdateMarkdownHttp");
+                return new BadRequestObjectResult("topicsUploadContainerName is null in UpdateMarkdownHttp");
+            }
+
             var uri = new Uri(
                 string.Format(
                     UriMask, 
-                    Environment.GetEnvironmentVariable(Constants.TopicsUploadContainerVariableName), 
+                    topicsUploadContainerName, 
                     blobName));
             var topic = await MarkdownUpdater.Update(uri, log);
 
