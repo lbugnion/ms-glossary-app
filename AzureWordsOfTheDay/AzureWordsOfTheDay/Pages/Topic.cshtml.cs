@@ -10,16 +10,16 @@ namespace AzureWordsOfTheDay.Pages
 {
     public class TopicModel : PageModel
     {
-        private readonly MarkdownHelper _markdown;
         private readonly ILogger _logger;
+        private readonly MarkdownHelper _markdown;
 
-        public string Topic
+        public string Subtopic
         {
             get;
             private set;
         }
 
-        public string Subtopic
+        public string Topic
         {
             get;
             private set;

@@ -10,11 +10,11 @@ namespace AzureWordsOfTheDay.Pages
 {
     public class IndexModel : PageModel
     {
-        private MarkdownHelper _markdown;
         private readonly ILogger _logger;
         private IHostingEnvironment _env;
+        private MarkdownHelper _markdown;
 
-        public HtmlString TopicBarHtml
+        public HtmlString IndexContent
         {
             get;
             private set;
@@ -26,7 +26,7 @@ namespace AzureWordsOfTheDay.Pages
             private set;
         }
 
-        public HtmlString IndexContent
+        public HtmlString TopicBarHtml
         {
             get;
             private set;
