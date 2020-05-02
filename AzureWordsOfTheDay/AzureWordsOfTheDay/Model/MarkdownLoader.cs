@@ -140,11 +140,15 @@ namespace AzureWordsOfTheDay.Model
             logger?.LogInformation("In MarkdownLoader.LoadRandomTopic");
 
             var url = string.Format(MainTopicListUrl, Startup.Configuration[Constants.SettingsContainerVariableName]);
+            logger?.LogInformation($"url: {url}");
+
             var json = await Client.GetStringAsync(url);
 
-            logger?.LogInformation("JSON loaded");
+            logger?.LogInformation($"JSON loaded: {json}");
 
             var list = JsonConvert.DeserializeObject<List<string>>(json);
+
+            logger?.LogInformation($"List loaded: {list.Count} topics found");
 
             var random = new Random();
             var index = random.Next(0, list.Count);
