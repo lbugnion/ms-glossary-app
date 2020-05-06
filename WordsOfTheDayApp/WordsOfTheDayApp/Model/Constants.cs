@@ -12,7 +12,6 @@
         public const string TopicsBlob = "topics.json";
         public const string TopicsContainerVariableName = "TopicsContainer";
         public const string TopicsUploadContainerVariableName = "TopicsUploadContainer";
-
 #if DEBUG
         public const bool UseSemaphores = false;
 #endif

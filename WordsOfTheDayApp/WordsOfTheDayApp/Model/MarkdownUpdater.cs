@@ -18,6 +18,7 @@ namespace WordsOfTheDayApp.Model
         private const string DownloadCaptionTemplate = "- [{0}](https://wordsoftheday.blob.core.windows.net/captions/{1})";
         private const string DownloadLinkTemplate = "https://wordsoftheday.blob.core.windows.net/videos/{0}.mp4";
         private const string DownloadMarker = "<!-- DOWNLOAD -->";
+        private const string DateTimeMarker = "<!-- DATETIME -->";
         private const string H1 = "# ";
         private const string KeywordsMarker = "> Keywords: ";
         private const string SideBarBoldTemplate = "- [**{0}**](/topic/{1})";
@@ -128,7 +129,10 @@ namespace WordsOfTheDayApp.Model
                     string.Format(DownloadLinkTemplate, topic))
                 .Replace(
                     DownloadCaptionsMarker,
-                    captionsFilesList.ToString());
+                    captionsFilesList.ToString())
+                .Replace(
+                    DateTimeMarker,
+                    DateTime.Now.ToString("dd MMM yyyy HH:mm"));
 
             // Process keywords first
             if (!string.IsNullOrEmpty(keywordsLine))
