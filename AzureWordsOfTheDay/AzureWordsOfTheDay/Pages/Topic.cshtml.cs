@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using System.Globalization;
+using System;
 using System.Threading.Tasks;
 
 namespace AzureWordsOfTheDay.Pages
@@ -45,21 +45,16 @@ namespace AzureWordsOfTheDay.Pages
             _markdown = markdown;
         }
 
-        public async Task<IActionResult> OnGet(string topic, string subtopic)
+        public async Task<IActionResult> OnGet(string fullTopic)
         {
-            _logger.LogInformation($"OnGet in Topic: {topic} / {subtopic}");
+            _logger.LogInformation($"OnGet in Topic: {fullTopic}");
 
-            Topic = topic.ToLower();
+            var parts = fullTopic.Split(new char[]
+            {
+                '_'
+            }, StringSplitOptions.RemoveEmptyEntries);
 
-            if (subtopic != topic)
-            {
-                var textInfo = CultureInfo.InvariantCulture.TextInfo;
-                Subtopic = textInfo.ToTitleCase(subtopic.Replace('-', ' '));
-            }
-            else
-            {
-                Subtopic = string.Empty;
-            }
+            Topic = parts[0].ToLower();
 
             if (string.IsNullOrEmpty(Topic))
             {
@@ -67,7 +62,7 @@ namespace AzureWordsOfTheDay.Pages
                 return Redirect("/");
             }
 
-            TopicHtml = await _markdown.LoadMarkdown(Topic, _logger);
+            TopicHtml = await _markdown.LoadMarkdown(fullTopic, _logger);
             TopicBarHtml = await _markdown.LoadTopicsBar(_logger);
 
             _logger.LogInformation("Done rendering in Topic");

@@ -12,8 +12,8 @@ namespace AzureWordsOfTheDay.Model
 {
     public class MarkdownHelper
     {
-        private const string MainTopicListUrl = "https://wordsoftheday.blob.core.windows.net/{0}/topics.json";
-        private const string TopicsBarUrl = "https://wordsoftheday.blob.core.windows.net/{0}/keywords.md";
+        private const string MainTopicListUrl = "https://wordsoftheday.blob.core.windows.net/{0}/{1}";
+        private const string TopicsBarUrl = "https://wordsoftheday.blob.core.windows.net/{0}/{1}";
         private const string TopicUrlMask = "https://wordsoftheday.blob.core.windows.net/{0}/{1}.md";
         private HttpClient _client;
 
@@ -104,7 +104,10 @@ namespace AzureWordsOfTheDay.Model
         {
             logger?.LogInformation("In MarkdownLoader.LoadRandomTopic");
 
-            var url = string.Format(MainTopicListUrl, Startup.Configuration[Constants.SettingsContainerVariableName]);
+            var url = string.Format(
+                MainTopicListUrl, 
+                Startup.Configuration[Constants.SettingsContainerVariableName],
+                Constants.TopicsBlob);
             logger?.LogInformation($"url: {url}");
 
             try
@@ -140,7 +143,7 @@ namespace AzureWordsOfTheDay.Model
             var settingsFolder = Startup.Configuration[Constants.SettingsContainerVariableName];
             logger?.LogInformation($"settingsFolder: {settingsFolder}");
 
-            var uri = new Uri(string.Format(TopicsBarUrl, settingsFolder));
+            var uri = new Uri(string.Format(TopicsBarUrl, settingsFolder, Constants.SideBarMarkdownBlob));
             logger?.LogInformation($"uri: {uri}");
 
             string markdown = null;

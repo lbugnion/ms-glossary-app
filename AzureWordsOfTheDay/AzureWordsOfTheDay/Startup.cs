@@ -41,6 +41,8 @@ namespace AzureWordsOfTheDay
             {
                 var url = context.Request.Path.Value;
 
+                // TODO Rewrite /topic/subtopic to /topic-subtopic
+
                 if (url.Contains("/topic/"))
                 {
                     var parts = url.Split(new char[]
@@ -48,9 +50,9 @@ namespace AzureWordsOfTheDay
                         '/'
                     }, StringSplitOptions.RemoveEmptyEntries);
 
-                    if (parts.Length < 3)
+                    if (parts.Length == 3)
                     {
-                        url = $"/{parts[0]}/{parts[1]}/{parts[1]}";
+                        url = $"/{parts[0]}/{parts[1]}_{parts[2]}";
                         context.Request.Path = url;
                     }
                 }
