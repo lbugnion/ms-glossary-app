@@ -1,0 +1,93 @@
+{
+	"S": [
+		{
+			"Keyword": "Serverless",
+			"Subtopic": "serverless",
+			"Topic": "serverless"
+		}
+	],
+	"Y": [
+		{
+			"Keyword": "Yes another test topic",
+			"Subtopic": "test",
+			"Topic": "test"
+		}
+	],
+	"A": [
+		{
+			"Keyword": "AAD",
+			"Subtopic": "aad",
+			"Topic": "aad"
+		},
+		{
+			"Keyword": "Active Directory",
+			"Subtopic": "active-directory",
+			"Topic": "aad"
+		},
+		{
+			"Keyword": "Authorization",
+			"Subtopic": "authorization",
+			"Topic": "aad"
+		},
+		{
+			"Keyword": "Authentication",
+			"Subtopic": "authentication",
+			"Topic": "aad"
+		},
+		{
+			"Keyword": "App Service",
+			"Subtopic": "app-service",
+			"Topic": "app-service"
+		},
+		{
+			"Keyword": "ASP.NET",
+			"Subtopic": "asp.net",
+			"Topic": "app-service"
+		},
+		{
+			"Keyword": "Azure Function",
+			"Subtopic": "azure-function",
+			"Topic": "serverless"
+		}
+	],
+	"L": [
+		{
+			"Keyword": "Logic App",
+			"Subtopic": "logic-app",
+			"Topic": "serverless"
+		}
+	],
+	"T": [
+		{
+			"Keyword": "Trigger",
+			"Subtopic": "trigger",
+			"Topic": "serverless"
+		}
+	],
+	"C": [
+		{
+			"Keyword": "Connector",
+			"Subtopic": "connector",
+			"Topic": "serverless"
+		}
+	],
+	"W": [
+		{
+			"Keyword": "Web Server",
+			"Subtopic": "web-server",
+			"Topic": "app-service"
+		},
+		{
+			"Keyword": "Web Api",
+			"Subtopic": "web-api",
+			"Topic": "app-service"
+		}
+	],
+	"I": [
+		{
+			"Keyword": "Identity",
+			"Subtopic": "identity",
+			"Topic": "aad"
+		}
+	]
+}
