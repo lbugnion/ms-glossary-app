@@ -21,8 +21,6 @@ namespace WordsOfTheDayApp.Model
         private const string DateTimeMarker = "<!-- DATETIME -->";
         private const string H1 = "# ";
         private const string KeywordsMarker = "> Keywords: ";
-        private const string SideBarBoldTemplate = "- [**{0}**](/topic/{1})";
-        private const string SideBarTemplate = "- [{0}](/topic/{1}/{2})";
         private const string YouTubeEmbed = "<iframe width=\"560\" height=\"560\" src=\"https://www.youtube.com/embed/{0}\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>";
         private const string YouTubeEmbedMarker = "<!-- YOUTUBEEMBED -->";
         private const string YouTubeMarker = "> YouTube: ";
@@ -43,6 +41,7 @@ namespace WordsOfTheDayApp.Model
             var done = false;
             string youTubeCode = null;
             string keywordsLine = null;
+            string topicTitle = null;
 
             while (!done)
             {
@@ -57,6 +56,14 @@ namespace WordsOfTheDayApp.Model
 
                 if (line.StartsWith(H1))
                 {
+                    topicTitle = line
+                        .Substring(H1.Length)
+                        .Substring(1);
+
+                    topicTitle = topicTitle
+                        .Substring(0, topicTitle.IndexOf(']'))
+                        .Trim();
+
                     oldMarkdown = oldMarkdown.Substring(oldMarkdown.IndexOf(H1));
                     done = true;
                 }
@@ -139,15 +146,22 @@ namespace WordsOfTheDayApp.Model
             {
                 var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
                 var keywordsBlob = settingsContainer.GetBlockBlobReference(Constants.KeywordsBlob);
-                var sideBarMarkdownBlob = settingsContainer.GetBlockBlobReference(Constants.SideBarMarkdownBlob);
 
                 string json = null;
                 Dictionary<char, List<KeywordPair>> keywordsDictionary;
 
                 var newKeywords = keywordsLine.Split(new char[]
+                    {
+                        ','
+                    }, StringSplitOptions.RemoveEmptyEntries)
+                    .ToList();
+
+                var title = newKeywords.FirstOrDefault(k => k.ToLower().Trim() == topicTitle.ToLower());
+
+                if (!string.IsNullOrEmpty(title))
                 {
-                    ','
-                }, StringSplitOptions.RemoveEmptyEntries);
+                    newKeywords.Remove(title);
+                }
 
                 if (await keywordsBlob.ExistsAsync())
                 {
@@ -187,6 +201,8 @@ namespace WordsOfTheDayApp.Model
                         {
                             // We got a problem, notify the process owner, add anyway
                             // (this creates a duplicate in the topics bar).
+                            
+                            // TODO Register the creation of a Disambiguation page
 
                             await NotificationService.Notify(
                                 "Duplicate found in new markdown",
@@ -200,10 +216,9 @@ namespace WordsOfTheDayApp.Model
                     keywordsDictionary = new Dictionary<char, List<KeywordPair>>();
                 }
 
-                foreach (var newKeyword in newKeywords.Select(k => k.Trim()))
+                void AddToKeywordsList(KeywordPair pair)
                 {
-                    var pair = new KeywordPair(topic, newKeyword.ToLower().Replace(' ', '-'), newKeyword);
-                    var letter = newKeyword.ToUpper()[0];
+                    var letter = pair.Keyword.ToUpper()[0];
 
                     List<KeywordPair> keywordsList;
                     if (keywordsDictionary.ContainsKey(letter))
@@ -219,42 +234,20 @@ namespace WordsOfTheDayApp.Model
                     keywordsList.Add(pair);
                 }
 
-                json = JsonConvert.SerializeObject(keywordsDictionary);
-
-                var md = new StringBuilder();
-                foreach (var pair in keywordsDictionary.OrderBy(p => p.Key))
+                foreach (var newKeyword in newKeywords.Select(k => k.Trim()))
                 {
-                    md.AppendLine($"#### {pair.Key}");
-                    md.AppendLine();
-
-                    log?.LogInformation($"Side bar: {pair.Key}");
-
-                    foreach (var k in pair.Value.OrderBy(v => v.Keyword))
-                    {
-                        log?.LogInformation($"Side bar: {k.Keyword} | {k.Topic}");
-
-                        if (k.Topic == k.Subtopic)
-                        {
-                            md.AppendLine(string.Format(SideBarBoldTemplate, k.Keyword, k.Topic));
-                        }
-                        else
-                        {
-                            md.AppendLine(string.Format(SideBarTemplate, k.Keyword, k.Topic, k.Subtopic));
-                        }
-                    }
-
-                    md.AppendLine();
+                    var pair = new KeywordPair(
+                        topic, 
+                        newKeyword.ToLower().Replace(' ', '-'), 
+                        newKeyword);
+                    AddToKeywordsList(pair);
                 }
 
-                await sideBarMarkdownBlob.UploadTextAsync(md.ToString());
+                var titlePair = new KeywordPair(topic, topic, topicTitle);
+                AddToKeywordsList(titlePair);
+
+                json = JsonConvert.SerializeObject(keywordsDictionary);
                 await keywordsBlob.UploadTextAsync(json);
-
-                // TODO REMOVE
-                var wholeList = keywordsDictionary.Values
-                    .SelectMany(pair => pair)
-                    .ToList();
-
-                log?.LogInformation($"Saved the keywords for {topic}: {wholeList.Count} keywords");
             }
 
             var newContainer = helper.GetContainer(Constants.TopicsContainerVariableName);

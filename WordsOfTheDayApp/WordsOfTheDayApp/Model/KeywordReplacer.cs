@@ -11,6 +11,7 @@ namespace WordsOfTheDayApp.Model
         public const string SingleWordCharacter = " [](){}*!&-_+=|/':;.,<>?\"";
         public const string SubtopicLinkTemplate = "/topic/{0}/{1}";
         public const string TopicLinkTemplate = "/topic/{0}";
+        public const string TranscriptTitle = "## Transcript";
 
         public (string markdown, string replaced) ReplaceInMarkdown(
             string markdown,
@@ -22,7 +23,7 @@ namespace WordsOfTheDayApp.Model
             var builder = new StringBuilder(markdown);
 
             var replaced = string.Empty;
-            var indexOfTranscript = markdown.IndexOf(Environment.NewLine + "## Transcript" + Environment.NewLine);
+            var indexOfTranscript = markdown.IndexOf(TranscriptTitle);
 
             foreach (var k in keywordsList)
             {
