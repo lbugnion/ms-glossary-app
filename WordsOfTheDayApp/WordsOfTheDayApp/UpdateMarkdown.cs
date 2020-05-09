@@ -25,7 +25,7 @@ namespace WordsOfTheDayApp
 
             await NotificationService.Notify(
                 "Updated topic",
-                $"The topic {topic} has been updated",
+                $"The topic {topic} has been updated in markdown",
                 log);
 
             return topic;
@@ -90,7 +90,7 @@ namespace WordsOfTheDayApp
 
             await NotificationService.Notify(
                 "Replaced keywords in topic",
-                $"The topic {topic} has been updated",
+                $"Keywords have been linked in the topic {topic}",
                 log);
 
             return null;
@@ -121,19 +121,32 @@ namespace WordsOfTheDayApp
             }
 
             await context.CallActivityAsync(
+                "UpdateMarkdown_SaveSideBar",
+                null);
+
+            await context.CallActivityAsync(
                 "UpdateMarkdown_SaveTopics",
                 topics);
 
             return topics;
         }
 
+        [FunctionName("UpdateMarkdown_SaveSideBar")]
+        public static async Task SaveSideBar(
+            [ActivityTrigger]
+            string dummy,
+            ILogger log)
+        {
+            await TopicsListSaver.SaveSideBar(log);
+        }
+
         [FunctionName("UpdateMarkdown_SaveTopics")]
-        public static async Task Save(
+        public static async Task SaveTopics(
             [ActivityTrigger]
             IList<string> topics,
             ILogger log)
         {
-            await TopicsListSaver.Save(topics, log);
+            await TopicsListSaver.SaveTopics(topics, log);
         }
     }
 }
