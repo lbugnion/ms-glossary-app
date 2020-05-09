@@ -20,16 +20,18 @@
 
 ## Download
 
-[You can download this video here](https://wordsoftheday.blob.core.windows.net/videos/test.mp4).
+[You can download this video here](https://wordsoftheday.blob.core.windows.net/videos/test.en.mp4).
 
-[Video with English captions burned in](https://wordsoftheday.blob.core.windows.net/videos/test.en.mp4).
+> This video has embedded captions for: English, Zulu
 
-> This video has embedded captions for: Latin, English
+[Video with English captions burned in](https://wordsoftheday.blob.core.windows.net/videos/test.en.en.burn.mp4).
 
-There are also captions for the following language(s):
+[Video with Zulu captions burned in](https://wordsoftheday.blob.core.windows.net/videos/test.en.zu.burn.mp4).
 
-- [English](https://wordsoftheday.blob.core.windows.net/captions/test.en.srt)
-- [Latin](https://wordsoftheday.blob.core.windows.net/captions/test.la.srt)
+There are also caption files for the following language(s):
+
+- [English](https://wordsoftheday.blob.core.windows.net/captions/test.en.en.srt)
+- [Zulu](https://wordsoftheday.blob.core.windows.net/captions/test.en.zu.srt)
 
 > Learn about [downloading and showing captions here](/captions).
 

@@ -48,6 +48,16 @@
 			"Keyword": "Azure Function",
 			"Subtopic": "azure-function",
 			"Topic": "serverless"
+		},
+		{
+			"Keyword": "Another test topic",
+			"Subtopic": "test",
+			"Topic": "test"
+		},
+		{
+			"Keyword": "Test",
+			"Subtopic": "test",
+			"Topic": "test"
 		}
 	],
 	"L": [

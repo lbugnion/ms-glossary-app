@@ -1,0 +1,50 @@
+# [Enye isihloko sokuhlola](/topic/test.la)
+
+<iframe width="560" height="560" src="https://www.youtube.com/embed/TESTZULU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+###### [(Landa ividiyo nezihloko)](#download)
+
+## Izixhumanisi
+
+### Imibhalo
+
+- [Lesi isixhumanisi 1](http://gslb.ch)
+- [Lesi isixhumanisi 2](http://gslb.ch)
+
+### Microsoft Learn
+
+- [Okunye ukuxhumana 1](http://gslb.ch) *(Module)*
+- [Okunye ukuxhumana 2](http://gslb.ch) *(Indlela yokufunda)*
+
+<a id="download"></a>
+
+## Landa
+
+[Ungalanda le vidiyo lapha](https://wordsoftheday.blob.core.windows.net/videos/test.zu.mp4).
+
+> Le vidiyo ishumeke amazwibela we: Zulu, English
+
+[Ividiyo enamazwibela amaNgisi ishiswe ngaphakathi](https://wordsoftheday.blob.core.windows.net/videos/test.zu.zu.burn.mp4).
+
+Kukhona futhi izihloko zolimi / izilimi ezilandelayo:
+
+- [English](https://wordsoftheday.blob.core.windows.net/captions/test.zu.en.srt)
+- [Zulu](https://wordsoftheday.blob.core.windows.net/captions/test.zu.zu.srt)
+
+> Funda ngokulanda [futhi ubonise amazwibela lapha](/captions).
+
+## Umbhalo
+
+Sawubona futhi wamukelekile ku- [Microsoft Azure Words of the Day](/), lo mbukiso owokufundisa isilulumagama sama-Azure!
+
+Izwi losuku lwanamuhla lithi: Vivinyo
+
+Kepha kufanele ngikuchazele ukuthi wonke lo mbono oyiphutha wokumemezela ubumnandi nokudumisa izinhlungu wazalwa kanjani futhi ngizokunikeza i-akhawunti ephelele yesistimu, futhi ngichaze izimfundiso zangempela zomhloli omkhulu weqiniso, umakhi omkhulu wabantu injabulo.
+
+Akekho owenqabayo, ongathandayo, noma ogwema injabulo ngokwayo, ngoba kuyinjabulo, kodwa ngoba labo abangazi ukuthi baphishekele injabulo bahlangana kanjani nemiphumela ebuhlungu kakhulu. Futhi akekho umuntu othanda noma ophishekela noma ofisa ukuzitholela izinhlungu uqobo, ngoba kungubuhlungu, kodwa ngoba ngezikhathi ezithile izimo kwenzeka lapho ukukhandleka nobuhlungu kungamtholela injabulo enkulu.
+
+Ukuthatha isibonelo esingasho lutho, yimuphi kithi owake wazivocavoca kanzima, ngaphandle kokuthola inzuzo ethile kukho? Kepha ngubani onelungelo lokuthola iphutha kumuntu okhetha ukujabulela injabulo engenamphumela ecasulayo, noma ogwema izinhlungu ezingakhi injabulo?
+
+Ngibonga kakhulu ngokubuka iMicrosoft Azure Words yosuku. Izwi losuku lwanamuhla lalithi: Vivinyo.
+
+*Kugcine ukuguqulwa: <!-- DATETIME -->*
