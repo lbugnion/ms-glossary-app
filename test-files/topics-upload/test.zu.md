@@ -1,3 +1,5 @@
+> Recording date: 20200505
+
 > Language: zu / Zulu
 
 > Captions: zu / Zulu, en / English
@@ -6,7 +8,11 @@
 
 > Keywords: Hlola, Ukuhlola, Ukufakazela ubuqiniso
 
-> [This topic was published here](http://gslb.ch/wod-test.la).
+> Submitted by: LBugnion@Microsoft.com
+
+> Twitter: @LBugnion
+
+> [This topic was published here](http://gslb.ch/wod-test.zu).
 
 # [Enye isihloko sokuhlola](/topic/test.la)
 

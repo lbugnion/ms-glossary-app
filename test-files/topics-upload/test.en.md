@@ -1,3 +1,5 @@
+> Recording date: 20200505
+
 > Language: en / English
 
 > Captions: en / English, zu / Zulu
@@ -5,6 +7,10 @@
 > YouTube: TEST
 
 > Keywords: Test, Testing, Authentication
+
+> Submitted by: LBugnion@Microsoft.com
+
+> Twitter: @LBugnion
 
 > [This topic was published here](http://gslb.ch/wod-test).
 

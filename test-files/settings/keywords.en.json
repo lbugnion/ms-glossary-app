@@ -4,6 +4,16 @@
 			"Keyword": "Serverless",
 			"Subtopic": "serverless",
 			"Topic": "serverless"
+		},
+		{
+			"Keyword": "Secure Sockets Layer",
+			"Subtopic": "secure-sockets-layer",
+			"Topic": "tls-ssl"
+		},
+		{
+			"Keyword": "SSL",
+			"Subtopic": "ssl",
+			"Topic": "tls-ssl"
 		}
 	],
 	"Y": [
@@ -72,6 +82,16 @@
 			"Keyword": "Trigger",
 			"Subtopic": "trigger",
 			"Topic": "serverless"
+		},
+		{
+			"Keyword": "Transport Layer Security",
+			"Subtopic": "transport-layer-security",
+			"Topic": "tls-ssl"
+		},
+		{
+			"Keyword": "TLS",
+			"Subtopic": "tls",
+			"Topic": "tls-ssl"
 		}
 	],
 	"C": [
@@ -79,6 +99,16 @@
 			"Keyword": "Connector",
 			"Subtopic": "connector",
 			"Topic": "serverless"
+		},
+		{
+			"Keyword": "Certificates",
+			"Subtopic": "certificates",
+			"Topic": "tls-ssl"
+		},
+		{
+			"Keyword": "Cryptography",
+			"Subtopic": "cryptography",
+			"Topic": "tls-ssl"
 		}
 	],
 	"W": [
@@ -98,6 +128,20 @@
 			"Keyword": "Identity",
 			"Subtopic": "identity",
 			"Topic": "aad"
+		}
+	],
+	"H": [
+		{
+			"Keyword": "HTTPS",
+			"Subtopic": "https",
+			"Topic": "tls-ssl"
+		}
+	],
+	"E": [
+		{
+			"Keyword": "Encryption",
+			"Subtopic": "encryption",
+			"Topic": "tls-ssl"
 		}
 	]
 }

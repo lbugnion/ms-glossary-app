@@ -1,3 +1,5 @@
+> Recording date: 20200505
+
 > Language: en / English
 
 > Captions: en / English, 
@@ -5,6 +7,10 @@
 > YouTube: O3KuatPZjfs
 
 > Keywords: Azure Function, Logic App, Trigger, Connector
+
+> Submitted by: LBugnion@Microsoft.com
+
+> Twitter: @LBugnion
 
 > [This topic was published here](http://gslb.ch/wod-serverless).
 
