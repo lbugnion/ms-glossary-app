@@ -1,4 +1,4 @@
-﻿@page "{fullTopic}"
+﻿@page "{languageCode}/{fullTopic}"
 @model AzureWordsOfTheDay.Pages.TopicModel
 @{
     ViewData["Title"] = Model.Topic;
@@ -14,8 +14,6 @@
 
 @Model.TopicHtml
 
-<script src="~/js/postload.js"></script>
-
-<script>
-    checkSubtopic("@Model.Subtopic");
-</script>
+<div id="languages">
+    @Model.LanguagesHtml
+</div>

@@ -12,7 +12,7 @@ namespace AzureWordsOfTheDay.Pages
     {
         private readonly ILogger _logger;
         private IHostingEnvironment _env;
-        private MarkdownHelper _markdown;
+        private ContentHelper _contentHelper;
 
         public HtmlString IndexContent
         {
@@ -32,31 +32,42 @@ namespace AzureWordsOfTheDay.Pages
             private set;
         }
 
+        public HtmlString LanguagesHtml
+        {
+            get;
+            private set;
+        }
+
         public IndexModel(
             ILogger<IndexModel> logger,
-            MarkdownHelper markdown,
+            ContentHelper contentHelper,
             IHostingEnvironment env)
         {
             _env = env;
             _logger = logger;
-            _markdown = markdown;
+            _contentHelper = contentHelper;
         }
 
-        public async Task OnGet()
+        public async Task OnGet(string languageCode)
         {
             _logger.LogInformation($"OnGet in Index");
 
             var docName = "index.md";
             var root = new DirectoryInfo(Path.Combine(_env.WebRootPath));
             var folder = Path.Combine(root.Parent.FullName, Constants.LocalMarkdownFolderName);
-            var file = Path.Combine(folder, docName);
-            IndexContent = _markdown.LoadLocalMarkdown(file);
+            IndexContent = _contentHelper.LoadLocalMarkdown(
+                folder, 
+                languageCode, 
+                docName, 
+                _logger);
 
-            TopicBarHtml = await _markdown.LoadTopicsBar(_logger);
+            TopicBarHtml = await _contentHelper.LoadTopicsBar(languageCode, _logger);
 
             _logger.LogInformation("Loading random topic");
-            SelectedTopicHtml = await _markdown.LoadRandomTopic(_logger);
+            SelectedTopicHtml = await _contentHelper.LoadRandomTopic(languageCode, _logger);
             _logger.LogInformation("Done loading random topic");
+
+            LanguagesHtml = await _contentHelper.LoadOtherLanguages(languageCode, _logger);
 
             _logger.LogInformation("Done rendering in Index");
         }

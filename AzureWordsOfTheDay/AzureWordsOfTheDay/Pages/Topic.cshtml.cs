@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace AzureWordsOfTheDay.Pages
@@ -11,7 +12,7 @@ namespace AzureWordsOfTheDay.Pages
     public class TopicModel : PageModel
     {
         private readonly ILogger _logger;
-        private readonly MarkdownHelper _markdown;
+        private readonly ContentHelper _contentHelper;
 
         public string Subtopic
         {
@@ -37,15 +38,21 @@ namespace AzureWordsOfTheDay.Pages
             private set;
         }
 
-        public TopicModel(
-            ILogger<TopicModel> logger,
-            MarkdownHelper markdown)
+        public HtmlString LanguagesHtml
         {
-            _logger = logger;
-            _markdown = markdown;
+            get;
+            private set;
         }
 
-        public async Task<IActionResult> OnGet(string fullTopic)
+        public TopicModel(
+            ILogger<TopicModel> logger,
+            ContentHelper contentHelper)
+        {
+            _logger = logger;
+            _contentHelper = contentHelper;
+        }
+
+        public async Task<IActionResult> OnGet(string languageCode, string fullTopic)
         {
             _logger.LogInformation($"OnGet in Topic: {fullTopic}");
 
@@ -62,8 +69,18 @@ namespace AzureWordsOfTheDay.Pages
                 return Redirect("/");
             }
 
-            TopicHtml = await _markdown.LoadMarkdown(fullTopic, _logger);
-            TopicBarHtml = await _markdown.LoadTopicsBar(_logger);
+            var (languagesLine, topicHtml) = await _contentHelper.LoadMarkdown(languageCode, fullTopic, _logger);
+
+            if (!string.IsNullOrEmpty(languagesLine))
+            {
+                LanguagesHtml = _contentHelper.MakeLanguages(
+                    languagesLine,
+                    $"<a href=\"/topic/{{0}}/{Topic}\">{{1}}</a>"); 
+            }
+
+            TopicHtml = topicHtml;
+
+            TopicBarHtml = await _contentHelper.LoadTopicsBar(languageCode, _logger);
 
             _logger.LogInformation("Done rendering in Topic");
 
