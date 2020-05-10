@@ -1,4 +1,6 @@
-# [Another test topic](/topic/test)
+> Other languages: zu / Zulu
+
+# [Another test topic](/en/topic/test)
 
 ###### (Redirected from Authentication)
 
@@ -29,11 +31,11 @@ There are also captions for the following language(s):
 - [English](https://wordsoftheday.blob.core.windows.net/captions/test.english.srt)
 
 
-> Learn about [downloading and showing captions here](/captions).
+> Learn about [downloading and showing captions here](/en/captions).
 
 ## Transcript
 
-Hello and welcome to [Microsoft Azure Words of the Day](/), this is the show that teaches you Azure vocabulary!
+Hello and welcome to [Microsoft Azure Words of the Day](/en), this is the show that teaches you Azure vocabulary!
 
 Today's word of the day is: Test
 

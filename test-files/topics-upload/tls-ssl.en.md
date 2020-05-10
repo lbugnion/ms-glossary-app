@@ -2,7 +2,7 @@
 
 > Language: en / English
 
-> Captions: en / English, 
+> Captions: en / English
 
 > YouTube: xJ_5BZoZ0mU
 
@@ -14,7 +14,7 @@
 
 > [This topic was published here](http://gslb.ch/wod-tls-ssl).
 
-# [TLS/SSL](/topic/tls-ssl)
+# [TLS/SSL](/en/topic/tls-ssl)
 
 <!-- YOUTUBEEMBED -->
 
@@ -43,11 +43,11 @@ There are also captions for the following language(s):
 
 <!-- DOWNLOAD-CAPTIONS -->
 
-> Learn about [downloading and showing captions here](/captions).
+> Learn about [downloading and showing captions here](/en/captions).
 
 ## Transcript
 
-Hello and welcome to [Microsoft Azure Words of the Day](/), the show that teaches you the Azure vocabulary!
+Hello and welcome to [Microsoft Azure Words of the Day](/en), the show that teaches you the Azure vocabulary!
 
 Today's words of the day are abbreviations: TLS / SSL.
 

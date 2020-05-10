@@ -2,7 +2,7 @@
 
 > Language: en / English
 
-> Captions: en / English, 
+> Captions: en / English
 
 > YouTube: WDieqEyq4uA
 
@@ -14,7 +14,7 @@
 
 > [This topic was published here](http://gslb.ch/wod-aad).
 
-# [Azure Active Directory AAD](/topic/aad)
+# [Azure Active Directory AAD](/en/topic/aad)
 
 <!-- YOUTUBEEMBED -->
 
@@ -44,11 +44,11 @@ There are also captions for the following language(s):
 
 <!-- DOWNLOAD-CAPTIONS -->
 
-> Learn about [downloading and showing captions here](/captions).
+> Learn about [downloading and showing captions here](/en/captions).
 
 ## Transcript
 
-Hello and welcome to [Microsoft Azure Words of the Day](/), this is the show that teaches you Azure vocabulary!
+Hello and welcome to [Microsoft Azure Words of the Day](/en), this is the show that teaches you Azure vocabulary!
 
 Today's word of the day is an abbreviation: AAD
 

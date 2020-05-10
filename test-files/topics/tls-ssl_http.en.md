@@ -1,4 +1,4 @@
-# [TLS/SSL](/topic/tls-ssl)
+# [TLS/SSL](/en/topic/tls-ssl)
 
 ###### (Redirected from HTTPS)
 
@@ -33,11 +33,11 @@ There are also captions for the following language(s):
 
 - [English](https://wordsoftheday.blob.core.windows.net/captions/tls-ssl.en.en.srt)
 
-> Learn about [downloading and showing captions here](/captions).
+> Learn about [downloading and showing captions here](/en/captions).
 
 ## Transcript
 
-Hello and welcome to [Microsoft Azure Words of the Day](/), the show that teaches you the Azure vocabulary!
+Hello and welcome to [Microsoft Azure Words of the Day](/en), the show that teaches you the Azure vocabulary!
 
 Today's words of the day are abbreviations: TLS / SSL.
 

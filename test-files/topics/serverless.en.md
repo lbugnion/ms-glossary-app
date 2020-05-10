@@ -1,4 +1,4 @@
-# [Serverless](/topic/serverless)
+# [Serverless](/en/topic/serverless)
 
 <iframe width="560" height="560" src="https://www.youtube.com/embed/O3KuatPZjfs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
@@ -33,11 +33,11 @@ There are also captions for the following language(s):
 - [English](https://wordsoftheday.blob.core.windows.net/captions/serverless.english.srt)
 
 
-> Learn about [downloading and showing captions here](/captions).
+> Learn about [downloading and showing captions here](/en/captions).
 
 ## Transcript
 
-Hello and welcome to [Microsoft Azure Words of the Day](/), this is the show that teaches you the Azure vocabulary!
+Hello and welcome to [Microsoft Azure Words of the Day](/en), this is the show that teaches you the Azure vocabulary!
 
 Today's word of the day is: Serverless
 

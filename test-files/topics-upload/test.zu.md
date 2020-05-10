@@ -1,6 +1,6 @@
 > Recording date: 20200505
 
-> Language: zu / Zulu
+> Language: zu / Zulu, en / English
 
 > Captions: zu / Zulu, en / English
 
@@ -14,7 +14,7 @@
 
 > [This topic was published here](http://gslb.ch/wod-test.zu).
 
-# [Enye isihloko sokuhlola](/topic/test.la)
+# [Enye isihloko sokuhlola](/zu/topic/test)
 
 <!-- YOUTUBEEMBED -->
 
@@ -42,11 +42,11 @@ Kukhona futhi izihloko zolimi / izilimi ezilandelayo:
 
 <!-- DOWNLOAD-CAPTIONS -->
 
-> Funda ngokulanda [futhi ubonise amazwibela lapha](/captions).
+> Funda ngokulanda [futhi ubonise amazwibela lapha](/zu/captions).
 
 ## Umbhalo
 
-Sawubona futhi wamukelekile ku- [Microsoft Azure Words of the Day](/), lo mbukiso owokufundisa isilulumagama sama-Azure!
+Sawubona futhi wamukelekile ku- [Microsoft Azure Words of the Day](/zu), lo mbukiso owokufundisa isilulumagama sama-Azure!
 
 Izwi losuku lwanamuhla lithi: Vivinyo
 

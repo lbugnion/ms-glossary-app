@@ -1,4 +1,4 @@
-# [Azure Active Directory AAD](/topic/aad-active-directory)
+# [Azure Active Directory AAD](/en/topic/aad-active-directory)
 
 ###### (Redirected from Active Directory)
 
@@ -33,11 +33,11 @@ There are also captions for the following language(s):
 - [English](https://wordsoftheday.blob.core.windows.net/captions/aad.english.srt)
 
 
-> Learn about [downloading and showing captions here](/captions).
+> Learn about [downloading and showing captions here](/en/captions).
 
 ## Transcript
 
-Hello and welcome to [Microsoft Azure Words of the Day](/), this is the show that teaches you Azure vocabulary!
+Hello and welcome to [Microsoft Azure Words of the Day](/en), this is the show that teaches you Azure vocabulary!
 
 Today's word of the day is an abbreviation: AAD
 

@@ -2,6 +2,8 @@
 
 # [Another test topic](/en/topic/test)
 
+###### (Redirected from Test)
+
 <iframe width="560" height="560" src="https://www.youtube.com/embed/TEST" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ###### [(Download the video and captions)](#download)

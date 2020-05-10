@@ -1,4 +1,4 @@
-# [App Service](/topic/app-service-web-api)
+# [App Service](/en/topic/app-service-web-api)
 
 ###### (Redirected from Web API)
 
@@ -30,17 +30,17 @@ There are also captions for the following language(s):
 - [English](https://wordsoftheday.blob.core.windows.net/captions/app-service.english.srt)
 
 
-> Learn about [downloading and showing captions here](/captions).
+> Learn about [downloading and showing captions here](/en/captions).
 
 ## Transcript
 
-Hello and welcome to [Microsoft Azure Words of the Day](/), this is the show that teaches you the Azure vocabulary!
+Hello and welcome to [Microsoft Azure Words of the Day](/en), this is the show that teaches you the Azure vocabulary!
 
 Today's words are: App Service
 
 An App Service is a web server running as a service in Microsoft Azure. So you can run HTTP based applications, for example a mobile backend, a web API, a website etc. The really cool thing is that you can choose between Windows and Linux as your operating system, so you have a choice. And you can deploy your code, either in a Docker-based container, or directly from Github, from other repositories or from a continuous deployment solution. 
 
-Around App Services, you can also configure a lot of features for example different deployment solutions,  [Authorization](/topic/aad/authorization) and [Authentication](/topic/aad/authentication), [Identity](/topic/aad/identity), Backups, Custom domains, TLS and SSL to enable HTTPS, you can also automatically scale up and scale down for example to respond to a lot of demand very fast.
+Around App Services, you can also configure a lot of features for example different deployment solutions,  [Authorization](/en/topic/aad/authorization) and [Authentication](/en/topic/aad/authentication), [Identity](/en/topic/aad/identity), Backups, Custom domains, TLS and SSL to enable HTTPS, you can also automatically scale up and scale down for example to respond to a lot of demand very fast.
 
 Let's check the application, now this here is an ASP.NET Core application running a React.JS front end, but App Services also support classic .NET, Java, Node.js, Ruby, Python, PHP, so you have a choice for your framework.
 

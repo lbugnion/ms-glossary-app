@@ -14,7 +14,7 @@
 
 > [This topic was published here](http://gslb.ch/wod-app-service).
 
-# [App Service](/topic/app-service)
+# [App Service](/en/topic/app-service)
 
 <!-- YOUTUBEEMBED -->
 
@@ -43,11 +43,11 @@ There are also captions for the following language(s):
 
 <!-- DOWNLOAD-CAPTIONS -->
 
-> Learn about [downloading and showing captions here](/captions).
+> Learn about [downloading and showing captions here](/en/captions).
 
 ## Transcript
 
-Hello and welcome to [Microsoft Azure Words of the Day](/), this is the show that teaches you the Azure vocabulary!
+Hello and welcome to [Microsoft Azure Words of the Day](/en), this is the show that teaches you the Azure vocabulary!
 
 Today's words are: App Service
 

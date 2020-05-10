@@ -1,4 +1,4 @@
-# [Serverless](/topic/serverless-azure-function)
+# [Serverless](/en/topic/serverless-azure-function)
 
 ###### (Redirected from Azure Function)
 
@@ -35,11 +35,11 @@ There are also captions for the following language(s):
 - [English](https://wordsoftheday.blob.core.windows.net/captions/serverless.english.srt)
 
 
-> Learn about [downloading and showing captions here](/captions).
+> Learn about [downloading and showing captions here](/en/captions).
 
 ## Transcript
 
-Hello and welcome to [Microsoft Azure Words of the Day](/), this is the show that teaches you the Azure vocabulary!
+Hello and welcome to [Microsoft Azure Words of the Day](/en), this is the show that teaches you the Azure vocabulary!
 
 Today's word of the day is: Serverless
 
