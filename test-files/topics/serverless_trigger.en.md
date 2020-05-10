@@ -1,4 +1,4 @@
-# [Serverless](/en/topic/serverless-trigger)
+# [Serverless](/topic/en/serverless-trigger)
 
 ###### (Redirected from Trigger)
 

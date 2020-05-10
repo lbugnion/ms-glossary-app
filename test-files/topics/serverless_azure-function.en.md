@@ -1,4 +1,4 @@
-# [Serverless](/en/topic/serverless-azure-function)
+# [Serverless](/topic/en/serverless-azure-function)
 
 ###### (Redirected from Azure Function)
 

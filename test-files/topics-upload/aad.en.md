@@ -14,7 +14,7 @@
 
 > [This topic was published here](http://gslb.ch/wod-aad).
 
-# [Azure Active Directory AAD](/en/topic/aad)
+# [Azure Active Directory AAD](/topic/en/aad)
 
 <!-- YOUTUBEEMBED -->
 

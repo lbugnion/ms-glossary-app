@@ -1,4 +1,4 @@
-# [Azure Active Directory AAD](/en/topic/aad-authorization)
+# [Azure Active Directory AAD](/topic/en/aad-authorization)
 
 ###### (Redirected from Authorization)
 

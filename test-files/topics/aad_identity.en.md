@@ -1,4 +1,4 @@
-# [Azure Active Directory AAD](/en/topic/aad-identity)
+# [Azure Active Directory AAD](/topic/en/aad-identity)
 
 ###### (Redirected from Identity)
 

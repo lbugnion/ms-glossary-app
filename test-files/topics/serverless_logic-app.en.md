@@ -1,4 +1,4 @@
-# [Serverless](/en/topic/serverless-logic-app)
+# [Serverless](/topic/en/serverless-logic-app)
 
 ###### (Redirected from Logic App)
 

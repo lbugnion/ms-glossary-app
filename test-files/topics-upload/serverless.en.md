@@ -14,7 +14,7 @@
 
 > [This topic was published here](http://gslb.ch/wod-serverless).
 
-# [Serverless](/en/topic/serverless)
+# [Serverless](/topic/en/serverless)
 
 <!-- YOUTUBEEMBED -->
 

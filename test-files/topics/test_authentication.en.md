@@ -1,6 +1,6 @@
 > Other languages: zu / Zulu
 
-# [Another test topic](/en/topic/test)
+# [Another test topic](/topic/en/test)
 
 ###### (Redirected from Authentication)
 

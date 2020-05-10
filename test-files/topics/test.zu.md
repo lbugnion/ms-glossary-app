@@ -1,6 +1,6 @@
 > Other languages: en / English
 
-# [Enye isihloko sokuhlola](/zu/topic/test)
+# [Enye isihloko sokuhlola](/topic/zu/test)
 
 <iframe width="560" height="560" src="https://www.youtube.com/embed/TESTZULU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
@@ -33,7 +33,7 @@ Kukhona futhi izihloko zolimi / izilimi ezilandelayo:
 - [English](https://wordsoftheday.blob.core.windows.net/captions/test.zu.en.srt)
 - [Zulu](https://wordsoftheday.blob.core.windows.net/captions/test.zu.zu.srt)
 
-> Funda ngokulanda [futhi ubonise amazwibela lapha](/en/captions).
+> Funda ngokulanda [futhi ubonise amazwibela lapha](/zu/captions).
 
 ## Umbhalo
 

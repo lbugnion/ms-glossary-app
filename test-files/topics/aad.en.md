@@ -1,4 +1,4 @@
-# [Azure Active Directory AAD](/en/topic/aad)
+# [Azure Active Directory AAD](/topic/en/aad)
 
 <iframe width="560" height="560" src="https://www.youtube.com/embed/WDieqEyq4uA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 

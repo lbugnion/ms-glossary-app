@@ -14,7 +14,7 @@
 
 > [This topic was published here](http://gslb.ch/wod-test).
 
-# [Another test topic](/en/topic/test)
+# [Another test topic](/topic/en/test)
 
 <!-- YOUTUBEEMBED -->
 

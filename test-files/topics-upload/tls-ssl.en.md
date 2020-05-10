@@ -14,7 +14,7 @@
 
 > [This topic was published here](http://gslb.ch/wod-tls-ssl).
 
-# [TLS/SSL](/en/topic/tls-ssl)
+# [TLS/SSL](/topic/en/tls-ssl)
 
 <!-- YOUTUBEEMBED -->
 

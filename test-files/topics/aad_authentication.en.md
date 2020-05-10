@@ -1,4 +1,4 @@
-# [Azure Active Directory AAD](/en/topic/aad-authentication)
+# [Azure Active Directory AAD](/topic/en/aad-authentication)
 
 ###### (Redirected from Authentication)
 

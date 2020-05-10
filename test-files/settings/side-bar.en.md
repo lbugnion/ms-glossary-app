@@ -1,50 +1,50 @@
 #### A
 
-- [**AAD**](/en/topic/aad)
-- [Active Directory](/en/topic/aad_active-directory)
-- [**App Service**](/en/topic/app-service)
-- [ASP.NET](/en/topic/app-service_asp.net)
-- [Authentication](/en/topic/authentication-disambiguation)
-- [Authorization](/en/topic/aad_authorization)
-- [Azure Function](/en/topic/serverless_azure-function)
+- [**AAD**](/topic/en/aad)
+- [Active Directory](/topic/en/aad_active-directory)
+- [**App Service**](/topic/en/app-service)
+- [ASP.NET](/topic/en/app-service_asp.net)
+- [Authentication](/topic/en/authentication-disambiguation)
+- [Authorization](/topic/en/aad_authorization)
+- [Azure Function](/topic/en/serverless_azure-function)
 
 #### C
 
-- [Certificates](/en/topic/tls-ssl_certificates)
-- [Connector](/en/topic/serverless_connector)
-- [Cryptography](/en/topic/tls-ssl_cryptography)
+- [Certificates](/topic/en/tls-ssl_certificates)
+- [Connector](/topic/en/serverless_connector)
+- [Cryptography](/topic/en/tls-ssl_cryptography)
 
 #### E
 
-- [Encryption](/en/topic/tls-ssl_encryption)
+- [Encryption](/topic/en/tls-ssl_encryption)
 
 #### H
 
-- [HTTPS](/en/topic/tls-ssl_https)
+- [HTTPS](/topic/en/tls-ssl_https)
 
 #### I
 
-- [Identity](/en/topic/aad_identity)
+- [Identity](/topic/en/aad_identity)
 
 #### L
 
-- [Logic App](/en/topic/serverless_logic-app)
+- [Logic App](/topic/en/serverless_logic-app)
 
 #### S
 
-- [Secure Sockets Layer](/en/topic/tls-ssl_secure-sockets-layer)
-- [**Serverless**](/en/topic/serverless)
-- [SSL](/en/topic/tls-ssl_ssl)
+- [Secure Sockets Layer](/topic/en/tls-ssl_secure-sockets-layer)
+- [**Serverless**](/topic/en/serverless)
+- [SSL](/topic/en/tls-ssl_ssl)
 
 #### T
 
-- [**Test**](/en/topic/test)
-- [TLS](/en/topic/tls-ssl_tls)
-- [**TLS/SSL**](/en/topic/tls-ssl)
-- [Transport Layer Security](/en/topic/tls-ssl_transport-layer-security)
-- [Trigger](/en/topic/serverless_trigger)
+- [**Test**](/topic/en/test)
+- [TLS](/topic/en/tls-ssl_tls)
+- [**TLS/SSL**](/topic/en/tls-ssl)
+- [Transport Layer Security](/topic/en/tls-ssl_transport-layer-security)
+- [Trigger](/topic/en/serverless_trigger)
 
 #### W
 
-- [Web Api](/en/topic/app-service_web-api)
-- [Web Server](/en/topic/app-service_web-server)
+- [Web Api](/topic/en/app-service_web-api)
+- [Web Server](/topic/en/app-service_web-server)

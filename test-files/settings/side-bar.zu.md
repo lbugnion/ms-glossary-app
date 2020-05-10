@@ -1,12 +1,12 @@
 #### E
 
-- [Enye isihloko sokuhlola](/zu/topic/test)
+- [Enye isihloko sokuhlola](/topic/zu/test)
 
 #### H
 
-- [Hlola](/zu/topic/test_hlola)
+- [Hlola](/topic/zu/test_hlola)
 
 #### U
 
-- [Ukufakazela ubuqiniso](/zu/topic/test_ukufakazela-ubuqiniso)
-- [Ukuhlola](/zu/topic/test_ukuhlola)
+- [Ukufakazela ubuqiniso](/topic/zu/test_ukufakazela-ubuqiniso)
+- [Ukuhlola](/topic/zu/test_ukuhlola)

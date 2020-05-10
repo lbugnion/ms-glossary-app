@@ -1,4 +1,4 @@
-# [TLS/SSL](/en/topic/tls-ssl)
+# [TLS/SSL](/topic/en/tls-ssl)
 
 ###### (Redirected from Cryptography)
 

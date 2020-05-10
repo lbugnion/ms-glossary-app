@@ -1,6 +1,6 @@
 > Other languages: en / English
 
-# [Enye isihloko sokuhlola](/zu/topic/test)
+# [Enye isihloko sokuhlola](/topic/zu/test)
 
 ###### (Kuqondiswe kabusha kusuka Hlola)
 
@@ -35,11 +35,11 @@ Kukhona futhi izihloko zolimi / izilimi ezilandelayo:
 - [English](https://wordsoftheday.blob.core.windows.net/captions/test.zu.en.srt)
 - [Zulu](https://wordsoftheday.blob.core.windows.net/captions/test.zu.zu.srt)
 
-> Funda ngokulanda [futhi ubonise amazwibela lapha](/en/captions).
+> Funda ngokulanda [futhi ubonise amazwibela lapha](/zu/captions).
 
 ## Umbhalo
 
-Sawubona futhi wamukelekile ku- [Microsoft Azure Words of the Day](/en), lo mbukiso owokufundisa isilulumagama sama-Azure!
+Sawubona futhi wamukelekile ku- [Microsoft Azure Words of the Day](/zu), lo mbukiso owokufundisa isilulumagama sama-Azure!
 
 Izwi losuku lwanamuhla lithi: Vivinyo
 

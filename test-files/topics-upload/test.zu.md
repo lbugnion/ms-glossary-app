@@ -14,7 +14,7 @@
 
 > [This topic was published here](http://gslb.ch/wod-test.zu).
 
-# [Enye isihloko sokuhlola](/zu/topic/test)
+# [Enye isihloko sokuhlola](/topic/zu/test)
 
 <!-- YOUTUBEEMBED -->
 

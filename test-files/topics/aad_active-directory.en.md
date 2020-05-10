@@ -1,4 +1,4 @@
-# [Azure Active Directory AAD](/en/topic/aad-active-directory)
+# [Azure Active Directory AAD](/topic/en/aad-active-directory)
 
 ###### (Redirected from Active Directory)
 
