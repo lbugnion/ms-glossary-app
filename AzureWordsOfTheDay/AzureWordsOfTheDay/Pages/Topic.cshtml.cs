@@ -54,7 +54,9 @@ namespace AzureWordsOfTheDay.Pages
 
         public async Task<IActionResult> OnGet(string languageCode, string fullTopic)
         {
-            _logger.LogInformation($"OnGet in Topic: {fullTopic}");
+            ViewData["LanguageCode"] = languageCode;
+
+            _logger.LogInformation($"OnGet in Topic: {languageCode} / {fullTopic}");
 
             var parts = fullTopic.Split(new char[]
             {

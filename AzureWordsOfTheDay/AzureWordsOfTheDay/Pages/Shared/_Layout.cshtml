@@ -15,13 +15,13 @@
     <div id="topics-bar">
 
         <div class="center">
-            <a href="/">
+            <a href="/@ViewData["LanguageCode"]">
                 <img src="~/img/Azure_216_blue.png"
                      id="azure-logo" />
             </a>
 
             <div id="title">
-                <span id="title1">Microsoft Azure</span><br /><span id="title2">Words of the Day</span>
+                <span id="title1">Microsoft Azure</span><br /><span id="title2">@ViewData["WordsOfTheDay"]</span>
             </div>
         </div>
 
@@ -30,12 +30,6 @@
 
     <div id="main">
         @RenderBody()
-
-        <footer class="footer">
-            &copy; @DateTime.Now.Year - Azure Words Of The Day -
-            <a asp-area="" asp-page="/Privacy">Privacy</a> -
-            <a href="https://twitter.com/AzWordsOfTheDay">Contact us</a>
-        </footer>
     </div>
 
 </body>

@@ -50,6 +50,8 @@ namespace AzureWordsOfTheDay.Pages
 
         public async Task OnGet(string languageCode)
         {
+            ViewData["LanguageCode"] = languageCode;
+
             _logger.LogInformation($"OnGet in Index");
 
             var docName = "index.md";

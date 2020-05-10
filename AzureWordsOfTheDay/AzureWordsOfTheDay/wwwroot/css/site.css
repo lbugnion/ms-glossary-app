@@ -5,20 +5,6 @@
     font-size: 16px;
 }
 
-.footer {
-    position: fixed;
-    left: 215px;
-    bottom: 0;
-    width: calc(100% - 200px);
-    white-space: nowrap;
-    border-top: 1px solid #555555;
-    padding: 0 0 0 15px;
-
-    /* Set the fixed height of the footer here */
-    height: 60px;
-    line-height: 60px; /* Vertically center the text there */
-}
-
 .center {
     margin: auto;
     width: 200px;
@@ -95,7 +81,7 @@
 #main {
     position: fixed;
     top: 0px;
-    bottom: 60px;
+    bottom: 0px;
     left: 215px;
     padding: 0 30px 0 30px;
     overflow-x: hidden;
