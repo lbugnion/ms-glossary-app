@@ -10,12 +10,17 @@
     @Model.TopicBarHtml
 }
 
+
+@section Languages {
+
+    <div id="languages">
+        @Model.LanguagesHtml
+    </div>
+
+}
+
 <div id="intro">
-    @Model.IndexContent
+    @Model.IndexContentHtml
 </div>
 
 @Model.SelectedTopicHtml
-
-<div id="languages">
-    @Model.LanguagesHtml
-</div>

@@ -177,3 +177,14 @@
 #intro h1 #second-line{
     margin-top: -10px;
 }
+
+#languages {
+    color: #0078D7;
+    font-weight: bold;
+    text-align: center;
+}
+
+#languages a {
+    color: #0078D7;
+    text-decoration: underline;
+}

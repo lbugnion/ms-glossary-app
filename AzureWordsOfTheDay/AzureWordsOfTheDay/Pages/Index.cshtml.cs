@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace AzureWordsOfTheDay.Pages
         private IHostingEnvironment _env;
         private ContentHelper _contentHelper;
 
-        public HtmlString IndexContent
+        public HtmlString IndexContentHtml
         {
             get;
             private set;
@@ -57,11 +58,20 @@ namespace AzureWordsOfTheDay.Pages
             var docName = "index.md";
             var root = new DirectoryInfo(Path.Combine(_env.WebRootPath));
             var folder = Path.Combine(root.Parent.FullName, Constants.LocalMarkdownFolderName);
-            IndexContent = _contentHelper.LoadLocalMarkdown(
+            IndexContentHtml = _contentHelper.LoadLocalMarkdown(
                 folder, 
                 languageCode, 
                 docName, 
                 _logger);
+
+            if (IndexContentHtml == null)
+            {
+                IndexContentHtml = _contentHelper.LoadLocalMarkdown(
+                    folder,
+                    "en",
+                    "test-only.md",
+                    _logger);
+            }
 
             TopicBarHtml = await _contentHelper.LoadTopicsBar(languageCode, _logger);
 

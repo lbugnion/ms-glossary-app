@@ -59,8 +59,7 @@ namespace AzureWordsOfTheDay.Model
             catch (Exception ex)
             {
                 logger?.LogError(ex.Message);
-                fileContent = $"Error: {ex.Message}";
-                return new HtmlString(fileContent);
+                return null;
             }
 
             var md = new Markdown();
@@ -98,7 +97,7 @@ namespace AzureWordsOfTheDay.Model
             {
                 return MakeLanguages(
                     txt, 
-                    "<a href=\"/{0}/\">{1}</a>",
+                    "<a href=\"/{0}/\" title=\"{1}\">{2}</a>",
                     languageCode);
             }
 
@@ -115,23 +114,45 @@ namespace AzureWordsOfTheDay.Model
             if (languages?.Count > 0)
             {
                 var builder = new StringBuilder();
+                var count = 0;
 
-                // TODO Localize
-                builder.AppendLine("<h1>Languages</h1>");
-                builder.AppendLine("<ul>");
-
-                foreach (var language in languages)
+                if (languages.Count > 3)
                 {
-                    if (language.Code != languageCodeToAvoid)
+                    foreach (var language in languages.OrderBy(l => l.Code))
                     {
-                        builder.Append("<li>");
-                        builder.Append(
-                            string.Format(linkTemplate, language.Code, language.Language));
-                        builder.AppendLine("</li>");
+                        if (language.Code != languageCodeToAvoid)
+                        {
+                            builder.AppendLine(
+                                string.Format(linkTemplate, language.Code, language.Language, language.Code));
+
+                            count++;
+
+                            if (count < languages.Count - 1)
+                            {
+                                builder.AppendLine("/");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var language in languages.OrderBy(l => l.Language))
+                    {
+                        if (language.Code != languageCodeToAvoid)
+                        {
+                            builder.AppendLine(
+                                string.Format(linkTemplate, language.Code, language.Language, language.Language));
+
+                            count++;
+
+                            if (count < languages.Count - 1)
+                            {
+                                builder.AppendLine("/");
+                            }
+                        }
                     }
                 }
 
-                builder.AppendLine("</ul>");
                 return new HtmlString(builder.ToString());
             }
 
