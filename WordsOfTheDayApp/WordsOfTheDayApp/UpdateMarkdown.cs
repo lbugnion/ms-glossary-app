@@ -14,22 +14,44 @@ namespace WordsOfTheDayApp
 {
     public static class UpdateMarkdown
     {
-        [FunctionName("UpdateMarkdown_Execute")]
-        public static async Task<string> Execute(
+        [FunctionName("UpdateMarkdown_CreateTopics")]
+        public static async Task<TopicInformation> CreateTopics(
             [ActivityTrigger]
             Uri blobUri,
             ILogger log)
         {
-            var topic = await MarkdownUpdater.Update(blobUri, log);
-            log?.LogInformation($"Updated {topic}.");
+            if (blobUri.AbsolutePath.Contains("staging"))
+            {
+                throw new Exception();
+            }
+
+            var topic = await TopicMaker.CreateTopic(blobUri, log);
+            log?.LogInformation($"Updated {topic.TopicName}.");
 
             await NotificationService.Notify(
                 "Updated topic",
-                $"The topic {topic} has been updated in markdown",
+                $"The topic {topic.TopicName} has been updated in markdown",
                 log);
 
             return topic;
         }
+
+        //[FunctionName("UpdateMarkdown_CreateSubtopics")]
+        //public static async Task<string> CreateSubtopics(
+        //    [ActivityTrigger]
+        //    Uri blobUri,
+        //    ILogger log)
+        //{
+        //    var fullTopic = await MarkdownUpdater.CreateSubtopics(blobUri, log);
+        //    log?.LogInformation($"Updated {fullTopic}.");
+
+        //    await NotificationService.Notify(
+        //        "Updated subtopic",
+        //        $"The topic/subtopic {fullTopic} has been updated in markdown",
+        //        log);
+
+        //    return fullTopic;
+        //}
 
         [FunctionName("UpdateMarkdown_HttpStart")]
         public static async Task<HttpResponseMessage> HttpStart(
@@ -56,6 +78,12 @@ namespace WordsOfTheDayApp
             var blobHelper = new BlobHelper(blobClient, log);
             var topicsContainer = blobHelper.GetContainer(
                 Constants.TopicsUploadContainerVariableName);
+
+            if (topicsContainer.Name.Contains("staging"))
+            {
+                return null;
+            }
+
             BlobContinuationToken continuationToken = null;
             var topics = new List<string>();
 
@@ -97,36 +125,50 @@ namespace WordsOfTheDayApp
         }
 
         [FunctionName("UpdateMarkdown")]
-        public static async Task<List<string>> RunOrchestrator(
+        public static async Task<List<TopicInformation>> RunOrchestrator(
             [OrchestrationTrigger]
             IDurableOrchestrationContext context)
         {
             var list = context.GetInput<List<string>>();
-            var topics = new List<string>();
+            var topics = new List<TopicInformation>();
 
             foreach (var topicUrl in list)
             {
+                if (topicUrl.Contains("staging"))
+                {
+                    throw new Exception();
+                }
+
                 Uri topicUri = new Uri(topicUrl);
 
-                topics.Add(await context.CallActivityAsync<string>(
-                    "UpdateMarkdown_Execute",
+                topics.Add(await context.CallActivityAsync<TopicInformation>(
+                    "UpdateMarkdown_CreateTopics",
                     topicUri));
             }
 
-            foreach (var topic in topics)
-            {
-                await context.CallActivityAsync<string>(
-                    "UpdateMarkdown_ReplaceKeywords",
-                    topic);
-            }
+            //foreach (var topic in topics)
+            //{
+            //    await context.CallActivityAsync<string>(
+            //        "UpdateMarkdown_ReplaceKeywords",
+            //        topic);
+            //}
 
-            await context.CallActivityAsync(
-                "UpdateMarkdown_SaveSideBar",
-                null);
+            //foreach (var topicUrl in list)
+            //{
+            //    Uri topicUri = new Uri(topicUrl);
 
-            await context.CallActivityAsync(
-                "UpdateMarkdown_SaveTopics",
-                topics);
+            //    topics.Add(await context.CallActivityAsync<string>(
+            //        "UpdateMarkdown_CreateSubtopics",
+            //        topicUri));
+            //}
+
+            //await context.CallActivityAsync(
+            //    "UpdateMarkdown_SaveSideBar",
+            //    null);
+
+            //await context.CallActivityAsync(
+            //    "UpdateMarkdown_SaveTopics",
+            //    topics);
 
             return topics;
         }

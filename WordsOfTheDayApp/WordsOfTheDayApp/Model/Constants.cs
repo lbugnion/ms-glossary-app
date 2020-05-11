@@ -4,7 +4,7 @@
     {
         public const string AzureWebJobsStorageVariableName = "AzureWebJobsStorage";
         public const string CaptionsContainerVariableName = "CaptionsContainer";
-        public const string KeywordsBlob = "keywords.json";
+        public const string KeywordsBlob = "keywords.{0}.json";
         public const string NotifyFunctionCodeVariableName = "NotifyFunctionCode";
         public const string QueueNameVariableName = "QueueName";
         public const string SettingsContainerVariableName = "SettingsContainer";

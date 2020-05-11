@@ -8,6 +8,8 @@
 
 > Keywords: Test, Testing, Authentication
 
+> Blurb: a topic used to for tests only.
+
 > Submitted by: LBugnion@Microsoft.com
 
 > Twitter: @LBugnion

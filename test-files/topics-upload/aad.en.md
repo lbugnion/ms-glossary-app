@@ -8,6 +8,8 @@
 
 > Keywords: AAD, Active Directory, Authorization, Authentication, Identity
 
+> Blurb: a service used to provide identity services, such as authentication and authorization.
+
 > Submitted by: LBugnion@Microsoft.com
 
 > Twitter: @LBugnion

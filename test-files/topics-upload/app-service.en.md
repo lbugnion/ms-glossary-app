@@ -2,11 +2,13 @@
 
 > Language: en / English
 
-> Captions: en / English, 
+> Captions: en / English
 
 > YouTube: rqG_exxFq_c
 
 > Keywords: Web Server, ASP.NET, Web Api
+
+> Blurb: a web server provided as a service, where you can run HTTP based applications.
 
 > Submitted by: LBugnion@Microsoft.com
 

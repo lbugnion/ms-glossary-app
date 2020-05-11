@@ -2,11 +2,13 @@
 
 > Language: en / English
 
-> Captions: en / English, 
+> Captions: en / English
 
 > YouTube: O3KuatPZjfs
 
 > Keywords: Azure Function, Logic App, Trigger, Connector
+
+> Blurb: a way to run applications on a server without having to manage this server.
 
 > Submitted by: LBugnion@Microsoft.com
 

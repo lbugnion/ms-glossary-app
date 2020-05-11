@@ -8,6 +8,8 @@
 
 > Keywords: Hlola, Ukuhlola, Ukufakazela ubuqiniso
 
+> Blurb: isihloko esisetshenziselwa izivivinyo kuphela.
+
 > Submitted by: LBugnion@Microsoft.com
 
 > Twitter: @LBugnion
