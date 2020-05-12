@@ -14,27 +14,6 @@ namespace WordsOfTheDayApp.Model
         private const string SideBarBoldTemplate = "- [**{0}**](/topic/{1})";
         private const string SideBarTemplate = "- [{0}](/topic/{1}/{2})";
 
-        public static async Task SaveTopics(string languageCode, IList<TopicInformation> topics, ILogger log)
-        {
-            log?.LogInformation("Saving topics");
-
-            var account = CloudStorageAccount.Parse(
-                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
-            var client = account.CreateCloudBlobClient();
-            var helper = new BlobHelper(client, log);
-
-            var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
-            var topicsJsonBlob = settingsContainer.GetBlockBlobReference(
-                string.Format(Constants.TopicsBlob, languageCode));
-
-            var list = topics.Select(t => t.TopicName);
-
-            var json = JsonConvert.SerializeObject(list);
-            await topicsJsonBlob.UploadTextAsync(json);
-
-            log?.LogInformation($"Saved topics {json} in {topicsJsonBlob.Uri}");
-        }
-
         public static async Task SaveSideBar(string languageCode, ILogger log)
         {
             log?.LogInformation("Saving SideBar");
@@ -86,6 +65,27 @@ namespace WordsOfTheDayApp.Model
             }
 
             await sideBarMarkdownBlob.UploadTextAsync(md.ToString());
+        }
+
+        public static async Task SaveTopics(string languageCode, IList<TopicInformation> topics, ILogger log)
+        {
+            log?.LogInformation("Saving topics");
+
+            var account = CloudStorageAccount.Parse(
+                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
+            var client = account.CreateCloudBlobClient();
+            var helper = new BlobHelper(client, log);
+
+            var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
+            var topicsJsonBlob = settingsContainer.GetBlockBlobReference(
+                string.Format(Constants.TopicsBlob, languageCode));
+
+            var list = topics.Select(t => t.TopicName);
+
+            var json = JsonConvert.SerializeObject(list);
+            await topicsJsonBlob.UploadTextAsync(json);
+
+            log?.LogInformation($"Saved topics {json} in {topicsJsonBlob.Uri}");
         }
     }
 }

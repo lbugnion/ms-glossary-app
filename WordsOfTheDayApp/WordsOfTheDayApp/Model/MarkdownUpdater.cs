@@ -4,7 +4,6 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,19 +13,50 @@ namespace WordsOfTheDayApp.Model
 {
     public static class TopicMaker
     {
+        private const string BlurbMarker = "> Blurb: ";
+        private const string CaptionsMarker = "> Captions: ";
+        private const string DateTimeMarker = "<!-- DATETIME -->";
         private const string DownloadCaptionsMarker = "<!-- DOWNLOAD-CAPTIONS -->";
         private const string DownloadCaptionTemplate = "- [{0}](https://wordsoftheday.blob.core.windows.net/captions/{1})";
         private const string DownloadLinkTemplate = "https://wordsoftheday.blob.core.windows.net/videos/{0}.mp4";
         private const string DownloadMarker = "<!-- DOWNLOAD -->";
-        private const string DateTimeMarker = "<!-- DATETIME -->";
         private const string H1 = "# ";
         private const string KeywordsMarker = "> Keywords: ";
-        private const string BlurbMarker = "> Blurb: ";
-        private const string CaptionsMarker = "> Captions: ";
         private const string LanguageMarker = "> Language: ";
         private const string YouTubeEmbed = "<iframe width=\"560\" height=\"560\" src=\"https://www.youtube.com/embed/{0}\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>";
         private const string YouTubeEmbedMarker = "<!-- YOUTUBEEMBED -->";
         private const string YouTubeMarker = "> YouTube: ";
+
+        private static IList<LanguageInfo> MakeLanguages(string captions)
+        {
+            if (string.IsNullOrEmpty(captions))
+            {
+                return null;
+            }
+
+            var languages = captions.Split(new char[]
+            {
+                ','
+            }, StringSplitOptions.RemoveEmptyEntries);
+
+            var result = new List<LanguageInfo>();
+
+            foreach (var language in languages)
+            {
+                var parts = language.Split(new char[]
+                {
+                    '/'
+                });
+
+                result.Add(new LanguageInfo
+                {
+                    Code = parts[0].Trim(),
+                    Language = parts[1].Trim()
+                });
+            }
+
+            return result;
+        }
 
         public static async Task CreateSubtopics(Uri blobUri, ILogger log)
         {
@@ -255,16 +285,16 @@ namespace WordsOfTheDayApp.Model
                 foreach (var newKeyword in newKeywords.Select(k => k.Trim()))
                 {
                     var pair = new KeywordPair(
-                        topic.TopicName, 
-                        newKeyword.ToLower().Replace(' ', '-'), 
+                        topic.TopicName,
+                        newKeyword.ToLower().Replace(' ', '-'),
                         newKeyword,
                         topic.Blurb);
                     AddToKeywordsList(pair);
                 }
 
                 var titlePair = new KeywordPair(
-                        topic.TopicName, 
-                        topic.TopicName, 
+                        topic.TopicName,
+                        topic.TopicName,
                         topicTitle,
                         topic.Blurb);
                 AddToKeywordsList(titlePair);
@@ -278,37 +308,6 @@ namespace WordsOfTheDayApp.Model
             await newBlob.DeleteIfExistsAsync();
             await newBlob.UploadTextAsync(newMarkdown);
             return topic;
-        }
-
-        private static IList<LanguageInfo> MakeLanguages(string captions)
-        {
-            if (string.IsNullOrEmpty(captions))
-            {
-                return null;
-            }
-
-            var languages = captions.Split(new char[]
-            {
-                ','
-            }, StringSplitOptions.RemoveEmptyEntries);
-
-            var result = new List<LanguageInfo>();
-
-            foreach (var language in languages)
-            {
-                var parts = language.Split(new char[]
-                {
-                    '/'
-                });
-
-                result.Add(new LanguageInfo
-                {
-                    Code = parts[0].Trim(),
-                    Language = parts[1].Trim()
-                });
-            }
-
-            return result;
         }
     }
 }

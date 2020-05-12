@@ -196,21 +196,6 @@ namespace WordsOfTheDayApp
             return topics;
         }
 
-        public class TopicLanguageInfo
-        {
-            public string LanguageCode
-            {
-                get;
-                set;
-            }
-
-            public IList<TopicInformation> Topics
-            {
-                get;
-                set;
-            }
-        }
-
         [FunctionName("UpdateMarkdown_SaveSideBar")]
         public static async Task SaveSideBar(
             [ActivityTrigger]
@@ -227,6 +212,21 @@ namespace WordsOfTheDayApp
             ILogger log)
         {
             await SettingsFilesSaver.SaveTopics(info.LanguageCode, info.Topics, log);
+        }
+
+        public class TopicLanguageInfo
+        {
+            public string LanguageCode
+            {
+                get;
+                set;
+            }
+
+            public IList<TopicInformation> Topics
+            {
+                get;
+                set;
+            }
         }
     }
 }

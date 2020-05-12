@@ -2,6 +2,11 @@
 {
     public class KeywordPair
     {
+        public string Blurb
+        {
+            get;
+        }
+
         public string Keyword
         {
             get;
@@ -13,11 +18,6 @@
         }
 
         public string Topic
-        {
-            get;
-        }
-
-        public string Blurb
         {
             get;
         }
