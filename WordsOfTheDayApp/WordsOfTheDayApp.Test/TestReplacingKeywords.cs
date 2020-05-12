@@ -12,7 +12,7 @@ namespace WordsOfTheDayApp.Test
         {
             var list = new List<KeywordPair>
             {
-                new KeywordPair("aad", "aad", "AAD")
+                new KeywordPair("aad", "aad", "AAD", "blub")
             };
 
             var replacer = new KeywordReplacer();
@@ -28,11 +28,11 @@ namespace WordsOfTheDayApp.Test
         {
             return new List<KeywordPair>
             {
-                new KeywordPair("app-service", "app-service", "App Service"),
-                new KeywordPair("app-service", "web-server", "Web Server"),
-                new KeywordPair("app-service", "asp.net", "ASP.NET"),
-                new KeywordPair("app-service", "web-api", "Web Api"),
-                new KeywordPair("aad", "aad", "AAD")
+                new KeywordPair("app-service", "app-service", "App Service", "blub"),
+                new KeywordPair("app-service", "web-server", "Web Server", "blub"),
+                new KeywordPair("app-service", "asp.net", "ASP.NET", "blub"),
+                new KeywordPair("app-service", "web-api", "Web Api", "blub"),
+                new KeywordPair("aad", "aad", "AAD", "blub")
             };
         }
 

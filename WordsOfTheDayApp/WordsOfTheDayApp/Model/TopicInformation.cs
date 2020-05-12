@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using WordsOfTheDayApp.Model;
 
-namespace WordsOfTheDayApp
+namespace WordsOfTheDayApp.Model
 {
     public class TopicInformation
     {
