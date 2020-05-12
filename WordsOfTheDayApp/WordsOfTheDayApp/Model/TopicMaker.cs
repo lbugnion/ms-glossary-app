@@ -17,7 +17,7 @@ namespace WordsOfTheDayApp.Model
         private const string CaptionsMarker = "> Captions: ";
         private const string DateTimeMarker = "<!-- DATETIME -->";
         private const string DownloadCaptionsMarker = "<!-- DOWNLOAD-CAPTIONS -->";
-        private const string DownloadCaptionTemplate = "- [{0}](https://wordsoftheday.blob.core.windows.net/captions/{1})";
+        private const string DownloadCaptionTemplate = "- [{0}](https://wordsoftheday.blob.core.windows.net/{1}/{2})";
         private const string DownloadLinkTemplate = "https://wordsoftheday.blob.core.windows.net/videos/{0}.mp4";
         private const string DownloadMarker = "<!-- DOWNLOAD -->";
         private const string H1 = "# ";
@@ -163,6 +163,7 @@ namespace WordsOfTheDayApp.Model
                         string.Format(
                             DownloadCaptionTemplate,
                             language.Language,
+                            captionsContainer.Name,
                             captionsBlob.Name));
                 }
             }
@@ -303,7 +304,7 @@ namespace WordsOfTheDayApp.Model
             }
 
             var newContainer = helper.GetContainer(Constants.TopicsContainerVariableName);
-            var newBlob = newContainer.GetBlockBlobReference($"{topic.TopicName}.md");
+            var newBlob = newContainer.GetBlockBlobReference($"{topic.TopicName}.{topic.LanguageCode}.md");
             await newBlob.DeleteIfExistsAsync();
             await newBlob.UploadTextAsync(newMarkdown);
             return topic;
