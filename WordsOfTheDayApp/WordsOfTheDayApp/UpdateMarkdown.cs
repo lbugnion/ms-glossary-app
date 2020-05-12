@@ -6,6 +6,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using WordsOfTheDayApp.Model;
@@ -162,33 +163,70 @@ namespace WordsOfTheDayApp
             //        topicUri));
             //}
 
-            //await context.CallActivityAsync(
-            //    "UpdateMarkdown_SaveSideBar",
-            //    null);
+            var languageCodes = topics
+                .GroupBy(t => t.LanguageCode)
+                .Select(g => g.Key);
 
-            //await context.CallActivityAsync(
-            //    "UpdateMarkdown_SaveTopics",
-            //    topics);
+            foreach (var languageCode in languageCodes)
+            {
+                await context.CallActivityAsync(
+                    "UpdateMarkdown_SaveSideBar",
+                    languageCode);
+            }
+
+            foreach (var languageCode in languageCodes)
+            {
+                var topicsForLanguage = topics
+                    .GroupBy(t => t.LanguageCode)
+                    .First(g => g.Key == languageCode)
+                    .Select(g => g)
+                    .ToList();
+
+                var info = new TopicLanguageInfo
+                {
+                    LanguageCode = languageCode,
+                    Topics = topicsForLanguage
+                };
+
+                await context.CallActivityAsync(
+                    "UpdateMarkdown_SaveTopics",
+                    info);
+            }
 
             return topics;
+        }
+
+        public class TopicLanguageInfo
+        {
+            public string LanguageCode
+            {
+                get;
+                set;
+            }
+
+            public IList<TopicInformation> Topics
+            {
+                get;
+                set;
+            }
         }
 
         [FunctionName("UpdateMarkdown_SaveSideBar")]
         public static async Task SaveSideBar(
             [ActivityTrigger]
-            string dummy,
+            string languageCode,
             ILogger log)
         {
-            await TopicsListSaver.SaveSideBar(log);
+            await SettingsFilesSaver.SaveSideBar(languageCode, log);
         }
 
         [FunctionName("UpdateMarkdown_SaveTopics")]
         public static async Task SaveTopics(
             [ActivityTrigger]
-            IList<string> topics,
+            TopicLanguageInfo info,
             ILogger log)
         {
-            await TopicsListSaver.SaveTopics(topics, log);
+            await SettingsFilesSaver.SaveTopics(info.LanguageCode, info.Topics, log);
         }
     }
 }

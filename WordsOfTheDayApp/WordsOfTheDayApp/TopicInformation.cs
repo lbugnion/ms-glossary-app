@@ -6,7 +6,7 @@ namespace WordsOfTheDayApp
 {
     public class TopicInformation
     {
-        public string Language { get; set; }
+        public string LanguageCode { get; set; }
         public string TopicName { get; set; }
         public Uri Uri { get; set; }
         public string Keywords { get; set; }

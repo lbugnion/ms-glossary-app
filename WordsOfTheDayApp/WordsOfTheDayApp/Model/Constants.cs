@@ -8,8 +8,8 @@
         public const string NotifyFunctionCodeVariableName = "NotifyFunctionCode";
         public const string QueueNameVariableName = "QueueName";
         public const string SettingsContainerVariableName = "SettingsContainer";
-        public const string SideBarMarkdownBlob = "keywords.md";
-        public const string TopicsBlob = "topics.json";
+        public const string SideBarMarkdownBlob = "side-bar.{0}.md";
+        public const string TopicsBlob = "topics.{0}.json";
         public const string TopicsContainerVariableName = "TopicsContainer";
         public const string TopicsUploadContainerVariableName = "TopicsUploadContainer";
 #if DEBUG

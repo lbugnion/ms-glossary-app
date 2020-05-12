@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace WordsOfTheDayApp.Model
 {
-    public static class TopicsListSaver
+    public static class SettingsFilesSaver
     {
         private const string SideBarBoldTemplate = "- [**{0}**](/topic/{1})";
         private const string SideBarTemplate = "- [{0}](/topic/{1}/{2})";
 
-        public static async Task SaveTopics(IList<string> topics, ILogger log)
+        public static async Task SaveTopics(string languageCode, IList<TopicInformation> topics, ILogger log)
         {
             log?.LogInformation("Saving topics");
 
@@ -24,14 +24,18 @@ namespace WordsOfTheDayApp.Model
             var helper = new BlobHelper(client, log);
 
             var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
-            var topicsJsonBlob = settingsContainer.GetBlockBlobReference(Constants.TopicsBlob);
-            var json = JsonConvert.SerializeObject(topics);
+            var topicsJsonBlob = settingsContainer.GetBlockBlobReference(
+                string.Format(Constants.TopicsBlob, languageCode));
+
+            var list = topics.Select(t => t.TopicName);
+
+            var json = JsonConvert.SerializeObject(list);
             await topicsJsonBlob.UploadTextAsync(json);
 
             log?.LogInformation($"Saved topics {json} in {topicsJsonBlob.Uri}");
         }
 
-        public static async Task SaveSideBar(ILogger log)
+        public static async Task SaveSideBar(string languageCode, ILogger log)
         {
             log?.LogInformation("Saving SideBar");
 
@@ -41,7 +45,8 @@ namespace WordsOfTheDayApp.Model
             var helper = new BlobHelper(client, log);
 
             var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
-            var keywordsBlob = settingsContainer.GetBlockBlobReference(Constants.KeywordsBlob);
+            var keywordsBlob = settingsContainer.GetBlockBlobReference(
+                string.Format(Constants.KeywordsBlob, languageCode));
 
             if (!await keywordsBlob.ExistsAsync())
             {
@@ -52,7 +57,8 @@ namespace WordsOfTheDayApp.Model
             var json = await keywordsBlob.DownloadTextAsync();
             var keywordsDictionary = JsonConvert.DeserializeObject<Dictionary<char, List<KeywordPair>>>(json);
 
-            var sideBarMarkdownBlob = settingsContainer.GetBlockBlobReference(Constants.SideBarMarkdownBlob);
+            var sideBarMarkdownBlob = settingsContainer.GetBlockBlobReference(
+                string.Format(Constants.SideBarMarkdownBlob, languageCode));
 
             var md = new StringBuilder();
             foreach (var pair in keywordsDictionary.OrderBy(p => p.Key))

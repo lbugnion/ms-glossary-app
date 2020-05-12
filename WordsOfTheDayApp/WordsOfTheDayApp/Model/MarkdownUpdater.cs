@@ -43,7 +43,7 @@ namespace WordsOfTheDayApp.Model
             var oldMarkdownBlob = new CloudBlockBlob(uri);
             topic.TopicName = Path.GetFileNameWithoutExtension(oldMarkdownBlob.Name);
 
-            topic.Language = Path.GetExtension(topic.TopicName).Substring(1);
+            topic.LanguageCode = Path.GetExtension(topic.TopicName).Substring(1);
             topic.TopicName = Path.GetFileNameWithoutExtension(topic.TopicName);
 
             log?.LogInformation("In MarkdownUpdater.CreateTopics");
@@ -157,7 +157,7 @@ namespace WordsOfTheDayApp.Model
             {
                 var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
                 var keywordsBlob = settingsContainer.GetBlockBlobReference(
-                    string.Format(Constants.KeywordsBlob, topic.Language));
+                    string.Format(Constants.KeywordsBlob, topic.LanguageCode));
 
                 string json = null;
                 Dictionary<char, List<KeywordPair>> keywordsDictionary;
