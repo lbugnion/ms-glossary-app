@@ -11,8 +11,8 @@ namespace WordsOfTheDayApp.Model
 {
     public static class SettingsFilesSaver
     {
-        private const string SideBarBoldTemplate = "- [**{0}**](/topic/{1})";
-        private const string SideBarTemplate = "- [{0}](/topic/{1}/{2})";
+        private const string SideBarBoldTemplate = "- [**{0}**](/topic/{1}/{2})";
+        private const string SideBarTemplate = "- [{0}](/topic/{1}/{2}/{3})";
 
         public static async Task SaveSideBar(string languageCode, ILogger log)
         {
@@ -49,15 +49,15 @@ namespace WordsOfTheDayApp.Model
 
                 foreach (var k in pair.Value.OrderBy(v => v.Keyword))
                 {
-                    log?.LogInformation($"Side bar: {k.Keyword} | {k.Topic}");
+                    log?.LogInformation($"Side bar: {languageCode} {k.Keyword} | {k.Topic}");
 
                     if (k.Topic == k.Subtopic)
                     {
-                        md.AppendLine(string.Format(SideBarBoldTemplate, k.Keyword, k.Topic));
+                        md.AppendLine(string.Format(SideBarBoldTemplate, k.Keyword, languageCode, k.Topic));
                     }
                     else
                     {
-                        md.AppendLine(string.Format(SideBarTemplate, k.Keyword, k.Topic, k.Subtopic));
+                        md.AppendLine(string.Format(SideBarTemplate, k.Keyword, languageCode, k.Topic, k.Subtopic));
                     }
                 }
 

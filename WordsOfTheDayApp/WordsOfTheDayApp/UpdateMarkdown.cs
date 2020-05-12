@@ -110,16 +110,16 @@ namespace WordsOfTheDayApp
         }
 
         [FunctionName("UpdateMarkdown_ReplaceKeywords")]
-        public static async Task<string> Replace(
+        public static async Task<string> ReplaceKeywords(
             [ActivityTrigger]
-            string topic,
+            TopicInformation topic,
             ILogger log)
         {
-            await MarkdownReplacer.Replace(topic, log);
+            await MarkdownReplacer.ReplaceKeywords(topic, log);
 
             await NotificationService.Notify(
                 "Replaced keywords in topic",
-                $"Keywords have been linked in the topic {topic}",
+                $"Keywords have been linked in the topic {topic.TopicName}",
                 log);
 
             return null;
@@ -147,12 +147,12 @@ namespace WordsOfTheDayApp
                     topicUri));
             }
 
-            //foreach (var topic in topics)
-            //{
-            //    await context.CallActivityAsync<string>(
-            //        "UpdateMarkdown_ReplaceKeywords",
-            //        topic);
-            //}
+            foreach (var topic in topics)
+            {
+                await context.CallActivityAsync<string>(
+                    "UpdateMarkdown_ReplaceKeywords",
+                    topic);
+            }
 
             //foreach (var topicUrl in list)
             //{

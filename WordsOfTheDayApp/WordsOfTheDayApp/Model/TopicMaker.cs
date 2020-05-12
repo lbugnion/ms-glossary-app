@@ -22,7 +22,6 @@ namespace WordsOfTheDayApp.Model
         private const string DownloadMarker = "<!-- DOWNLOAD -->";
         private const string H1 = "# ";
         private const string KeywordsMarker = "> Keywords: ";
-        private const string LanguageMarker = "> Language: ";
         private const string YouTubeEmbed = "<iframe width=\"560\" height=\"560\" src=\"https://www.youtube.com/embed/{0}\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>";
         private const string YouTubeEmbedMarker = "<!-- YOUTUBEEMBED -->";
         private const string YouTubeMarker = "> YouTube: ";
@@ -154,7 +153,7 @@ namespace WordsOfTheDayApp.Model
 
             foreach (var language in topic.Captions)
             {
-                var captionFileName = $"{topic.TopicName}.{language.Code}.srt";
+                var captionFileName = $"{topic.TopicName}.{topic.LanguageCode}.{language.Code}.srt";
                 var captionsBlob = captionsContainer.GetBlockBlobReference(captionFileName);
                 if (await captionsBlob.ExistsAsync())
                 {
