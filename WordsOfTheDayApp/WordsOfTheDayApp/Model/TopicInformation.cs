@@ -12,7 +12,7 @@ namespace WordsOfTheDayApp.Model
 
         public string Keywords { get; set; }
 
-        public string LanguageCode { get; set; }
+        public LanguageInfo Language { get; set; }
 
         public List<string> MustDisambiguate { get; set; }
 

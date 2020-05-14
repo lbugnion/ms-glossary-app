@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading.Tasks;
@@ -52,6 +51,8 @@ namespace AzureWordsOfTheDay.Pages
         public async Task OnGet(string languageCode)
         {
             ViewData["LanguageCode"] = languageCode;
+            ViewData["WordsOfTheDay"] = Texts.ResourceManager.GetString($"{languageCode}.WordsOfTheDay");
+            ViewData["SiteTitle"] = Texts.ResourceManager.GetString($"{languageCode}.SiteTitle");
 
             _logger.LogInformation($"OnGet in Index");
 

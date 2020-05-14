@@ -23,7 +23,7 @@ namespace WordsOfTheDayApp.Model
             var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
 
             var jsonBlob = settingsContainer.GetBlockBlobReference(
-                string.Format(Constants.KeywordsBlob, topic.LanguageCode));
+                string.Format(Constants.KeywordsBlob, topic.Language.Code));
 
             if (!await jsonBlob.ExistsAsync())
             {
@@ -45,7 +45,7 @@ namespace WordsOfTheDayApp.Model
 
             try
             {
-                newBlob = newContainer.GetBlockBlobReference($"{topic.TopicName}.{topic.LanguageCode}.md");
+                newBlob = newContainer.GetBlockBlobReference($"{topic.TopicName}.{topic.Language.Code}.md");
                 markdown = await newBlob.DownloadTextAsync();
             }
             catch (Exception ex)
@@ -57,10 +57,10 @@ namespace WordsOfTheDayApp.Model
             {
                 await NotificationService.Notify(
                     "Error in ReplaceKeywords",
-                    $"Error when loading blob {topic.TopicName}.{topic.LanguageCode}.md : {error.Message}",
+                    $"Error when loading blob {topic.TopicName}.{topic.Language.Code}.md : {error.Message}",
                     log);
 
-                log?.LogError($"Cannot load blob: {topic.TopicName}.{topic.LanguageCode}.md");
+                log?.LogError($"Cannot load blob: {topic.TopicName}.{topic.Language.Code}.md");
             }
 
             var replacer = new KeywordReplacer();
@@ -70,7 +70,7 @@ namespace WordsOfTheDayApp.Model
             if (newMarkdown == markdown)
             {
                 await NotificationService.Notify(
-                    $"No keywords replaced in file {topic.TopicName}.{topic.LanguageCode}",
+                    $"No keywords replaced in file {topic.TopicName}.{topic.Language.Code}",
                     "No keywords found",
                     log);
             }
@@ -81,7 +81,7 @@ namespace WordsOfTheDayApp.Model
                     log?.LogInformation("Uploading");
                     await newBlob.UploadTextAsync(newMarkdown);
                     await NotificationService.Notify(
-                        $"Replaced keywords in file {topic.TopicName}.{topic.LanguageCode}",
+                        $"Replaced keywords in file {topic.TopicName}.{topic.Language.Code}",
                         $"The following keywords were replaced: {replaced}",
                         log);
                 }
@@ -94,14 +94,14 @@ namespace WordsOfTheDayApp.Model
                 {
                     await NotificationService.Notify(
                         "Error in ReplaceKeywords",
-                        $"Error when uploading blob {topic.TopicName}.{topic.LanguageCode}.md : {error.Message}",
+                        $"Error when uploading blob {topic.TopicName}.{topic.Language.Code}.md : {error.Message}",
                         log);
 
-                    log?.LogError($"Cannot upload blob: {topic.TopicName}.{topic.LanguageCode}.md");
+                    log?.LogError($"Cannot upload blob: {topic.TopicName}.{topic.Language.Code}.md");
                 }
             }
 
-            log?.LogInformation($"Done replacing keywords in {topic.TopicName}.{topic.LanguageCode}");
+            log?.LogInformation($"Done replacing keywords in {topic.TopicName}.{topic.Language.Code}");
         }
     }
 }

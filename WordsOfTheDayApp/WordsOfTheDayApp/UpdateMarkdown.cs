@@ -13,7 +13,7 @@ using WordsOfTheDayApp.Model;
 
 namespace WordsOfTheDayApp
 {
-    public static class UpdateMarkdown
+    public static partial class UpdateMarkdown
     {
         [FunctionName("UpdateMarkdown_CreateTopics")]
         public static async Task<TopicInformation> CreateTopics(
@@ -154,6 +154,19 @@ namespace WordsOfTheDayApp
                     topic);
             }
 
+            var topicsByLanguages = topics
+                .GroupBy(t => t.TopicName)
+                .ToList();
+
+            foreach (var topicGroup in topicsByLanguages)
+            {
+                var topicList = topicGroup.ToList();
+
+                await context.CallActivityAsync<string>(
+                    "UpdateMarkdown_UpdateOtherLanguages",
+                    topicList);
+            }
+
             //foreach (var topicUrl in list)
             //{
             //    Uri topicUri = new Uri(topicUrl);
@@ -163,28 +176,34 @@ namespace WordsOfTheDayApp
             //        topicUri));
             //}
 
-            var languageCodes = topics
-                .GroupBy(t => t.LanguageCode)
-                .Select(g => g.Key);
+            var languages = topics
+                .Select(t => t.Language)
+                .GroupBy(l => l.Code)
+                .Select(g => g.First())
+                .ToList();
 
-            foreach (var languageCode in languageCodes)
+            await context.CallActivityAsync(
+                "UpdateMarkdown_SaveLanguages",
+                languages);
+
+            foreach (var language in languages)
             {
                 await context.CallActivityAsync(
                     "UpdateMarkdown_SaveSideBar",
-                    languageCode);
+                    language.Code);
             }
 
-            foreach (var languageCode in languageCodes)
+            foreach (var language in languages)
             {
                 var topicsForLanguage = topics
-                    .GroupBy(t => t.LanguageCode)
-                    .First(g => g.Key == languageCode)
+                    .GroupBy(t => t.Language.Code)
+                    .First(g => g.Key == language.Code)
                     .Select(g => g)
                     .ToList();
 
                 var info = new TopicLanguageInfo
                 {
-                    LanguageCode = languageCode,
+                    LanguageCode = language.Code,
                     Topics = topicsForLanguage
                 };
 
@@ -205,6 +224,15 @@ namespace WordsOfTheDayApp
             await SettingsFilesSaver.SaveSideBar(languageCode, log);
         }
 
+        [FunctionName("UpdateMarkdown_SaveLanguages")]
+        public static async Task SaveLanguages(
+            [ActivityTrigger]
+            IList<LanguageInfo> languages,
+            ILogger log)
+        {
+            await SettingsFilesSaver.SaveLanguages(languages, log);
+        }
+
         [FunctionName("UpdateMarkdown_SaveTopics")]
         public static async Task SaveTopics(
             [ActivityTrigger]
@@ -214,19 +242,13 @@ namespace WordsOfTheDayApp
             await SettingsFilesSaver.SaveTopics(info.LanguageCode, info.Topics, log);
         }
 
-        public class TopicLanguageInfo
+        [FunctionName("UpdateMarkdown_UpdateOtherLanguages")]
+        public static async Task UpdateOtherLanguages(
+            [ActivityTrigger]
+            IList<TopicInformation> topicsByLanguage,
+            ILogger log)
         {
-            public string LanguageCode
-            {
-                get;
-                set;
-            }
-
-            public IList<TopicInformation> Topics
-            {
-                get;
-                set;
-            }
+            await TopicMaker.UpdateOtherLanguages(topicsByLanguage, log);
         }
     }
 }

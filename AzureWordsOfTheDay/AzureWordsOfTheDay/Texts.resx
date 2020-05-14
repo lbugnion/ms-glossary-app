@@ -117,20 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="en.AzureWordsOfTheDay" xml:space="preserve">
+  <data name="en.SiteTitle" xml:space="preserve">
     <value>Azure Words Of The Day</value>
     <comment>Azure Words Of The Day</comment>
   </data>
-  <data name="en.ContactUs" xml:space="preserve">
-    <value>Contact us</value>
-    <comment>Contact us</comment>
-  </data>
-  <data name="en.Privacy" xml:space="preserve">
-    <value>Privacy</value>
-    <comment>Privacy</comment>
-  </data>
   <data name="en.WordsOfTheDay" xml:space="preserve">
     <value>Words of the Day</value>
+    <comment>Words of the Day</comment>
+  </data>
+  <data name="zu.SiteTitle" xml:space="preserve">
+    <value>Azure Amagama Wosuku</value>
+    <comment>Azure Words Of The Day</comment>
+  </data>
+  <data name="zu.WordsOfTheDay" xml:space="preserve">
+    <value>Amagama Wosuku</value>
     <comment>Words of the Day</comment>
   </data>
 </root>

@@ -10,8 +10,11 @@
         public const string SettingsContainerVariableName = "SettingsContainer";
         public const string SideBarMarkdownBlob = "side-bar.{0}.md";
         public const string TopicsBlob = "topics.{0}.json";
+        public const string LanguagesBlob = "languages.txt";
         public const string TopicsContainerVariableName = "TopicsContainer";
         public const string TopicsUploadContainerVariableName = "TopicsUploadContainer";
+        public const string SiteLanguages = "Site languages: ";
+        public const string OtherLanguages = "> Other languages: ";
 #if DEBUG
         public const bool UseSemaphores = false;
 #endif

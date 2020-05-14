@@ -84,12 +84,12 @@ namespace AzureWordsOfTheDay.Model
 
             try
             {
-                logger?.LogInformation("Trying to get the languages JSON");
+                logger?.LogInformation("Trying to get the languages TXT");
                 txt = await Client.GetStringAsync(uri);
             }
             catch (Exception ex)
             {
-                logger?.LogError($"Error when getting the languages JSON: {ex.Message}");
+                logger?.LogError($"Error when getting the languages Site languages: {ex.Message}");
                 // TODO Show error if 404
             }
 

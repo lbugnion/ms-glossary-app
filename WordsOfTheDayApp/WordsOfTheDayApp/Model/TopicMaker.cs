@@ -15,6 +15,7 @@ namespace WordsOfTheDayApp.Model
     {
         private const string BlurbMarker = "> Blurb: ";
         private const string CaptionsMarker = "> Captions: ";
+        private const string LanguageMarker = "> Language: ";
         private const string DateTimeMarker = "<!-- DATETIME -->";
         private const string DownloadCaptionsMarker = "<!-- DOWNLOAD-CAPTIONS -->";
         private const string DownloadCaptionTemplate = "- [{0}](https://wordsoftheday.blob.core.windows.net/{1}/{2})";
@@ -71,8 +72,6 @@ namespace WordsOfTheDayApp.Model
 
             var oldMarkdownBlob = new CloudBlockBlob(uri);
             topic.TopicName = Path.GetFileNameWithoutExtension(oldMarkdownBlob.Name);
-
-            topic.LanguageCode = Path.GetExtension(topic.TopicName).Substring(1);
             topic.TopicName = Path.GetFileNameWithoutExtension(topic.TopicName);
 
             log?.LogInformation("In MarkdownUpdater.CreateTopics");
@@ -90,6 +89,7 @@ namespace WordsOfTheDayApp.Model
             string topicTitle = null;
             string blurb = null;
             string captions = null;
+            string language = null;
 
             while (!done)
             {
@@ -135,6 +135,11 @@ namespace WordsOfTheDayApp.Model
                     captions = line.Substring(CaptionsMarker.Length).Trim();
                     log?.LogInformation($"blurb: {blurb}");
                 }
+                else if (line.StartsWith(LanguageMarker))
+                {
+                    language = line.Substring(LanguageMarker.Length).Trim();
+                    log?.LogInformation($"language: {language}");
+                }
             }
 
             topic.Title = topicTitle;
@@ -142,6 +147,7 @@ namespace WordsOfTheDayApp.Model
             topic.Keywords = keywordsLine;
             topic.Blurb = blurb;
             topic.Captions = MakeLanguages(captions);
+            topic.Language = MakeLanguages(language).First();
 
             // Check SRT files
             var client = account.CreateCloudBlobClient();
@@ -151,9 +157,9 @@ namespace WordsOfTheDayApp.Model
             var captionsFilesList = new StringBuilder();
             log?.LogInformation($"Checking captions for {topic.TopicName}.");
 
-            foreach (var language in topic.Captions)
+            foreach (var captionLanguage in topic.Captions)
             {
-                var captionFileName = $"{topic.TopicName}.{topic.LanguageCode}.{language.Code}.srt";
+                var captionFileName = $"{topic.TopicName}.{topic.Language.Code}.{captionLanguage.Code}.srt";
                 var captionsBlob = captionsContainer.GetBlockBlobReference(captionFileName);
                 if (await captionsBlob.ExistsAsync())
                 {
@@ -162,7 +168,7 @@ namespace WordsOfTheDayApp.Model
                     captionsFilesList.AppendLine(
                         string.Format(
                             DownloadCaptionTemplate,
-                            language.Language,
+                            captionLanguage.Language,
                             captionsContainer.Name,
                             captionsBlob.Name));
                 }
@@ -187,7 +193,7 @@ namespace WordsOfTheDayApp.Model
             {
                 var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
                 var keywordsBlob = settingsContainer.GetBlockBlobReference(
-                    string.Format(Constants.KeywordsBlob, topic.LanguageCode));
+                    string.Format(Constants.KeywordsBlob, topic.Language.Code));
 
                 string json = null;
                 Dictionary<char, List<KeywordPair>> keywordsDictionary;
@@ -304,10 +310,57 @@ namespace WordsOfTheDayApp.Model
             }
 
             var newContainer = helper.GetContainer(Constants.TopicsContainerVariableName);
-            var newBlob = newContainer.GetBlockBlobReference($"{topic.TopicName}.{topic.LanguageCode}.md");
+            var newBlob = newContainer.GetBlockBlobReference($"{topic.TopicName}.{topic.Language.Code}.md");
             await newBlob.DeleteIfExistsAsync();
             await newBlob.UploadTextAsync(newMarkdown);
             return topic;
+        }
+
+        public static async Task UpdateOtherLanguages(
+            IList<TopicInformation> topicsByLanguage,
+            ILogger log)
+        {
+            var account = CloudStorageAccount.Parse(
+                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
+            var client = account.CreateCloudBlobClient();
+            var helper = new BlobHelper(client, log);
+
+            var topicsContainer = helper.GetContainer(Constants.TopicsContainerVariableName);
+
+            var allLanguages = topicsByLanguage
+                .Select(g => g.Language)
+                .ToList();
+
+            foreach (var topic in topicsByLanguage)
+            {
+                var languagesBuilder = new StringBuilder()
+                    .Append(Constants.OtherLanguages);
+
+                foreach (var language in allLanguages)
+                {
+                    if (language == topic.Language)
+                    {
+                        continue;
+                    }
+
+                    languagesBuilder
+                        .Append(language.ToString())
+                        .Append(", ");
+                }
+
+                languagesBuilder
+                    .Remove(languagesBuilder.Length - 3, 2)
+                    .AppendLine();
+
+                var topicsFileName = $"{topic.TopicName}.{topic.Language.Code}.md";
+                var topicBlob = topicsContainer.GetBlockBlobReference(topicsFileName);
+
+                var markdown = await topicBlob.DownloadTextAsync();
+                var builder = new StringBuilder(markdown);
+                builder.Insert(0, languagesBuilder.ToString());
+
+                await topicBlob.UploadTextAsync(builder.ToString());
+            }
         }
     }
 }

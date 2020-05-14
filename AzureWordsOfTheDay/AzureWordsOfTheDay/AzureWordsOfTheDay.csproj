@@ -21,6 +21,24 @@
 
 
   <ItemGroup>
+    <Compile Update="Texts.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Texts.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <EmbeddedResource Update="Texts.resx">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Texts.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+
+  <ItemGroup>
     <None Update="Markdown\en\captions.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -1,6 +1,6 @@
 # [Azure Active Directory AAD](/topic/en/aad)
 
-<iframe width="560" height="560" src="https://www.youtube.com/embed/WDieqEyq4uA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="560" src="https://www.youtube.com/embed/l9e-RGUAVy8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ###### [(Download the video and captions)](#download)
 
