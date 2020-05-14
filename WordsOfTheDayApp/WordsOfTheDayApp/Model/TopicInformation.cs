@@ -10,7 +10,7 @@ namespace WordsOfTheDayApp.Model
 
         public IList<LanguageInfo> Captions { get; set; }
 
-        public string Keywords { get; set; }
+        public IList<KeywordPair> Keywords { get; set; }
 
         public LanguageInfo Language { get; set; }
 

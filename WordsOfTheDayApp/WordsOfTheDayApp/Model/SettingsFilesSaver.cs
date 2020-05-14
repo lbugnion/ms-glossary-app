@@ -13,7 +13,7 @@ namespace WordsOfTheDayApp.Model
     public static class SettingsFilesSaver
     {
         private const string SideBarBoldTemplate = "- [**{0}**](/topic/{1}/{2})";
-        private const string SideBarTemplate = "- [{0}](/topic/{1}/{2}/{3})";
+        private const string SideBarTemplate = "- [{0}](/topic/{1}/{2}_{3})";
 
         public static async Task SaveSideBar(string languageCode, ILogger log)
         {

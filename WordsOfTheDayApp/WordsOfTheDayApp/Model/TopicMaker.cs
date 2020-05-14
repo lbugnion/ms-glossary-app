@@ -6,7 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WordsOfTheDayApp.Model
@@ -58,9 +60,54 @@ namespace WordsOfTheDayApp.Model
             return result;
         }
 
-        public static async Task CreateSubtopics(Uri blobUri, ILogger log)
+        public static async Task CreateSubtopics(TopicInformation topic, ILogger log)
         {
+            var account = CloudStorageAccount.Parse(
+                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
+            var client = account.CreateCloudBlobClient();
+            var helper = new BlobHelper(client, log);
+            var topicsContainer = helper.GetContainer(Constants.TopicsContainerVariableName);
+            var topicBlob = topicsContainer.GetBlockBlobReference($"{topic.TopicName}.{topic.Language.Code}.md");
+            var topicMarkdown = await topicBlob.DownloadTextAsync();
 
+            var reader = new StringReader(topicMarkdown);
+            var header = new StringBuilder();
+            var restOfFile = new StringBuilder();
+            var foundH1 = false;
+            string line = null;
+
+            while ((line = reader.ReadLine()) != null)
+            {
+                header.AppendLine(line);
+
+                if (line.StartsWith(H1))
+                {
+                    foundH1 = true;
+                    break;
+                }
+            }
+            
+            if (!foundH1)
+            {
+                log?.LogError($"Invalid topic file: {topic.TopicName}.{topic.Language.Code}");
+                return;
+            }
+
+            restOfFile.Append(reader.ReadToEnd());
+
+            foreach (var pair in topic.Keywords)
+            {
+                var newBuilder = new StringBuilder(header.ToString());
+                var text = string.Format(Texts.ResourceManager.GetString($"{topic.Language.Code}.RedirectedFrom"), pair.Keyword);
+                newBuilder.AppendLine($"###### ({text})");
+                newBuilder.Append(restOfFile.ToString());
+
+                var subtopicBlob = topicsContainer.GetBlockBlobReference(
+                    $"{topic.TopicName}_{pair.Subtopic}.{topic.Language.Code}.md");
+                await subtopicBlob.UploadTextAsync(newBuilder.ToString());
+
+                log?.LogInformation($"Updated subtopic file {topic.TopicName}_{pair.Subtopic}.{topic.Language.Code}.md");
+            }
         }
 
         public static async Task<TopicInformation> CreateTopic(Uri uri, ILogger log)
@@ -144,7 +191,6 @@ namespace WordsOfTheDayApp.Model
 
             topic.Title = topicTitle;
             topic.YouTubeCode = youTubeCode;
-            topic.Keywords = keywordsLine;
             topic.Blurb = blurb;
             topic.Captions = MakeLanguages(captions);
             topic.Language = MakeLanguages(language).First();
@@ -202,13 +248,21 @@ namespace WordsOfTheDayApp.Model
                     {
                         ','
                     }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(k => k.Trim())
                     .ToList();
 
-                var title = newKeywords.FirstOrDefault(k => k.ToLower().Trim() == topicTitle.ToLower());
+                var existingTitle = newKeywords.FirstOrDefault(k => k.ToLower() == topicTitle.ToLower());
 
-                if (!string.IsNullOrEmpty(title))
+                if (!string.IsNullOrEmpty(existingTitle))
                 {
-                    newKeywords.Remove(title);
+                    newKeywords.Remove(existingTitle);
+                }
+
+                var existingTopic = newKeywords.FirstOrDefault(k => k.ToLower() == topic.TopicName.ToLower());
+
+                if (!string.IsNullOrEmpty(existingTopic))
+                {
+                    newKeywords.Remove(existingTopic);
                 }
 
                 if (await keywordsBlob.ExistsAsync())
@@ -245,10 +299,9 @@ namespace WordsOfTheDayApp.Model
 
                     foreach (var k in newKeywords)
                     {
-                        var trimmedKeyword = k.Trim();
                         var existingPair = keywordsDictionary.Values
                             .SelectMany(pair => pair)
-                            .FirstOrDefault(pair => pair.Keyword.ToLower() == trimmedKeyword.ToLower());
+                            .FirstOrDefault(pair => pair.Keyword.ToLower() == k.ToLower());
 
                         if (existingPair != null)
                         {
@@ -260,7 +313,7 @@ namespace WordsOfTheDayApp.Model
 
                             await NotificationService.Notify(
                                 "Duplicate found in new markdown",
-                                $"Keyword:{trimmedKeyword} / Old topic: {existingPair.Topic} / New topic: {topic.TopicName}",
+                                $"Keyword:{k} / Old topic: {existingPair.Topic} / New topic: {topic.TopicName}",
                                 log);
                         }
                     }
@@ -288,7 +341,9 @@ namespace WordsOfTheDayApp.Model
                     keywordsList.Add(pair);
                 }
 
-                foreach (var newKeyword in newKeywords.Select(k => k.Trim()))
+                topic.Keywords = new List<KeywordPair>();
+
+                foreach (var newKeyword in newKeywords)
                 {
                     var pair = new KeywordPair(
                         topic.TopicName,
@@ -296,6 +351,7 @@ namespace WordsOfTheDayApp.Model
                         newKeyword,
                         topic.Blurb);
                     AddToKeywordsList(pair);
+                    topic.Keywords.Add(pair);
                 }
 
                 var titlePair = new KeywordPair(

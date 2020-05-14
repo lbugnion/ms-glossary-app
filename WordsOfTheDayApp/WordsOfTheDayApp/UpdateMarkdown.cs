@@ -21,11 +21,6 @@ namespace WordsOfTheDayApp
             Uri blobUri,
             ILogger log)
         {
-            if (blobUri.AbsolutePath.Contains("staging"))
-            {
-                throw new Exception();
-            }
-
             var topic = await TopicMaker.CreateTopic(blobUri, log);
             log?.LogInformation($"Updated {topic.TopicName}.");
 
@@ -37,22 +32,20 @@ namespace WordsOfTheDayApp
             return topic;
         }
 
-        //[FunctionName("UpdateMarkdown_CreateSubtopics")]
-        //public static async Task<string> CreateSubtopics(
-        //    [ActivityTrigger]
-        //    Uri blobUri,
-        //    ILogger log)
-        //{
-        //    var fullTopic = await MarkdownUpdater.CreateSubtopics(blobUri, log);
-        //    log?.LogInformation($"Updated {fullTopic}.");
+        [FunctionName("UpdateMarkdown_CreateSubtopics")]
+        public static async Task CreateSubtopics(
+            [ActivityTrigger]
+            TopicInformation topic,
+            ILogger log)
+        {
+            await TopicMaker.CreateSubtopics(topic, log);
+            log?.LogInformation($"Created subtopics for {topic.TopicName}.");
 
-        //    await NotificationService.Notify(
-        //        "Updated subtopic",
-        //        $"The topic/subtopic {fullTopic} has been updated in markdown",
-        //        log);
-
-        //    return fullTopic;
-        //}
+            await NotificationService.Notify(
+                "Updated subtopic",
+                $"Created subtopics for {topic.TopicName}.",
+                log);
+        }
 
         [FunctionName("UpdateMarkdown_HttpStart")]
         public static async Task<HttpResponseMessage> HttpStart(
@@ -80,11 +73,6 @@ namespace WordsOfTheDayApp
             var topicsContainer = blobHelper.GetContainer(
                 Constants.TopicsUploadContainerVariableName);
 
-            if (topicsContainer.Name.Contains("staging"))
-            {
-                return null;
-            }
-
             BlobContinuationToken continuationToken = null;
             var topics = new List<string>();
 
@@ -110,7 +98,7 @@ namespace WordsOfTheDayApp
         }
 
         [FunctionName("UpdateMarkdown_ReplaceKeywords")]
-        public static async Task<string> ReplaceKeywords(
+        public static async Task ReplaceKeywords(
             [ActivityTrigger]
             TopicInformation topic,
             ILogger log)
@@ -121,8 +109,6 @@ namespace WordsOfTheDayApp
                 "Replaced keywords in topic",
                 $"Keywords have been linked in the topic {topic.TopicName}",
                 log);
-
-            return null;
         }
 
         [FunctionName("UpdateMarkdown")]
@@ -135,11 +121,6 @@ namespace WordsOfTheDayApp
 
             foreach (var topicUrl in list)
             {
-                if (topicUrl.Contains("staging"))
-                {
-                    throw new Exception();
-                }
-
                 Uri topicUri = new Uri(topicUrl);
 
                 topics.Add(await context.CallActivityAsync<TopicInformation>(
@@ -170,14 +151,12 @@ namespace WordsOfTheDayApp
                 }
             }
 
-            //foreach (var topicUrl in list)
-            //{
-            //    Uri topicUri = new Uri(topicUrl);
-
-            //    topics.Add(await context.CallActivityAsync<string>(
-            //        "UpdateMarkdown_CreateSubtopics",
-            //        topicUri));
-            //}
+            foreach (var topic in topics)
+            {
+                await context.CallActivityAsync<string>(
+                    "UpdateMarkdown_CreateSubtopics",
+                    topic);
+            }
 
             var languages = topics
                 .Select(t => t.Language)
