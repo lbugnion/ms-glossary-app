@@ -162,9 +162,12 @@ namespace WordsOfTheDayApp
             {
                 var topicList = topicGroup.ToList();
 
-                await context.CallActivityAsync<string>(
-                    "UpdateMarkdown_UpdateOtherLanguages",
-                    topicList);
+                if (topicList.Count > 1)
+                {
+                    await context.CallActivityAsync<string>(
+                        "UpdateMarkdown_UpdateOtherLanguages",
+                        topicList);
+                }
             }
 
             //foreach (var topicUrl in list)

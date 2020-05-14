@@ -349,7 +349,7 @@ namespace WordsOfTheDayApp.Model
                 }
 
                 languagesBuilder
-                    .Remove(languagesBuilder.Length - 3, 2)
+                    .Remove(languagesBuilder.Length - 2, 2)
                     .AppendLine();
 
                 var topicsFileName = $"{topic.TopicName}.{topic.Language.Code}.md";
