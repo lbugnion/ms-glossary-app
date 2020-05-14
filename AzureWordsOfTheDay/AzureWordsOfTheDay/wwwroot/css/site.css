@@ -2,20 +2,7 @@
     margin: 0;
     background-color: white;
     font-family: Segoe UI, Arial, Helvetica, sans-serif;
-}
-
-.footer {
-    position: fixed;
-    left: 215px;
-    bottom: 0;
-    width: calc(100% - 200px);
-    white-space: nowrap;
-    border-top: 1px solid #555555;
-    padding: 0 0 0 15px;
-
-    /* Set the fixed height of the footer here */
-    height: 60px;
-    line-height: 60px; /* Vertically center the text there */
+    font-size: 16px;
 }
 
 .center {
@@ -91,19 +78,10 @@
     text-decoration: underline;
 }
 
-#intro h1 {
-    margin-top: 10px;
-    color: #0078D7;
-}
-
-#intro h1 #second-line{
-    margin-top: -10px;
-}
-
 #main {
     position: fixed;
     top: 0px;
-    bottom: 60px;
+    bottom: 0px;
     left: 215px;
     padding: 0 30px 0 30px;
     overflow-x: hidden;
@@ -112,15 +90,18 @@
 
 #main iframe {
     border: 1px solid #555555;
+    margin-bottom: 20px;
 }
 
 #main h1 {
     font-family: Segoe UI Light, Arial, Helvetica, sans-serif;
-    font-size: 50px;
+    font-size: 20px;
     margin-bottom: 20px;
+    margin-top: 30px;
 }
 
 #main h1 a {
+    font-size: 50px;
     color: #0078D7;
     text-decoration: none;
 }
@@ -140,10 +121,11 @@
 
 #main h2 {
     margin-top: 20px;
+    margin-bottom: 10px;
 }
 
 #main h3 {
-    margin-top: -10px;
+    margin-top: 0px;
 }
 
 #main h5 {
@@ -153,7 +135,7 @@
 }
 
 #main ul {
-    margin-top: -15px;
+    margin-top: -5px;
     margin-bottom: 30px;
 }
 
@@ -165,4 +147,44 @@
     font-style: italic;
     margin-top: -20px;
     margin-bottom: 20px;
+}
+
+#main h6 {
+    font-size: 16px;
+    font-style: italic;
+    font-weight: normal;
+    margin-top: -20px;
+    margin-bottom: 20px;
+}
+
+#main h3 code {
+    background-color: lightgray;
+}
+
+#main blockquote {
+    border-left: solid #0078D7 10px;
+    padding: 1px 0 1px 10px;
+    margin-left: 0px;
+    background-color: #EEEEEE;
+}
+
+#intro h1 {
+    font-size: 50px;
+    margin-top: 10px;
+    color: #0078D7;
+}
+
+#intro h1 #second-line{
+    margin-top: -10px;
+}
+
+#languages {
+    color: #0078D7;
+    font-weight: bold;
+    text-align: center;
+}
+
+#languages a {
+    color: #0078D7;
+    text-decoration: underline;
 }
