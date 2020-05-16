@@ -61,11 +61,47 @@ namespace WordsOfTheDayApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ### `{0}` can be used in different contexts:.
+        /// </summary>
+        internal static string en_DisambiguationIntro {
+            get {
+                return ResourceManager.GetString("en.DisambiguationIntro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to - In [{0}](/topic/{1}/{2}_{3}), {4}.
+        /// </summary>
+        internal static string en_DisambiguationItem {
+            get {
+                return ResourceManager.GetString("en.DisambiguationItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to # [{0}] (disambiguation).
+        /// </summary>
+        internal static string en_DisambiguationTitle {
+            get {
+                return ResourceManager.GetString("en.DisambiguationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Redirected from {0}.
         /// </summary>
         internal static string en_RedirectedFrom {
             get {
                 return ResourceManager.GetString("en.RedirectedFrom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ## Microsoft Azure Words of the Day presents:.
+        /// </summary>
+        internal static string en_TopicHeader {
+            get {
+                return ResourceManager.GetString("en.TopicHeader", resourceCulture);
             }
         }
         

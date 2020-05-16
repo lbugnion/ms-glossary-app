@@ -6,9 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace WordsOfTheDayApp.Model
@@ -60,6 +58,62 @@ namespace WordsOfTheDayApp.Model
             return result;
         }
 
+        public static async Task CreateDisambiguation(
+            Dictionary<string, List<TopicInformation>> dic, 
+            ILogger log)
+        {
+            if (dic.Keys.Count != 1
+                || dic.Values.Count != 1
+                || dic.Values.First().Count < 1)
+            {
+                log?.LogError("Invalid dictionary received in CreateDisambiguation");
+                return;
+            }
+
+            var keyword = dic.Keys.First();
+
+            var fileName = keyword.MakeSafeFileName();
+
+            var list = dic.Values.First();
+            var languageCode = dic.Values.First().First().Language.Code;
+            var builder = new StringBuilder();
+
+            builder.AppendLine(
+                TextHelper.GetText(languageCode, Constants.Texts.TopicHeader));
+
+            builder.AppendLine(
+                string.Format(
+                        TextHelper.GetText(languageCode, Constants.Texts.DisambiguationTitle),
+                        keyword));
+
+            builder.AppendLine(
+                string.Format(
+                        TextHelper.GetText(languageCode, Constants.Texts.DisambiguationIntro),
+                        keyword));
+
+            foreach (var topic in list)
+            {
+                builder.AppendLine(
+                    string.Format(
+                        TextHelper.GetText(languageCode, Constants.Texts.DisambiguationItem),
+                        topic.Title,
+                        topic.Language.Code,
+                        topic.TopicName,
+                        fileName,
+                        topic.Blurb));
+            }
+
+            var account = CloudStorageAccount.Parse(
+                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
+            var client = account.CreateCloudBlobClient();
+            var helper = new BlobHelper(client, log);
+            var topicsContainer = helper.GetContainer(Constants.TopicsContainerVariableName);
+            var disambiguationBlob = topicsContainer.GetBlockBlobReference(
+                $"{fileName}-disambiguation.{languageCode}.md");
+
+            await disambiguationBlob.UploadTextAsync(builder.ToString());
+        }
+
         public static async Task CreateSubtopics(TopicInformation topic, ILogger log)
         {
             var account = CloudStorageAccount.Parse(
@@ -74,7 +128,7 @@ namespace WordsOfTheDayApp.Model
             var header = new StringBuilder();
             var restOfFile = new StringBuilder();
             var foundH1 = false;
-            string line = null;
+            string line;
 
             while ((line = reader.ReadLine()) != null)
             {
@@ -98,7 +152,10 @@ namespace WordsOfTheDayApp.Model
             foreach (var pair in topic.Keywords)
             {
                 var newBuilder = new StringBuilder(header.ToString());
-                var text = string.Format(Texts.ResourceManager.GetString($"{topic.Language.Code}.RedirectedFrom"), pair.Keyword);
+                var text = string.Format(
+                    TextHelper.GetText(topic.Language.Code, Constants.Texts.RedirectedFrom), 
+                    pair.Keyword);
+
                 newBuilder.AppendLine($"###### ({text})");
                 newBuilder.Append(restOfFile.ToString());
 
@@ -308,8 +365,10 @@ namespace WordsOfTheDayApp.Model
                             // We got a problem, notify the process owner, add anyway
                             // (this creates a duplicate in the topics bar).
 
-                            topic.MustDisambiguate = new List<string>();
-                            topic.MustDisambiguate.Add(existingPair.Keyword);
+                            topic.MustDisambiguate = new List<string>
+                            {
+                                existingPair.Keyword
+                            };
 
                             await NotificationService.Notify(
                                 "Duplicate found in new markdown",
@@ -347,7 +406,7 @@ namespace WordsOfTheDayApp.Model
                 {
                     var pair = new KeywordPair(
                         topic.TopicName,
-                        newKeyword.ToLower().Replace(' ', '-'),
+                        newKeyword.MakeSafeFileName(),
                         newKeyword,
                         topic.Blurb);
                     AddToKeywordsList(pair);

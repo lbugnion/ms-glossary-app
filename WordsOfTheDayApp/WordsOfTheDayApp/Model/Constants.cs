@@ -18,5 +18,14 @@
 #if DEBUG
         public const bool UseSemaphores = false;
 #endif
+
+        public static class Texts
+        {
+            public const string RedirectedFrom = "RedirectedFrom";
+            public const string TopicHeader = "TopicHeader";
+            public const string DisambiguationTitle = "DisambiguationTitle";
+            public const string DisambiguationIntro = "DisambiguationIntro";
+            public const string DisambiguationItem = "DisambiguationItem";
+        }
     }
 }

@@ -47,6 +47,22 @@ namespace WordsOfTheDayApp
                 log);
         }
 
+        [FunctionName("UpdateMarkdown_CreateDisambiguation")]
+        public static async Task CreateDisambiguation(
+            [ActivityTrigger]
+            Dictionary<string, List<TopicInformation>> dic,
+            ILogger log)
+        {
+            await TopicMaker.CreateDisambiguation(dic, log);
+            
+            log?.LogInformation($"Created disambiguation for {dic.Keys.First()}.");
+
+            await NotificationService.Notify(
+                "Updated disambiguation",
+                $"Created disambiguation for {dic.Keys.First()}.",
+                log);
+        }
+
         [FunctionName("UpdateMarkdown_HttpStart")]
         public static async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(
@@ -167,6 +183,29 @@ namespace WordsOfTheDayApp
             await context.CallActivityAsync(
                 "UpdateMarkdown_SaveLanguages",
                 languages);
+
+            var disambiguations = topics
+                .Where(t => t.MustDisambiguate != null);
+
+            foreach (var d in disambiguations)
+            {
+                foreach (var keyword in d.MustDisambiguate)
+                {
+                    var dic = new Dictionary<string, List<TopicInformation>>
+                    {
+                        {
+                            keyword,
+                            topics.Where(t => 
+                                t.MustDisambiguate != null
+                                && t.MustDisambiguate.Contains(keyword)).ToList()
+                        }
+                    };
+
+                    await context.CallActivityAsync(
+                        "UpdateMarkdown_CreateDisambiguation",
+                        dic);
+                }
+            }
 
             foreach (var language in languages)
             {
