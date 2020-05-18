@@ -15,6 +15,8 @@
         public const string TopicsUploadContainerVariableName = "TopicsUploadContainer";
         public const string SiteLanguages = "Site languages: ";
         public const string OtherLanguages = "> Other languages: ";
+        public const string Disambiguation = "disambiguation";
+
 #if DEBUG
         public const bool UseSemaphores = false;
 #endif

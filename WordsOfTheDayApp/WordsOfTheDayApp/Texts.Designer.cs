@@ -79,7 +79,7 @@ namespace WordsOfTheDayApp {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to # [{0}] (disambiguation).
+        ///   Looks up a localized string similar to # [{0}](/topic/{1}/{2}) (disambiguation).
         /// </summary>
         internal static string en_DisambiguationTitle {
             get {

@@ -126,8 +126,8 @@
     <comment>- In [{0}](/topic/{1}/{2}_{3}), {4}</comment>
   </data>
   <data name="en.DisambiguationTitle" xml:space="preserve">
-    <value># [{0}] (disambiguation)</value>
-    <comment># [{0}] (disambiguation)</comment>
+    <value># [{0}](/topic/{1}/{2}) (disambiguation)</value>
+    <comment># [{0}](/topic/{1}/{2}) (disambiguation)</comment>
   </data>
   <data name="en.RedirectedFrom" xml:space="preserve">
     <value>Redirected from {0}</value>

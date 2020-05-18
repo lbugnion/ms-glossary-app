@@ -11,7 +11,7 @@ namespace WordsOfTheDayApp.Model
 {
     public static class MarkdownReplacer
     {
-        public static async Task ReplaceKeywords(
+        public static async Task<Dictionary<char, List<KeywordPair>>> ReplaceKeywords(
             TopicInformation topic,
             ILogger log)
         {
@@ -102,6 +102,8 @@ namespace WordsOfTheDayApp.Model
             }
 
             log?.LogInformation($"Done replacing keywords in {topic.TopicName}.{topic.Language.Code}");
+
+            return keywordsDictionary;
         }
     }
 }

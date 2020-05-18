@@ -22,8 +22,38 @@
             get;
         }
 
-        public KeywordPair(string topic, string subtopic, string keyword, string blurb)
+        public bool MustDisambiguate
         {
+            get;
+            set;
+        }
+
+        public bool IsDisambiguation
+        {
+            get;
+            set;
+        }
+
+        public string LanguageCode
+        {
+            get;
+        }
+
+        public string TopicTitle 
+        { 
+            get; 
+        }
+
+        public KeywordPair(
+            string languageCode,
+            string topicTitle,
+            string topic, 
+            string subtopic, 
+            string keyword, 
+            string blurb)
+        {
+            LanguageCode = languageCode;
+            TopicTitle = topicTitle;
             Topic = topic;
             Subtopic = subtopic;
             Keyword = keyword;

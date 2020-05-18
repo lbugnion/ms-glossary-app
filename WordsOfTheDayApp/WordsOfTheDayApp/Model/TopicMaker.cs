@@ -19,6 +19,55 @@ namespace WordsOfTheDayApp.Model
         private const string DateTimeMarker = "<!-- DATETIME -->";
         private const string DownloadCaptionsMarker = "<!-- DOWNLOAD-CAPTIONS -->";
         private const string DownloadCaptionTemplate = "- [{0}](https://wordsoftheday.blob.core.windows.net/{1}/{2})";
+
+        public static async Task DeleteAllSettings(ILogger log)
+        {
+            var account = CloudStorageAccount.Parse(
+                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
+            var client = account.CreateCloudBlobClient();
+            var helper = new BlobHelper(client, log);
+            var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
+
+            BlobContinuationToken continuationToken = null;
+
+            do
+            {
+                var response = await settingsContainer.ListBlobsSegmentedAsync(continuationToken);
+                continuationToken = response.ContinuationToken;
+
+                foreach (CloudBlockBlob blob in response.Results)
+                {
+                    log?.LogInformation($"Deleting: {blob.Name}");
+                    await blob.DeleteAsync();
+                }
+            }
+            while (continuationToken != null);
+        }
+
+        public static async Task DeleteAllTopics(ILogger log)
+        {
+            var account = CloudStorageAccount.Parse(
+                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
+            var client = account.CreateCloudBlobClient();
+            var helper = new BlobHelper(client, log);
+            var topicsContainer = helper.GetContainer(Constants.TopicsContainerVariableName);
+
+            BlobContinuationToken continuationToken = null;
+
+            do
+            {
+                var response = await topicsContainer.ListBlobsSegmentedAsync(continuationToken);
+                continuationToken = response.ContinuationToken;
+
+                foreach (CloudBlockBlob blob in response.Results)
+                {
+                    log?.LogInformation($"Deleting: {blob.Name}");
+                    await blob.DeleteAsync();
+                }
+            }
+            while (continuationToken != null);
+        }
+
         private const string DownloadLinkTemplate = "https://wordsoftheday.blob.core.windows.net/videos/{0}.mp4";
         private const string DownloadMarker = "<!-- DOWNLOAD -->";
         private const string H1 = "# ";
@@ -59,7 +108,7 @@ namespace WordsOfTheDayApp.Model
         }
 
         public static async Task CreateDisambiguation(
-            Dictionary<string, List<TopicInformation>> dic, 
+            Dictionary<string, List<KeywordPair>> dic, 
             ILogger log)
         {
             if (dic.Keys.Count != 1
@@ -71,11 +120,21 @@ namespace WordsOfTheDayApp.Model
             }
 
             var keyword = dic.Keys.First();
+            var safeKeyword = keyword.MakeSafeFileName();
 
-            var fileName = keyword.MakeSafeFileName();
+            var keywordInfos = dic.Values.First();
 
-            var list = dic.Values.First();
-            var languageCode = dic.Values.First().First().Language.Code;
+            var languageCode = dic.Values.First().First().LanguageCode;
+            var link = $"{safeKeyword}_{Constants.Disambiguation}";
+            var fileName = $"{link}.{languageCode}.md";
+
+            var account = CloudStorageAccount.Parse(
+                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
+            var client = account.CreateCloudBlobClient();
+            var helper = new BlobHelper(client, log);
+            var topicsContainer = helper.GetContainer(Constants.TopicsContainerVariableName);
+            var disambiguationBlob = topicsContainer.GetBlockBlobReference(fileName);
+
             var builder = new StringBuilder();
 
             builder.AppendLine(
@@ -84,32 +143,26 @@ namespace WordsOfTheDayApp.Model
             builder.AppendLine(
                 string.Format(
                         TextHelper.GetText(languageCode, Constants.Texts.DisambiguationTitle),
-                        keyword));
+                        keyword,
+                        languageCode,
+                        link));
 
             builder.AppendLine(
                 string.Format(
                         TextHelper.GetText(languageCode, Constants.Texts.DisambiguationIntro),
                         keyword));
 
-            foreach (var topic in list)
+            foreach (var keywordInfo in keywordInfos.OrderBy(k => k.TopicTitle))
             {
                 builder.AppendLine(
                     string.Format(
                         TextHelper.GetText(languageCode, Constants.Texts.DisambiguationItem),
-                        topic.Title,
-                        topic.Language.Code,
-                        topic.TopicName,
-                        fileName,
-                        topic.Blurb));
+                        keywordInfo.TopicTitle,
+                        keywordInfo.LanguageCode,
+                        keywordInfo.Topic,
+                        safeKeyword,
+                        keywordInfo.Blurb));
             }
-
-            var account = CloudStorageAccount.Parse(
-                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
-            var client = account.CreateCloudBlobClient();
-            var helper = new BlobHelper(client, log);
-            var topicsContainer = helper.GetContainer(Constants.TopicsContainerVariableName);
-            var disambiguationBlob = topicsContainer.GetBlockBlobReference(
-                $"{fileName}-disambiguation.{languageCode}.md");
 
             await disambiguationBlob.UploadTextAsync(builder.ToString());
         }
@@ -248,7 +301,6 @@ namespace WordsOfTheDayApp.Model
 
             topic.Title = topicTitle;
             topic.YouTubeCode = youTubeCode;
-            topic.Blurb = blurb;
             topic.Captions = MakeLanguages(captions);
             topic.Language = MakeLanguages(language).First();
 
@@ -353,29 +405,6 @@ namespace WordsOfTheDayApp.Model
                             }
                         }
                     }
-
-                    foreach (var k in newKeywords)
-                    {
-                        var existingPair = keywordsDictionary.Values
-                            .SelectMany(pair => pair)
-                            .FirstOrDefault(pair => pair.Keyword.ToLower() == k.ToLower());
-
-                        if (existingPair != null)
-                        {
-                            // We got a problem, notify the process owner, add anyway
-                            // (this creates a duplicate in the topics bar).
-
-                            topic.MustDisambiguate = new List<string>
-                            {
-                                existingPair.Keyword
-                            };
-
-                            await NotificationService.Notify(
-                                "Duplicate found in new markdown",
-                                $"Keyword:{k} / Old topic: {existingPair.Topic} / New topic: {topic.TopicName}",
-                                log);
-                        }
-                    }
                 }
                 else
                 {
@@ -404,20 +433,65 @@ namespace WordsOfTheDayApp.Model
 
                 foreach (var newKeyword in newKeywords)
                 {
+                    var ambiguousPairs = keywordsDictionary.Values
+                        .SelectMany(pair => pair)
+                        .Where(pair => pair.Keyword.ToLower() == newKeyword.ToLower())
+                        .ToList();
+
                     var pair = new KeywordPair(
+                        topic.Language.Code,
+                        topic.Title,
                         topic.TopicName,
                         newKeyword.MakeSafeFileName(),
                         newKeyword,
-                        topic.Blurb);
+                        blurb);
+
+                    KeywordPair existingDisambiguation = null;
+
+                    if (ambiguousPairs.Count > 0)
+                    {
+                        pair.MustDisambiguate = true;
+
+                        foreach (var disambiguationPair in ambiguousPairs)
+                        {
+                            if (disambiguationPair.IsDisambiguation)
+                            {
+                                existingDisambiguation = disambiguationPair;
+                            }
+                            else
+                            {
+                                disambiguationPair.MustDisambiguate = true;
+                            }
+                        }
+
+                        if (existingDisambiguation == null)
+                        {
+                            existingDisambiguation = new KeywordPair(
+                                topic.Language.Code,
+                                null,
+                                newKeyword.MakeSafeFileName(),
+                                Constants.Disambiguation,
+                                newKeyword,
+                                null)
+                            {
+                                IsDisambiguation = true
+                            };
+
+                            AddToKeywordsList(existingDisambiguation);
+                        }
+                    }
+
                     AddToKeywordsList(pair);
                     topic.Keywords.Add(pair);
                 }
 
                 var titlePair = new KeywordPair(
+                        topic.Language.Code,
+                        topic.Title,
                         topic.TopicName,
                         topic.TopicName,
                         topicTitle,
-                        topic.Blurb);
+                        blurb);
                 AddToKeywordsList(titlePair);
 
                 json = JsonConvert.SerializeObject(keywordsDictionary);
@@ -426,7 +500,6 @@ namespace WordsOfTheDayApp.Model
 
             var newContainer = helper.GetContainer(Constants.TopicsContainerVariableName);
             var newBlob = newContainer.GetBlockBlobReference($"{topic.TopicName}.{topic.Language.Code}.md");
-            await newBlob.DeleteIfExistsAsync();
             await newBlob.UploadTextAsync(newMarkdown);
             return topic;
         }

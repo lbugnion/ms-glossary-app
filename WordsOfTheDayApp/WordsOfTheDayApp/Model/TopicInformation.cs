@@ -6,15 +6,11 @@ namespace WordsOfTheDayApp.Model
 {
     public class TopicInformation
     {
-        public string Blurb { get; set; }
-
         public IList<LanguageInfo> Captions { get; set; }
 
         public IList<KeywordPair> Keywords { get; set; }
 
         public LanguageInfo Language { get; set; }
-
-        public List<string> MustDisambiguate { get; set; }
 
         public string Title { get; set; }
 

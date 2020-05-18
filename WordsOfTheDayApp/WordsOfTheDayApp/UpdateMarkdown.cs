@@ -15,6 +15,24 @@ namespace WordsOfTheDayApp
 {
     public static partial class UpdateMarkdown
     {
+        [FunctionName("UpdateMarkdown_ResetSettings")]
+        public static async Task ResetSettings(
+            [ActivityTrigger]
+            string dummy,
+            ILogger log)
+        {
+            await TopicMaker.DeleteAllSettings(log);
+        }
+
+        [FunctionName("UpdateMarkdown_ResetTopics")]
+        public static async Task ResetTopics(
+            [ActivityTrigger]
+            string dummy,
+            ILogger log)
+        {
+            await TopicMaker.DeleteAllTopics(log);
+        }
+
         [FunctionName("UpdateMarkdown_CreateTopics")]
         public static async Task<TopicInformation> CreateTopics(
             [ActivityTrigger]
@@ -50,7 +68,7 @@ namespace WordsOfTheDayApp
         [FunctionName("UpdateMarkdown_CreateDisambiguation")]
         public static async Task CreateDisambiguation(
             [ActivityTrigger]
-            Dictionary<string, List<TopicInformation>> dic,
+            Dictionary<string, List<KeywordPair>> dic,
             ILogger log)
         {
             await TopicMaker.CreateDisambiguation(dic, log);
@@ -114,17 +132,19 @@ namespace WordsOfTheDayApp
         }
 
         [FunctionName("UpdateMarkdown_ReplaceKeywords")]
-        public static async Task ReplaceKeywords(
+        public static async Task<Dictionary<char, List<KeywordPair>>> ReplaceKeywords(
             [ActivityTrigger]
             TopicInformation topic,
             ILogger log)
         {
-            await MarkdownReplacer.ReplaceKeywords(topic, log);
+            var dic = await MarkdownReplacer.ReplaceKeywords(topic, log);
 
             await NotificationService.Notify(
                 "Replaced keywords in topic",
                 $"Keywords have been linked in the topic {topic.TopicName}",
                 log);
+
+            return dic;
         }
 
         [FunctionName("UpdateMarkdown")]
@@ -132,6 +152,14 @@ namespace WordsOfTheDayApp
             [OrchestrationTrigger]
             IDurableOrchestrationContext context)
         {
+            await context.CallActivityAsync(
+                "UpdateMarkdown_ResetSettings",
+                null);
+
+            await context.CallActivityAsync(
+                "UpdateMarkdown_ResetTopics",
+                null);
+
             var list = context.GetInput<List<string>>();
             var topics = new List<TopicInformation>();
 
@@ -144,9 +172,11 @@ namespace WordsOfTheDayApp
                     topicUri));
             }
 
+            Dictionary<char, List<KeywordPair>> keywordsDictionary = null;
+
             foreach (var topic in topics)
             {
-                await context.CallActivityAsync<string>(
+                keywordsDictionary = await context.CallActivityAsync<Dictionary<char, List<KeywordPair>>>(
                     "UpdateMarkdown_ReplaceKeywords",
                     topic);
             }
@@ -184,27 +214,25 @@ namespace WordsOfTheDayApp
                 "UpdateMarkdown_SaveLanguages",
                 languages);
 
-            var disambiguations = topics
-                .Where(t => t.MustDisambiguate != null);
+            var disambiguations = keywordsDictionary.Values
+                .SelectMany(k => k)
+                .Where(k => k.MustDisambiguate)
+                .GroupBy(k => k.Keyword)
+                .ToList();
 
             foreach (var d in disambiguations)
             {
-                foreach (var keyword in d.MustDisambiguate)
+                var dictionary = new Dictionary<string, List<KeywordPair>>
                 {
-                    var dic = new Dictionary<string, List<TopicInformation>>
                     {
-                        {
-                            keyword,
-                            topics.Where(t => 
-                                t.MustDisambiguate != null
-                                && t.MustDisambiguate.Contains(keyword)).ToList()
-                        }
-                    };
+                        d.Key,
+                        d.ToList()
+                    }
+                };
 
-                    await context.CallActivityAsync(
-                        "UpdateMarkdown_CreateDisambiguation",
-                        dic);
-                }
+                await context.CallActivityAsync(
+                    "UpdateMarkdown_CreateDisambiguation",
+                    dictionary);
             }
 
             foreach (var language in languages)

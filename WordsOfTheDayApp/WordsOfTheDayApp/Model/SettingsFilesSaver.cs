@@ -48,7 +48,7 @@ namespace WordsOfTheDayApp.Model
 
                 log?.LogInformation($"Side bar: {pair.Key}");
 
-                foreach (var k in pair.Value.OrderBy(v => v.Keyword))
+                foreach (var k in pair.Value.Where(v => !v.MustDisambiguate).OrderBy(v => v.Keyword))
                 {
                     log?.LogInformation($"Side bar: {languageCode} {k.Keyword} | {k.Topic}");
 
