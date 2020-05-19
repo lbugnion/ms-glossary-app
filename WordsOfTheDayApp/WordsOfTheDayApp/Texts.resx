@@ -117,6 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="en.By" xml:space="preserve">
+    <value>by</value>
+    <comment>by</comment>
+  </data>
   <data name="en.DisambiguationIntro" xml:space="preserve">
     <value>### `{0}` can be used in different contexts:</value>
     <comment>### `{0}` can be used in different contexts:</comment>
@@ -136,6 +140,10 @@
   <data name="en.TopicHeader" xml:space="preserve">
     <value>## Microsoft Azure Words of the Day presents:</value>
     <comment>## Microsoft Azure Words of the Day presents:</comment>
+  </data>
+  <data name="zu.By" xml:space="preserve">
+    <value>ngo</value>
+    <comment>by</comment>
   </data>
   <data name="zu.RedirectedFrom" xml:space="preserve">
     <value>Kuqondiswe kabusha kusuka {0}</value>

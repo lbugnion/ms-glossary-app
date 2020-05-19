@@ -16,9 +16,12 @@ namespace WordsOfTheDayApp.Model
         private const string BlurbMarker = "> Blurb: ";
         private const string CaptionsMarker = "> Captions: ";
         private const string LanguageMarker = "> Language: ";
+        private const string TwitterMarker = "> Twitter: ";
         private const string DateTimeMarker = "<!-- DATETIME -->";
         private const string DownloadCaptionsMarker = "<!-- DOWNLOAD-CAPTIONS -->";
         private const string DownloadCaptionTemplate = "- [{0}](https://wordsoftheday.blob.core.windows.net/{1}/{2})";
+        private const string LastChangeDateTimeFormat = "dd MMM yyyy HH:mm";
+        private const string TwitterLinkMask = "http://twitter.com/{0}";
 
         public static async Task DeleteAllSettings(ILogger log)
         {
@@ -247,6 +250,7 @@ namespace WordsOfTheDayApp.Model
             string blurb = null;
             string captions = null;
             string language = null;
+            string twitter = null;
 
             while (!done)
             {
@@ -297,6 +301,11 @@ namespace WordsOfTheDayApp.Model
                     language = line.Substring(LanguageMarker.Length).Trim();
                     log?.LogInformation($"language: {language}");
                 }
+                else if (line.StartsWith(TwitterMarker))
+                {
+                    twitter = line.Substring(TwitterMarker.Length).Trim();
+                    log?.LogInformation($"twitter: {twitter}");
+                }
             }
 
             topic.Title = topicTitle;
@@ -329,7 +338,30 @@ namespace WordsOfTheDayApp.Model
                 }
             }
 
-            var newMarkdown = oldMarkdown
+            var newMarkdown = new StringBuilder()
+                .AppendLine(TextHelper.GetText(topic.Language.Code, Constants.Texts.TopicHeader))
+                .AppendLine(oldMarkdown);
+
+            var lastChange = string.Empty;
+
+            if (!string.IsNullOrEmpty(twitter))
+            {
+                if (twitter.StartsWith("@"))
+                {
+                    twitter = twitter.Substring(1);
+                }
+
+                var twitterLink = string.Format(TwitterLinkMask, twitter);
+                var byText = TextHelper.GetText(topic.Language.Code, Constants.Texts.By);
+
+                lastChange = $"{DateTime.Now.ToString(LastChangeDateTimeFormat)} by [@{twitter}]({twitterLink})";
+            }
+            else
+            {
+                lastChange = DateTime.Now.ToString(LastChangeDateTimeFormat);
+            }
+
+            newMarkdown
                 .Replace(
                     YouTubeEmbedMarker,
                     string.Format(YouTubeEmbed, youTubeCode))
@@ -341,7 +373,7 @@ namespace WordsOfTheDayApp.Model
                     captionsFilesList.ToString())
                 .Replace(
                     DateTimeMarker,
-                    DateTime.Now.ToString("dd MMM yyyy HH:mm"));
+                    lastChange);
 
             // Process keywords first
             if (!string.IsNullOrEmpty(keywordsLine))
@@ -500,7 +532,7 @@ namespace WordsOfTheDayApp.Model
 
             var newContainer = helper.GetContainer(Constants.TopicsContainerVariableName);
             var newBlob = newContainer.GetBlockBlobReference($"{topic.TopicName}.{topic.Language.Code}.md");
-            await newBlob.UploadTextAsync(newMarkdown);
+            await newBlob.UploadTextAsync(newMarkdown.ToString());
             return topic;
         }
 

@@ -61,6 +61,15 @@ namespace WordsOfTheDayApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to by.
+        /// </summary>
+        internal static string en_By {
+            get {
+                return ResourceManager.GetString("en.By", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ### `{0}` can be used in different contexts:.
         /// </summary>
         internal static string en_DisambiguationIntro {
@@ -102,6 +111,15 @@ namespace WordsOfTheDayApp {
         internal static string en_TopicHeader {
             get {
                 return ResourceManager.GetString("en.TopicHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ngo.
+        /// </summary>
+        internal static string zu_By {
+            get {
+                return ResourceManager.GetString("zu.By", resourceCulture);
             }
         }
         
