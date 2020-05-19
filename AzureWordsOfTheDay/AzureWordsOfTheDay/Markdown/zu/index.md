@@ -16,4 +16,4 @@ Ngeminye imininingwane, iziphakamiso, imibiko yamaphutha nokuningi: [Khuluma nat
 
 <hr />
 
-### Futhi manje lapha ngezikhathi ezikhethiwe Amagama of the Day:
+## Futhi manje lapha ngezikhathi ezikhethiwe Amagama of the Day:

@@ -269,7 +269,14 @@ namespace AzureWordsOfTheDay.Model
                 logger?.LogInformation($"Random topic: {topic}");
 
                 var result = await LoadMarkdown(languageCode, topic, logger);
-                return result.topicHtml;
+
+                // Remove first line. Later we won't have to do that
+                var resultString = result.topicHtml.Value;
+                var reader = new StringReader(resultString);
+                var dummy = reader.ReadLine();
+                resultString = reader.ReadToEnd();
+
+                return new HtmlString(resultString);
             }
             catch (Exception ex)
             {

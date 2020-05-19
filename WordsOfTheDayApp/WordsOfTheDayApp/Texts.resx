@@ -138,8 +138,8 @@
     <comment>Redirected from {0}</comment>
   </data>
   <data name="en.TopicHeader" xml:space="preserve">
-    <value>## Microsoft Azure Words of the Day presents:</value>
-    <comment>## Microsoft Azure Words of the Day presents:</comment>
+    <value>### Microsoft Azure Words of the Day presents:</value>
+    <comment>### Microsoft Azure Words of the Day presents:</comment>
   </data>
   <data name="zu.By" xml:space="preserve">
     <value>ngo</value>

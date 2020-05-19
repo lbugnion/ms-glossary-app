@@ -1,5 +1,4 @@
-﻿using Dynamitey;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Newtonsoft.Json;
 using System;
@@ -43,7 +42,7 @@ namespace WordsOfTheDayApp.Model
             var md = new StringBuilder();
             foreach (var pair in keywordsDictionary.OrderBy(p => p.Key))
             {
-                md.AppendLine($"#### {pair.Key}");
+                md.AppendLine($"# {pair.Key}");
                 md.AppendLine();
 
                 log?.LogInformation($"Side bar: {pair.Key}");

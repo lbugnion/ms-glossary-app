@@ -106,7 +106,7 @@ namespace WordsOfTheDayApp {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ## Microsoft Azure Words of the Day presents:.
+        ///   Looks up a localized string similar to ### Microsoft Azure Words of the Day presents:.
         /// </summary>
         internal static string en_TopicHeader {
             get {
