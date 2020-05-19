@@ -1,7 +1,7 @@
-﻿@page "{topic}/{subtopic}"
+﻿@page "{languageCode}/{fullTopic}"
 @model AzureWordsOfTheDay.Pages.TopicModel
 @{
-    ViewData["Title"] = Model.Topic;
+    ViewData["PageTitle"] = Model.Topic;
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 
@@ -10,12 +10,4 @@
     @Model.TopicBarHtml
 }
 
-<h5>Microsoft Azure Words of the Day presents:</h5>
-
 @Model.TopicHtml
-
-<script src="~/js/postload.js"></script>
-
-<script>
-    checkSubtopic("@Model.Subtopic");
-</script>

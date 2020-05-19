@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using System.Globalization;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace AzureWordsOfTheDay.Pages
@@ -11,13 +12,7 @@ namespace AzureWordsOfTheDay.Pages
     public class TopicModel : PageModel
     {
         private readonly ILogger _logger;
-        private readonly MarkdownHelper _markdown;
-
-        public string Subtopic
-        {
-            get;
-            private set;
-        }
+        private readonly ContentHelper _contentHelper;
 
         public string Topic
         {
@@ -39,27 +34,25 @@ namespace AzureWordsOfTheDay.Pages
 
         public TopicModel(
             ILogger<TopicModel> logger,
-            MarkdownHelper markdown)
+            ContentHelper contentHelper)
         {
             _logger = logger;
-            _markdown = markdown;
+            _contentHelper = contentHelper;
         }
 
-        public async Task<IActionResult> OnGet(string topic, string subtopic)
+        public async Task<IActionResult> OnGet(string languageCode, string fullTopic)
         {
-            _logger.LogInformation($"OnGet in Topic: {topic} / {subtopic}");
+            ViewData["LanguageCode"] = languageCode;
+            ViewData["SiteTitle"] = Texts.ResourceManager.GetString($"{languageCode}.SiteTitle");
 
-            Topic = topic.ToLower();
+            _logger.LogInformation($"OnGet in Topic: {languageCode} / {fullTopic}");
 
-            if (subtopic != topic)
+            var parts = fullTopic.Split(new char[]
             {
-                var textInfo = CultureInfo.InvariantCulture.TextInfo;
-                Subtopic = textInfo.ToTitleCase(subtopic.Replace('-', ' '));
-            }
-            else
-            {
-                Subtopic = string.Empty;
-            }
+                '_'
+            }, StringSplitOptions.RemoveEmptyEntries);
+
+            Topic = parts[0].ToLower();
 
             if (string.IsNullOrEmpty(Topic))
             {
@@ -67,8 +60,11 @@ namespace AzureWordsOfTheDay.Pages
                 return Redirect("/");
             }
 
-            TopicHtml = await _markdown.LoadMarkdown(Topic, _logger);
-            TopicBarHtml = await _markdown.LoadTopicsBar(_logger);
+            var topicHtml = await _contentHelper.LoadMarkdown(languageCode, fullTopic, _logger);
+
+            TopicHtml = topicHtml;
+
+            TopicBarHtml = await _contentHelper.LoadTopicsBar(languageCode, _logger);
 
             _logger.LogInformation("Done rendering in Topic");
 

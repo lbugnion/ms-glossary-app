@@ -1,7 +1,7 @@
-﻿@page
+﻿@page "{languageCode}"
 @model IndexModel
 @{
-    ViewData["Title"] = "Home";
+    ViewData["PageTitle"] = "Home";
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 
@@ -11,15 +11,7 @@
 }
 
 <div id="intro">
-
-    <h1>Welcome to Microsoft Azure
-    <div id="second-line">Words of the Day</div></h1>
-
-    @Model.IndexContent
+    @Model.IndexContentHtml
 </div>
-
-<hr />
-
-<h5>And now here are randomly selected Words of the Day:</h5>
 
 @Model.SelectedTopicHtml

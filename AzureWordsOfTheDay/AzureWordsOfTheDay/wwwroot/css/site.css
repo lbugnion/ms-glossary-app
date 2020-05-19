@@ -49,7 +49,7 @@
     color: #555555;
 }
 
-#topics-bar h4 {
+#topics-bar h1 {
     font-family: 'Times New Roman', Times, serif;
     font-size: 30px;
     margin-top: 20px;
@@ -97,7 +97,7 @@
     font-family: Segoe UI Light, Arial, Helvetica, sans-serif;
     font-size: 20px;
     margin-bottom: 20px;
-    margin-top: 30px;
+    margin-top: -10px;
 }
 
 #main h1 a {
@@ -126,12 +126,24 @@
 
 #main h3 {
     margin-top: 0px;
+    font-family: Segoe UI, Arial, Helvetica, sans-serif;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 20px;
 }
 
-#main h5 {
-    margin-top: 10px;
-    margin-bottom: -30px;
-    font-size: 20px;
+#intro h1 {
+    color: #0078D7;
+    font-size: 50px;
+    margin-top: 0px;
+}
+
+#intro h2 {
+    font-family: Segoe UI Light, Arial, Helvetica, sans-serif;
+    font-size: 50px;
+    color: #0078D7;
+    margin-bottom: 0px;
+    margin-top: -30px;
 }
 
 #main ul {
@@ -143,13 +155,8 @@
     margin-bottom: 5px;
 }
 
-#main .redirected {
-    font-style: italic;
-    margin-top: -20px;
-    margin-bottom: 20px;
-}
-
 #main h6 {
+    font-family: Segoe UI, Arial, Helvetica, sans-serif;
     font-size: 16px;
     font-style: italic;
     font-weight: normal;
@@ -157,8 +164,7 @@
     margin-bottom: 20px;
 }
 
-#main h3 code {
-    background-color: lightgray;
+#main h6 a {
 }
 
 #main blockquote {
@@ -166,16 +172,6 @@
     padding: 1px 0 1px 10px;
     margin-left: 0px;
     background-color: #EEEEEE;
-}
-
-#intro h1 {
-    font-size: 50px;
-    margin-top: 10px;
-    color: #0078D7;
-}
-
-#intro h1 #second-line{
-    margin-top: -10px;
 }
 
 #languages {
@@ -187,4 +183,10 @@
 #languages a {
     color: #0078D7;
     text-decoration: underline;
+}
+
+/* Disambiguation */
+
+#main h3 code {
+    background-color: lightgray;
 }

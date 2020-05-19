@@ -5,16 +5,18 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace AzureWordsOfTheDay.Model
 {
-    public class MarkdownHelper
+    public class ContentHelper
     {
-        private const string MainTopicListUrl = "https://wordsoftheday.blob.core.windows.net/{0}/topics.json";
-        private const string TopicsBarUrl = "https://wordsoftheday.blob.core.windows.net/{0}/keywords.md";
-        private const string TopicUrlMask = "https://wordsoftheday.blob.core.windows.net/{0}/{1}.md";
+        private const string MainTopicListUrlMask = "https://wordsoftheday.blob.core.windows.net/{0}/{1}.{2}.json";
+        private const string TopicsBarUrlMask = "https://wordsoftheday.blob.core.windows.net/{0}/{1}.{2}.md";
+        private const string TopicUrlMask = "https://wordsoftheday.blob.core.windows.net/{0}/{1}.{2}.md";
         private HttpClient _client;
 
         private HttpClient Client
@@ -31,16 +33,21 @@ namespace AzureWordsOfTheDay.Model
         }
 
         public HtmlString LoadLocalMarkdown(
-            string filePath,
+            string folderPath,
+            string languageCode,
+            string fileName,
             ILogger logger = null)
         {
-            logger?.LogInformation($"In MarkdownLoader.LoadLocalMarkdown: {filePath}");
+            logger?.LogInformation($"In MarkdownLoader.LoadLocalMarkdown: {folderPath} {languageCode} {fileName}");
 
             var fileContent = "Nothing found";
 
             try
             {
-                using (var stream = File.OpenRead(filePath))
+                var fullPath = Path.Combine(folderPath, languageCode);
+                fullPath = Path.Combine(fullPath, fileName);
+
+                using (var stream = File.OpenRead(fullPath))
                 {
                     using (var reader = new StreamReader(stream))
                     {
@@ -51,8 +58,7 @@ namespace AzureWordsOfTheDay.Model
             catch (Exception ex)
             {
                 logger?.LogError(ex.Message);
-                fileContent = $"Error: {ex.Message}";
-                return new HtmlString(fileContent);
+                return null;
             }
 
             var md = new Markdown();
@@ -61,9 +67,9 @@ namespace AzureWordsOfTheDay.Model
             return new HtmlString(html);
         }
 
-        public async Task<HtmlString> LoadMarkdown(string topic, ILogger logger = null)
+        public async Task<HtmlString> LoadMarkdown(string languageCode, string topic, ILogger logger = null)
         {
-            logger?.LogInformation($"In MarkdownLoader.LoadMarkdown: topic = {topic}");
+            logger?.LogInformation($"In MarkdownLoader.LoadMarkdown: topic = {languageCode}/{topic}");
 
             var topicsContainer = Startup.Configuration[Constants.TopicsContainerVariableName];
             logger?.LogInformation($"topicsContainer: {topicsContainer}");
@@ -72,7 +78,9 @@ namespace AzureWordsOfTheDay.Model
                 string.Format(
                     TopicUrlMask,
                     topicsContainer,
-                    topic));
+                    topic,
+                    languageCode));
+
             logger?.LogInformation($"uri: {uri}");
 
             string markdown = null;
@@ -91,6 +99,7 @@ namespace AzureWordsOfTheDay.Model
             if (!string.IsNullOrEmpty(markdown))
             {
                 logger?.LogInformation("Topic markdown loaded, rendering...");
+
                 var md = new Markdown();
                 var html = md.Transform(markdown);
                 logger?.LogInformation("Done in MarkdownHelper.LoadMarkdown");
@@ -100,11 +109,46 @@ namespace AzureWordsOfTheDay.Model
             return null;
         }
 
-        public async Task<HtmlString> LoadRandomTopic(ILogger logger = null)
+        public IList<LanguageInfo> MakeLanguageList(string languageLine)
         {
-            logger?.LogInformation("In MarkdownLoader.LoadRandomTopic");
+            var lineParts = languageLine.Split(new char[]
+            {
+                ':'
+            });
 
-            var url = string.Format(MainTopicListUrl, Startup.Configuration[Constants.SettingsContainerVariableName]);
+            if (lineParts.Length != 2)
+            {
+                return null;
+            }
+
+            var languages = lineParts[1].Split(new char[]
+                {
+                    ','
+                }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(l => l.Split(new char[]
+                {
+                    '/'
+                }))
+                .Select(a => new LanguageInfo
+                {
+                    Code = a[0].Trim(),
+                    Language = a[1].Trim()
+                })
+                .ToList();
+
+            return languages;
+        }
+
+        public async Task<HtmlString> LoadRandomTopic(string languageCode, ILogger logger = null)
+        {
+            logger?.LogInformation($"In MarkdownLoader.LoadRandomTopic {languageCode}");
+
+            var url = string.Format(
+                MainTopicListUrlMask, 
+                Startup.Configuration[Constants.SettingsContainerVariableName],
+                Constants.TopicsBlob,
+                languageCode);
+
             logger?.LogInformation($"url: {url}");
 
             try
@@ -123,7 +167,15 @@ namespace AzureWordsOfTheDay.Model
 
                 logger?.LogInformation($"Random topic: {topic}");
 
-                return await LoadMarkdown(topic, logger);
+                var result = await LoadMarkdown(languageCode, topic, logger);
+
+                // Remove first line. Later we won't have to do that
+                var resultString = result.Value;
+                var reader = new StringReader(resultString);
+                var dummy = reader.ReadLine();
+                resultString = reader.ReadToEnd();
+
+                return new HtmlString(resultString);
             }
             catch (Exception ex)
             {
@@ -133,14 +185,14 @@ namespace AzureWordsOfTheDay.Model
             return null;
         }
 
-        public async Task<HtmlString> LoadTopicsBar(ILogger logger = null)
+        public async Task<HtmlString> LoadTopicsBar(string languageCode, ILogger logger = null)
         {
-            logger?.LogInformation("In MarkdownLoader.LoadTopicsBar");
+            logger?.LogInformation($"In MarkdownLoader.LoadTopicsBar {languageCode}");
 
             var settingsFolder = Startup.Configuration[Constants.SettingsContainerVariableName];
             logger?.LogInformation($"settingsFolder: {settingsFolder}");
 
-            var uri = new Uri(string.Format(TopicsBarUrl, settingsFolder));
+            var uri = new Uri(string.Format(TopicsBarUrlMask, settingsFolder, Constants.SideBarMarkdownBlob, languageCode));
             logger?.LogInformation($"uri: {uri}");
 
             string markdown = null;

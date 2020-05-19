@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 
 namespace AzureWordsOfTheDay
 {
@@ -41,16 +42,37 @@ namespace AzureWordsOfTheDay
             {
                 var url = context.Request.Path.Value;
 
-                if (url.Contains("/topic/"))
+                var parts = url.Split(new char[]
                 {
-                    var parts = url.Split(new char[]
-                    {
                         '/'
-                    }, StringSplitOptions.RemoveEmptyEntries);
+                }, StringSplitOptions.RemoveEmptyEntries)
+                .ToList();
 
-                    if (parts.Length < 3)
+                // Rewrite default language to english
+
+                if (parts.Count == 0
+                    || parts[0].Length != 2)
+                {
+                    // Add default language
+                    parts.Insert(0, "en");
+                }
+
+                // Rewrite / to /en
+
+                if (parts.Count == 1)
+                {
+                    url = $"/{parts[0]}";
+                    context.Request.Path = url;
+                }
+
+                // Rewrite /topic/subtopic to /topic-subtopic
+
+                if (parts.Count >= 2
+                    && parts[1].ToLower() == "topic")
+                {
+                    if (parts.Count == 3)
                     {
-                        url = $"/{parts[0]}/{parts[1]}/{parts[1]}";
+                        url = $"/{parts[0]}/{parts[1]}_{parts[2]}";
                         context.Request.Path = url;
                     }
                 }
@@ -67,7 +89,7 @@ namespace AzureWordsOfTheDay
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddSingleton<MarkdownHelper>();
+            services.AddSingleton<ContentHelper>();
         }
     }
 }

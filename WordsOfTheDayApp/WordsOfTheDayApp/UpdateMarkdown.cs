@@ -6,29 +6,79 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using WordsOfTheDayApp.Model;
 
 namespace WordsOfTheDayApp
 {
-    public static class UpdateMarkdown
+    public static partial class UpdateMarkdown
     {
-        [FunctionName("UpdateMarkdown_Execute")]
-        public static async Task<string> Execute(
+        [FunctionName("UpdateMarkdown_ResetSettings")]
+        public static async Task ResetSettings(
+            [ActivityTrigger]
+            string dummy,
+            ILogger log)
+        {
+            await TopicMaker.DeleteAllSettings(log);
+        }
+
+        [FunctionName("UpdateMarkdown_ResetTopics")]
+        public static async Task ResetTopics(
+            [ActivityTrigger]
+            string dummy,
+            ILogger log)
+        {
+            await TopicMaker.DeleteAllTopics(log);
+        }
+
+        [FunctionName("UpdateMarkdown_CreateTopics")]
+        public static async Task<TopicInformation> CreateTopics(
             [ActivityTrigger]
             Uri blobUri,
             ILogger log)
         {
-            var topic = await MarkdownUpdater.Update(blobUri, log);
-            log?.LogInformation($"Updated {topic}.");
+            var topic = await TopicMaker.CreateTopic(blobUri, log);
+            log?.LogInformation($"Updated {topic.TopicName}.");
 
             await NotificationService.Notify(
                 "Updated topic",
-                $"The topic {topic} has been updated in markdown",
+                $"The topic {topic.TopicName} has been updated in markdown",
                 log);
 
             return topic;
+        }
+
+        [FunctionName("UpdateMarkdown_CreateSubtopics")]
+        public static async Task CreateSubtopics(
+            [ActivityTrigger]
+            TopicInformation topic,
+            ILogger log)
+        {
+            await TopicMaker.CreateSubtopics(topic, log);
+            log?.LogInformation($"Created subtopics for {topic.TopicName}.");
+
+            await NotificationService.Notify(
+                "Updated subtopic",
+                $"Created subtopics for {topic.TopicName}.",
+                log);
+        }
+
+        [FunctionName("UpdateMarkdown_CreateDisambiguation")]
+        public static async Task CreateDisambiguation(
+            [ActivityTrigger]
+            Dictionary<string, List<KeywordPair>> dic,
+            ILogger log)
+        {
+            await TopicMaker.CreateDisambiguation(dic, log);
+            
+            log?.LogInformation($"Created disambiguation for {dic.Keys.First()}.");
+
+            await NotificationService.Notify(
+                "Updated disambiguation",
+                $"Created disambiguation for {dic.Keys.First()}.",
+                log);
         }
 
         [FunctionName("UpdateMarkdown_HttpStart")]
@@ -56,6 +106,7 @@ namespace WordsOfTheDayApp
             var blobHelper = new BlobHelper(blobClient, log);
             var topicsContainer = blobHelper.GetContainer(
                 Constants.TopicsUploadContainerVariableName);
+
             BlobContinuationToken continuationToken = null;
             var topics = new List<string>();
 
@@ -81,52 +132,130 @@ namespace WordsOfTheDayApp
         }
 
         [FunctionName("UpdateMarkdown_ReplaceKeywords")]
-        public static async Task<string> Replace(
+        public static async Task<Dictionary<char, List<KeywordPair>>> ReplaceKeywords(
             [ActivityTrigger]
-            string topic,
+            TopicInformation topic,
             ILogger log)
         {
-            await MarkdownReplacer.Replace(topic, log);
+            var dic = await MarkdownReplacer.ReplaceKeywords(topic, log);
 
             await NotificationService.Notify(
                 "Replaced keywords in topic",
-                $"Keywords have been linked in the topic {topic}",
+                $"Keywords have been linked in the topic {topic.TopicName}",
                 log);
 
-            return null;
+            return dic;
         }
 
         [FunctionName("UpdateMarkdown")]
-        public static async Task<List<string>> RunOrchestrator(
+        public static async Task<List<TopicInformation>> RunOrchestrator(
             [OrchestrationTrigger]
             IDurableOrchestrationContext context)
         {
+            await context.CallActivityAsync(
+                "UpdateMarkdown_ResetSettings",
+                null);
+
+            await context.CallActivityAsync(
+                "UpdateMarkdown_ResetTopics",
+                null);
+
             var list = context.GetInput<List<string>>();
-            var topics = new List<string>();
+            var topics = new List<TopicInformation>();
 
             foreach (var topicUrl in list)
             {
                 Uri topicUri = new Uri(topicUrl);
 
-                topics.Add(await context.CallActivityAsync<string>(
-                    "UpdateMarkdown_Execute",
+                topics.Add(await context.CallActivityAsync<TopicInformation>(
+                    "UpdateMarkdown_CreateTopics",
                     topicUri));
+            }
+
+            Dictionary<char, List<KeywordPair>> keywordsDictionary = null;
+
+            foreach (var topic in topics)
+            {
+                keywordsDictionary = await context.CallActivityAsync<Dictionary<char, List<KeywordPair>>>(
+                    "UpdateMarkdown_ReplaceKeywords",
+                    topic);
+            }
+
+            var topicsByLanguages = topics
+                .GroupBy(t => t.TopicName)
+                .ToList();
+
+            foreach (var topicGroup in topicsByLanguages)
+            {
+                var topicList = topicGroup.ToList();
+
+                if (topicList.Count > 1)
+                {
+                    await context.CallActivityAsync<string>(
+                        "UpdateMarkdown_UpdateOtherLanguages",
+                        topicList);
+                }
             }
 
             foreach (var topic in topics)
             {
                 await context.CallActivityAsync<string>(
-                    "UpdateMarkdown_ReplaceKeywords",
+                    "UpdateMarkdown_CreateSubtopics",
                     topic);
             }
 
-            await context.CallActivityAsync(
-                "UpdateMarkdown_SaveSideBar",
-                null);
+            var disambiguations = keywordsDictionary.Values
+                .SelectMany(k => k)
+                .Where(k => k.MustDisambiguate)
+                .GroupBy(k => k.Keyword)
+                .ToList();
 
-            await context.CallActivityAsync(
-                "UpdateMarkdown_SaveTopics",
-                topics);
+            foreach (var d in disambiguations)
+            {
+                var dictionary = new Dictionary<string, List<KeywordPair>>
+                {
+                    {
+                        d.Key,
+                        d.ToList()
+                    }
+                };
+
+                await context.CallActivityAsync(
+                    "UpdateMarkdown_CreateDisambiguation",
+                    dictionary);
+            }
+
+            var languages = topics
+                .Select(t => t.Language)
+                .GroupBy(l => l.Code)
+                .Select(g => g.First())
+                .ToList();
+
+            foreach (var language in languages)
+            {
+                await context.CallActivityAsync(
+                    "UpdateMarkdown_SaveSideBar",
+                    language.Code);
+            }
+
+            foreach (var language in languages)
+            {
+                var topicsForLanguage = topics
+                    .GroupBy(t => t.Language.Code)
+                    .First(g => g.Key == language.Code)
+                    .Select(g => g)
+                    .ToList();
+
+                var info = new TopicLanguageInfo
+                {
+                    LanguageCode = language.Code,
+                    Topics = topicsForLanguage
+                };
+
+                await context.CallActivityAsync(
+                    "UpdateMarkdown_SaveTopics",
+                    info);
+            }
 
             return topics;
         }
@@ -134,19 +263,28 @@ namespace WordsOfTheDayApp
         [FunctionName("UpdateMarkdown_SaveSideBar")]
         public static async Task SaveSideBar(
             [ActivityTrigger]
-            string dummy,
+            string languageCode,
             ILogger log)
         {
-            await TopicsListSaver.SaveSideBar(log);
+            await SettingsFilesSaver.SaveSideBar(languageCode, log);
         }
 
         [FunctionName("UpdateMarkdown_SaveTopics")]
         public static async Task SaveTopics(
             [ActivityTrigger]
-            IList<string> topics,
+            TopicLanguageInfo info,
             ILogger log)
         {
-            await TopicsListSaver.SaveTopics(topics, log);
+            await SettingsFilesSaver.SaveTopics(info.LanguageCode, info.Topics, log);
+        }
+
+        [FunctionName("UpdateMarkdown_UpdateOtherLanguages")]
+        public static async Task UpdateOtherLanguages(
+            [ActivityTrigger]
+            IList<TopicInformation> topicsByLanguage,
+            ILogger log)
+        {
+            await TopicMaker.UpdateOtherLanguages(topicsByLanguage, log);
         }
     }
 }
