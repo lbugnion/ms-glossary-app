@@ -556,8 +556,11 @@ namespace WordsOfTheDayApp.Model
             {
                 var languagesBuilder = new StringBuilder();
 
-                languagesBuilder.AppendLine(
-                    TextHelper.GetText(topic.Language.Code, Constants.Texts.ThisPageIsAlsoAvailableIn));
+                languagesBuilder
+                    .AppendLine(TextHelper.GetText(
+                        topic.Language.Code, 
+                        Constants.Texts.ThisPageIsAlsoAvailableIn))
+                    .AppendLine();
 
                 foreach (var language in allLanguages)
                 {

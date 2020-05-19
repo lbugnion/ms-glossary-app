@@ -137,6 +137,10 @@
     <value>Redirected from {0}</value>
     <comment>Redirected from {0}</comment>
   </data>
+  <data name="en.ThisPageIsAlsoAvailableIn" xml:space="preserve">
+    <value>This page is also available in:</value>
+    <comment>This page is also available in:</comment>
+  </data>
   <data name="en.TopicHeader" xml:space="preserve">
     <value>### Microsoft Azure Words of the Day presents:</value>
     <comment>### Microsoft Azure Words of the Day presents:</comment>

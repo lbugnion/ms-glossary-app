@@ -106,6 +106,15 @@ namespace WordsOfTheDayApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This page is also available in:.
+        /// </summary>
+        internal static string en_ThisPageIsAlsoAvailableIn {
+            get {
+                return ResourceManager.GetString("en.ThisPageIsAlsoAvailableIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ### Microsoft Azure Words of the Day presents:.
         /// </summary>
         internal static string en_TopicHeader {
