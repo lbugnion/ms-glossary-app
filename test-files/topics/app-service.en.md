@@ -1,3 +1,4 @@
+### Microsoft Azure Words of the Day presents:
 # [App Service](/topic/en/app-service)
 
 <iframe width="560" height="560" src="https://www.youtube.com/embed/lfDWXkE4glA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -21,11 +22,11 @@
 
 ## Download
 
-[You can download this video here](https://wordsoftheday.blob.core.windows.net/videos/app-service.mp4).
+[You can download this video here](https://wordsoftheday.blob.core.windows.net/videos/WordsOfTheDayApp.Model.TopicInformation.mp4).
 
 There are also captions for the following language(s):
 
-- [English](https://wordsoftheday.blob.core.windows.net/captions/app-service.english.srt)
+- [English](https://wordsoftheday.blob.core.windows.net/test-new-captions/app-service.en.en.srt)
 
 
 > Learn about [downloading and showing captions here](/en/captions).
@@ -38,7 +39,7 @@ Today's words are: App Service
 
 An App Service is a web server running as a service in Microsoft Azure. So you can run HTTP based applications, for example a mobile backend, a web API, a website etc. The really cool thing is that you can choose between Windows and Linux as your operating system, so you have a choice. And you can deploy your code, either in a Docker-based container, or directly from Github, from other repositories or from a continuous deployment solution. 
 
-Around App Services, you can also configure a lot of features for example different deployment solutions,  [Authorization](/topic/en/aad/authorization) and [Authentication](/topic/en/aad/authentication), [Identity](/topic/en/aad/identity), Backups, Custom domains, TLS and SSL to enable HTTPS, you can also automatically scale up and scale down for example to respond to a lot of demand very fast.
+Around App Services, you can also configure a lot of features for example different deployment solutions,  [Authorization](/topic/aad/authorization) and [Authentication](/topic/test/authentication), [Identity](/topic/aad/identity), Backups, Custom domains, [TLS](/topic/tls-ssl/tls) and [SSL](/topic/tls-ssl/ssl) to enable [HTTPS](/topic/tls-ssl/https), you can also automatically scale up and scale down for example to respond to a lot of demand very fast.
 
 Let's check the application, now this here is an ASP.NET Core application running a React.JS front end, but App Services also support classic .NET, Java, Node.js, Ruby, Python, PHP, so you have a choice for your framework.
 
@@ -48,4 +49,4 @@ If I scroll down further we can see more monitoring solutions, for example the L
 
 App Services have a lot of additional functionalities, so make sure to check the links here to know more about that. Thank you so much for watching Microsoft Azure Words of the Day. Today's words of the day were: App Service.
 
-*Last modified: 06 May 2020 15:29*
+*Last modified: 19 May 2020 11:29 by [@LBugnion](http://twitter.com/LBugnion)*

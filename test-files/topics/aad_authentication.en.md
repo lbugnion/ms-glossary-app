@@ -1,5 +1,5 @@
-# [Azure Active Directory AAD](/topic/en/aad-authentication)
-
+### Microsoft Azure Words of the Day presents:
+# [Azure Active Directory AAD](/topic/en/aad)
 ###### (Redirected from Authentication)
 
 <iframe width="560" height="560" src="https://www.youtube.com/embed/l9e-RGUAVy8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -24,11 +24,11 @@
 
 ## Download
 
-[You can download this video here](https://wordsoftheday.blob.core.windows.net/videos/aad.mp4).
+[You can download this video here](https://wordsoftheday.blob.core.windows.net/videos/WordsOfTheDayApp.Model.TopicInformation.mp4).
 
 There are also captions for the following language(s):
 
-- [English](https://wordsoftheday.blob.core.windows.net/captions/aad.english.srt)
+- [English](https://wordsoftheday.blob.core.windows.net/test-new-captions/aad.en.en.srt)
 
 
 > Learn about [downloading and showing captions here](/en/captions).
@@ -49,8 +49,8 @@ There are different editions of AAD, Free, Basic and Premium. Each edition has s
 
 You can integrate with AAD at multiple levels: In the Microsoft cloud, with Microsoft 365 or any of our Platform as a Service offerings. In Windows 10 to join a device to an organization. It can also handle single sign-on, B2C and B2B, and more.
 
-It's easy to use multi-factor authentication with AAD. For example by using the Microsoft Authenticator app, this is how I can use my fingerprint to confirm that I want to log into a Microsoft domain, for example the Azure Portal. Of course this also works for a wide range of sites and applications.
+It's easy to use multi-factor [authentication](/topic/test/authentication) with AAD. For example by using the Microsoft Authenticator app, this is how I can use my fingerprint to confirm that I want to log into a Microsoft domain, for example the Azure Portal. Of course this also works for a wide range of sites and applications.
 
 Azure Active Directory has a lot of great features and it makes setting up identity services much easier than it used to be. So make sure to check all the links that we assembled for you here! Thank you so much for watching Microsoft Azure Words of the Day. Today's word of the day was: AAD.
 
-*Last modified: 06 May 2020 15:29*
+*Last modified: 19 May 2020 11:29 by [@LBugnion](http://twitter.com/LBugnion)*

@@ -1,6 +1,6 @@
-# [Serverless](/topic/en/serverless-connector)
-
-###### (Redirected from Trigger)
+### Microsoft Azure Words of the Day presents:
+# [Serverless](/topic/en/serverless)
+###### (Redirected from Connector)
 
 <iframe width="560" height="560" src="https://www.youtube.com/embed/hmOkCl-8UZY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
@@ -28,11 +28,11 @@
 
 ## Download
 
-[You can download this video here](https://wordsoftheday.blob.core.windows.net/videos/serverless.mp4).
+[You can download this video here](https://wordsoftheday.blob.core.windows.net/videos/WordsOfTheDayApp.Model.TopicInformation.mp4).
 
 There are also captions for the following language(s):
 
-- [English](https://wordsoftheday.blob.core.windows.net/captions/serverless.english.srt)
+- [English](https://wordsoftheday.blob.core.windows.net/test-new-captions/serverless.en.en.srt)
 
 
 > Learn about [downloading and showing captions here](/en/captions).
@@ -43,7 +43,7 @@ Hello and welcome to [Microsoft Azure Words of the Day](/en), this is the show t
 
 Today's word of the day is: Serverless
 
-Serverless means that your code runs on a server, but you don't have to worry about that server. It is abstracted. As a developer, you can concentrate on writing the code, testing it and deploying it. Several features are automated: Starting the application, listening to events to start the execution of the code, scaling up and down when the demand fluctuates, etc. 
+Serverless means that your code runs on a server, but you don't have to worry about that server. It is abstracted. As a developer, you can concentrate on writing the code, [testing](/topic/test/testing) it and deploying it. Several features are automated: Starting the application, listening to events to start the execution of the code, scaling up and down when the demand fluctuates, etc. 
 
 Typically serverless solutions are paid by the execution time, in a consumption model. Most cloud providers offer free tiers with which you can run a serverless application for a certain amount of time, or a certain amount of executions, for free.
 
@@ -57,4 +57,4 @@ One really nice feature of serverless is that your application will automaticall
 
 There are more serverless solutions on Azure, so don't forget to check the links here in order to learn more about that. Thank you so much for watching Microsoft Azure Words of the Day. Today's word of the day was: Serverless.
 
-*Last modified: 06 May 2020 15:29*
+*Last modified: 19 May 2020 11:29 by [@LBugnion](http://twitter.com/LBugnion)*

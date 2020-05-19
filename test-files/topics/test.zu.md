@@ -1,5 +1,5 @@
 > Other languages: en / English
-
+### Microsoft Azure Words of the Day presents:
 # [Enye isihloko sokuhlola](/topic/zu/test)
 
 <iframe width="560" height="560" src="https://www.youtube.com/embed/TESTZULU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -22,22 +22,19 @@
 
 ## Landa
 
-[Ungalanda le vidiyo lapha](https://wordsoftheday.blob.core.windows.net/videos/test.zu.mp4).
-
-> Le vidiyo ishumeke amazwibela we: Zulu, English
-
-[Ividiyo enamazwibela amaNgisi ishiswe ngaphakathi](https://wordsoftheday.blob.core.windows.net/videos/test.zu.zu.burn.mp4).
+[Ungalanda le vidiyo lapha](https://wordsoftheday.blob.core.windows.net/videos/WordsOfTheDayApp.Model.TopicInformation.mp4).
 
 Kukhona futhi izihloko zolimi / izilimi ezilandelayo:
 
-- [English](https://wordsoftheday.blob.core.windows.net/captions/test.zu.en.srt)
-- [Zulu](https://wordsoftheday.blob.core.windows.net/captions/test.zu.zu.srt)
+- [Zulu](https://wordsoftheday.blob.core.windows.net/test-new-captions/test.zu.zu.srt)
+- [English](https://wordsoftheday.blob.core.windows.net/test-new-captions/test.zu.en.srt)
+
 
 > Funda ngokulanda [futhi ubonise amazwibela lapha](/zu/captions).
 
 ## Umbhalo
 
-Sawubona futhi wamukelekile ku- [Microsoft Azure Words of the Day](/en), lo mbukiso owokufundisa isilulumagama sama-Azure!
+Sawubona futhi wamukelekile ku- [Microsoft Azure Words of the Day](/zu), lo mbukiso owokufundisa isilulumagama sama-Azure!
 
 Izwi losuku lwanamuhla lithi: Vivinyo
 
@@ -49,4 +46,4 @@ Ukuthatha isibonelo esingasho lutho, yimuphi kithi owake wazivocavoca kanzima, n
 
 Ngibonga kakhulu ngokubuka iMicrosoft Azure Words yosuku. Izwi losuku lwanamuhla lalithi: Vivinyo.
 
-*Kugcine ukuguqulwa: <!-- DATETIME -->*
+*Kugcine ukuguqulwa: 19 May 2020 11:29 by [@LBugnion](http://twitter.com/LBugnion)*

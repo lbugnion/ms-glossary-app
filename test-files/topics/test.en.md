@@ -1,5 +1,5 @@
 > Other languages: zu / Zulu
-
+### Microsoft Azure Words of the Day presents:
 # [Another test topic](/topic/en/test)
 
 <iframe width="560" height="560" src="https://www.youtube.com/embed/TEST" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -22,18 +22,13 @@
 
 ## Download
 
-[You can download this video here](https://wordsoftheday.blob.core.windows.net/videos/test.en.mp4).
+[You can download this video here](https://wordsoftheday.blob.core.windows.net/videos/WordsOfTheDayApp.Model.TopicInformation.mp4).
 
-> This video has embedded captions for: English, Zulu
+There are also captions for the following language(s):
 
-[Video with English captions burned in](https://wordsoftheday.blob.core.windows.net/videos/test.en.en.burn.mp4).
+- [English](https://wordsoftheday.blob.core.windows.net/test-new-captions/test.en.en.srt)
+- [Zulu](https://wordsoftheday.blob.core.windows.net/test-new-captions/test.en.zu.srt)
 
-[Video with Zulu captions burned in](https://wordsoftheday.blob.core.windows.net/videos/test.en.zu.burn.mp4).
-
-There are also caption files for the following language(s):
-
-- [English](https://wordsoftheday.blob.core.windows.net/captions/test.en.en.srt)
-- [Zulu](https://wordsoftheday.blob.core.windows.net/captions/test.en.zu.srt)
 
 > Learn about [downloading and showing captions here](/en/captions).
 
@@ -43,16 +38,12 @@ Hello and welcome to [Microsoft Azure Words of the Day](/en), this is the show t
 
 Today's word of the day is: Test
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness.
 
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure.
 
-Adding a paragraph with the word authentication for test purposes.
-
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-
-Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?
 
 Thank you so much for watching Microsoft Azure Words of the Day. Today's word of the day was: Test.
 
-*Last modified: 06 May 2020 15:29*
+*Last modified: 19 May 2020 11:29 by [@LBugnion](http://twitter.com/LBugnion)*
