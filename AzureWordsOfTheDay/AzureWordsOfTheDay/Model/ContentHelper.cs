@@ -15,7 +15,6 @@ namespace AzureWordsOfTheDay.Model
     public class ContentHelper
     {
         private const string MainTopicListUrlMask = "https://wordsoftheday.blob.core.windows.net/{0}/{1}.{2}.json";
-        private const string LanguagesListUrlMask = "https://wordsoftheday.blob.core.windows.net/{0}/languages.txt";
         private const string TopicsBarUrlMask = "https://wordsoftheday.blob.core.windows.net/{0}/{1}.{2}.md";
         private const string TopicUrlMask = "https://wordsoftheday.blob.core.windows.net/{0}/{1}.{2}.md";
         private HttpClient _client;
@@ -68,98 +67,7 @@ namespace AzureWordsOfTheDay.Model
             return new HtmlString(html);
         }
 
-        public async Task<HtmlString> LoadOtherLanguages(string languageCode, ILogger logger = null)
-        {
-            logger?.LogInformation($"In MarkdownLoader.LoadOtherLanguages: {languageCode}");
-
-            var settingsContainer = Startup.Configuration[Constants.SettingsContainerVariableName];
-            logger?.LogInformation($"settingsContainer: {settingsContainer}");
-
-            var uri = new Uri(
-                string.Format(
-                    LanguagesListUrlMask,
-                    settingsContainer));
-
-            string txt = null;
-
-            try
-            {
-                logger?.LogInformation("Trying to get the languages TXT");
-                txt = await Client.GetStringAsync(uri);
-            }
-            catch (Exception ex)
-            {
-                logger?.LogError($"Error when getting the languages Site languages: {ex.Message}");
-                // TODO Show error if 404
-            }
-
-            if (!string.IsNullOrEmpty(txt))
-            {
-                return MakeLanguages(
-                    txt, 
-                    "<a href=\"/{0}/\" title=\"{1}\">{2}</a>",
-                    languageCode);
-            }
-
-            return null;
-        }
-
-        public HtmlString MakeLanguages(
-            string languageLine,
-            string linkTemplate,
-            string languageCodeToAvoid = null)
-        {
-            var languages = MakeLanguageList(languageLine);
-
-            if (languages?.Count > 0)
-            {
-                var builder = new StringBuilder();
-                var count = 0;
-
-                if (languages.Count > 3)
-                {
-                    foreach (var language in languages.OrderBy(l => l.Code))
-                    {
-                        if (language.Code != languageCodeToAvoid)
-                        {
-                            builder.AppendLine(
-                                string.Format(linkTemplate, language.Code, language.Language, language.Code));
-
-                            count++;
-
-                            if (count < languages.Count - 1)
-                            {
-                                builder.AppendLine("/");
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (var language in languages.OrderBy(l => l.Language))
-                    {
-                        if (language.Code != languageCodeToAvoid)
-                        {
-                            builder.AppendLine(
-                                string.Format(linkTemplate, language.Code, language.Language, language.Language));
-
-                            count++;
-
-                            if (count < languages.Count - 1)
-                            {
-                                builder.AppendLine("/");
-                            }
-                        }
-                    }
-                }
-
-                return new HtmlString(builder.ToString());
-            }
-
-            return null;
-        }
-
-        public async Task<(string languagesLine, HtmlString topicHtml)> LoadMarkdown(string languageCode, string topic, ILogger logger = null)
+        public async Task<HtmlString> LoadMarkdown(string languageCode, string topic, ILogger logger = null)
         {
             logger?.LogInformation($"In MarkdownLoader.LoadMarkdown: topic = {languageCode}/{topic}");
 
@@ -192,22 +100,13 @@ namespace AzureWordsOfTheDay.Model
             {
                 logger?.LogInformation("Topic markdown loaded, rendering...");
 
-                string languagesLine = null;
-
-                if (markdown.Trim().StartsWith(">"))
-                {
-                    var reader = new StringReader(markdown);
-                    languagesLine = reader.ReadLine();
-                    markdown = reader.ReadToEnd().Trim();
-                }
-
                 var md = new Markdown();
                 var html = md.Transform(markdown);
                 logger?.LogInformation("Done in MarkdownHelper.LoadMarkdown");
-                return (languagesLine, new HtmlString(html));
+                return new HtmlString(html);
             }
 
-            return (null, null);
+            return null;
         }
 
         public IList<LanguageInfo> MakeLanguageList(string languageLine)
@@ -271,7 +170,7 @@ namespace AzureWordsOfTheDay.Model
                 var result = await LoadMarkdown(languageCode, topic, logger);
 
                 // Remove first line. Later we won't have to do that
-                var resultString = result.topicHtml.Value;
+                var resultString = result.Value;
                 var reader = new StringReader(resultString);
                 var dummy = reader.ReadLine();
                 resultString = reader.ReadToEnd();

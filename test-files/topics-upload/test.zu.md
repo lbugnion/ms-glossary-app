@@ -22,6 +22,16 @@
 
 ###### [(Landa ividiyo nezihloko)](#download)
 
+## Izilimi
+
+<!-- OTHERLANGUAGES -->
+
+Kukhona futhi izihloko zolimi / izilimi ezilandelayo:
+
+<!-- DOWNLOAD-CAPTIONS -->
+
+> Funda ngokulanda [futhi ubonise amazwibela lapha](/zu/captions).
+
 ## Izixhumanisi
 
 ### Imibhalo
@@ -39,12 +49,6 @@
 ## Landa
 
 [Ungalanda le vidiyo lapha](<!-- DOWNLOAD -->).
-
-Kukhona futhi izihloko zolimi / izilimi ezilandelayo:
-
-<!-- DOWNLOAD-CAPTIONS -->
-
-> Funda ngokulanda [futhi ubonise amazwibela lapha](/zu/captions).
 
 ## Umbhalo
 

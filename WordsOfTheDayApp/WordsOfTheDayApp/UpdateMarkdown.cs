@@ -204,16 +204,6 @@ namespace WordsOfTheDayApp
                     topic);
             }
 
-            var languages = topics
-                .Select(t => t.Language)
-                .GroupBy(l => l.Code)
-                .Select(g => g.First())
-                .ToList();
-
-            await context.CallActivityAsync(
-                "UpdateMarkdown_SaveLanguages",
-                languages);
-
             var disambiguations = keywordsDictionary.Values
                 .SelectMany(k => k)
                 .Where(k => k.MustDisambiguate)
@@ -234,6 +224,12 @@ namespace WordsOfTheDayApp
                     "UpdateMarkdown_CreateDisambiguation",
                     dictionary);
             }
+
+            var languages = topics
+                .Select(t => t.Language)
+                .GroupBy(l => l.Code)
+                .Select(g => g.First())
+                .ToList();
 
             foreach (var language in languages)
             {
@@ -271,15 +267,6 @@ namespace WordsOfTheDayApp
             ILogger log)
         {
             await SettingsFilesSaver.SaveSideBar(languageCode, log);
-        }
-
-        [FunctionName("UpdateMarkdown_SaveLanguages")]
-        public static async Task SaveLanguages(
-            [ActivityTrigger]
-            IList<LanguageInfo> languages,
-            ILogger log)
-        {
-            await SettingsFilesSaver.SaveLanguages(languages, log);
         }
 
         [FunctionName("UpdateMarkdown_SaveTopics")]

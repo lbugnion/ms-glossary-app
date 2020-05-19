@@ -18,6 +18,7 @@ namespace WordsOfTheDayApp.Model
         private const string LanguageMarker = "> Language: ";
         private const string TwitterMarker = "> Twitter: ";
         private const string DateTimeMarker = "<!-- DATETIME -->";
+        private const string OtherLanguagesMarker = "<!-- OTHERLANGUAGES -->";
         private const string DownloadCaptionsMarker = "<!-- DOWNLOAD-CAPTIONS -->";
         private const string DownloadCaptionTemplate = "- [{0}](https://wordsoftheday.blob.core.windows.net/{1}/{2})";
         private const string LastChangeDateTimeFormat = "dd MMM yyyy HH:mm";
@@ -553,31 +554,28 @@ namespace WordsOfTheDayApp.Model
 
             foreach (var topic in topicsByLanguage)
             {
-                var languagesBuilder = new StringBuilder()
-                    .Append(Constants.OtherLanguages);
+                var languagesBuilder = new StringBuilder();
+
+                languagesBuilder.AppendLine(
+                    TextHelper.GetText(topic.Language.Code, Constants.Texts.ThisPageIsAlsoAvailableIn));
 
                 foreach (var language in allLanguages)
                 {
-                    if (language == topic.Language)
+                    if (language.Code == topic.Language.Code)
                     {
                         continue;
                     }
 
                     languagesBuilder
-                        .Append(language.ToString())
-                        .Append(", ");
+                        .AppendLine($"- [{language.Language}](/topic/{language.Code}/{topic.TopicName})");
                 }
-
-                languagesBuilder
-                    .Remove(languagesBuilder.Length - 2, 2)
-                    .AppendLine();
 
                 var topicsFileName = $"{topic.TopicName}.{topic.Language.Code}.md";
                 var topicBlob = topicsContainer.GetBlockBlobReference(topicsFileName);
 
                 var markdown = await topicBlob.DownloadTextAsync();
                 var builder = new StringBuilder(markdown);
-                builder.Insert(0, languagesBuilder.ToString());
+                builder.Replace(OtherLanguagesMarker, languagesBuilder.ToString());
 
                 await topicBlob.UploadTextAsync(builder.ToString());
             }

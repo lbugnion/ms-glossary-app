@@ -14,12 +14,6 @@ namespace AzureWordsOfTheDay.Pages
         private readonly ILogger _logger;
         private readonly ContentHelper _contentHelper;
 
-        public string Subtopic
-        {
-            get;
-            private set;
-        }
-
         public string Topic
         {
             get;
@@ -33,12 +27,6 @@ namespace AzureWordsOfTheDay.Pages
         }
 
         public HtmlString TopicHtml
-        {
-            get;
-            private set;
-        }
-
-        public HtmlString LanguagesHtml
         {
             get;
             private set;
@@ -72,14 +60,7 @@ namespace AzureWordsOfTheDay.Pages
                 return Redirect("/");
             }
 
-            var (languagesLine, topicHtml) = await _contentHelper.LoadMarkdown(languageCode, fullTopic, _logger);
-
-            if (!string.IsNullOrEmpty(languagesLine))
-            {
-                LanguagesHtml = _contentHelper.MakeLanguages(
-                    languagesLine,
-                    $"<a href=\"/topic/{{0}}/{Topic}\">{{1}}</a>"); 
-            }
+            var topicHtml = await _contentHelper.LoadMarkdown(languageCode, fullTopic, _logger);
 
             TopicHtml = topicHtml;
 

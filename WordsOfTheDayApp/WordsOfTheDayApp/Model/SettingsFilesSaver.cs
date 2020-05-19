@@ -87,33 +87,5 @@ namespace WordsOfTheDayApp.Model
 
             log?.LogInformation($"Saved topics {json} in {topicsJsonBlob.Uri}");
         }
-
-        public static async Task SaveLanguages(IList<LanguageInfo> languages, ILogger log)
-        {
-            log?.LogInformation("Saving topics");
-
-            var account = CloudStorageAccount.Parse(
-                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
-            var client = account.CreateCloudBlobClient();
-            var helper = new BlobHelper(client, log);
-
-            var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
-            var languagesBlob = settingsContainer.GetBlockBlobReference(Constants.LanguagesBlob);
-
-            var builder = new StringBuilder();
-            builder.Append(Constants.SiteLanguages);
-
-            foreach (var language in languages)
-            {
-                builder.Append(language.ToString());
-                builder.Append(", ");
-            }
-
-            builder.Remove(builder.Length - 2, 1);
-
-            await languagesBlob.UploadTextAsync(builder.ToString());
-
-            log?.LogInformation($"Saved languages in {languagesBlob.Uri}");
-        }
     }
 }

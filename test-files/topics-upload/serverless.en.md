@@ -22,6 +22,16 @@
 
 ###### [(Download the video and captions)](#download)
 
+## Languages
+
+<!-- OTHERLANGUAGES -->
+
+There are captions for the following language(s):
+
+<!-- DOWNLOAD-CAPTIONS -->
+
+> Learn about [downloading and showing captions here](/en/captions).
+
 ## Links
 
 ### Documentation
@@ -45,12 +55,6 @@
 ## Download
 
 [You can download this video here](<!-- DOWNLOAD -->).
-
-There are also captions for the following language(s):
-
-<!-- DOWNLOAD-CAPTIONS -->
-
-> Learn about [downloading and showing captions here](/en/captions).
 
 ## Transcript
 

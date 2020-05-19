@@ -11,8 +11,8 @@ namespace AzureWordsOfTheDay.Pages
     public class IndexModel : PageModel
     {
         private readonly ILogger _logger;
-        private IHostingEnvironment _env;
-        private ContentHelper _contentHelper;
+        private readonly IHostingEnvironment _env;
+        private readonly ContentHelper _contentHelper;
 
         public HtmlString IndexContentHtml
         {
@@ -27,12 +27,6 @@ namespace AzureWordsOfTheDay.Pages
         }
 
         public HtmlString TopicBarHtml
-        {
-            get;
-            private set;
-        }
-
-        public HtmlString LanguagesHtml
         {
             get;
             private set;
@@ -79,8 +73,6 @@ namespace AzureWordsOfTheDay.Pages
             _logger.LogInformation("Loading random topic");
             SelectedTopicHtml = await _contentHelper.LoadRandomTopic(languageCode, _logger);
             _logger.LogInformation("Done loading random topic");
-
-            LanguagesHtml = await _contentHelper.LoadOtherLanguages(languageCode, _logger);
 
             _logger.LogInformation("Done rendering in Index");
         }
