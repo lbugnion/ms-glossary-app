@@ -70,6 +70,15 @@ namespace WordsOfTheDayApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to *Copyright {0} by Microsoft Azure Words of the Day - [Contact us]({1})*.
+        /// </summary>
+        internal static string en_CopyrightInfo {
+            get {
+                return ResourceManager.GetString("en.CopyrightInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ### `{0}` can be used in different contexts:.
         /// </summary>
         internal static string en_DisambiguationIntro {
@@ -93,6 +102,15 @@ namespace WordsOfTheDayApp {
         internal static string en_DisambiguationTitle {
             get {
                 return ResourceManager.GetString("en.DisambiguationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to *Last modified: {0}*.
+        /// </summary>
+        internal static string en_LastModified {
+            get {
+                return ResourceManager.GetString("en.LastModified", resourceCulture);
             }
         }
         
@@ -124,11 +142,29 @@ namespace WordsOfTheDayApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to https://twitter.com/AzWordsOfTheDay.
+        /// </summary>
+        internal static string TwitterUrl {
+            get {
+                return ResourceManager.GetString("TwitterUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ngo.
         /// </summary>
         internal static string zu_By {
             get {
                 return ResourceManager.GetString("zu.By", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to *I-copyright {0} ka - [Xhumana nathi]({1})*.
+        /// </summary>
+        internal static string zu_CopyrightInfo {
+            get {
+                return ResourceManager.GetString("zu.CopyrightInfo", resourceCulture);
             }
         }
         
@@ -156,6 +192,15 @@ namespace WordsOfTheDayApp {
         internal static string zu_DisambiguationTitle {
             get {
                 return ResourceManager.GetString("zu.DisambiguationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to *Kugcine ukuguqulwa: {0}*.
+        /// </summary>
+        internal static string zu_LastModified {
+            get {
+                return ResourceManager.GetString("zu.LastModified", resourceCulture);
             }
         }
         

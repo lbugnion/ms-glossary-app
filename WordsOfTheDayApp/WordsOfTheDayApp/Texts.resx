@@ -121,6 +121,10 @@
     <value>by</value>
     <comment>by</comment>
   </data>
+  <data name="en.CopyrightInfo" xml:space="preserve">
+    <value>*Copyright {0} by Microsoft Azure Words of the Day - [Contact us]({1})*</value>
+    <comment>*Copyright {0} by Microsoft Azure Words of the Day - [Contact us]({1})*</comment>
+  </data>
   <data name="en.DisambiguationIntro" xml:space="preserve">
     <value>### `{0}` can be used in different contexts:</value>
     <comment>### `{0}` can be used in different contexts:</comment>
@@ -132,6 +136,10 @@
   <data name="en.DisambiguationTitle" xml:space="preserve">
     <value># [{0}](/topic/{1}/{2}) (disambiguation)</value>
     <comment># [{0}](/topic/{1}/{2}) (disambiguation)</comment>
+  </data>
+  <data name="en.LastModified" xml:space="preserve">
+    <value>*Last modified: {0}*</value>
+    <comment>*Last modified: {0}*</comment>
   </data>
   <data name="en.RedirectedFrom" xml:space="preserve">
     <value>Redirected from {0}</value>
@@ -145,9 +153,17 @@
     <value>### Microsoft Azure Words of the Day presents:</value>
     <comment>### Microsoft Azure Words of the Day presents:</comment>
   </data>
+  <data name="TwitterUrl" xml:space="preserve">
+    <value>https://twitter.com/AzWordsOfTheDay</value>
+    <comment>https://twitter.com/AzWordsOfTheDay</comment>
+  </data>
   <data name="zu.By" xml:space="preserve">
     <value>ngo</value>
     <comment>by</comment>
+  </data>
+  <data name="zu.CopyrightInfo" xml:space="preserve">
+    <value>*I-copyright {0} ka - [Xhumana nathi]({1})*</value>
+    <comment>*Copyright {0} by Microsoft Azure Words of the Day - [Contact us]({1})*</comment>
   </data>
   <data name="zu.DisambiguationIntro" xml:space="preserve">
     <value>### `{0}` ingasetshenziswa ezimeni ezahlukahlukene:</value>
@@ -160,6 +176,10 @@
   <data name="zu.DisambiguationTitle" xml:space="preserve">
     <value># [{0}](/topic/{1}/{2}) (ukudideka)</value>
     <comment># [{0}](/topic/{1}/{2}) (disambiguation)</comment>
+  </data>
+  <data name="zu.LastModified" xml:space="preserve">
+    <value>*Kugcine ukuguqulwa: {0}*</value>
+    <comment>*Last modified: {0}*</comment>
   </data>
   <data name="zu.RedirectedFrom" xml:space="preserve">
     <value>Kuqondiswe kabusha kusuka {0}</value>

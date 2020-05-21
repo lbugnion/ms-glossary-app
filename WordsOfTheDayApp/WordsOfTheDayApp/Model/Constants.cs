@@ -26,6 +26,9 @@
             public const string DisambiguationItem = "DisambiguationItem";
             public const string By = "By";
             public const string ThisPageIsAlsoAvailableIn = "ThisPageIsAlsoAvailableIn";
+            public const string CopyrightInfo = "CopyrightInfo";
+            public const string TwitterUrl = "TwitterUrl";
+            public const string LastModified = "LastModified";
         }
     }
 }

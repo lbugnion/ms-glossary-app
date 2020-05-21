@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic.FileIO;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
@@ -341,7 +342,16 @@ namespace WordsOfTheDayApp.Model
 
             var newMarkdown = new StringBuilder()
                 .AppendLine(TextHelper.GetText(topic.Language.Code, Constants.Texts.TopicHeader))
-                .AppendLine(oldMarkdown);
+                .AppendLine(oldMarkdown)
+                .Replace(
+                    YouTubeEmbedMarker,
+                    string.Format(YouTubeEmbed, youTubeCode))
+                .Replace(
+                    DownloadMarker,
+                    string.Format(DownloadLinkTemplate, topic))
+                .Replace(
+                    DownloadCaptionsMarker,
+                    captionsFilesList.ToString());
 
             var lastChange = string.Empty;
 
@@ -355,32 +365,32 @@ namespace WordsOfTheDayApp.Model
                 var twitterLink = string.Format(TwitterLinkMask, twitter);
                 var byText = TextHelper.GetText(topic.Language.Code, Constants.Texts.By);
 
-                lastChange = $"{DateTime.Now.ToString(LastChangeDateTimeFormat)} by [@{twitter}]({twitterLink})";
+                lastChange = $"{DateTime.Now.ToString(LastChangeDateTimeFormat)} {byText} [@{twitter}]({twitterLink})";
             }
             else
             {
                 lastChange = DateTime.Now.ToString(LastChangeDateTimeFormat);
             }
 
-            newMarkdown
-                .Replace(
-                    YouTubeEmbedMarker,
-                    string.Format(YouTubeEmbed, youTubeCode))
-                .Replace(
-                    DownloadMarker,
-                    string.Format(DownloadLinkTemplate, topic))
-                .Replace(
-                    DownloadCaptionsMarker,
-                    captionsFilesList.ToString())
-                .Replace(
-                    DateTimeMarker,
-                    lastChange);
-
-            var copyrightInfo = 
+            var copyrightText = string.Format(
+                TextHelper.GetText(
+                    topic.Language.Code,
+                    Constants.Texts.CopyrightInfo),
+                DateTime.Now.Year,
+                Texts.TwitterUrl);
+            
+            var lastModifiedText = string.Format(
+                TextHelper.GetText(
+                    topic.Language.Code,
+                    Constants.Texts.LastModified),
+                lastChange);
 
             newMarkdown
                 .AppendLine()
-                .AppendLine();
+                .AppendLine()
+                .AppendLine(lastModifiedText)
+                .AppendLine()
+                .AppendLine(copyrightText);
 
             // Process keywords first
             if (!string.IsNullOrEmpty(keywordsLine))
