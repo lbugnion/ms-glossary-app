@@ -376,6 +376,12 @@ namespace WordsOfTheDayApp.Model
                     DateTimeMarker,
                     lastChange);
 
+            var copyrightInfo = 
+
+            newMarkdown
+                .AppendLine()
+                .AppendLine();
+
             // Process keywords first
             if (!string.IsNullOrEmpty(keywordsLine))
             {

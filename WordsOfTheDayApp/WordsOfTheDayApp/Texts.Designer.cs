@@ -133,11 +133,56 @@ namespace WordsOfTheDayApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ### `{0}` ingasetshenziswa ezimeni ezahlukahlukene:.
+        /// </summary>
+        internal static string zu_DisambiguationIntro {
+            get {
+                return ResourceManager.GetString("zu.DisambiguationIntro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to - In [{0}](/topic/{1}/{2}_{3}), {4}.
+        /// </summary>
+        internal static string zu_DisambiguationItem {
+            get {
+                return ResourceManager.GetString("zu.DisambiguationItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to # [{0}](/topic/{1}/{2}) (ukudideka).
+        /// </summary>
+        internal static string zu_DisambiguationTitle {
+            get {
+                return ResourceManager.GetString("zu.DisambiguationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Kuqondiswe kabusha kusuka {0}.
         /// </summary>
         internal static string zu_RedirectedFrom {
             get {
                 return ResourceManager.GetString("zu.RedirectedFrom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Leli khasi liyatholakala naku:.
+        /// </summary>
+        internal static string zu_ThisPageIsAlsoAvailableIn {
+            get {
+                return ResourceManager.GetString("zu.ThisPageIsAlsoAvailableIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ### Microsoft Azure Amagama wosuku izipho:.
+        /// </summary>
+        internal static string zu_TopicHeader {
+            get {
+                return ResourceManager.GetString("zu.TopicHeader", resourceCulture);
             }
         }
     }
