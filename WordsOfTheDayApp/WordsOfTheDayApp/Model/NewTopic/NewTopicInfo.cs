@@ -52,5 +52,12 @@ namespace WordsOfTheDayApp.Model
             get;
             set;
         }
+
+        [JsonProperty("shortdescription")]
+        public string ShortDescription
+        {
+            get;
+            set;
+        }
     }
 }

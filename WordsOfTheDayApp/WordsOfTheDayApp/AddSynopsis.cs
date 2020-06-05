@@ -163,7 +163,8 @@ namespace WordsOfTheDayApp
             markdownTemplate = markdownTemplate
                 .Replace(TopicMarker, newTopic.Topic)
                 .Replace(NameMarker, newTopic.SubmitterName)
-                .Replace(EmailMarker, newTopic.SubmitterEmail);
+                .Replace(EmailMarker, newTopic.SubmitterEmail)
+                .Replace(ShortDescriptionMarker, newTopic.ShortDescription);
 
             if (!string.IsNullOrEmpty(newTopic.SubmitterTwitter))
             {
