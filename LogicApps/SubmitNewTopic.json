@@ -1,0 +1,251 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Compose": {
+                "inputs": {
+                    "shortdescription": "@{variables('Description')}",
+                    "submitteremail": "@{body('Get_response_details')?['responder']}",
+                    "submittername": "@{variables('SubmitterName')}",
+                    "submittertwitter": "@{variables('SubmitterTwitter')}",
+                    "topic": "@{variables('Topic')}"
+                },
+                "runAfter": {
+                    "Initialize_variable_5": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Compose"
+            },
+            "Get_response_details": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['microsoftforms']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/formapi/api/forms('@{encodeURIComponent('v4j5cvGGr0GRqy180BHbRyVhoZSeh6FBjFgMDVI5re9URDBKV1lHNkRYS1JTR0xTRjNUODBOODJWQy4u')}')/responses",
+                    "queries": {
+                        "response_id": "@triggerBody()?['resourceData']?['responseId']"
+                    }
+                },
+                "runAfter": {},
+                "type": "ApiConnection"
+            },
+            "HTTP": {
+                "inputs": {
+                    "body": "@outputs('Compose')",
+                    "headers": {
+                        "x-functions-key": "Py5PqfHoiqnl7Fg7ayeei7Xk018ffrXbkZGL0TeeeSLC4BI0FNWKzA=="
+                    },
+                    "method": "POST",
+                    "uri": "https://wordsofthedayapp-staging.azurewebsites.net/api/add-new"
+                },
+                "runAfter": {
+                    "Compose": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Http"
+            },
+            "Initialize_variable": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "SubmitterName",
+                            "type": "string",
+                            "value": "@body('Get_response_details')?['r67076393da1440d49a0e20d12516d1a9']"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Get_response_details": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_3": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "SubmitterTwitter",
+                            "type": "string",
+                            "value": "@body('Get_response_details')?['r3a51f04a2587472c903688778835bffe']"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_variable": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_4": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Topic",
+                            "type": "string",
+                            "value": "@body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_variable_3": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_5": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Description",
+                            "type": "string",
+                            "value": "@body('Get_response_details')?['r46ea1f89309e4a2185e25fee32497f12']"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_variable_4": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Parse_JSON_2": {
+                "inputs": {
+                    "content": "@body('HTTP')",
+                    "schema": {
+                        "properties": {
+                            "ref": {
+                                "type": "string"
+                            },
+                            "safetopic": {
+                                "type": "string"
+                            },
+                            "shortdescription": {
+                                "type": "string"
+                            },
+                            "submitteremail": {
+                                "type": "string"
+                            },
+                            "submittername": {
+                                "type": "string"
+                            },
+                            "submittertwitter": {
+                                "type": "string"
+                            },
+                            "topic": {
+                                "type": "string"
+                            },
+                            "url": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "HTTP": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Send_an_email_(V2)": {
+                "inputs": {
+                    "body": {
+                        "Body": "<p>Thank you for submitting a new topic to Words of tjhe Day. There was a small problem with your submission but don't worry, your input is saved!<br>\n<br>\nWe will contact you after we check what the issue was, so we can resolve it together.<br>\n<br>\nTake care!<br>\nLaurent</p>",
+                        "Subject": "PLEASE NOTE: Issue with your Words of the Day submission",
+                        "To": "@body('Get_response_details')?['responder']"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['office365']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/v2/Mail"
+                },
+                "runAfter": {
+                    "HTTP": [
+                        "Failed",
+                        "Skipped",
+                        "TimedOut"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Send_an_email_(V2)_3": {
+                "inputs": {
+                    "body": {
+                        "Body": "<p>Thank you for submitting a new topic to Words of the Day. We need your action now:<br>\n<br>\nThe new topic you submitted is available here:<br>\n@{body('Parse_JSON_2')?['url']}<br>\n<br>\n<a href=\"https://github.com/lbugnion/wordsoftheday-md/blob/master/instructions/contributing-synopsis.md\">The instructions to proceed with the submission are available here</a> .<br>\n<br>\nIn case of doubt, please reply to this email and I will assist &nbsp;&nbsp;you.<br>\n<br>\nThanks again!!<br>\nLaurent<br>\n<br>\nYour submission:<br>\n<br>\nName: @{body('Get_response_details')?['r67076393da1440d49a0e20d12516d1a9']}<br>\nTwitter: @{body('Get_response_details')?['r3a51f04a2587472c903688778835bffe']}<br>\nTopic: @{body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']}<br>\nDescription: @{body('Get_response_details')?['r46ea1f89309e4a2185e25fee32497f12']}<br>\nSubmitted at: @{body('Get_response_details')?['submitDate']}</p>",
+                        "Subject": "ACTION NEEDED: Thanks for submitting to Words of the Day",
+                        "To": "@body('Get_response_details')?['responder']"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['office365']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/v2/Mail"
+                },
+                "runAfter": {
+                    "Parse_JSON_2": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "When_a_new_response_is_submitted": {
+                "inputs": {
+                    "body": {
+                        "eventType": "responseAdded",
+                        "notificationUrl": "@{listCallbackUrl()}",
+                        "source": "ms-connector"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['microsoftforms']['connectionId']"
+                        }
+                    },
+                    "path": "/formapi/api/forms/@{encodeURIComponent('v4j5cvGGr0GRqy180BHbRyVhoZSeh6FBjFgMDVI5re9URDBKV1lHNkRYS1JTR0xTRjNUODBOODJWQy4u')}/webhooks"
+                },
+                "splitOn": "@triggerBody()?['value']",
+                "type": "ApiConnectionWebhook"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "microsoftforms": {
+                    "connectionId": "/subscriptions/6e69cf24-0859-4dec-84e2-695e2618e473/resourceGroups/wordsoftheday/providers/Microsoft.Web/connections/microsoftforms",
+                    "connectionName": "microsoftforms",
+                    "id": "/subscriptions/6e69cf24-0859-4dec-84e2-695e2618e473/providers/Microsoft.Web/locations/westeurope/managedApis/microsoftforms"
+                },
+                "office365": {
+                    "connectionId": "/subscriptions/6e69cf24-0859-4dec-84e2-695e2618e473/resourceGroups/wordsoftheday/providers/Microsoft.Web/connections/office365",
+                    "connectionName": "office365",
+                    "id": "/subscriptions/6e69cf24-0859-4dec-84e2-695e2618e473/providers/Microsoft.Web/locations/westeurope/managedApis/office365"
+                }
+            }
+        }
+    }
+}
