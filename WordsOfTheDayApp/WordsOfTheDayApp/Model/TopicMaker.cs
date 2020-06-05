@@ -18,7 +18,6 @@ namespace WordsOfTheDayApp.Model
         private const string CaptionsMarker = "> Captions: ";
         private const string LanguageMarker = "> Language: ";
         private const string TwitterMarker = "> Twitter: ";
-        private const string DateTimeMarker = "<!-- DATETIME -->";
         private const string OtherLanguagesMarker = "<!-- OTHERLANGUAGES -->";
         private const string DownloadCaptionsMarker = "<!-- DOWNLOAD-CAPTIONS -->";
         private const string DownloadCaptionTemplate = "- [{0}](https://wordsoftheday.blob.core.windows.net/{1}/{2})";

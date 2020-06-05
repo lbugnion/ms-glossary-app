@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordsOfTheDayApp", "WordsOfTheDayApp\WordsOfTheDayApp.csproj", "{B102E1AB-AD01-4CC4-9481-3FE54E125C46}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WordsOfTheDayApp", "WordsOfTheDayApp\WordsOfTheDayApp.csproj", "{B102E1AB-AD01-4CC4-9481-3FE54E125C46}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordsOfTheDayApp.Test", "WordsOfTheDayApp.Test\WordsOfTheDayApp.Test.csproj", "{E24AFEB1-E97F-4E6E-9343-EE0E8511037E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WordsOfTheDayApp.Test", "WordsOfTheDayApp.Test\WordsOfTheDayApp.Test.csproj", "{E24AFEB1-E97F-4E6E-9343-EE0E8511037E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
