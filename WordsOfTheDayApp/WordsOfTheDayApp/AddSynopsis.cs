@@ -47,16 +47,26 @@ namespace WordsOfTheDayApp
             HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            log.LogInformation("In AddSynopsis");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var newTopic = JsonConvert.DeserializeObject<NewTopicInfo>(requestBody);
 
             // TODO Verify that all input is filled
+
+            if (string.IsNullOrEmpty(newTopic.SubmitterName)
+                || string.IsNullOrEmpty(newTopic.SubmitterEmail)
+                || string.IsNullOrEmpty(newTopic.Topic)
+                || string.IsNullOrEmpty(newTopic.ShortDescription))
+            {
+                log.LogInformation("Incomplete submission");
+                return new BadRequestObjectResult("Incomplete submission");
+            }
             
             // Create new file in GitHub
 
             newTopic.SafeTopic = newTopic.Topic.MakeSafeFileName();
+            log.LogInformation($"Safe topic: {newTopic.SafeTopic}");
 
             var client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "WordsOfTheDayApp");
@@ -65,7 +75,12 @@ namespace WordsOfTheDayApp
             var token = Environment.GetEnvironmentVariable(GitHubToken);
             var url = string.Format(ApiBaseUrl, repoName, GetHeadsUrl);
 
+            log.LogInformation($"repoName: {repoName}");
+            log.LogInformation($"url: {url}");
+
             // Get heads
+
+            log.LogInformation("Getting heads");
 
             var request = new HttpRequestMessage();
             request.RequestUri = new Uri(url);
@@ -78,18 +93,23 @@ namespace WordsOfTheDayApp
                 try
                 {
                     var errorMessage = response.Content.ReadAsStringAsync();
+                    log.LogInformation($"Error getting heads: {errorMessage}");
                     return new BadRequestObjectResult($"Error getting heads: {errorMessage}");
                 }
                 catch (Exception ex)
                 {
+                    log.LogInformation($"Unknown error getting heads: {ex.Message}");
                     return new BadRequestObjectResult($"Unknown error getting heads: {ex.Message}");
                 }
             }
 
             var jsonResult = await response.Content.ReadAsStringAsync();
             var getHeadsResults = JsonConvert.DeserializeObject<IList<GetHeadResult>>(jsonResult);
+            log.LogInformation($"Found {getHeadsResults.Count} heads");
 
             // Get master head
+
+            log.LogInformation("Getting master head");
 
             var masterHead = getHeadsResults
                 .Where(h => h.Ref.EndsWith(MasterHead))
@@ -100,7 +120,11 @@ namespace WordsOfTheDayApp
                 return new BadRequestObjectResult("Cannot locate master branch");
             }
 
+            log.LogInformation($"Done getting master head {masterHead.Object.Sha}");
+
             // Create a new branch
+
+            log.LogInformation("Creating new branch");
 
             var newBranchRequestBody = new NewBranchInfo
             {
@@ -126,13 +150,17 @@ namespace WordsOfTheDayApp
             {
                 var errorResultJson = await response.Content.ReadAsStringAsync();
                 var errorResult = JsonConvert.DeserializeObject<ErrorResult>(errorResultJson);
+                log.LogInformation($"Error when creating new branch: {newTopic.SafeTopic} / {errorResult.Message}");
                 return new BadRequestObjectResult($"Error when creating new branch: {newTopic.SafeTopic} / {errorResult.Message}");
             }
 
             jsonResult = await response.Content.ReadAsStringAsync();
             var createNewBranchResult = JsonConvert.DeserializeObject<GetHeadResult>(jsonResult);
+            log.LogInformation($"Done creating new branch {createNewBranchResult.Object.Sha}");
 
             // Grab master commit
+
+            log.LogInformation("Grabbing master commit");
 
             request = new HttpRequestMessage();
             request.RequestUri = new Uri(masterHead.Object.Url);
@@ -145,18 +173,23 @@ namespace WordsOfTheDayApp
                 try
                 {
                     var errorMessage = response.Content.ReadAsStringAsync();
+                    log.LogInformation($"Error getting commit: {errorMessage}");
                     return new BadRequestObjectResult($"Error getting commit: {errorMessage}");
                 }
                 catch (Exception ex)
                 {
+                    log.LogInformation($"Unknown error getting commit: {ex.Message}");
                     return new BadRequestObjectResult($"Unknown error getting commit: {ex.Message}");
                 }
             }
 
             jsonResult = await response.Content.ReadAsStringAsync();
             var masterCommitResult = JsonConvert.DeserializeObject<CommitResult>(jsonResult);
+            log.LogInformation($"Done grabbing master commit {masterCommitResult.Sha}");
 
             // Get file template from GitHub
+
+            log.LogInformation("Getting file template from GitHub");
             var templateUrl = string.Format(RawTemplateUrl, repoName);
             var markdownTemplate = await client.GetStringAsync(templateUrl);
 
@@ -180,7 +213,11 @@ namespace WordsOfTheDayApp
                 markdownTemplate = markdownTemplate.Replace(TwitterMarker, string.Empty);
             }
 
+            log.LogInformation("Done getting file template from GitHub");
+
             // Post new file to GitHub blob
+
+            log.LogInformation("Posting to GitHub blob");
             var uploadInfo = new UploadInfo
             {
                 Content = markdownTemplate
@@ -205,19 +242,23 @@ namespace WordsOfTheDayApp
                 try
                 {
                     var errorMessage = response.Content.ReadAsStringAsync();
+                    log.LogInformation($"Error uploading blob: {errorMessage}");
                     return new BadRequestObjectResult($"Error uploading blob: {errorMessage}");
                 }
                 catch (Exception ex)
                 {
+                    log.LogInformation($"Unknown error uploading blob: {ex.Message}");
                     return new BadRequestObjectResult($"Unknown error uploading blob: {ex.Message}");
                 }
             }
 
             jsonResult = await response.Content.ReadAsStringAsync();
             var uploadBlobResult = JsonConvert.DeserializeObject<ShaInfo>(jsonResult);
+            log.LogInformation($"Done posting to GitHub blob {uploadBlobResult.Sha}");
 
             // Create the tree
 
+            log.LogInformation("Creating the tree");
             var treeInfo = new CreateTreeInfo(newTopic.SafeTopic, uploadBlobResult.Sha)
             {
                 BaseTree = masterCommitResult.Tree.Sha,
@@ -242,22 +283,28 @@ namespace WordsOfTheDayApp
                 try
                 {
                     var message = response.Content.ReadAsStringAsync();
+                    log.LogInformation($"Error creating tree: {message}");
                     return new BadRequestObjectResult($"Error creating tree: {message}");
                 }
                 catch (Exception ex)
                 {
+                    log.LogInformation($"Unknown error creating tree: {ex.Message}");
                     return new BadRequestObjectResult($"Unknown error creating tree: {ex.Message}");
                 }
             }
 
             jsonResult = await response.Content.ReadAsStringAsync();
             var createTreeResult = JsonConvert.DeserializeObject<ShaInfo>(jsonResult);
+            log.LogInformation($"Done creating the tree {createTreeResult.Sha}");
 
             // Create the commit
 
+            log.LogInformation("Creating the commit");
             var commitMessage = string.Format(CommitMessage, newTopic.SafeTopic);
             var commitInfo = new CommitInfo(commitMessage, masterCommitResult.Sha, createTreeResult.Sha);
 
+            log.LogInformation($"commitMessage: {commitMessage}");
+            
             jsonRequest = JsonConvert.SerializeObject(commitInfo);
 
             url = string.Format(ApiBaseUrl, repoName, CommitUrl);
@@ -277,19 +324,23 @@ namespace WordsOfTheDayApp
                 try
                 {
                     var message = response.Content.ReadAsStringAsync();
+                    log.LogInformation($"Error creating commit: {message}");
                     return new BadRequestObjectResult($"Error creating commit: {message}");
                 }
                 catch (Exception ex)
                 {
+                    log.LogInformation($"Unknown error creating commit: {ex.Message}");
                     return new BadRequestObjectResult($"Unknown error creating commit: {ex.Message}");
                 }
             }
 
             jsonResult = await response.Content.ReadAsStringAsync();
             var createCommitResult = JsonConvert.DeserializeObject<ShaInfo>(jsonResult);
+            log.LogInformation($"Done creating the commit {createCommitResult.Sha}");
 
             // Update reference
 
+            log.LogInformation("Updating the reference");
             var updateReferenceInfo = new UpdateReferenceInfo(createCommitResult.Sha);
 
             jsonRequest = JsonConvert.SerializeObject(updateReferenceInfo);
@@ -311,20 +362,26 @@ namespace WordsOfTheDayApp
                 try
                 {
                     var message = response.Content.ReadAsStringAsync();
+                    log.LogInformation($"Error updating reference: {message}");
                     return new BadRequestObjectResult($"Error updating reference: {message}");
                 }
                 catch (Exception ex)
                 {
+                    log.LogInformation($"Unknown error updating reference: {ex.Message}");
                     return new BadRequestObjectResult($"Unknown error updating reference: {ex.Message}");
                 }
             }
 
             jsonResult = await response.Content.ReadAsStringAsync();
             var headResult = JsonConvert.DeserializeObject<GetHeadResult>(jsonResult);
+            log.LogInformation("Done updating the reference");
 
             newTopic.Ref = headResult.Ref;
             newTopic.Url = string.Format(RepoUrl, repoName, newTopic.SafeTopic);
             jsonResult = JsonConvert.SerializeObject(newTopic);
+
+            log.LogInformation($"newTopic.Ref: {newTopic.Ref}");
+            log.LogInformation($"newTopic.Url: {newTopic.Url}");
 
             return new OkObjectResult(jsonResult);
         }
