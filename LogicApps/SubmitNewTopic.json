@@ -37,10 +37,10 @@
                 "inputs": {
                     "body": "@outputs('Compose')",
                     "headers": {
-                        "x-functions-key": "Py5PqfHoiqnl7Fg7ayeei7Xk018ffrXbkZGL0TeeeSLC4BI0FNWKzA=="
+                        "x-functions-key": "B4wlbiHVQeVo4M844ucVKQIQzVUtUzPRmwlp8FWF5tBla0Bbekm2Sg=="
                     },
                     "method": "POST",
-                    "uri": "https://wordsofthedayapp-staging.azurewebsites.net/api/add-new"
+                    "uri": "https://wordsofthedayapp.azurewebsites.net/api/add-new"
                 },
                 "runAfter": {
                     "Compose": [
