@@ -2,13 +2,13 @@
 {
     public class GetHeadResult
     {
-        public string Ref
+        public GetHeadsResultObject Object
         {
             get;
             set;
         }
 
-        public GetHeadsResultObject Object
+        public string Ref
         {
             get;
             set;

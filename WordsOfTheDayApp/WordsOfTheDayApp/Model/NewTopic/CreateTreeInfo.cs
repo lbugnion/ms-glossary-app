@@ -5,9 +5,9 @@ namespace WordsOfTheDayApp.Model.NewTopic
 {
     public class CreateTreeInfo
     {
-        private const string PathMask = "synopsis/{0}.md";
         private const string BlobMode = "100644";
         private const string BlobType = "blob";
+        private const string PathMask = "synopsis/{0}.md";
 
         [JsonProperty("base_tree")]
         public string BaseTree
@@ -33,11 +33,8 @@ namespace WordsOfTheDayApp.Model.NewTopic
 
         public class TreeInfo : ShaInfo
         {
-            public TreeInfo(string safeFileName, string blobUploadSha)
-            {
-                Path = string.Format(PathMask, safeFileName);
-                Sha = blobUploadSha;
-            }
+            [JsonProperty("mode")]
+            public string Mode => BlobMode;
 
             [JsonProperty("path")]
             public string Path
@@ -45,11 +42,14 @@ namespace WordsOfTheDayApp.Model.NewTopic
                 get;
             }
 
-            [JsonProperty("mode")]
-            public string Mode => BlobMode;
-
             [JsonProperty("type")]
             public string Type => BlobType;
+
+            public TreeInfo(string safeFileName, string blobUploadSha)
+            {
+                Path = string.Format(PathMask, safeFileName);
+                Sha = blobUploadSha;
+            }
         }
     }
 }

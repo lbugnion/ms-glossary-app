@@ -4,8 +4,22 @@ namespace WordsOfTheDayApp.Model
 {
     public class NewTopicInfo
     {
-        [JsonProperty("submittername")]
-        public string SubmitterName
+        [JsonProperty("ref")]
+        public string Ref
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("safetopic")]
+        public string SafeTopic
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("shortdescription")]
+        public string ShortDescription
         {
             get;
             set;
@@ -13,6 +27,13 @@ namespace WordsOfTheDayApp.Model
 
         [JsonProperty("submitteremail")]
         public string SubmitterEmail
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("submittername")]
+        public string SubmitterName
         {
             get;
             set;
@@ -32,29 +53,8 @@ namespace WordsOfTheDayApp.Model
             set;
         }
 
-        [JsonProperty("ref")]
-        public string Ref
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty("safetopic")]
-        public string SafeTopic
-        {
-            get;
-            set;
-        }
-
         [JsonProperty("url")]
         public string Url
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty("shortdescription")]
-        public string ShortDescription
         {
             get;
             set;

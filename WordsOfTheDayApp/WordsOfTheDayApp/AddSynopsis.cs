@@ -1,49 +1,51 @@
-using System.IO;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using WordsOfTheDayApp.Model;
-using System.Net.Http;
+using System;
 using System.Collections.Generic;
-using WordsOfTheDayApp.Model.NewTopic;
+using System.IO;
 using System.Linq;
 using System.Net;
-using System;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using WordsOfTheDayApp.Model;
+using WordsOfTheDayApp.Model.NewTopic;
 
 namespace WordsOfTheDayApp
 {
     public static class AddSynopsis
     {
         private const string ApiBaseUrl = "https://api.github.com/repos/lbugnion/{0}/{1}";
-        private const string RawTemplateUrl = "https://raw.githubusercontent.com/lbugnion/{0}/master/templates/synopsis-template.md";
-        private const string RepoUrl = "https://github.com/lbugnion/{0}/blob/{1}/synopsis/{1}.md";
-        private const string CreateTreeUrl = "git/trees";
-        private const string GetHeadsUrl = "git/refs/heads";
-        private const string CreateNewBranchUrl = "git/refs";
-        private const string UploadBlobUrl = "git/blobs";
+        private const string CommitMessage = "Creating new synopsis for {0}";
         private const string CommitUrl = "git/commits";
-        private const string UpdateReferenceUrl = "git/refs/heads/{0}";
-        private const string MasterHead = "/master";
+        private const string CreateNewBranchUrl = "git/refs";
+        private const string CreateTreeUrl = "git/trees";
+        private const string EmailMarker = "<!-- ENTER YOUR EMAIL HERE -->";
+        private const string GetHeadsUrl = "git/refs/heads";
         private const string GitHubRepo = "GitHubRepo";
         private const string GitHubToken = "GitHubToken";
-        private const string TopicMarker = "<!-- TOPIC -->";
+        private const string MasterHead = "/master";
         private const string NameMarker = "<!-- ENTER YOUR NAME HERE -->";
-        private const string EmailMarker = "<!-- ENTER YOUR EMAIL HERE -->";
-        private const string TwitterMarker = "<!-- ENTER YOUR TWITTER NAME HERE -->";
+        private const string RawTemplateUrl = "https://raw.githubusercontent.com/lbugnion/{0}/master/templates/synopsis-template.md";
+        private const string RepoUrl = "https://github.com/lbugnion/{0}/blob/{1}/synopsis/{1}.md";
         private const string ShortDescriptionMarker = "<!-- ENTER A SHORT DESCRIPTION HERE -->";
-        private const string CommitMessage = "Creating new synopsis for {0}";
+        private const string TopicMarker = "<!-- TOPIC -->";
+        private const string TwitterMarker = "<!-- ENTER YOUR TWITTER NAME HERE -->";
+        private const string UpdateReferenceUrl = "git/refs/heads/{0}";
+        private const string UploadBlobUrl = "git/blobs";
+
+        // See http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
 
         [FunctionName("AddSynopsis")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Function, 
-                "post", 
-                Route = "add-new")] 
+                AuthorizationLevel.Function,
+                "post",
+                Route = "add-new")]
             HttpRequest req,
             ILogger log)
         {
@@ -51,8 +53,6 @@ namespace WordsOfTheDayApp
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var newTopic = JsonConvert.DeserializeObject<NewTopicInfo>(requestBody);
-
-            // TODO Verify that all input is filled
 
             if (string.IsNullOrEmpty(newTopic.SubmitterName)
                 || string.IsNullOrEmpty(newTopic.SubmitterEmail)
@@ -62,7 +62,7 @@ namespace WordsOfTheDayApp
                 log.LogInformation("Incomplete submission");
                 return new BadRequestObjectResult("Incomplete submission");
             }
-            
+
             // Create new file in GitHub
 
             newTopic.SafeTopic = newTopic.Topic.MakeSafeFileName();
@@ -304,7 +304,7 @@ namespace WordsOfTheDayApp
             var commitInfo = new CommitInfo(commitMessage, masterCommitResult.Sha, createTreeResult.Sha);
 
             log.LogInformation($"commitMessage: {commitMessage}");
-            
+
             jsonRequest = JsonConvert.SerializeObject(commitInfo);
 
             url = string.Format(ApiBaseUrl, repoName, CommitUrl);
