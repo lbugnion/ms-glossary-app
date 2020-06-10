@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using WordsOfTheDayApp.Model;
 
 namespace WordsOfTheDayApp.Model
 {

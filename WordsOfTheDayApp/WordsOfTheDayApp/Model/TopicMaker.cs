@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic.FileIO;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
@@ -23,6 +22,13 @@ namespace WordsOfTheDayApp.Model
         private const string DownloadCaptionTemplate = "- [{0}](https://wordsoftheday.blob.core.windows.net/{1}/{2})";
         private const string LastChangeDateTimeFormat = "dd MMM yyyy HH:mm";
         private const string TwitterLinkMask = "http://twitter.com/{0}";
+        private const string DownloadLinkTemplate = "https://wordsoftheday.blob.core.windows.net/videos/{0}.mp4";
+        private const string DownloadMarker = "<!-- DOWNLOAD -->";
+        private const string H1 = "# ";
+        private const string KeywordsMarker = "> Keywords: ";
+        private const string YouTubeEmbed = "<iframe width=\"560\" height=\"560\" src=\"https://www.youtube.com/embed/{0}\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>";
+        private const string YouTubeEmbedMarker = "<!-- YOUTUBEEMBED -->";
+        private const string YouTubeMarker = "> YouTube: ";
 
         public static async Task DeleteAllSettings(ILogger log)
         {
@@ -71,14 +77,6 @@ namespace WordsOfTheDayApp.Model
             }
             while (continuationToken != null);
         }
-
-        private const string DownloadLinkTemplate = "https://wordsoftheday.blob.core.windows.net/videos/{0}.mp4";
-        private const string DownloadMarker = "<!-- DOWNLOAD -->";
-        private const string H1 = "# ";
-        private const string KeywordsMarker = "> Keywords: ";
-        private const string YouTubeEmbed = "<iframe width=\"560\" height=\"560\" src=\"https://www.youtube.com/embed/{0}\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>";
-        private const string YouTubeEmbedMarker = "<!-- YOUTUBEEMBED -->";
-        private const string YouTubeMarker = "> YouTube: ";
 
         private static IList<LanguageInfo> MakeLanguages(string captions)
         {
@@ -347,7 +345,7 @@ namespace WordsOfTheDayApp.Model
                     string.Format(YouTubeEmbed, youTubeCode))
                 .Replace(
                     DownloadMarker,
-                    string.Format(DownloadLinkTemplate, topic))
+                    string.Format(DownloadLinkTemplate, topic.TopicName, topic.Language.Code))
                 .Replace(
                     DownloadCaptionsMarker,
                     captionsFilesList.ToString());
