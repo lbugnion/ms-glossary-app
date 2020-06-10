@@ -9,8 +9,8 @@ namespace WordsOfTheDayApp.Model
     {
         public const string KeywordLinkTemplate = "[{0}]({1})";
         public const string SingleWordCharacter = " [](){}*!&-_+=|/':;.,<>?\"";
-        public const string SubtopicLinkTemplate = "/topic/{0}/{1}";
-        public const string TopicLinkTemplate = "/topic/{0}";
+        public const string SubtopicLinkTemplate = "/topic/{0}/{1}_{2}";
+        public const string TopicLinkTemplate = "/topic/{0}/{1}";
         public const string TranscriptTitle = "## Transcript";
 
         public (string markdown, string replaced) ReplaceInMarkdown(
@@ -71,11 +71,11 @@ namespace WordsOfTheDayApp.Model
 
                         if (k.Topic == k.Subtopic)
                         {
-                            newUrlAlone = string.Format(TopicLinkTemplate, k.Topic);
+                            newUrlAlone = string.Format(TopicLinkTemplate, k.LanguageCode, k.Topic);
                         }
                         else
                         {
-                            newUrlAlone = string.Format(SubtopicLinkTemplate, k.Topic, k.Subtopic);
+                            newUrlAlone = string.Format(SubtopicLinkTemplate, k.LanguageCode, k.Topic, k.Subtopic);
                         }
 
                         log?.LogInformation($"newUrlAlone: {newUrlAlone}");
