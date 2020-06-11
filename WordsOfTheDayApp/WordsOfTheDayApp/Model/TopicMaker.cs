@@ -22,7 +22,7 @@ namespace WordsOfTheDayApp.Model
         private const string DownloadCaptionTemplate = "- [{0}](https://wordsoftheday.blob.core.windows.net/{1}/{2})";
         private const string LastChangeDateTimeFormat = "dd MMM yyyy HH:mm";
         private const string TwitterLinkMask = "http://twitter.com/{0}";
-        private const string DownloadLinkTemplate = "https://wordsoftheday.blob.core.windows.net/videos/{0}.mp4";
+        private const string DownloadLinkTemplate = "https://wordsoftheday.blob.core.windows.net/videos/{0}.{1}.mp4";
         private const string DownloadMarker = "<!-- DOWNLOAD -->";
         private const string H1 = "# ";
         private const string KeywordsMarker = "> Keywords: ";
