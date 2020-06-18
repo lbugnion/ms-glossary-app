@@ -70,7 +70,25 @@ namespace WordsOfTheDayApp {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to *Copyright {0} by Microsoft Azure Words of the Day - [Contact us]({1})*.
+        ///   Looks up a localized string similar to &gt; Learn about [downloading and showing captions here](/captions/en)..
+        /// </summary>
+        internal static string en_CaptionsDownload {
+            get {
+                return ResourceManager.GetString("en.CaptionsDownload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are captions for the following language(s):.
+        /// </summary>
+        internal static string en_CaptionsDownloadTitle {
+            get {
+                return ResourceManager.GetString("en.CaptionsDownloadTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to *Copyright {0} by Microsoft Glossary - [Contact us]({1})*.
         /// </summary>
         internal static string en_CopyrightInfo {
             get {
@@ -106,6 +124,24 @@ namespace WordsOfTheDayApp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ## Download.
+        /// </summary>
+        internal static string en_DownloadTitle {
+            get {
+                return ResourceManager.GetString("en.DownloadTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ## Languages.
+        /// </summary>
+        internal static string en_LanguagesTitle {
+            get {
+                return ResourceManager.GetString("en.LanguagesTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to *Last modified: {0}*.
         /// </summary>
         internal static string en_LastModified {
@@ -133,11 +169,29 @@ namespace WordsOfTheDayApp {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ### Microsoft Azure Words of the Day presents:.
+        ///   Looks up a localized string similar to ### Microsoft Glossary presents:.
         /// </summary>
         internal static string en_TopicHeader {
             get {
                 return ResourceManager.GetString("en.TopicHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ###### [(Download the video and captions)](#download).
+        /// </summary>
+        internal static string en_VideoDownload {
+            get {
+                return ResourceManager.GetString("en.VideoDownload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [You can download this video here](LINK)..
+        /// </summary>
+        internal static string en_VideoDownloadLink {
+            get {
+                return ResourceManager.GetString("en.VideoDownloadLink", resourceCulture);
             }
         }
         
@@ -223,11 +277,20 @@ namespace WordsOfTheDayApp {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ### Microsoft Azure Amagama wosuku izipho:.
+        ///   Looks up a localized string similar to ### Microsoft uhlu lwamagama wosuku izipho:.
         /// </summary>
         internal static string zu_TopicHeader {
             get {
                 return ResourceManager.GetString("zu.TopicHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ###### [(Landa ividiyo nezihloko)](#download).
+        /// </summary>
+        internal static string zu_VideoDownload {
+            get {
+                return ResourceManager.GetString("zu.VideoDownload", resourceCulture);
             }
         }
     }

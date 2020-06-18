@@ -18,17 +18,20 @@ namespace WordsOfTheDayApp.Model
         private const string LanguageMarker = "> Language: ";
         private const string TwitterMarker = "> Twitter: ";
         private const string OtherLanguagesMarker = "<!-- OTHERLANGUAGES -->";
+        private const string LanguagesTitleMarker = "<!-- LANGUAGESTITLE -->";
         private const string DownloadCaptionsMarker = "<!-- DOWNLOAD-CAPTIONS -->";
+        private const string DownloadMarker = "<!-- DOWNLOAD -->";
         private const string DownloadCaptionTemplate = "- [{0}](https://wordsoftheday.blob.core.windows.net/{1}/{2})";
         private const string LastChangeDateTimeFormat = "dd MMM yyyy HH:mm";
         private const string TwitterLinkMask = "http://twitter.com/{0}";
         private const string DownloadLinkTemplate = "https://wordsoftheday.blob.core.windows.net/videos/{0}.{1}.mp4";
-        private const string DownloadMarker = "<!-- DOWNLOAD -->";
         private const string H1 = "# ";
         private const string KeywordsMarker = "> Keywords: ";
         private const string YouTubeEmbed = "<iframe width=\"560\" height=\"560\" src=\"https://www.youtube.com/embed/{0}\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>";
         private const string YouTubeEmbedMarker = "<!-- YOUTUBEEMBED -->";
         private const string YouTubeMarker = "> YouTube: ";
+        private const string DownloadTarget = "<a id=\"download\"></a>";
+        private const string VideoDownloadLinkMarker = "LINK";
 
         public static async Task DeleteAllSettings(ILogger log)
         {
@@ -320,21 +323,62 @@ namespace WordsOfTheDayApp.Model
             var captionsFilesList = new StringBuilder();
             log?.LogInformation($"Checking captions for {topic.TopicName}.");
 
-            foreach (var captionLanguage in topic.Captions)
+            if (topic.Captions != null)
             {
-                var captionFileName = $"{topic.TopicName}.{topic.Language.Code}.{captionLanguage.Code}.srt";
-                var captionsBlob = captionsContainer.GetBlockBlobReference(captionFileName);
-                if (await captionsBlob.ExistsAsync())
+                foreach (var captionLanguage in topic.Captions)
                 {
-                    log?.LogInformation($"Found caption {captionsBlob.Name} for {topic.TopicName}.");
+                    var captionFileName = $"{topic.TopicName}.{topic.Language.Code}.{captionLanguage.Code}.srt";
+                    var captionsBlob = captionsContainer.GetBlockBlobReference(captionFileName);
+                    if (await captionsBlob.ExistsAsync())
+                    {
+                        log?.LogInformation($"Found caption {captionsBlob.Name} for {topic.TopicName}.");
 
-                    captionsFilesList.AppendLine(
-                        string.Format(
-                            DownloadCaptionTemplate,
-                            captionLanguage.Language,
-                            captionsContainer.Name,
-                            captionsBlob.Name));
+                        captionsFilesList.AppendLine(
+                            string.Format(
+                                DownloadCaptionTemplate,
+                                captionLanguage.Language,
+                                captionsContainer.Name,
+                                captionsBlob.Name));
+                    }
                 }
+            }
+
+            // Prepare replacements
+
+            var youtubeEmbed = new StringBuilder();
+            var download = new StringBuilder();
+            var downloadCaptions = new StringBuilder();
+            var languagesTitle = LanguagesTitleMarker;
+
+            if (!string.IsNullOrEmpty(topic.YouTubeCode))
+            {
+                youtubeEmbed
+                    .AppendLine(string.Format(YouTubeEmbed, youTubeCode))
+                    .AppendLine()
+                    .AppendLine(TextHelper.GetText(topic.Language.Code, Constants.Texts.VideoDownload));
+
+                var videoUrl = string.Format(DownloadLinkTemplate, topic.TopicName, topic.Language.Code);
+                var videoDownloadLink = TextHelper.GetText(topic.Language.Code, Constants.Texts.VideoDownloadLink)
+                    .Replace(VideoDownloadLinkMarker, videoUrl);
+
+                download
+                    .AppendLine(DownloadTarget)
+                    .AppendLine()
+                    .AppendLine(TextHelper.GetText(topic.Language.Code, Constants.Texts.DownloadTitle))
+                    .AppendLine()
+                    .AppendLine(videoDownloadLink);
+            }
+
+            if (topic.Captions?.Count > 0)
+            {
+                languagesTitle = TextHelper.GetText(topic.Language.Code, Constants.Texts.LanguagesTitle);
+
+                downloadCaptions
+                    .AppendLine(TextHelper.GetText(topic.Language.Code, Constants.Texts.CaptionsDownloadTitle))
+                    .AppendLine()
+                    .AppendLine(captionsFilesList.ToString())
+                    .AppendLine()
+                    .AppendLine(TextHelper.GetText(topic.Language.Code, Constants.Texts.CaptionsDownload));
             }
 
             var newMarkdown = new StringBuilder()
@@ -342,13 +386,16 @@ namespace WordsOfTheDayApp.Model
                 .AppendLine(oldMarkdown)
                 .Replace(
                     YouTubeEmbedMarker,
-                    string.Format(YouTubeEmbed, youTubeCode))
+                    youtubeEmbed.ToString())
                 .Replace(
                     DownloadMarker,
-                    string.Format(DownloadLinkTemplate, topic.TopicName, topic.Language.Code))
+                    download.ToString())
+                .Replace(
+                    LanguagesTitleMarker,
+                    languagesTitle)
                 .Replace(
                     DownloadCaptionsMarker,
-                    captionsFilesList.ToString());
+                    downloadCaptions.ToString());
 
             var lastChange = string.Empty;
 
@@ -591,7 +638,9 @@ namespace WordsOfTheDayApp.Model
 
                 var markdown = await topicBlob.DownloadTextAsync();
                 var builder = new StringBuilder(markdown);
-                builder.Replace(OtherLanguagesMarker, languagesBuilder.ToString());
+                builder
+                    .Replace(OtherLanguagesMarker, languagesBuilder.ToString())
+                    .Replace(LanguagesTitleMarker, TextHelper.GetText(topic.Language.Code, Constants.Texts.LanguagesTitle));
 
                 await topicBlob.UploadTextAsync(builder.ToString());
             }

@@ -29,6 +29,12 @@
             public const string CopyrightInfo = "CopyrightInfo";
             public const string TwitterUrl = "TwitterUrl";
             public const string LastModified = "LastModified";
+            public const string DownloadTitle = "DownloadTitle";
+            public const string VideoDownloadLink = "VideoDownloadLink";
+            public const string CaptionsDownloadTitle = "CaptionsDownloadTitle";
+            public const string CaptionsDownload = "CaptionsDownload";
+            public const string VideoDownload = "VideoDownload";
+            public const string LanguagesTitle = "LanguagesTitle";
         }
     }
 }

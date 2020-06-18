@@ -10,8 +10,12 @@
     width: 200px;
 }
 
+#logo {
+    margin-bottom: -20px;
+}
+
 #ms-logo {
-    width: 10px;
+    width: 200px;
     margin: 0 0 0 0;
 }
 

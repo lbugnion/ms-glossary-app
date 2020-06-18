@@ -1,6 +1,6 @@
-﻿# Captions
+﻿## Captions
 
-TODO FINISH
+> This page is under construction
 
 - Showing captions in YouTube
 

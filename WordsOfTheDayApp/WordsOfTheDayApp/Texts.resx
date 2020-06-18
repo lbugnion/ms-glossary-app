@@ -121,9 +121,17 @@
     <value>by</value>
     <comment>by</comment>
   </data>
+  <data name="en.CaptionsDownload" xml:space="preserve">
+    <value>&gt; Learn about [downloading and showing captions here](/captions/en).</value>
+    <comment>&gt; Learn about [downloading and showing captions here](/captions/en).</comment>
+  </data>
+  <data name="en.CaptionsDownloadTitle" xml:space="preserve">
+    <value>There are captions for the following language(s):</value>
+    <comment>There are captions for the following language(s):</comment>
+  </data>
   <data name="en.CopyrightInfo" xml:space="preserve">
-    <value>*Copyright {0} by Microsoft Azure Words of the Day - [Contact us]({1})*</value>
-    <comment>*Copyright {0} by Microsoft Azure Words of the Day - [Contact us]({1})*</comment>
+    <value>*Copyright {0} by Microsoft Glossary - [Contact us]({1})*</value>
+    <comment>*Copyright {0} by Microsoft Glossary - [Contact us]({1})*</comment>
   </data>
   <data name="en.DisambiguationIntro" xml:space="preserve">
     <value>### `{0}` can be used in different contexts:</value>
@@ -136,6 +144,13 @@
   <data name="en.DisambiguationTitle" xml:space="preserve">
     <value># [{0}](/topic/{1}/{2}) (disambiguation)</value>
     <comment># [{0}](/topic/{1}/{2}) (disambiguation)</comment>
+  </data>
+  <data name="en.DownloadTitle" xml:space="preserve">
+    <value>## Download</value>
+  </data>
+  <data name="en.LanguagesTitle" xml:space="preserve">
+    <value>## Languages</value>
+    <comment>## Languages</comment>
   </data>
   <data name="en.LastModified" xml:space="preserve">
     <value>*Last modified: {0}*</value>
@@ -150,8 +165,16 @@
     <comment>This page is also available in:</comment>
   </data>
   <data name="en.TopicHeader" xml:space="preserve">
-    <value>### Microsoft Azure Words of the Day presents:</value>
-    <comment>### Microsoft Azure Words of the Day presents:</comment>
+    <value>### Microsoft Glossary presents:</value>
+    <comment>### Microsoft Glossary presents:</comment>
+  </data>
+  <data name="en.VideoDownload" xml:space="preserve">
+    <value>###### [(Download the video and captions)](#download)</value>
+    <comment>###### [(Download the video and captions)](#download)</comment>
+  </data>
+  <data name="en.VideoDownloadLink" xml:space="preserve">
+    <value>[You can download this video here](LINK).</value>
+    <comment>[You can download this video here](LINK).</comment>
   </data>
   <data name="TwitterUrl" xml:space="preserve">
     <value>https://twitter.com/AzWordsOfTheDay</value>
@@ -163,7 +186,7 @@
   </data>
   <data name="zu.CopyrightInfo" xml:space="preserve">
     <value>*I-copyright {0} ka - [Xhumana nathi]({1})*</value>
-    <comment>*Copyright {0} by Microsoft Azure Words of the Day - [Contact us]({1})*</comment>
+    <comment>*Copyright {0} by Microsoft Glossary - [Contact us]({1})*</comment>
   </data>
   <data name="zu.DisambiguationIntro" xml:space="preserve">
     <value>### `{0}` ingasetshenziswa ezimeni ezahlukahlukene:</value>
@@ -190,7 +213,11 @@
     <comment>This page is also available in:</comment>
   </data>
   <data name="zu.TopicHeader" xml:space="preserve">
-    <value>### Microsoft Azure Amagama wosuku izipho:</value>
-    <comment>### Microsoft Azure Words of the Day presents:</comment>
+    <value>### Microsoft uhlu lwamagama wosuku izipho:</value>
+    <comment>### Microsoft Glossary presents:</comment>
+  </data>
+  <data name="zu.VideoDownload" xml:space="preserve">
+    <value>###### [(Landa ividiyo nezihloko)](#download)</value>
+    <comment>###### [(Download the video and captions)](#download)</comment>
   </data>
 </root>

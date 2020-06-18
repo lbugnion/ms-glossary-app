@@ -121,16 +121,8 @@
     <value>Microsoft Glossary</value>
     <comment>Microsoft Glossary</comment>
   </data>
-  <data name="en.WordsOfTheDay" xml:space="preserve">
-    <value>Words of the Day</value>
-    <comment>Words of the Day</comment>
-  </data>
   <data name="zu.SiteTitle" xml:space="preserve">
     <value>Microsoft Uhlu lwamagama</value>
     <comment>Microsoft Glossary</comment>
-  </data>
-  <data name="zu.WordsOfTheDay" xml:space="preserve">
-    <value>Amagama Wosuku</value>
-    <comment>Words of the Day</comment>
   </data>
 </root>

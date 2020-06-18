@@ -70,29 +70,11 @@ namespace AzureWordsOfTheDay {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Words of the Day.
-        /// </summary>
-        internal static string en_WordsOfTheDay {
-            get {
-                return ResourceManager.GetString("en.WordsOfTheDay", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Microsoft Uhlu lwamagama.
         /// </summary>
         internal static string zu_SiteTitle {
             get {
                 return ResourceManager.GetString("zu.SiteTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Amagama Wosuku.
-        /// </summary>
-        internal static string zu_WordsOfTheDay {
-            get {
-                return ResourceManager.GetString("zu.WordsOfTheDay", resourceCulture);
             }
         }
     }

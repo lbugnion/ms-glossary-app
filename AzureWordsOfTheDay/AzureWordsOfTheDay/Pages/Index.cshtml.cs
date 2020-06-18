@@ -45,7 +45,6 @@ namespace AzureWordsOfTheDay.Pages
         public async Task OnGet(string languageCode)
         {
             ViewData["LanguageCode"] = languageCode;
-            ViewData["WordsOfTheDay"] = Texts.ResourceManager.GetString($"{languageCode}.WordsOfTheDay");
             ViewData["SiteTitle"] = Texts.ResourceManager.GetString($"{languageCode}.SiteTitle");
 
             _logger.LogInformation($"OnGet in Index");

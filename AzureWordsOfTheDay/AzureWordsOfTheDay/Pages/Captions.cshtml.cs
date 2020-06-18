@@ -10,9 +10,9 @@ namespace AzureWordsOfTheDay.Pages
 {
     public class CaptionsModel : PageModel
     {
-        private IHostingEnvironment _env;
         private ILogger<IndexModel> _logger;
         private ContentHelper _contentHelper;
+        private readonly IHostingEnvironment _env;
 
         public HtmlString BodyHtml
         {
@@ -39,6 +39,20 @@ namespace AzureWordsOfTheDay.Pages
         public async Task OnGet(string languageCode)
         {
             _logger.LogInformation($"OnGet in Captions");
+
+            ViewData["LanguageCode"] = languageCode;
+            ViewData["SiteTitle"] = Texts.ResourceManager.GetString($"{languageCode}.SiteTitle");
+
+            TopicBarHtml = await _contentHelper.LoadTopicsBar(languageCode, _logger);
+
+            var docName = "captions.md";
+            var root = new DirectoryInfo(Path.Combine(_env.WebRootPath));
+            var folder = Path.Combine(root.Parent.FullName, Constants.LocalMarkdownFolderName);
+            BodyHtml = _contentHelper.LoadLocalMarkdown(
+                folder,
+                languageCode,
+                docName,
+                _logger);
 
             _logger.LogInformation("Done rendering in Captions");
         }
