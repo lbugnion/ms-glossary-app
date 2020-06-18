@@ -118,16 +118,16 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="en.SiteTitle" xml:space="preserve">
-    <value>Azure Words Of The Day</value>
-    <comment>Azure Words Of The Day</comment>
+    <value>Microsoft Glossary</value>
+    <comment>Microsoft Glossary</comment>
   </data>
   <data name="en.WordsOfTheDay" xml:space="preserve">
     <value>Words of the Day</value>
     <comment>Words of the Day</comment>
   </data>
   <data name="zu.SiteTitle" xml:space="preserve">
-    <value>Azure Amagama Wosuku</value>
-    <comment>Azure Words Of The Day</comment>
+    <value>Microsoft Uhlu lwamagama</value>
+    <comment>Microsoft Glossary</comment>
   </data>
   <data name="zu.WordsOfTheDay" xml:space="preserve">
     <value>Amagama Wosuku</value>

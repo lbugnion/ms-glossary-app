@@ -61,7 +61,7 @@ namespace AzureWordsOfTheDay {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Azure Words Of The Day.
+        ///   Looks up a localized string similar to Microsoft Glossary.
         /// </summary>
         internal static string en_SiteTitle {
             get {
@@ -79,7 +79,7 @@ namespace AzureWordsOfTheDay {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Azure Amagama Wosuku.
+        ///   Looks up a localized string similar to Microsoft Uhlu lwamagama.
         /// </summary>
         internal static string zu_SiteTitle {
             get {

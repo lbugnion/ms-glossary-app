@@ -1,10 +1,8 @@
-﻿# Uyemukelwa kwi-Microsoft Azure
-## Amagama oSuku
+﻿# Uyemukelwa kwi-Microsoft Uhlu lwamagama
 
-Lokhu ngumbukiso okufundisa i-Azure Silulumagama.
+Lesi siza iwebhusayithi eyingqondo ekhombisa izihloko ezimbalwa nemibono ezungeze le projekthi. Isibonelo ungabona imiqondo esemqoka, isibonelo:
 
-Kulesi siza, uzothola ukuhlanganiswa kwazo zonke iziqephu ezedlule, ngolwazi olungeziwe:
-
+- Amavidiyo omphakathi okukhuthaza izihloko
 - Okubhaliwe
 - Izinkomba zesiphambano kwezinye izihloko
 - Izixhumanisi [zamadokhumenti asemthethweni](http://gslb.ch/453)
