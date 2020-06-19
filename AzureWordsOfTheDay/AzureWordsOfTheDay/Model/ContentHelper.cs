@@ -162,8 +162,22 @@ namespace AzureWordsOfTheDay.Model
                 logger?.LogInformation($"List loaded: {list.Count} topics found");
 
                 var random = new Random();
-                var index = random.Next(0, list.Count);
-                var topic = list[index];
+
+                int index;
+                string topic = null;
+                var stop = false;
+
+                while (!stop)
+                {
+                    index = random.Next(0, list.Count);
+                    topic = list[index];
+
+                    if (topic != "another-test"
+                        && topic != "test")
+                    {
+                        stop = true;
+                    }
+                }
 
                 logger?.LogInformation($"Random topic: {topic}");
 
