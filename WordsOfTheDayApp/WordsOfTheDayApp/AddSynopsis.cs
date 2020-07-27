@@ -92,7 +92,7 @@ namespace WordsOfTheDayApp
             {
                 try
                 {
-                    var errorMessage = response.Content.ReadAsStringAsync();
+                    var errorMessage = await response.Content.ReadAsStringAsync();
                     log.LogInformation($"Error getting heads: {errorMessage}");
                     return new BadRequestObjectResult($"Error getting heads: {errorMessage}");
                 }
@@ -172,7 +172,7 @@ namespace WordsOfTheDayApp
             {
                 try
                 {
-                    var errorMessage = response.Content.ReadAsStringAsync();
+                    var errorMessage = await response.Content.ReadAsStringAsync();
                     log.LogInformation($"Error getting commit: {errorMessage}");
                     return new BadRequestObjectResult($"Error getting commit: {errorMessage}");
                 }
@@ -241,7 +241,7 @@ namespace WordsOfTheDayApp
             {
                 try
                 {
-                    var errorMessage = response.Content.ReadAsStringAsync();
+                    var errorMessage = await response.Content.ReadAsStringAsync();
                     log.LogInformation($"Error uploading blob: {errorMessage}");
                     return new BadRequestObjectResult($"Error uploading blob: {errorMessage}");
                 }
@@ -282,7 +282,7 @@ namespace WordsOfTheDayApp
             {
                 try
                 {
-                    var message = response.Content.ReadAsStringAsync();
+                    var message = await response.Content.ReadAsStringAsync();
                     log.LogInformation($"Error creating tree: {message}");
                     return new BadRequestObjectResult($"Error creating tree: {message}");
                 }
@@ -323,7 +323,7 @@ namespace WordsOfTheDayApp
             {
                 try
                 {
-                    var message = response.Content.ReadAsStringAsync();
+                    var message = await response.Content.ReadAsStringAsync();
                     log.LogInformation($"Error creating commit: {message}");
                     return new BadRequestObjectResult($"Error creating commit: {message}");
                 }
@@ -361,7 +361,7 @@ namespace WordsOfTheDayApp
             {
                 try
                 {
-                    var message = response.Content.ReadAsStringAsync();
+                    var message = await response.Content.ReadAsStringAsync();
                     log.LogInformation($"Error updating reference: {message}");
                     return new BadRequestObjectResult($"Error updating reference: {message}");
                 }
