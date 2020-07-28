@@ -29,7 +29,7 @@ namespace WordsOfTheDayApp.Model
 
             if (!await keywordsBlob.ExistsAsync())
             {
-                log.LogError($"Keywords blob not found: {keywordsBlob.Uri}");
+                log?.LogError($"Keywords blob not found: {keywordsBlob.Uri}");
                 return;
             }
 

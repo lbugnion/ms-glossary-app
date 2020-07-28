@@ -7,9 +7,26 @@
             get;
         }
 
+        public bool IsDisambiguation
+        {
+            get;
+            set;
+        }
+
         public string Keyword
         {
             get;
+        }
+
+        public string LanguageCode
+        {
+            get;
+        }
+
+        public bool MustDisambiguate
+        {
+            get;
+            set;
         }
 
         public string Subtopic
@@ -22,34 +39,17 @@
             get;
         }
 
-        public bool MustDisambiguate
+        public string TopicTitle
         {
             get;
-            set;
-        }
-
-        public bool IsDisambiguation
-        {
-            get;
-            set;
-        }
-
-        public string LanguageCode
-        {
-            get;
-        }
-
-        public string TopicTitle 
-        { 
-            get; 
         }
 
         public KeywordPair(
             string languageCode,
             string topicTitle,
-            string topic, 
-            string subtopic, 
-            string keyword, 
+            string topic,
+            string subtopic,
+            string keyword,
             string blurb)
         {
             LanguageCode = languageCode;

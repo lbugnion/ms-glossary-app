@@ -15,71 +15,23 @@ namespace WordsOfTheDayApp.Model
     {
         private const string BlurbMarker = "> Blurb: ";
         private const string CaptionsMarker = "> Captions: ";
-        private const string LanguageMarker = "> Language: ";
-        private const string TwitterMarker = "> Twitter: ";
-        private const string OtherLanguagesMarker = "<!-- OTHERLANGUAGES -->";
-        private const string LanguagesTitleMarker = "<!-- LANGUAGESTITLE -->";
         private const string DownloadCaptionsMarker = "<!-- DOWNLOAD-CAPTIONS -->";
-        private const string DownloadMarker = "<!-- DOWNLOAD -->";
         private const string DownloadCaptionTemplate = "- [{0}](https://wordsoftheday.blob.core.windows.net/{1}/{2})";
-        private const string LastChangeDateTimeFormat = "dd MMM yyyy HH:mm";
-        private const string TwitterLinkMask = "http://twitter.com/{0}";
         private const string DownloadLinkTemplate = "https://wordsoftheday.blob.core.windows.net/videos/{0}.{1}.mp4";
+        private const string DownloadMarker = "<!-- DOWNLOAD -->";
+        private const string DownloadTarget = "<a id=\"download\"></a>";
         private const string H1 = "# ";
         private const string KeywordsMarker = "> Keywords: ";
+        private const string LanguageMarker = "> Language: ";
+        private const string LanguagesTitleMarker = "<!-- LANGUAGESTITLE -->";
+        private const string LastChangeDateTimeFormat = "dd MMM yyyy HH:mm";
+        private const string OtherLanguagesMarker = "<!-- OTHERLANGUAGES -->";
+        private const string TwitterLinkMask = "http://twitter.com/{0}";
+        private const string TwitterMarker = "> Twitter: ";
+        private const string VideoDownloadLinkMarker = "LINK";
         private const string YouTubeEmbed = "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/{0}\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>";
         private const string YouTubeEmbedMarker = "<!-- YOUTUBEEMBED -->";
         private const string YouTubeMarker = "> YouTube: ";
-        private const string DownloadTarget = "<a id=\"download\"></a>";
-        private const string VideoDownloadLinkMarker = "LINK";
-
-        public static async Task DeleteAllSettings(ILogger log)
-        {
-            var account = CloudStorageAccount.Parse(
-                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
-            var client = account.CreateCloudBlobClient();
-            var helper = new BlobHelper(client, log);
-            var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
-
-            BlobContinuationToken continuationToken = null;
-
-            do
-            {
-                var response = await settingsContainer.ListBlobsSegmentedAsync(continuationToken);
-                continuationToken = response.ContinuationToken;
-
-                foreach (CloudBlockBlob blob in response.Results)
-                {
-                    log?.LogInformation($"Deleting: {blob.Name}");
-                    await blob.DeleteAsync();
-                }
-            }
-            while (continuationToken != null);
-        }
-
-        public static async Task DeleteAllTopics(ILogger log)
-        {
-            var account = CloudStorageAccount.Parse(
-                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
-            var client = account.CreateCloudBlobClient();
-            var helper = new BlobHelper(client, log);
-            var topicsContainer = helper.GetContainer(Constants.TopicsContainerVariableName);
-
-            BlobContinuationToken continuationToken = null;
-
-            do
-            {
-                var response = await topicsContainer.ListBlobsSegmentedAsync(continuationToken);
-                continuationToken = response.ContinuationToken;
-
-                foreach (CloudBlockBlob blob in response.Results)
-                {
-                    log?.LogInformation($"Deleting: {blob.Name}");
-                    await blob.DeleteAsync();
-                }
-            }
-            while (continuationToken != null);
-        }
 
         private static IList<LanguageInfo> MakeLanguages(string captions)
         {
@@ -113,7 +65,7 @@ namespace WordsOfTheDayApp.Model
         }
 
         public static async Task CreateDisambiguation(
-            Dictionary<string, List<KeywordPair>> dic, 
+            Dictionary<string, List<KeywordPair>> dic,
             ILogger log)
         {
             if (dic.Keys.Count != 1
@@ -198,7 +150,7 @@ namespace WordsOfTheDayApp.Model
                     break;
                 }
             }
-            
+
             if (!foundH1)
             {
                 log?.LogError($"Invalid topic file: {topic.TopicName}.{topic.Language.Code}");
@@ -211,7 +163,7 @@ namespace WordsOfTheDayApp.Model
             {
                 var newBuilder = new StringBuilder(header.ToString());
                 var text = string.Format(
-                    TextHelper.GetText(topic.Language.Code, Constants.Texts.RedirectedFrom), 
+                    TextHelper.GetText(topic.Language.Code, Constants.Texts.RedirectedFrom),
                     pair.Keyword);
 
                 newBuilder.AppendLine($"###### ({text})");
@@ -422,7 +374,7 @@ namespace WordsOfTheDayApp.Model
                     Constants.Texts.CopyrightInfo),
                 DateTime.Now.Year,
                 Texts.TwitterUrl);
-            
+
             var lastModifiedText = string.Format(
                 TextHelper.GetText(
                     topic.Language.Code,
@@ -597,6 +549,54 @@ namespace WordsOfTheDayApp.Model
             return topic;
         }
 
+        public static async Task DeleteAllSettings(ILogger log)
+        {
+            var account = CloudStorageAccount.Parse(
+                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
+            var client = account.CreateCloudBlobClient();
+            var helper = new BlobHelper(client, log);
+            var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
+
+            BlobContinuationToken continuationToken = null;
+
+            do
+            {
+                var response = await settingsContainer.ListBlobsSegmentedAsync(continuationToken);
+                continuationToken = response.ContinuationToken;
+
+                foreach (CloudBlockBlob blob in response.Results)
+                {
+                    log?.LogInformation($"Deleting: {blob.Name}");
+                    await blob.DeleteAsync();
+                }
+            }
+            while (continuationToken != null);
+        }
+
+        public static async Task DeleteAllTopics(ILogger log)
+        {
+            var account = CloudStorageAccount.Parse(
+                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
+            var client = account.CreateCloudBlobClient();
+            var helper = new BlobHelper(client, log);
+            var topicsContainer = helper.GetContainer(Constants.TopicsContainerVariableName);
+
+            BlobContinuationToken continuationToken = null;
+
+            do
+            {
+                var response = await topicsContainer.ListBlobsSegmentedAsync(continuationToken);
+                continuationToken = response.ContinuationToken;
+
+                foreach (CloudBlockBlob blob in response.Results)
+                {
+                    log?.LogInformation($"Deleting: {blob.Name}");
+                    await blob.DeleteAsync();
+                }
+            }
+            while (continuationToken != null);
+        }
+
         public static async Task UpdateOtherLanguages(
             IList<TopicInformation> topicsByLanguage,
             ILogger log)
@@ -618,7 +618,7 @@ namespace WordsOfTheDayApp.Model
 
                 languagesBuilder
                     .AppendLine(TextHelper.GetText(
-                        topic.Language.Code, 
+                        topic.Language.Code,
                         Constants.Texts.ThisPageIsAlsoAvailableIn))
                     .AppendLine();
 

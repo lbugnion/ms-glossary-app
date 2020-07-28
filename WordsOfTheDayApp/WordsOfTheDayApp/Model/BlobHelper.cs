@@ -12,13 +12,8 @@ namespace WordsOfTheDayApp.Model
 
         public BlobHelper(CloudBlobClient client, ILogger logger = null)
         {
-            if (client == null)
-            {
-                throw new ArgumentNullException("client");
-            }
-
             _logger = logger;
-            _client = client;
+            _client = client ?? throw new ArgumentNullException("client");
         }
 
         public CloudBlobContainer GetContainer(string variableName)

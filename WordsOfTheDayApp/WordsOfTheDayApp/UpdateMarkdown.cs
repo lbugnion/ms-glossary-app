@@ -15,39 +15,20 @@ namespace WordsOfTheDayApp
 {
     public static partial class UpdateMarkdown
     {
-        [FunctionName("UpdateMarkdown_ResetSettings")]
-        public static async Task ResetSettings(
+        [FunctionName("UpdateMarkdown_CreateDisambiguation")]
+        public static async Task CreateDisambiguation(
             [ActivityTrigger]
-            string dummy,
+            Dictionary<string, List<KeywordPair>> dic,
             ILogger log)
         {
-            await TopicMaker.DeleteAllSettings(log);
-        }
+            await TopicMaker.CreateDisambiguation(dic, log);
 
-        [FunctionName("UpdateMarkdown_ResetTopics")]
-        public static async Task ResetTopics(
-            [ActivityTrigger]
-            string dummy,
-            ILogger log)
-        {
-            await TopicMaker.DeleteAllTopics(log);
-        }
-
-        [FunctionName("UpdateMarkdown_CreateTopics")]
-        public static async Task<TopicInformation> CreateTopics(
-            [ActivityTrigger]
-            Uri blobUri,
-            ILogger log)
-        {
-            var topic = await TopicMaker.CreateTopic(blobUri, log);
-            log?.LogInformation($"Updated {topic.TopicName}.");
+            log?.LogInformation($"Created disambiguation for {dic.Keys.First()}.");
 
             await NotificationService.Notify(
-                "Updated topic",
-                $"The topic {topic.TopicName} has been updated in markdown",
+                "Updated disambiguation",
+                $"Created disambiguation for {dic.Keys.First()}.",
                 log);
-
-            return topic;
         }
 
         [FunctionName("UpdateMarkdown_CreateSubtopics")]
@@ -65,20 +46,21 @@ namespace WordsOfTheDayApp
                 log);
         }
 
-        [FunctionName("UpdateMarkdown_CreateDisambiguation")]
-        public static async Task CreateDisambiguation(
+        [FunctionName("UpdateMarkdown_CreateTopics")]
+        public static async Task<TopicInformation> CreateTopics(
             [ActivityTrigger]
-            Dictionary<string, List<KeywordPair>> dic,
+            Uri blobUri,
             ILogger log)
         {
-            await TopicMaker.CreateDisambiguation(dic, log);
-            
-            log?.LogInformation($"Created disambiguation for {dic.Keys.First()}.");
+            var topic = await TopicMaker.CreateTopic(blobUri, log);
+            log?.LogInformation($"Updated {topic.TopicName}.");
 
             await NotificationService.Notify(
-                "Updated disambiguation",
-                $"Created disambiguation for {dic.Keys.First()}.",
+                "Updated topic",
+                $"The topic {topic.TopicName} has been updated in markdown",
                 log);
+
+            return topic;
         }
 
         [FunctionName("UpdateMarkdown_HttpStart")]
@@ -145,6 +127,22 @@ namespace WordsOfTheDayApp
                 log);
 
             return dic;
+        }
+
+        [FunctionName("UpdateMarkdown_ResetSettings")]
+        public static async Task ResetSettings(
+            [ActivityTrigger]
+            ILogger log)
+        {
+            await TopicMaker.DeleteAllSettings(log);
+        }
+
+        [FunctionName("UpdateMarkdown_ResetTopics")]
+        public static async Task ResetTopics(
+            [ActivityTrigger]
+            ILogger log)
+        {
+            await TopicMaker.DeleteAllTopics(log);
         }
 
         [FunctionName("UpdateMarkdown")]

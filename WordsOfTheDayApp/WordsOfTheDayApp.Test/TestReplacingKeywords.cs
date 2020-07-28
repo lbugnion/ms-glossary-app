@@ -16,8 +16,7 @@ namespace WordsOfTheDayApp.Test
             };
 
             var replacer = new KeywordReplacer();
-
-            var (result, replaced) = replacer.ReplaceInMarkdown(
+            var (result, _) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -363,8 +362,7 @@ namespace WordsOfTheDayApp.Test
                 + "and the words [App Service](/topic/app-service) in the transcript";
 
             var replacer = new KeywordReplacer();
-
-            var (result, replaced) = replacer.ReplaceInMarkdown(
+            var (result, _) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -380,8 +378,7 @@ namespace WordsOfTheDayApp.Test
             var expectedMarkdown = "This is a piece of text with the word [App Service](/topic/app-service) and [a link to the AAD topic](http://abcd.com/aad) in it once and also the word [asp.net](/topic/app-service/asp.net) to check it.";
 
             var replacer = new KeywordReplacer();
-
-            var (result, replaced) = replacer.ReplaceInMarkdown(
+            var (result, _) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -397,8 +394,7 @@ namespace WordsOfTheDayApp.Test
             var expectedMarkdown = "This is a piece of text with the word ([App Service](/topic/app-service)) and [a link to the AAD topic](http://abcd.com/aad) in it once and also the word [asp.net](/topic/app-service/asp.net) to check it.";
 
             var replacer = new KeywordReplacer();
-
-            var (result, replaced) = replacer.ReplaceInMarkdown(
+            var (result, _) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -414,8 +410,7 @@ namespace WordsOfTheDayApp.Test
             var expected = "This is a piece of text with the word [app service](/topic/app-service) in it once";
 
             var replacer = new KeywordReplacer();
-
-            var (result, replaced) = replacer.ReplaceInMarkdown(
+            var (result, _) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -431,8 +426,7 @@ namespace WordsOfTheDayApp.Test
             var expected = "This is a piece of text with the word [web server](/topic/app-service/web-server) in it once";
 
             var replacer = new KeywordReplacer();
-
-            var (result, replaced) = replacer.ReplaceInMarkdown(
+            var (result, _) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -448,8 +442,7 @@ namespace WordsOfTheDayApp.Test
             var expectedMarkdown = "This is a piece of text with the word [App Service](https://wordsoftheday.azurewebsites.net/topic/app-serv) in it once.";
 
             var replacer = new KeywordReplacer();
-
-            var (result, replaced) = replacer.ReplaceInMarkdown(
+            var (result, _) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -464,8 +457,7 @@ namespace WordsOfTheDayApp.Test
             var markdown = "This is a piece of text with the word [App Service](/topic/app-service) in it once.";
 
             var replacer = new KeywordReplacer();
-
-            var (result, replaced) = replacer.ReplaceInMarkdown(
+            var (result, _) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -483,8 +475,7 @@ namespace WordsOfTheDayApp.Test
             var expected = "This is a piece of text with the word [App Service](/topic/app-service) in it once";
 
             var replacer = new KeywordReplacer();
-
-            var (result, replaced) = replacer.ReplaceInMarkdown(
+            var (result, _) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -500,8 +491,7 @@ namespace WordsOfTheDayApp.Test
             var expected = "This is a piece of text with the word [app service](/topic/app-service) in it once and also the word [asp.net](/topic/app-service/asp.net) to check it.";
 
             var replacer = new KeywordReplacer();
-
-            var (result, replaced) = replacer.ReplaceInMarkdown(
+            var (result, _) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
@@ -517,8 +507,7 @@ namespace WordsOfTheDayApp.Test
             var expected = "This is a piece of text with the word [App Service](/topic/app-service) in it twice because of app service.";
 
             var replacer = new KeywordReplacer();
-
-            var (result, replaced) = replacer.ReplaceInMarkdown(
+            var (result, _) = replacer.ReplaceInMarkdown(
                 markdown,
                 list);
 
