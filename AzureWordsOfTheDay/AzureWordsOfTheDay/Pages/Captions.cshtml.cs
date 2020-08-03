@@ -10,9 +10,9 @@ namespace AzureWordsOfTheDay.Pages
 {
     public class CaptionsModel : PageModel
     {
-        private ILogger<IndexModel> _logger;
-        private ContentHelper _contentHelper;
         private readonly IHostingEnvironment _env;
+        private ContentHelper _contentHelper;
+        private ILogger<IndexModel> _logger;
 
         public HtmlString BodyHtml
         {

@@ -10,9 +10,9 @@ namespace AzureWordsOfTheDay.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ILogger _logger;
-        private readonly IHostingEnvironment _env;
         private readonly ContentHelper _contentHelper;
+        private readonly IHostingEnvironment _env;
+        private readonly ILogger _logger;
 
         public HtmlString IndexContentHtml
         {
@@ -53,9 +53,9 @@ namespace AzureWordsOfTheDay.Pages
             var root = new DirectoryInfo(Path.Combine(_env.WebRootPath));
             var folder = Path.Combine(root.Parent.FullName, Constants.LocalMarkdownFolderName);
             IndexContentHtml = _contentHelper.LoadLocalMarkdown(
-                folder, 
-                languageCode, 
-                docName, 
+                folder,
+                languageCode,
+                docName,
                 _logger);
 
             if (IndexContentHtml == null)

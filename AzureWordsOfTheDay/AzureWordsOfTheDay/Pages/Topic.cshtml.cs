@@ -4,15 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace AzureWordsOfTheDay.Pages
 {
     public class TopicModel : PageModel
     {
-        private readonly ILogger _logger;
         private readonly ContentHelper _contentHelper;
+        private readonly ILogger _logger;
 
         public string Topic
         {
