@@ -213,7 +213,10 @@ namespace WordsOfTheDayApp.Model
                 if (line == null)
                 {
                     log?.LogError($"Invalid markdown file: {topic.TopicName}");
-                    await NotificationService.Notify("ERROR in UpdateMarkdown", $"Invalid markdown file: {topic.TopicName}", log);
+                    await NotificationService.Notify(
+                        "ERROR in UpdateMarkdown", 
+                        $"Invalid markdown file: {topic.TopicName}", 
+                        log);
                     return null;
                 }
 

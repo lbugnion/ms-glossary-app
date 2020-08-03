@@ -67,23 +67,12 @@ namespace WordsOfTheDayApp.Model
 
             var (newMarkdown, replaced) = replacer.ReplaceInMarkdown(markdown, keywordsList, topic.TopicName, log);
 
-            if (newMarkdown == markdown)
-            {
-                await NotificationService.Notify(
-                    $"No keywords replaced in file {topic.TopicName}.{topic.Language.Code}",
-                    "No keywords found",
-                    log);
-            }
-            else
+            if (newMarkdown != markdown)
             {
                 try
                 {
                     log?.LogInformation("Uploading");
                     await newBlob.UploadTextAsync(newMarkdown);
-                    await NotificationService.Notify(
-                        $"Replaced keywords in file {topic.TopicName}.{topic.Language.Code}",
-                        $"The following keywords were replaced: {replaced}",
-                        log);
                 }
                 catch (Exception ex)
                 {
@@ -102,7 +91,6 @@ namespace WordsOfTheDayApp.Model
             }
 
             log?.LogInformation($"Done replacing keywords in {topic.TopicName}.{topic.Language.Code}");
-
             return keywordsDictionary;
         }
     }

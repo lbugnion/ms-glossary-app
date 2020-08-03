@@ -25,10 +25,10 @@ namespace WordsOfTheDayApp
 
             log?.LogInformation($"Created disambiguation for {dic.Keys.First()}.");
 
-            await NotificationService.Notify(
-                "Updated disambiguation",
-                $"Created disambiguation for {dic.Keys.First()}.",
-                log);
+            //await NotificationService.Notify(
+            //    "Updated disambiguation",
+            //    $"Created disambiguation for {dic.Keys.First()}.",
+            //    log);
         }
 
         [FunctionName("UpdateMarkdown_CreateSubtopics")]
@@ -40,10 +40,10 @@ namespace WordsOfTheDayApp
             await TopicMaker.CreateSubtopics(topic, log);
             log?.LogInformation($"Created subtopics for {topic.TopicName}.");
 
-            await NotificationService.Notify(
-                "Updated subtopic",
-                $"Created subtopics for {topic.TopicName}.",
-                log);
+            //await NotificationService.Notify(
+            //    "Updated subtopic",
+            //    $"Created subtopics for {topic.TopicName}.",
+            //    log);
         }
 
         [FunctionName("UpdateMarkdown_CreateTopics")]
@@ -55,10 +55,10 @@ namespace WordsOfTheDayApp
             var topic = await TopicMaker.CreateTopic(blobUri, log);
             log?.LogInformation($"Updated {topic.TopicName}.");
 
-            await NotificationService.Notify(
-                "Updated topic",
-                $"The topic {topic.TopicName} has been updated in markdown",
-                log);
+            //await NotificationService.Notify(
+            //    "Updated topic",
+            //    $"The topic {topic.TopicName} has been updated in markdown",
+            //    log);
 
             return topic;
         }
@@ -121,10 +121,10 @@ namespace WordsOfTheDayApp
         {
             var dic = await MarkdownReplacer.ReplaceKeywords(topic, log);
 
-            await NotificationService.Notify(
-                "Replaced keywords in topic",
-                $"Keywords have been linked in the topic {topic.TopicName}",
-                log);
+            //await NotificationService.Notify(
+            //    "Replaced keywords in topic",
+            //    $"Keywords have been linked in the topic {topic.TopicName}",
+            //    log);
 
             return dic;
         }
@@ -254,6 +254,11 @@ namespace WordsOfTheDayApp
                     "UpdateMarkdown_SaveTopics",
                     info);
             }
+
+            await NotificationService.Notify(
+                "Done",
+                "Done handling changes",
+                null);
 
             return topics;
         }

@@ -14,7 +14,7 @@ namespace WordsOfTheDayApp.Model
             string message,
             ILogger log)
         {
-            var json = $"{{\"title\":\"{title}\",\"body\": \"{message}\",\"channel\":\"WordsOfTheDay\"}}";
+            var json = $"{{\"title\":\"{title}\",\"body\": \"{message}\",\"channel\":\"MSGlossary\"}}";
             var client = new HttpClient();
             var content = new StringContent(json);
 
