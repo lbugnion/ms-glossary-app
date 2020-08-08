@@ -28,7 +28,7 @@ namespace MsGlossaryApp
         public static async Task Run(
             [TimerTrigger("0 0 6 * * *")]
             TimerInfo myTimer,
-            //[HttpTrigger(AuthorizationLevel.Function, "get", Route = null)]
+            //[HttpTrigger(Microsoft.Azure.WebJobs.Extensions.Http.AuthorizationLevel.Function, "get", Route = null)]
             //Microsoft.AspNetCore.Http.HttpRequest req,
             ILogger log)
         {
