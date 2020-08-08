@@ -40,6 +40,9 @@ namespace MsGlossaryApp
                 var accountName = Environment.GetEnvironmentVariable(GitHubAccountVariableName);
                 var repoName = Environment.GetEnvironmentVariable(GitHubRepoVariableName);
 
+                log.LogInformation($"accountName: {accountName}");
+                log.LogInformation($"repoName: {repoName}");
+
                 // Read the current state of the file
 
                 var filePath = string.Format(
@@ -110,10 +113,13 @@ namespace MsGlossaryApp
                     "Updated homepage",
                     $"The glossary homepage was update with topic {randomTopic}",
                     log);
+
+                log.LogInformation("Done updating homepage");
             }
             catch (Exception ex)
             {
                 error = ex;
+                log.LogError(ex, "Error updating homepage");
             }
 
             if (error != null)
