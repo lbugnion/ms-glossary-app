@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -12,19 +11,19 @@ namespace MsGlossaryApp.Model.GitHub
 {
     public class GitHubHelper
     {
-        private const string ApiBaseUrlMask = "{0}/{1}/{2}";
-        private const string ApiBaseUrlVariableName = "GitHubApiBaseUrl";
+        private const string GitHubApiBaseUrlMask = "https://api.github.com/repos/{0}/{1}/{2}";
         private const string CommitUrl = "git/commits";
         private const string CreateTreeUrl = "git/trees";
         private const string GetHeadUrl = "git/ref/heads/master";
-        private const string GitHubRepoVariableName = "GitHubRepo";
-        private const string GitHubTokenVariableName = "GitHubToken";
         private const string UpdateReferenceUrl = "git/refs/heads/master";
         private const string UploadBlobUrl = "git/blobs";
 
         // See http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
 
         public async Task<string> CommitFiles(
+            string accountName,
+            string repoName,
+            string githubToken,
             string commitMessage,
             IList<(string path, string content)> fileNamesAndContent,
             ILogger log = null)
@@ -32,12 +31,9 @@ namespace MsGlossaryApp.Model.GitHub
             var client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
 
-            var repoName = Environment.GetEnvironmentVariable(GitHubRepoVariableName);
-            var apiBaseUrl = Environment.GetEnvironmentVariable(ApiBaseUrlVariableName);
-            var token = Environment.GetEnvironmentVariable(GitHubTokenVariableName);
             var url = string.Format(
-                ApiBaseUrlMask,
-                apiBaseUrl,
+                GitHubApiBaseUrlMask,
+                accountName,
                 repoName, 
                 GetHeadUrl);
 
@@ -120,8 +116,8 @@ namespace MsGlossaryApp.Model.GitHub
                 jsonRequest = JsonConvert.SerializeObject(uploadInfo);
 
                 url = string.Format(
-                    ApiBaseUrlMask, 
-                    apiBaseUrl,
+                    GitHubApiBaseUrlMask, 
+                    accountName,
                     repoName, 
                     UploadBlobUrl);
 
@@ -132,7 +128,7 @@ namespace MsGlossaryApp.Model.GitHub
                     Content = new StringContent(jsonRequest)
                 };
 
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
 
                 response = await client.SendAsync(request);
 
@@ -173,8 +169,8 @@ namespace MsGlossaryApp.Model.GitHub
             jsonRequest = JsonConvert.SerializeObject(newTreeInfo);
 
             url = string.Format(
-                ApiBaseUrlMask,
-                apiBaseUrl,
+                GitHubApiBaseUrlMask,
+                accountName,
                 repoName, 
                 CreateTreeUrl);
 
@@ -185,7 +181,7 @@ namespace MsGlossaryApp.Model.GitHub
                 Content = new StringContent(jsonRequest)
             };
 
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
 
             response = await client.SendAsync(request);
 
@@ -220,8 +216,8 @@ namespace MsGlossaryApp.Model.GitHub
             jsonRequest = JsonConvert.SerializeObject(commitInfo);
 
             url = string.Format(
-                ApiBaseUrlMask, 
-                apiBaseUrl,
+                GitHubApiBaseUrlMask, 
+                accountName,
                 repoName, 
                 CommitUrl);
 
@@ -232,7 +228,7 @@ namespace MsGlossaryApp.Model.GitHub
                 Content = new StringContent(jsonRequest)
             };
 
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
 
             response = await client.SendAsync(request);
 
@@ -264,8 +260,8 @@ namespace MsGlossaryApp.Model.GitHub
             jsonRequest = JsonConvert.SerializeObject(updateReferenceInfo);
 
             url = string.Format(
-                ApiBaseUrlMask, 
-                apiBaseUrl,
+                GitHubApiBaseUrlMask, 
+                accountName,
                 repoName, 
                 UpdateReferenceUrl);
 
@@ -276,7 +272,7 @@ namespace MsGlossaryApp.Model.GitHub
                 Content = new StringContent(jsonRequest)
             };
 
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
 
             response = await client.SendAsync(request);
 

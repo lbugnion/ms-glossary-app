@@ -1,16 +1,28 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using MsGlossaryApp.Model.GitHub;
+using Newtonsoft.Json;
 
 namespace MsGlossaryApp
 {
     public static class UpdateHomePage
     {
+        private const string GitHubAccountVariableName = "GitHubAccount";
+        private const string GitHubRepoVariableName = "GitHubRepo";
+        private const string GitHubTokenVariableName = "GitHubToken";
         private const string CommitMessage = "Updated the home page";
+        private const string HomePageFilePath = "https://raw.githubusercontent.com/{0}/{1}/master/glossary/index.md";
+        private const string IncludLineMask = "[!INCLUDE [Random topic for today:](./topic/{0}/index.md)]";
+        private const string ListOfTopicsUrlMask = "https://{0}.blob.core.windows.net/settings/topics.en.json";
+        private const string BlobStoreNameVariableName = "BlobStoreName";
 
         [FunctionName("UpdateHomePage")]
         public static async Task Run(
@@ -22,17 +34,73 @@ namespace MsGlossaryApp
         {
             log.LogInformation($"UpdateHomePage function executed at: {DateTime.Now}");
 
+            var accountName = Environment.GetEnvironmentVariable(GitHubAccountVariableName);
+            var repoName = Environment.GetEnvironmentVariable(GitHubRepoVariableName);
+
+            // Read the current state of the file
+
+            var filePath = string.Format(
+                HomePageFilePath,
+                accountName,
+                repoName);
+
+            var client = new HttpClient();
+            var content = await client.GetStringAsync(filePath);
+            var reader = new StringReader(content);
+            var newContentBuilder = new StringBuilder();
+            string line;
+
+            while ((line = reader.ReadLine()) != null)
+            {
+                if (!line.StartsWith("[!INCLUDE"))
+                {
+                    newContentBuilder.AppendLine(line);
+                }
+            }
+
+            var newContent = newContentBuilder.ToString()
+                .Trim();
+
+            // Get the list of topics
+
+            var blobStoreName = Environment.GetEnvironmentVariable(BlobStoreNameVariableName);
+            var topicsUrl = string.Format(ListOfTopicsUrlMask, blobStoreName);
+            var topicsJson = await client.GetStringAsync(topicsUrl);
+
+            // TODO Remove checking for test and another-test when these are removed from the repos.
+            var topics = JsonConvert.DeserializeObject<List<string>>(topicsJson)
+                .Where(s => s != "test"
+                    && s != "another-test")
+                .ToList();
+
+            var random = new Random();
+            var index = random.Next(0, topics.Count - 1);
+            var randomTopic = topics[index];
+
+            log?.LogInformation($"New random topic: {randomTopic}");
+
+            var include = string.Format(IncludLineMask, randomTopic);
+
+            // Line before last is the include directive
+
+            newContent += Environment.NewLine
+                + Environment.NewLine
+                + include
+                + Environment.NewLine;
+
+            var token = Environment.GetEnvironmentVariable(GitHubTokenVariableName);
             var helper = new GitHubHelper();
 
             var list = new List<(string, string)>
             {
-                ("test/index.md", "Hello content"),
-                ("test/index2.md", "Hello again"),
-                ("test2/index.md", "Hello test2")
+                ("glossary/index.md", newContent)
             };
 
             await helper.CommitFiles(
-                $"Hello world {DateTime.Now.Ticks}",
+                accountName,
+                repoName,
+                token,
+                CommitMessage,
                 list);
         }
     }
