@@ -1,3 +1,8 @@
+using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Logging;
+using MsGlossaryApp.Model;
+using MsGlossaryApp.Model.GitHub;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -5,24 +10,19 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
-using MsGlossaryApp.Model;
-using MsGlossaryApp.Model.GitHub;
-using Newtonsoft.Json;
 
 namespace MsGlossaryApp
 {
     public static class UpdateHomePage
     {
+        private const string BlobStoreNameVariableName = "BlobStoreName";
+        private const string CommitMessage = "Updated the home page";
         private const string GitHubAccountVariableName = "GitHubAccount";
         private const string GitHubRepoVariableName = "GitHubRepo";
         private const string GitHubTokenVariableName = "GitHubToken";
-        private const string CommitMessage = "Updated the home page";
         private const string HomePageFilePath = "https://raw.githubusercontent.com/{0}/{1}/master/glossary/index.md";
         private const string IncludLineMask = "[!INCLUDE [Random topic for today:](./topic/{0}/index.md)]";
         private const string ListOfTopicsUrlMask = "https://{0}.blob.core.windows.net/settings/topics.en.json";
-        private const string BlobStoreNameVariableName = "BlobStoreName";
 
         [FunctionName("UpdateHomePage")]
         public static async Task Run(

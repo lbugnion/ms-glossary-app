@@ -11,10 +11,10 @@ namespace MsGlossaryApp.Model.GitHub
 {
     public class GitHubHelper
     {
-        private const string GitHubApiBaseUrlMask = "https://api.github.com/repos/{0}/{1}/{2}";
         private const string CommitUrl = "git/commits";
         private const string CreateTreeUrl = "git/trees";
         private const string GetHeadUrl = "git/ref/heads/master";
+        private const string GitHubApiBaseUrlMask = "https://api.github.com/repos/{0}/{1}/{2}";
         private const string UpdateReferenceUrl = "git/refs/heads/master";
         private const string UploadBlobUrl = "git/blobs";
 
@@ -34,7 +34,7 @@ namespace MsGlossaryApp.Model.GitHub
             var url = string.Format(
                 GitHubApiBaseUrlMask,
                 accountName,
-                repoName, 
+                repoName,
                 GetHeadUrl);
 
             log?.LogInformation($"repoName: {repoName}");
@@ -116,9 +116,9 @@ namespace MsGlossaryApp.Model.GitHub
                 jsonRequest = JsonConvert.SerializeObject(uploadInfo);
 
                 url = string.Format(
-                    GitHubApiBaseUrlMask, 
+                    GitHubApiBaseUrlMask,
                     accountName,
-                    repoName, 
+                    repoName,
                     UploadBlobUrl);
 
                 request = new HttpRequestMessage
@@ -171,7 +171,7 @@ namespace MsGlossaryApp.Model.GitHub
             url = string.Format(
                 GitHubApiBaseUrlMask,
                 accountName,
-                repoName, 
+                repoName,
                 CreateTreeUrl);
 
             request = new HttpRequestMessage
@@ -209,16 +209,16 @@ namespace MsGlossaryApp.Model.GitHub
 
             log?.LogInformation("Creating the commit");
             var commitInfo = new CommitInfo(
-                commitMessage, 
-                masterCommitResult.Sha, 
+                commitMessage,
+                masterCommitResult.Sha,
                 createTreeResult.Sha);
 
             jsonRequest = JsonConvert.SerializeObject(commitInfo);
 
             url = string.Format(
-                GitHubApiBaseUrlMask, 
+                GitHubApiBaseUrlMask,
                 accountName,
-                repoName, 
+                repoName,
                 CommitUrl);
 
             request = new HttpRequestMessage
@@ -260,9 +260,9 @@ namespace MsGlossaryApp.Model.GitHub
             jsonRequest = JsonConvert.SerializeObject(updateReferenceInfo);
 
             url = string.Format(
-                GitHubApiBaseUrlMask, 
+                GitHubApiBaseUrlMask,
                 accountName,
-                repoName, 
+                repoName,
                 UpdateReferenceUrl);
 
             request = new HttpRequestMessage
