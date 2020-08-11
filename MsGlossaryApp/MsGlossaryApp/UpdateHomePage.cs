@@ -111,7 +111,7 @@ namespace MsGlossaryApp
 
                 await NotificationService.Notify(
                     "Updated homepage",
-                    $"The glossary homepage was update with topic {randomTopic}",
+                    $"The glossary homepage was updated with topic {randomTopic}",
                     log);
 
                 log.LogInformation("Done updating homepage");
