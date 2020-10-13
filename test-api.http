@@ -1,3 +1,5 @@
+### Add New Synopsis local
+
 POST http://localhost:7071/api/add-new
 
 {
@@ -7,3 +9,6 @@ POST http://localhost:7071/api/add-new
     "submittertwitter": "LBugnion",
     "topic":"test-topic-07"
 }
+
+### Update Homepage local
+http://localhost:7071/api/UpdateHomePage

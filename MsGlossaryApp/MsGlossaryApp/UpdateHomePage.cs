@@ -17,10 +17,11 @@ namespace MsGlossaryApp
     {
         private const string BlobStoreNameVariableName = "BlobStoreName";
         private const string CommitMessage = "Updated the home page";
-        private const string GitHubAccountVariableName = "GitHubAccount";
-        private const string GitHubRepoVariableName = "GitHubRepo";
+        private const string DocsGlossaryGitHubAccountVariableName = "DocsGlossaryGitHubAccount";
+        private const string DocsGlossaryGitHubRepoVariableName = "DocsGlossaryGitHubRepo";
+        private const string DocsGlossaryGitHubMainBranchNameVariableName = "DocsGlossaryGitHubMainBranchName";
         private const string GitHubTokenVariableName = "GitHubToken";
-        private const string HomePageFilePath = "https://raw.githubusercontent.com/{0}/{1}/master/glossary/index.md";
+        private const string HomePageFilePath = "https://raw.githubusercontent.com/{0}/{1}/{2}/glossary/index.md";
         private const string IncludLineMask = "[!INCLUDE [Random topic for today:](./topic/{0}/index.md)]";
         private const string ListOfTopicsUrlMask = "https://{0}.blob.core.windows.net/settings/topics.en.json";
 
@@ -32,27 +33,30 @@ namespace MsGlossaryApp
             //Microsoft.AspNetCore.Http.HttpRequest req,
             ILogger log)
         {
-            return;
-
             log.LogInformation($"UpdateHomePage function executed at: {DateTime.Now}");
             Exception error = null;
 
             try
             {
-                var accountName = Environment.GetEnvironmentVariable(GitHubAccountVariableName);
-                var repoName = Environment.GetEnvironmentVariable(GitHubRepoVariableName);
+                var accountName = Environment.GetEnvironmentVariable(DocsGlossaryGitHubAccountVariableName);
+                var repoName = Environment.GetEnvironmentVariable(DocsGlossaryGitHubRepoVariableName);
+                var branchName = Environment.GetEnvironmentVariable(DocsGlossaryGitHubMainBranchNameVariableName);
 
                 log.LogInformation($"accountName: {accountName}");
                 log.LogInformation($"repoName: {repoName}");
+                log.LogInformation($"branchName: {branchName}");
 
                 // Read the current state of the file
 
                 var filePath = string.Format(
                     HomePageFilePath,
                     accountName,
-                    repoName);
+                    repoName,
+                    branchName);
 
                 var client = new HttpClient();
+                client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
+
                 var content = await client.GetStringAsync(filePath);
                 var reader = new StringReader(content);
                 var newContentBuilder = new StringBuilder();
@@ -97,7 +101,7 @@ namespace MsGlossaryApp
                     + Environment.NewLine;
 
                 var token = Environment.GetEnvironmentVariable(GitHubTokenVariableName);
-                var helper = new GitHubHelper(null);
+                var helper = new GitHubHelper(client);
 
                 var list = new List<(string, string)>
                 {
@@ -107,7 +111,7 @@ namespace MsGlossaryApp
                 await helper.CommitFiles(
                     accountName,
                     repoName,
-                    branchName: "Tempo",
+                    branchName,
                     token,
                     CommitMessage,
                     list);

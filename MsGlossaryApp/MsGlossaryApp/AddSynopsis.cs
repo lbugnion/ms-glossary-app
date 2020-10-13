@@ -16,12 +16,12 @@ namespace MsGlossaryApp
 {
     public static class AddSynopsis
     {
-        private const string GitHubAccountVariableName = "GitHubAccount";
-        private const string GitHubRepoVariableName = "GitHubRepo";
+        private const string MsGlossaryGitHubAccountVariableName = "MsGlossaryGitHubAccount";
+        private const string MsGlossaryGitHubRepoVariableName = "MsGlossaryGitHubRepo";
         private const string GitHubTokenVariableName = "GitHubToken";
-        private const string GitHubMainBranchName = "GitHubMainBranchName";
+        private const string MsGlossaryGitHubMainBranchName = "MsGlossaryGitHubMainBranchName";
         private const string RawTemplateUrl = "https://raw.githubusercontent.com/{0}/{1}/{2}/templates/synopsis-template.md";
-        private const string RepoUrl = "https://github.com/{0}/{1}/blob/{2}/synopsis/{2}.md";
+        private const string NewSynopsisUrl = "https://github.com/{0}/{1}/blob/{2}/synopsis/{2}.md";
         private const string NewFileName = "synopsis/{0}.md";
         private const string TopicMarker = "<!-- TOPIC -->";
         private const string NameMarker = "<!-- ENTER YOUR NAME HERE -->";
@@ -46,9 +46,9 @@ namespace MsGlossaryApp
             var client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
 
-            var accountName = Environment.GetEnvironmentVariable(GitHubAccountVariableName);
-            var repoName = Environment.GetEnvironmentVariable(GitHubRepoVariableName);
-            var mainBranchName = Environment.GetEnvironmentVariable(GitHubMainBranchName);
+            var accountName = Environment.GetEnvironmentVariable(MsGlossaryGitHubAccountVariableName);
+            var repoName = Environment.GetEnvironmentVariable(MsGlossaryGitHubRepoVariableName);
+            var mainBranchName = Environment.GetEnvironmentVariable(MsGlossaryGitHubMainBranchName);
             var token = Environment.GetEnvironmentVariable(GitHubTokenVariableName);
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
@@ -149,7 +149,7 @@ namespace MsGlossaryApp
                 log);
 
             newTopic.Ref = newHeadResult.Ref;
-            newTopic.Url = string.Format(RepoUrl, accountName, repoName, newTopic.SafeTopic);
+            newTopic.Url = string.Format(NewSynopsisUrl, accountName, repoName, newTopic.SafeTopic);
             var jsonResult = JsonConvert.SerializeObject(newTopic);
 
             log?.LogInformation($"newTopic.Ref: {newTopic.Ref}");
