@@ -32,6 +32,8 @@ namespace MsGlossaryApp
             //Microsoft.AspNetCore.Http.HttpRequest req,
             ILogger log)
         {
+            return;
+
             log.LogInformation($"UpdateHomePage function executed at: {DateTime.Now}");
             Exception error = null;
 
@@ -95,7 +97,7 @@ namespace MsGlossaryApp
                     + Environment.NewLine;
 
                 var token = Environment.GetEnvironmentVariable(GitHubTokenVariableName);
-                var helper = new GitHubHelper();
+                var helper = new GitHubHelper(null);
 
                 var list = new List<(string, string)>
                 {
@@ -105,6 +107,7 @@ namespace MsGlossaryApp
                 await helper.CommitFiles(
                     accountName,
                     repoName,
+                    branchName: "Tempo",
                     token,
                     CommitMessage,
                     list);

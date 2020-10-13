@@ -13,92 +13,57 @@ namespace MsGlossaryApp.Model.GitHub
     {
         private const string CommitUrl = "git/commits";
         private const string CreateTreeUrl = "git/trees";
-        private const string GetHeadUrl = "git/ref/heads/master";
+        private const string GetHeadUrl = "git/ref/heads/{0}";
         private const string GitHubApiBaseUrlMask = "https://api.github.com/repos/{0}/{1}/{2}";
-        private const string UpdateReferenceUrl = "git/refs/heads/master";
+        private const string UpdateReferenceUrl = "git/refs/heads/{0}";
         private const string UploadBlobUrl = "git/blobs";
+        private const string CreateNewBranchUrl = "git/refs";
 
         // See http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
 
-        public async Task<string> CommitFiles(
+        public GitHubHelper(HttpClient client)
+        {
+            _client = client;
+        }
+
+        private HttpClient _client;
+
+        public async Task<GetHeadResult> CommitFiles(
             string accountName,
             string repoName,
+            string branchName,
             string githubToken,
             string commitMessage,
             IList<(string path, string content)> fileNamesAndContent,
+            GetHeadResult existingBranchInfo = null,
             ILogger log = null)
         {
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
-
-            var url = string.Format(
-                GitHubApiBaseUrlMask,
-                accountName,
-                repoName,
-                GetHeadUrl);
-
-            log?.LogInformation($"repoName: {repoName}");
-            log?.LogInformation($"url: {url}");
-
-            var request = new HttpRequestMessage
+            if (existingBranchInfo == null)
             {
-                RequestUri = new Uri(url),
-                Method = HttpMethod.Get
-            };
+                existingBranchInfo = await GetHead(
+                    accountName,
+                    repoName,
+                    branchName,
+                    log);
 
-            var response = await client.SendAsync(request);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                try
+                if (!string.IsNullOrEmpty(existingBranchInfo.ErrorMessage))
                 {
-                    var errorMessage = $"Error getting heads: {await response.Content.ReadAsStringAsync()}";
-                    log?.LogInformation(errorMessage);
-                    return errorMessage;
-                }
-                catch (Exception ex)
-                {
-                    var errorMessage = $"Unknown error getting heads: {ex.Message}";
-                    log?.LogInformation(errorMessage);
-                    return errorMessage;
+                    return new GetHeadResult
+                    {
+                        ErrorMessage = existingBranchInfo.ErrorMessage
+                    };
                 }
             }
 
-            var jsonResult = await response.Content.ReadAsStringAsync();
-            var mainHead = JsonConvert.DeserializeObject<GetHeadResult>(jsonResult);
-            log?.LogInformation($"Found main head");
+            var mainCommit = await GetMainCommit(existingBranchInfo, log);
 
-            // Grab main commit
-
-            log?.LogInformation("Grabbing main commit");
-
-            request = new HttpRequestMessage
+            if (!string.IsNullOrEmpty(mainCommit.ErrorMessage))
             {
-                RequestUri = new Uri(mainHead.Object.Url),
-                Method = HttpMethod.Get
-            };
-
-            response = await client.SendAsync(request);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                try
+                return new GetHeadResult
                 {
-                    var errorMessage = $"Error getting commit: {await response.Content.ReadAsStringAsync()}";
-                    log?.LogInformation(errorMessage);
-                    return errorMessage;
-                }
-                catch (Exception ex)
-                {
-                    var errorMessage = $"Unknown error getting commit: {ex.Message}";
-                    log?.LogInformation(errorMessage);
-                    return errorMessage;
-                }
+                    ErrorMessage = mainCommit.ErrorMessage
+                };
             }
-
-            jsonResult = await response.Content.ReadAsStringAsync();
-            var masterCommitResult = JsonConvert.DeserializeObject<CommitResult>(jsonResult);
-            log?.LogInformation($"Done grabbing master commit {masterCommitResult.Sha}");
 
             // Post new file(s) to GitHub blob
 
@@ -115,41 +80,47 @@ namespace MsGlossaryApp.Model.GitHub
 
                 jsonRequest = JsonConvert.SerializeObject(uploadInfo);
 
-                url = string.Format(
+                var uploadBlobUrl = string.Format(
                     GitHubApiBaseUrlMask,
                     accountName,
                     repoName,
                     UploadBlobUrl);
 
-                request = new HttpRequestMessage
+                var uploadBlobRequest = new HttpRequestMessage
                 {
-                    RequestUri = new Uri(url),
+                    RequestUri = new Uri(uploadBlobUrl),
                     Method = HttpMethod.Post,
                     Content = new StringContent(jsonRequest)
                 };
 
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
+                uploadBlobRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
 
-                response = await client.SendAsync(request);
+                var uploadBlobResponse = await _client.SendAsync(uploadBlobRequest);
 
-                if (response.StatusCode != HttpStatusCode.Created)
+                if (uploadBlobResponse.StatusCode != HttpStatusCode.Created)
                 {
                     try
                     {
-                        var errorMessage = $"Error uploading blob: {await response.Content.ReadAsStringAsync()}";
+                        var errorMessage = $"Error uploading blob: {await uploadBlobResponse.Content.ReadAsStringAsync()}";
                         log?.LogInformation(errorMessage);
-                        return errorMessage;
+                        return new GetHeadResult
+                        {
+                            ErrorMessage = errorMessage
+                        };
                     }
                     catch (Exception ex)
                     {
                         var errorMessage = $"Unknown error uploading blob: {ex.Message}";
                         log?.LogInformation(errorMessage);
-                        return errorMessage;
+                        return new GetHeadResult
+                        {
+                            ErrorMessage = errorMessage
+                        };
                     }
                 }
 
-                jsonResult = await response.Content.ReadAsStringAsync();
-                var uploadBlobResult = JsonConvert.DeserializeObject<ShaInfo>(jsonResult);
+                var uploadBlobJsonResult = await uploadBlobResponse.Content.ReadAsStringAsync();
+                var uploadBlobResult = JsonConvert.DeserializeObject<ShaInfo>(uploadBlobJsonResult);
                 log?.LogInformation($"Done posting to GitHub blob {uploadBlobResult.Sha}");
 
                 var info = new TreeInfo(file.path, uploadBlobResult.Sha);
@@ -161,20 +132,20 @@ namespace MsGlossaryApp.Model.GitHub
             log?.LogInformation("Creating the tree");
             var newTreeInfo = new CreateTreeInfo()
             {
-                BaseTree = masterCommitResult.Tree.Sha,
+                BaseTree = mainCommit.Tree.Sha,
             };
 
             newTreeInfo.AddTreeInfos(treeInfos);
 
             jsonRequest = JsonConvert.SerializeObject(newTreeInfo);
 
-            url = string.Format(
+            var url = string.Format(
                 GitHubApiBaseUrlMask,
                 accountName,
                 repoName,
                 CreateTreeUrl);
 
-            request = new HttpRequestMessage
+            var request = new HttpRequestMessage
             {
                 RequestUri = new Uri(url),
                 Method = HttpMethod.Post,
@@ -183,7 +154,7 @@ namespace MsGlossaryApp.Model.GitHub
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
 
-            response = await client.SendAsync(request);
+            var response = await _client.SendAsync(request);
 
             if (response.StatusCode != HttpStatusCode.Created)
             {
@@ -191,17 +162,23 @@ namespace MsGlossaryApp.Model.GitHub
                 {
                     var message = $"Error creating tree: {await response.Content.ReadAsStringAsync()}";
                     log?.LogInformation(message);
-                    return message;
+                    return new GetHeadResult
+                    {
+                        ErrorMessage = message
+                    };
                 }
                 catch (Exception ex)
                 {
                     var message = $"Unknown error creating tree: {ex.Message}";
                     log?.LogInformation(message);
-                    return message;
+                    return new GetHeadResult
+                    {
+                        ErrorMessage = message
+                    };
                 }
             }
 
-            jsonResult = await response.Content.ReadAsStringAsync();
+            var jsonResult = await response.Content.ReadAsStringAsync();
             var createTreeResult = JsonConvert.DeserializeObject<ShaInfo>(jsonResult);
             log?.LogInformation($"Done creating the tree {createTreeResult.Sha}");
 
@@ -210,7 +187,7 @@ namespace MsGlossaryApp.Model.GitHub
             log?.LogInformation("Creating the commit");
             var commitInfo = new CommitInfo(
                 commitMessage,
-                masterCommitResult.Sha,
+                mainCommit.Sha,
                 createTreeResult.Sha);
 
             jsonRequest = JsonConvert.SerializeObject(commitInfo);
@@ -230,7 +207,7 @@ namespace MsGlossaryApp.Model.GitHub
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
 
-            response = await client.SendAsync(request);
+            response = await _client.SendAsync(request);
 
             if (response.StatusCode != HttpStatusCode.Created)
             {
@@ -238,13 +215,19 @@ namespace MsGlossaryApp.Model.GitHub
                 {
                     var message = $"Error creating commit: {await response.Content.ReadAsStringAsync()}";
                     log?.LogInformation(message);
-                    return message;
+                    return new GetHeadResult
+                    {
+                        ErrorMessage = message
+                    };
                 }
                 catch (Exception ex)
                 {
                     var message = $"Unknown error creating commit: {ex.Message}";
                     log?.LogInformation(message);
-                    return message;
+                    return new GetHeadResult
+                    {
+                        ErrorMessage = message
+                    };
                 }
             }
 
@@ -263,7 +246,7 @@ namespace MsGlossaryApp.Model.GitHub
                 GitHubApiBaseUrlMask,
                 accountName,
                 repoName,
-                UpdateReferenceUrl);
+                string.Format(UpdateReferenceUrl, branchName));
 
             request = new HttpRequestMessage
             {
@@ -274,7 +257,7 @@ namespace MsGlossaryApp.Model.GitHub
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
 
-            response = await client.SendAsync(request);
+            response = await _client.SendAsync(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -282,13 +265,19 @@ namespace MsGlossaryApp.Model.GitHub
                 {
                     var message = $"Error updating reference: {await response.Content.ReadAsStringAsync()}";
                     log?.LogInformation(message);
-                    return message;
+                    return new GetHeadResult
+                    {
+                        ErrorMessage = message
+                    };
                 }
                 catch (Exception ex)
                 {
                     var message = $"Unknown error updating reference: {ex.Message}";
                     log?.LogInformation(message);
-                    return message;
+                    return new GetHeadResult
+                    {
+                        ErrorMessage = message
+                    };
                 }
             }
 
@@ -297,7 +286,150 @@ namespace MsGlossaryApp.Model.GitHub
             log?.LogInformation("Done updating the reference");
             log?.LogInformation($"Ref: {headResult.Ref}");
 
-            return string.Empty;
+            return headResult;
+        }
+
+        public async Task<CommitResult> GetMainCommit(
+            GetHeadResult branchHead,
+            ILogger log = null)
+        {
+            // Grab main commit
+
+            log?.LogInformation("Grabbing main commit");
+
+            var request = new HttpRequestMessage
+            {
+                RequestUri = new Uri(branchHead.Object.Url),
+                Method = HttpMethod.Get
+            };
+
+            var response = await _client.SendAsync(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                try
+                {
+                    var errorMessage = $"Error getting commit: {await response.Content.ReadAsStringAsync()}";
+                    log?.LogInformation(errorMessage);
+                    return new CommitResult
+                    {
+                        ErrorMessage = errorMessage
+                    };
+                }
+                catch (Exception ex)
+                {
+                    var errorMessage = $"Unknown error getting commit: {ex.Message}";
+                    log?.LogInformation(errorMessage);
+                    return new CommitResult
+                    {
+                        ErrorMessage = errorMessage
+                    };
+                }
+            }
+
+            var jsonResult = await response.Content.ReadAsStringAsync();
+            var masterCommitResult = JsonConvert.DeserializeObject<CommitResult>(jsonResult);
+            log?.LogInformation($"Done grabbing master commit {masterCommitResult.Sha}");
+            return masterCommitResult;
+        }
+
+        public async Task<GetHeadResult> GetHead(
+            string accountName,
+            string repoName,
+            string branchName,
+            ILogger log = null)
+        {
+            var url = string.Format(
+                GitHubApiBaseUrlMask,
+                accountName,
+                repoName,
+                string.Format(GetHeadUrl, branchName));
+
+            log?.LogInformation($"repoName: {repoName}");
+            log?.LogInformation($"url: {url}");
+
+            var request = new HttpRequestMessage
+            {
+                RequestUri = new Uri(url),
+                Method = HttpMethod.Get
+            };
+
+            var response = await _client.SendAsync(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                try
+                {
+                    var errorMessage = $"Error getting head for {branchName}: {await response.Content.ReadAsStringAsync()}";
+                    log?.LogInformation(errorMessage);
+                    return new GetHeadResult
+                    {
+                        ErrorMessage = errorMessage
+                    };
+                }
+                catch (Exception ex)
+                {
+                    var errorMessage = $"Unknown error getting head for {branchName}: {ex.Message}";
+                    log?.LogInformation(errorMessage);
+                    return new GetHeadResult
+                    {
+                        ErrorMessage = errorMessage
+                    };
+                }
+            }
+
+            var jsonResult = await response.Content.ReadAsStringAsync();
+            var mainHead = JsonConvert.DeserializeObject<GetHeadResult>(jsonResult);
+            log?.LogInformation($"Found head for {branchName}");
+
+            return mainHead;
+        }
+
+        public async Task<GetHeadResult> CreateNewBranch(
+            string accountName,
+            string repoName,
+            string token,
+            GetHeadResult mainHead,
+            string newBranchName = null,
+            ILogger log = null)
+        {
+            log?.LogInformation("Creating new branch");
+
+            var newBranchRequestBody = new NewBranchInfo
+            {
+                Sha = mainHead.Object.Sha,
+                Ref = string.Format(NewBranchInfo.RefMask, newBranchName)
+            };
+
+            var jsonRequest = JsonConvert.SerializeObject(newBranchRequestBody);
+
+            var url = string.Format(GitHubApiBaseUrlMask, accountName, repoName, CreateNewBranchUrl);
+            var request = new HttpRequestMessage
+            {
+                RequestUri = new Uri(url),
+                Method = HttpMethod.Post,
+                Content = new StringContent(jsonRequest)
+            };
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _client.SendAsync(request);
+
+            if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
+            {
+                var errorResultJson = await response.Content.ReadAsStringAsync();
+                var errorResult = JsonConvert.DeserializeObject<ErrorResult>(errorResultJson);
+                log?.LogInformation($"Error when creating new branch: {newBranchName} / {errorResult.Message}");
+                return new GetHeadResult
+                {
+                    ErrorMessage = $"Error when creating new branch: {newBranchName} / {errorResult.Message}"
+                };
+            }
+
+            var jsonResult = await response.Content.ReadAsStringAsync();
+            var createNewBranchResult = JsonConvert.DeserializeObject<GetHeadResult>(jsonResult);
+            log?.LogInformation($"Done creating new branch {createNewBranchResult.Object.Sha}");
+            return createNewBranchResult;
         }
     }
 }

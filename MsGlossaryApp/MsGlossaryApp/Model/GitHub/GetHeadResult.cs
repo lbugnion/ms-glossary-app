@@ -4,6 +4,12 @@ namespace MsGlossaryApp.Model.GitHub
 {
     public class GetHeadResult
     {
+        public string ErrorMessage
+        {
+            get;
+            set;
+        }
+
         [JsonProperty("object")]
         public GetHeadsResultObject Object
         {
