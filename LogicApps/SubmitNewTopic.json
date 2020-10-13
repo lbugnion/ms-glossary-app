@@ -11,7 +11,7 @@
                     "topic": "@{variables('Topic')}"
                 },
                 "runAfter": {
-                    "Initialize_variable_5": [
+                    "Initialize_variable_4": [
                         "Succeeded"
                     ]
                 },
@@ -37,10 +37,10 @@
                 "inputs": {
                     "body": "@outputs('Compose')",
                     "headers": {
-                        "x-functions-key": "B4wlbiHVQeVo4M844ucVKQIQzVUtUzPRmwlp8FWF5tBla0Bbekm2Sg=="
+                        "x-functions-key": "OTQgPYaBCra07bwwQT4TtoTa6hP26oWm1jHoCJg2UiJjV8RRWoOMIw=="
                     },
                     "method": "POST",
-                    "uri": "https://wordsofthedayapp.azurewebsites.net/api/add-new"
+                    "uri": "https://msglossary-app-staging.azurewebsites.net/api/add-new"
                 },
                 "runAfter": {
                     "Compose": [
@@ -53,7 +53,7 @@
                 "inputs": {
                     "body": {
                         "body": "A new topic was submitted by @{body('Get_response_details')?['responder']}: @{body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']}",
-                        "channel": "WordsOfTheDay",
+                        "channel": "MSGlossary",
                         "title": "New topic submitted"
                     },
                     "headers": {
@@ -63,7 +63,7 @@
                     "uri": "https://notificationsendpoint.azurewebsites.net/api/send"
                 },
                 "runAfter": {
-                    "Send_an_email_(V2)_3": [
+                    "Send_an_email_(V2)": [
                         "Succeeded"
                     ]
                 },
@@ -73,7 +73,7 @@
                 "inputs": {
                     "body": {
                         "body": "An error happened on new topic submitted by @{body('Get_response_details')?['responder']}: @{body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']}",
-                        "channel": "WordsOfTheDay",
+                        "channel": "MSGlossary",
                         "title": "Error with new topic"
                     },
                     "headers": {
@@ -83,7 +83,7 @@
                     "uri": "https://notificationsendpoint.azurewebsites.net/api/send"
                 },
                 "runAfter": {
-                    "Send_an_email_(V2)": [
+                    "Send_an_email_(V2)_2": [
                         "Succeeded"
                     ]
                 },
@@ -106,7 +106,7 @@
                 },
                 "type": "InitializeVariable"
             },
-            "Initialize_variable_3": {
+            "Initialize_variable_2": {
                 "inputs": {
                     "variables": [
                         {
@@ -123,7 +123,7 @@
                 },
                 "type": "InitializeVariable"
             },
-            "Initialize_variable_4": {
+            "Initialize_variable_3": {
                 "inputs": {
                     "variables": [
                         {
@@ -134,13 +134,13 @@
                     ]
                 },
                 "runAfter": {
-                    "Initialize_variable_3": [
+                    "Initialize_variable_2": [
                         "Succeeded"
                     ]
                 },
                 "type": "InitializeVariable"
             },
-            "Initialize_variable_5": {
+            "Initialize_variable_4": {
                 "inputs": {
                     "variables": [
                         {
@@ -151,13 +151,13 @@
                     ]
                 },
                 "runAfter": {
-                    "Initialize_variable_4": [
+                    "Initialize_variable_3": [
                         "Succeeded"
                     ]
                 },
                 "type": "InitializeVariable"
             },
-            "Parse_JSON_2": {
+            "Parse_JSON": {
                 "inputs": {
                     "content": "@body('HTTP')",
                     "schema": {
@@ -200,8 +200,30 @@
             "Send_an_email_(V2)": {
                 "inputs": {
                     "body": {
-                        "Body": "<p>Thank you for submitting a new topic to Words of tjhe Day. There was a small problem with your submission but don't worry, your input is saved!<br>\n<br>\nWe will contact you after we check what the issue was, so we can resolve it together.<br>\n<br>\nTake care!<br>\nLaurent</p>",
-                        "Subject": "PLEASE NOTE: Issue with your Words of the Day submission",
+                        "Body": "<p>Thank you for submitting a new topic to the Microsoft Glossary. We need your action now:<br>\n<br>\nThe new topic you submitted is available here:<br>\n@{body('Parse_JSON')?['url']}<br>\n<br>\n<a href=\"https://github.com/lbugnion/ms-glossary/blob/main/instructions/contributing-synopsis.md\">The instructions to proceed with the submission are available here</a> .<br>\n<br>\nIn case of doubt, please reply to this email and I will assist you.<br>\n<br>\nThanks again!!<br>\nLaurent<br>\n<br>\nYour submission:<br>\n<br>\nName: @{body('Get_response_details')?['r67076393da1440d49a0e20d12516d1a9']}<br>\nTwitter: @{body('Get_response_details')?['r3a51f04a2587472c903688778835bffe']}<br>\nTopic: @{body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']}<br>\nDescription: @{body('Get_response_details')?['r46ea1f89309e4a2185e25fee32497f12']}<br>\nSubmitted at: @{body('Get_response_details')?['submitDate']}</p>",
+                        "Subject": "ACTION NEEDED: Thanks for submitting to the Microsoft Glossary",
+                        "To": "@{body('Get_response_details')?['responder']}; lbugnion@microsoft.com"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['office365']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/v2/Mail"
+                },
+                "runAfter": {
+                    "Parse_JSON": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Send_an_email_(V2)_2": {
+                "inputs": {
+                    "body": {
+                        "Body": "<p>Thank you for submitting a new topic to the Microsoft Glossary. There was a small problem with your submission but don't worry, your input is saved!<br>\n<br>\nWe will contact you after we check what the issue was, so we can resolve it together.<br>\n<br>\nTake care!<br>\nLaurent</p>",
+                        "Subject": "PLEASE NOTE: Issue with your Microsoft Glossary submission",
                         "To": "@body('Get_response_details')?['responder']"
                     },
                     "host": {
@@ -217,28 +239,6 @@
                         "Failed",
                         "Skipped",
                         "TimedOut"
-                    ]
-                },
-                "type": "ApiConnection"
-            },
-            "Send_an_email_(V2)_3": {
-                "inputs": {
-                    "body": {
-                        "Body": "<p>Thank you for submitting a new topic to Words of the Day. We need your action now:<br>\n<br>\nThe new topic you submitted is available here:<br>\n@{body('Parse_JSON_2')?['url']}<br>\n<br>\n<a href=\"https://github.com/lbugnion/wordsoftheday-md/blob/master/instructions/contributing-synopsis.md\">The instructions to proceed with the submission are available here</a> .<br>\n<br>\nIn case of doubt, please reply to this email and I will assist &nbsp;&nbsp;you.<br>\n<br>\nThanks again!!<br>\nLaurent<br>\n<br>\nYour submission:<br>\n<br>\nName: @{body('Get_response_details')?['r67076393da1440d49a0e20d12516d1a9']}<br>\nTwitter: @{body('Get_response_details')?['r3a51f04a2587472c903688778835bffe']}<br>\nTopic: @{body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']}<br>\nDescription: @{body('Get_response_details')?['r46ea1f89309e4a2185e25fee32497f12']}<br>\nSubmitted at: @{body('Get_response_details')?['submitDate']}</p>",
-                        "Subject": "ACTION NEEDED: Thanks for submitting to Words of the Day",
-                        "To": "@body('Get_response_details')?['responder']"
-                    },
-                    "host": {
-                        "connection": {
-                            "name": "@parameters('$connections')['office365']['connectionId']"
-                        }
-                    },
-                    "method": "post",
-                    "path": "/v2/Mail"
-                },
-                "runAfter": {
-                    "Parse_JSON_2": [
-                        "Succeeded"
                     ]
                 },
                 "type": "ApiConnection"
@@ -276,12 +276,12 @@
         "$connections": {
             "value": {
                 "microsoftforms": {
-                    "connectionId": "/subscriptions/6e69cf24-0859-4dec-84e2-695e2618e473/resourceGroups/wordsoftheday/providers/Microsoft.Web/connections/microsoftforms",
+                    "connectionId": "/subscriptions/6e69cf24-0859-4dec-84e2-695e2618e473/resourceGroups/msglossary/providers/Microsoft.Web/connections/microsoftforms",
                     "connectionName": "microsoftforms",
                     "id": "/subscriptions/6e69cf24-0859-4dec-84e2-695e2618e473/providers/Microsoft.Web/locations/westeurope/managedApis/microsoftforms"
                 },
                 "office365": {
-                    "connectionId": "/subscriptions/6e69cf24-0859-4dec-84e2-695e2618e473/resourceGroups/wordsoftheday/providers/Microsoft.Web/connections/office365",
+                    "connectionId": "/subscriptions/6e69cf24-0859-4dec-84e2-695e2618e473/resourceGroups/msglossary/providers/Microsoft.Web/connections/office365",
                     "connectionName": "office365",
                     "id": "/subscriptions/6e69cf24-0859-4dec-84e2-695e2618e473/providers/Microsoft.Web/locations/westeurope/managedApis/office365"
                 }
