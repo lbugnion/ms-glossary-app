@@ -46,6 +46,13 @@ namespace MsGlossaryApp.Model
             set;
         }
 
+        [JsonProperty("submittergithub")]
+        public string SubmitterGithub
+        {
+            get;
+            set;
+        }
+
         [JsonProperty("topic")]
         public string Topic
         {

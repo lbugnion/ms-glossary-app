@@ -12,3 +12,6 @@ POST http://localhost:7071/api/add-new
 
 ### Update Homepage local
 http://localhost:7071/api/UpdateHomePage
+
+### Update Docs local
+http://localhost:7071/api/UpdateDocs_HttpStart

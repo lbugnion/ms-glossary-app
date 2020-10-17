@@ -33,6 +33,8 @@ namespace MsGlossaryApp
             //Microsoft.AspNetCore.Http.HttpRequest req,
             ILogger log)
         {
+            return;
+
             log.LogInformation($"UpdateHomePage function executed at: {DateTime.Now}");
             Exception error = null;
 
