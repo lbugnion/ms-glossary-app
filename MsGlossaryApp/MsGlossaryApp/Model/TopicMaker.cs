@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace MsGlossaryApp.Model
@@ -21,6 +22,8 @@ namespace MsGlossaryApp.Model
         private const string TwitterMarker = "> Twitter: ";
         private const string GitHubMarker = "> GitHub: ";
         private const string RecordingDateMarker = "> Recording date: ";
+        private const string TranscriptMarker = "## Transcript";
+        private const string LinksMarker = "## Links";
 
         public static async Task<IList<KeywordInformation>> SortKeywords(
             IList<TopicInformation> allTopics,
@@ -64,6 +67,7 @@ namespace MsGlossaryApp.Model
         //private const string LastChangeDateTimeFormat = "dd MMM yyyy HH:mm";
         private const string EmailMarker = "> Email: ";
         private const string AuthorNameMarker = "> Author name: ";
+        private const string H3 = "### ";
 
         public static async Task<TopicInformation> CreateTopic(Uri uri, ILogger log)
         {
@@ -82,7 +86,6 @@ namespace MsGlossaryApp.Model
             string oldMarkdown = await topicBlob.DownloadTextAsync();
             var markdownReader = new StringReader(oldMarkdown);
 
-            var done = false;
             string youTubeCode = null;
             string keywordsLine = null;
             string topicTitle = null;
@@ -94,33 +97,52 @@ namespace MsGlossaryApp.Model
             string twitter = null;
             string github = null;
             DateTime recordingDate = DateTime.MinValue;
+            var isTranscript = false;
+            var isLinks = false;
+            var transcript = new StringBuilder();
+            var links = new Dictionary<string, IList<string>>();
+            IList<string> currentLinksSection = null;
+            string line;
 
-            while (!done)
+            while ((line = markdownReader.ReadLine()) != null)
             {
-                var line = markdownReader.ReadLine();
-
-                if (line == null)
+                if (line.StartsWith(TranscriptMarker))
                 {
-                    log?.LogError($"Invalid markdown file: {topic.TopicName}");
-                    await NotificationService.Notify(
-                        "ERROR in TopicMaker",
-                        $"Invalid markdown file: {topic.TopicName}",
-                        log);
-                    return null;
+                    isLinks = false;
+                    isTranscript = true;
+                    continue;
                 }
+                else if (line.StartsWith(LinksMarker))
+                {
+                    isLinks = true;
+                    isTranscript = false;
+                    continue;
+                }
+                else if (isTranscript)
+                {
+                    transcript.AppendLine(line);
+                }
+                else if (isLinks)
+                {
+                    if (string.IsNullOrEmpty(line.Trim()))
+                    {
+                        continue;
+                    }
 
-                if (line.StartsWith(H1))
+                    if (line.StartsWith(H3))
+                    {
+                        currentLinksSection = new List<string>();
+                        links.Add(line.Substring(H3.Length).Trim(), currentLinksSection);
+                        continue;
+                    }
+
+                    currentLinksSection.Add(line);
+                }
+                else if (line.StartsWith(H1))
                 {
                     topicTitle = line
                         .Substring(H1.Length)
-                        .Substring(1);
-
-                    topicTitle = topicTitle
-                        .Substring(0, topicTitle.IndexOf(']'))
                         .Trim();
-
-                    oldMarkdown = oldMarkdown.Substring(oldMarkdown.IndexOf(H1));
-                    done = true;
                 }
                 else if (line.StartsWith(YouTubeMarker))
                 {
@@ -176,6 +198,8 @@ namespace MsGlossaryApp.Model
             }
 
             topic.Title = topicTitle;
+            topic.Transcript = transcript.ToString().Trim();
+            topic.Links = links;
             topic.RecordingDate = recordingDate;
             topic.YouTubeCode = youTubeCode;
             topic.Blurb = blurb;

@@ -25,6 +25,10 @@ namespace MsGlossaryApp.Model
 
         public DateTime RecordingDate { get; set; }
 
+        public string Transcript { get; set; }
+
+        public Dictionary<string, IList<string>> Links { get; set; }
+
         public override string ToString()
         {
             return Title;
