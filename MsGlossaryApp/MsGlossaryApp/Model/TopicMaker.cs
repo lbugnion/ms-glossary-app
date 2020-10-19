@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MsGlossaryApp.Model
@@ -22,16 +21,47 @@ namespace MsGlossaryApp.Model
         private const string TwitterMarker = "> Twitter: ";
         private const string GitHubMarker = "> GitHub: ";
         private const string RecordingDateMarker = "> Recording date: ";
-        private const string LanguagesTitleMarker = "<!-- LANGUAGESTITLE -->";
-        private const string YouTubeEmbed = "> [!VIDEO https://www.youtube.com/embed/{0}]";
-        private const string DownloadLinkTemplate = "https://msglossarystory.blob.core.windows.net/videos/{0}.{1}.mp4";
-        private const string VideoDownloadLinkMarker = "LINK";
-        private const string DownloadTarget = "<a id=\"download\"></a>";
-        private const string YouTubeEmbedMarker = "<!-- YOUTUBEEMBED -->";
-        private const string DownloadMarker = "<!-- DOWNLOAD -->";
-        private const string DownloadCaptionsMarker = "<!-- DOWNLOAD-CAPTIONS -->";
-        private const string TwitterLinkMask = "http://twitter.com/{0}";
-        private const string LastChangeDateTimeFormat = "dd MMM yyyy HH:mm";
+
+        public static async Task<IList<KeywordInformation>> SortKeywords(
+            IList<TopicInformation> allTopics,
+            TopicInformation currentTopic,
+            ILogger log = null)
+        {
+            var result = new List<KeywordInformation>();
+
+            foreach (var keyword in currentTopic.Keywords)
+            {
+                var newKeyword = new KeywordInformation
+                {
+                    Keyword = keyword,
+                    Topic = currentTopic
+                };
+
+                var sameKeywords = allTopics
+                    .SelectMany(t => t.Keywords)
+                    .Where(k => k.ToLower() == keyword.ToLower());
+
+                if (sameKeywords.Count() > 1)
+                {
+                    newKeyword.MustDisambiguate = true;
+                }
+
+                result.Add(newKeyword);
+            }
+
+            return result;
+        }
+
+        //private const string LanguagesTitleMarker = "<!-- LANGUAGESTITLE -->";
+        //private const string YouTubeEmbed = "> [!VIDEO https://www.youtube.com/embed/{0}]";
+        //private const string DownloadLinkTemplate = "https://msglossarystory.blob.core.windows.net/videos/{0}.{1}.mp4";
+        //private const string VideoDownloadLinkMarker = "LINK";
+        //private const string DownloadTarget = "<a id=\"download\"></a>";
+        //private const string YouTubeEmbedMarker = "<!-- YOUTUBEEMBED -->";
+        //private const string DownloadMarker = "<!-- DOWNLOAD -->";
+        //private const string DownloadCaptionsMarker = "<!-- DOWNLOAD-CAPTIONS -->";
+        //private const string TwitterLinkMask = "http://twitter.com/{0}";
+        //private const string LastChangeDateTimeFormat = "dd MMM yyyy HH:mm";
         private const string EmailMarker = "> Email: ";
         private const string AuthorNameMarker = "> Author name: ";
 
@@ -152,6 +182,12 @@ namespace MsGlossaryApp.Model
             topic.Authors = MakeAuthors(authorName, email, github, twitter);
             topic.Captions = MakeLanguages(captions);
             topic.Language = MakeLanguages(language).First();
+            topic.Keywords = keywordsLine.Split(new char[]
+            {
+                ','
+            }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(k => k.Trim())
+            .ToList();
 
             // Prepare replacements
 

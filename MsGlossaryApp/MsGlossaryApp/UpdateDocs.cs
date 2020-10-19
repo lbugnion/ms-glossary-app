@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -34,13 +35,34 @@ namespace MsGlossaryApp
 
             var allTopics = await Task.WhenAll(allTopicsTasks);
 
+            var allKeywordsTasks = new List<Task<IList<KeywordInformation>>>();
+
+            foreach (var topic in allTopics)
+            {
+                allKeywordsTasks.Add(context.CallActivityAsync<IList<KeywordInformation>>(
+                    nameof(SortKeywords),
+                    (allTopics, topic)));
+            }
+
+            var allKeywords = (await Task.WhenAll(allKeywordsTasks))
+                .SelectMany(i => i);
+
+        }
+
+        [FunctionName(nameof(SortKeywords))]
+        public static async Task<IList<KeywordInformation>> SortKeywords(
+            [ActivityTrigger]
+            (IList<TopicInformation> allTopics, TopicInformation currentTopic) input,
+            ILogger log = null)
+        {
+            return await TopicMaker.SortKeywords(input.allTopics, input.currentTopic, log);
         }
 
         [FunctionName(nameof(UpdateDocsParseTopic))]
         public static async Task<TopicInformation> UpdateDocsParseTopic(
             [ActivityTrigger]
             Uri topicUri,
-            ILogger log)
+            ILogger log = null)
         {
             TopicInformation topic = null;
 
@@ -59,7 +81,7 @@ namespace MsGlossaryApp
         [FunctionName(nameof(UpdateDocsGetAllTopics))]
         public static async Task<List<string>> UpdateDocsGetAllTopics(
             [ActivityTrigger]
-            ILogger log)
+            ILogger log = null)
         {
             var account = CloudStorageAccount.Parse(
                 Environment.GetEnvironmentVariable(
@@ -97,7 +119,7 @@ namespace MsGlossaryApp
             HttpRequestMessage req,
             [DurableClient] 
             IDurableOrchestrationClient starter,
-            ILogger log)
+            ILogger log = null)
         {
             await NotificationService.Notify(
                 "Trigger received",

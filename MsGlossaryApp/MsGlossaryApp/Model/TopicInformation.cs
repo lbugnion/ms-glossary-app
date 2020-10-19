@@ -9,7 +9,7 @@ namespace MsGlossaryApp.Model
 
         public IList<LanguageInfo> Captions { get; set; }
 
-        public IList<KeywordPair> Keywords { get; set; }
+        public IList<string> Keywords { get; set; }
 
         public LanguageInfo Language { get; set; }
 
@@ -24,5 +24,10 @@ namespace MsGlossaryApp.Model
         public IList<AuthorInformation> Authors { get; set; }
 
         public DateTime RecordingDate { get; set; }
+
+        public override string ToString()
+        {
+            return Title;
+        }
     }
 }
