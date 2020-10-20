@@ -29,6 +29,8 @@ namespace MsGlossaryApp.Model
 
         public Dictionary<string, IList<string>> Links { get; set; }
 
+        public bool MustSave { get; internal set; }
+
         public override string ToString()
         {
             return Title;

@@ -49,7 +49,24 @@ namespace MsGlossaryApp.Model
                     newKeyword.MustDisambiguate = true;
                 }
 
+                if (newKeyword.Keyword.ToLower() == currentTopic.TopicName.ToLower())
+                {
+                    newKeyword.IsMainKeyword = true;
+                }
+
                 result.Add(newKeyword);
+            }
+
+            if (!result.Any(k => k.IsMainKeyword))
+            {
+                var mainKeyword = new KeywordInformation
+                {
+                    IsMainKeyword = true,
+                    Keyword = currentTopic.TopicName,
+                    Topic = currentTopic
+                };
+
+                result.Add(mainKeyword);
             }
 
             return result;

@@ -19,5 +19,11 @@
             get;
             set;
         }
+
+        public bool IsMainKeyword 
+        { 
+            get; 
+            set; 
+        }
     }
 }

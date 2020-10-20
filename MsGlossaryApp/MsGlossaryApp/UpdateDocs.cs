@@ -28,6 +28,8 @@ namespace MsGlossaryApp
 
             foreach (var topicUrl in allTopicsUrls)
             {
+                //var topicUrl = allTopicsUrls.First();
+
                 allTopicsTasks.Add(context.CallActivityAsync<TopicInformation>(
                     nameof(UpdateDocsParseTopic),
                     new Uri(topicUrl)));
@@ -47,6 +49,43 @@ namespace MsGlossaryApp
             var allKeywords = (await Task.WhenAll(allKeywordsTasks))
                 .SelectMany(i => i);
 
+            //var replaceTasks = new List<Task<TopicInformation>>();
+
+            //foreach (var topic in allTopics)
+            //{
+            //    var keywordsToReplace = allKeywords
+            //        .Where(k => k.Topic.Title != topic.Title)
+            //        .ToList();
+
+            //    if (keywordsToReplace.Count == 0)
+            //    {
+            //        continue;
+            //    }
+
+            //    replaceTasks.Add(context.CallActivityAsync<TopicInformation>(
+            //        nameof(ReplaceKeywords),
+            //        (allTopics, topic)));
+            //}
+        }
+
+        [FunctionName(nameof(ReplaceKeywords))]
+        public static async Task<TopicInformation> ReplaceKeywords(
+            [ActivityTrigger]
+            (List<KeywordInformation> keywordsToReplace, TopicInformation currentTopic) input,
+            ILogger log = null)
+        {
+            var newTranscript = await KeywordReplacer.Replace(
+                input.currentTopic.Transcript,
+                input.keywordsToReplace,
+                log);
+
+            if (newTranscript != input.currentTopic.Transcript)
+            {
+                input.currentTopic.Transcript = newTranscript;
+                input.currentTopic.MustSave = true;
+            }
+
+            return input.currentTopic;
         }
 
         [FunctionName(nameof(SortKeywords))]
