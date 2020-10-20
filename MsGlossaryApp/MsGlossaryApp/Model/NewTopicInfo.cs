@@ -32,6 +32,13 @@ namespace MsGlossaryApp.Model
             set;
         }
 
+        [JsonProperty("submittergithub")]
+        public string SubmitterGithub
+        {
+            get;
+            set;
+        }
+
         [JsonProperty("submittername")]
         public string SubmitterName
         {
@@ -41,13 +48,6 @@ namespace MsGlossaryApp.Model
 
         [JsonProperty("submittertwitter")]
         public string SubmitterTwitter
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty("submittergithub")]
-        public string SubmitterGithub
         {
             get;
             set;

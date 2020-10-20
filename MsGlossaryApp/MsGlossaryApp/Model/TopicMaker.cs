@@ -13,86 +13,96 @@ namespace MsGlossaryApp.Model
 {
     public static class TopicMaker
     {
-        public static async Task<IList<KeywordInformation>> SortKeywords(
-            IList<TopicInformation> allTopics,
-            TopicInformation currentTopic,
-            ILogger log = null)
+        private static IList<AuthorInformation> MakeAuthors(
+            string authorName,
+            string email,
+            string github,
+            string twitter)
         {
-            var result = new List<KeywordInformation>();
-
-            foreach (var keyword in currentTopic.Keywords)
+            var authorNames = authorName.Split(new char[]
             {
-                var newKeyword = new KeywordInformation
-                {
-                    Keyword = keyword,
-                    Topic = currentTopic
-                };
+                Constants.Separator
+            });
 
-                var sameKeywords = allTopics
-                    .SelectMany(t => t.Keywords)
-                    .Where(k => k.ToLower() == keyword.ToLower());
+            var emails = email.Split(new char[]
+            {
+                Constants.Separator
+            });
 
-                if (sameKeywords.Count() > 1)
-                {
-                    newKeyword.MustDisambiguate = true;
-                }
+            var githubs = github.Split(new char[]
+            {
+                Constants.Separator
+            });
 
-                if (newKeyword.Keyword.ToLower() == currentTopic.TopicName.ToLower())
-                {
-                    newKeyword.IsMainKeyword = true;
-                }
+            var twitters = twitter.Split(new char[]
+            {
+                Constants.Separator
+            });
 
-                result.Add(newKeyword);
+            if (authorNames.Length != emails.Length
+                || authorNames.Length != githubs.Length
+                || authorNames.Length != twitters.Length)
+            {
+                throw new InvalidOperationException("Invalid author, email github or twitter lists");
             }
 
-            if (!result.Any(k => k.IsMainKeyword))
-            {
-                var mainKeyword = new KeywordInformation
-                {
-                    IsMainKeyword = true,
-                    Keyword = currentTopic.TopicName,
-                    Topic = currentTopic
-                };
+            var result = new List<AuthorInformation>();
 
-                result.Add(mainKeyword);
+            for (var index = 0; index < authorNames.Length; index++)
+            {
+                var author = new AuthorInformation(
+                    authorNames[index].Trim(),
+                    emails[index].Trim(),
+                    githubs[index].Trim(),
+                    twitters[index].Trim());
+
+                result.Add(author);
             }
 
             return result;
         }
 
-        public static async Task<Exception> SaveKeyword(KeywordInformation keyword, ILogger log)
+        private static IList<LanguageInfo> MakeLanguages(string captions)
         {
-            try
+            if (string.IsNullOrEmpty(captions))
             {
-                string name = null;
-
-                if (keyword.IsMainKeyword)
-                {
-                    name = $"{keyword.Topic.TopicName.MakeSafeFileName()}-index.md";
-                }
-                else
-                {
-                    name = $"{keyword.Topic.TopicName.MakeSafeFileName()}-{keyword.Keyword.MakeSafeFileName()}.md";
-                }
-
-                string text = MakeTopicText(keyword);
-
-                var account = CloudStorageAccount.Parse(
-                    Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
-
-                var client = account.CreateCloudBlobClient();
-                var helper = new BlobHelper(client, log);
-                var targetContainer = helper.GetContainer(Constants.OutputContainerVariableName);
-                var targetBlob = targetContainer.GetBlockBlobReference(name);
-
-                await targetBlob.UploadTextAsync(text);
-            }
-            catch (Exception ex)
-            {
-                return ex;
+                return null;
             }
 
-            return null;
+            var languages = captions.Split(new char[]
+            {
+                ','
+            }, StringSplitOptions.RemoveEmptyEntries);
+
+            var result = new List<LanguageInfo>();
+
+            foreach (var language in languages)
+            {
+                var parts = language.Split(new char[]
+                {
+                    '/'
+                });
+
+                result.Add(new LanguageInfo
+                {
+                    Code = parts[0].Trim(),
+                    Language = parts[1].Trim()
+                });
+            }
+
+            return result;
+        }
+
+        private static string MakeTitleLink(KeywordInformation keyword)
+        {
+            if (keyword.IsMainKeyword)
+            {
+                return $"[{keyword.Topic.Title}](/glossary/topic/{keyword.Topic.TopicName})";
+            }
+            else
+            {
+                return $"[{keyword.Topic.Title}](/glossary/topic/{keyword.Topic.TopicName}/{keyword.Keyword.MakeSafeFileName()})";
+            }
         }
 
         private static string MakeTopicText(
@@ -193,29 +203,6 @@ namespace MsGlossaryApp.Model
 
             return builder.ToString();
         }
-
-        private static string MakeTitleLink(KeywordInformation keyword)
-        {
-            if (keyword.IsMainKeyword)
-            {
-                return $"[{keyword.Topic.Title}](/glossary/topic/{keyword.Topic.TopicName})";
-            }
-            else
-            {
-                return $"[{keyword.Topic.Title}](/glossary/topic/{keyword.Topic.TopicName}/{keyword.Keyword.MakeSafeFileName()})";
-            }
-        }
-
-        //private const string LanguagesTitleMarker = "<!-- LANGUAGESTITLE -->";
-        //private const string YouTubeEmbed = "> [!VIDEO https://www.youtube.com/embed/{0}]";
-        //private const string DownloadLinkTemplate = "https://msglossarystory.blob.core.windows.net/videos/{0}.{1}.mp4";
-        //private const string VideoDownloadLinkMarker = "LINK";
-        //private const string DownloadTarget = "<a id=\"download\"></a>";
-        //private const string YouTubeEmbedMarker = "<!-- YOUTUBEEMBED -->";
-        //private const string DownloadMarker = "<!-- DOWNLOAD -->";
-        //private const string DownloadCaptionsMarker = "<!-- DOWNLOAD-CAPTIONS -->";
-        //private const string TwitterLinkMask = "http://twitter.com/{0}";
-        //private const string LastChangeDateTimeFormat = "dd MMM yyyy HH:mm";
 
         public static async Task<TopicInformation> CreateTopic(Uri uri, ILogger log)
         {
@@ -358,297 +345,89 @@ namespace MsGlossaryApp.Model
             {
                 ','
             }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(k => k.Trim())
-            .ToList();
-
-            // Prepare replacements
-
-            //var youtubeEmbed = new StringBuilder();
-            //var download = new StringBuilder();
-            //var downloadCaptions = new StringBuilder();
-            //var languagesTitle = LanguagesTitleMarker;
-
-            //if (!string.IsNullOrEmpty(topic.YouTubeCode))
-            //{
-            //    youtubeEmbed
-            //        .AppendLine(string.Format(YouTubeEmbed, youTubeCode))
-            //        .AppendLine()
-            //        .AppendLine(TextHelper.GetText(topic.Language.Code, Constants.Texts.VideoDownload));
-
-            //    var videoUrl = string.Format(DownloadLinkTemplate, topic.TopicName, topic.Language.Code);
-            //    var videoDownloadLink = TextHelper.GetText(topic.Language.Code, Constants.Texts.VideoDownloadLink)
-            //        .Replace(VideoDownloadLinkMarker, videoUrl);
-
-            //    download
-            //        .AppendLine(DownloadTarget)
-            //        .AppendLine()
-            //        .AppendLine(TextHelper.GetText(topic.Language.Code, Constants.Texts.DownloadTitle))
-            //        .AppendLine()
-            //        .AppendLine(videoDownloadLink);
-            //}
-
-            //if (topic.Captions?.Count > 0)
-            //{
-            //    // TODO Captions
-
-            //    //languagesTitle = TextHelper.GetText(topic.Language.Code, Constants.Texts.LanguagesTitle);
-
-            //    //downloadCaptions
-            //    //    .AppendLine(TextHelper.GetText(topic.Language.Code, Constants.Texts.CaptionsDownloadTitle))
-            //    //    .AppendLine()
-            //    //    .AppendLine(topic.Captions)
-            //    //    .AppendLine()
-            //    //    .AppendLine(TextHelper.GetText(topic.Language.Code, Constants.Texts.CaptionsDownload));
-            //}
-
-            //var newMarkdown = new StringBuilder()
-            //    .AppendLine(TextHelper.GetText(topic.Language.Code, Constants.Texts.TopicHeader))
-            //    .AppendLine(oldMarkdown)
-            //    .Replace(
-            //        YouTubeEmbedMarker,
-            //        youtubeEmbed.ToString())
-            //    .Replace(
-            //        DownloadMarker,
-            //        download.ToString())
-            //    .Replace(
-            //        LanguagesTitleMarker,
-            //        languagesTitle)
-            //    .Replace(
-            //        DownloadCaptionsMarker,
-            //        downloadCaptions.ToString());
-
-
-
-            //// Process keywords first
-            //if (!string.IsNullOrEmpty(keywordsLine))
-            //{
-            //    var settingsContainer = helper.GetContainer(Constants.SettingsContainerVariableName);
-            //    var keywordsBlob = settingsContainer.GetBlockBlobReference(
-            //        string.Format(Constants.KeywordsBlob, topic.Language.Code));
-
-            //    string json = null;
-            //    Dictionary<char, List<KeywordPair>> keywordsDictionary;
-
-            //    var newKeywords = keywordsLine.Split(new char[]
-            //        {
-            //            ','
-            //        }, StringSplitOptions.RemoveEmptyEntries)
-            //        .Select(k => k.Trim())
-            //        .ToList();
-
-            //    var existingTitle = newKeywords.FirstOrDefault(k => k.ToLower() == topicTitle.ToLower());
-
-            //    if (!string.IsNullOrEmpty(existingTitle))
-            //    {
-            //        newKeywords.Remove(existingTitle);
-            //    }
-
-            //    var existingTopic = newKeywords.FirstOrDefault(k => k.ToLower() == topic.TopicName.ToLower());
-
-            //    if (!string.IsNullOrEmpty(existingTopic))
-            //    {
-            //        newKeywords.Remove(existingTopic);
-            //    }
-
-            //    if (await keywordsBlob.ExistsAsync())
-            //    {
-            //        json = await keywordsBlob.DownloadTextAsync();
-            //        keywordsDictionary = JsonConvert.DeserializeObject<Dictionary<char, List<KeywordPair>>>(json);
-
-            //        var duplicates = string.Empty;
-
-            //        var existingPairs = keywordsDictionary.Values
-            //            .SelectMany(pair => pair)
-            //            .Where(pair => pair.Topic.ToLower() == topic.TopicName.ToLower())
-            //            .ToList();
-
-            //        foreach (var existingPair in existingPairs)
-            //        {
-            //            var key = existingPair.Keyword.ToUpper()[0];
-
-            //            // Just making sure
-            //            if (keywordsDictionary.ContainsKey(key))
-            //            {
-            //                var keywordsList = keywordsDictionary[key];
-            //                if (keywordsList.Contains(existingPair))
-            //                {
-            //                    keywordsList.Remove(existingPair);
-            //                }
-
-            //                if (keywordsList.Count == 0)
-            //                {
-            //                    keywordsDictionary.Remove(key);
-            //                }
-            //            }
-            //        }
-            //    }
-            //    else
-            //    {
-            //        keywordsDictionary = new Dictionary<char, List<KeywordPair>>();
-            //    }
-
-            //    void AddToKeywordsList(KeywordPair pair)
-            //    {
-            //        var letter = pair.Keyword.ToUpper()[0];
-
-            //        List<KeywordPair> keywordsList;
-            //        if (keywordsDictionary.ContainsKey(letter))
-            //        {
-            //            keywordsList = keywordsDictionary[letter];
-            //        }
-            //        else
-            //        {
-            //            keywordsList = new List<KeywordPair>();
-            //            keywordsDictionary.Add(letter, keywordsList);
-            //        }
-
-            //        keywordsList.Add(pair);
-            //    }
-
-            //    topic.Keywords = new List<KeywordPair>();
-
-            //    foreach (var newKeyword in newKeywords)
-            //    {
-            //        var ambiguousPairs = keywordsDictionary.Values
-            //            .SelectMany(pair => pair)
-            //            .Where(pair => pair.Keyword.ToLower() == newKeyword.ToLower())
-            //            .ToList();
-
-            //        var pair = new KeywordPair(
-            //            topic.Language.Code,
-            //            topic.Title,
-            //            topic.TopicName,
-            //            newKeyword.MakeSafeFileName(),
-            //            newKeyword,
-            //            blurb);
-
-            //        KeywordPair existingDisambiguation = null;
-
-            //        if (ambiguousPairs.Count > 0)
-            //        {
-            //            pair.MustDisambiguate = true;
-
-            //            foreach (var disambiguationPair in ambiguousPairs)
-            //            {
-            //                if (disambiguationPair.IsDisambiguation)
-            //                {
-            //                    existingDisambiguation = disambiguationPair;
-            //                }
-            //                else
-            //                {
-            //                    disambiguationPair.MustDisambiguate = true;
-            //                }
-            //            }
-
-            //            if (existingDisambiguation == null)
-            //            {
-            //                existingDisambiguation = new KeywordPair(
-            //                    topic.Language.Code,
-            //                    null,
-            //                    newKeyword.MakeSafeFileName(),
-            //                    Constants.Disambiguation,
-            //                    newKeyword,
-            //                    null)
-            //                {
-            //                    IsDisambiguation = true
-            //                };
-
-            //                AddToKeywordsList(existingDisambiguation);
-            //            }
-            //        }
-
-            //        AddToKeywordsList(pair);
-            //        topic.Keywords.Add(pair);
-            //    }
-
-            //    var titlePair = new KeywordPair(
-            //            topic.Language.Code,
-            //            topic.Title,
-            //            topic.TopicName,
-            //            topic.TopicName,
-            //            topicTitle,
-            //            blurb);
-            //    AddToKeywordsList(titlePair);
-            //}
+                .Select(k => k.Trim())
+                .ToList();
 
             return topic;
         }
 
-        private static IList<AuthorInformation> MakeAuthors(
-            string authorName, 
-            string email, 
-            string github, 
-            string twitter)
+        public static async Task<Exception> SaveKeyword(KeywordInformation keyword, ILogger log)
         {
-            var authorNames = authorName.Split(new char[]
+            try
             {
-                Constants.Separator
-            });
+                string name = null;
 
-            var emails = email.Split(new char[]
-            {
-                Constants.Separator
-            });
+                if (keyword.IsMainKeyword)
+                {
+                    name = $"{keyword.Topic.TopicName.MakeSafeFileName()}-index.md";
+                }
+                else
+                {
+                    name = $"{keyword.Topic.TopicName.MakeSafeFileName()}-{keyword.Keyword.MakeSafeFileName()}.md";
+                }
 
-            var githubs = github.Split(new char[]
-            {
-                Constants.Separator
-            });
+                string text = MakeTopicText(keyword);
 
-            var twitters = twitter.Split(new char[]
-            {
-                Constants.Separator
-            });
+                var account = CloudStorageAccount.Parse(
+                    Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
 
-            if (authorNames.Length != emails.Length
-                || authorNames.Length != githubs.Length
-                || authorNames.Length != twitters.Length)
+                var client = account.CreateCloudBlobClient();
+                var helper = new BlobHelper(client, log);
+                var targetContainer = helper.GetContainer(Constants.OutputContainerVariableName);
+                var targetBlob = targetContainer.GetBlockBlobReference(name);
+
+                await targetBlob.UploadTextAsync(text);
+            }
+            catch (Exception ex)
             {
-                throw new InvalidOperationException("Invalid author, email github or twitter lists");
+                return ex;
             }
 
-            var result = new List<AuthorInformation>();
-
-            for (var index = 0; index < authorNames.Length; index++)
-            {
-                var author = new AuthorInformation(
-                    authorNames[index].Trim(),
-                    emails[index].Trim(),
-                    githubs[index].Trim(),
-                    twitters[index].Trim());
-
-                result.Add(author);
-            }
-
-            return result;
+            return null;
         }
 
-        private static IList<LanguageInfo> MakeLanguages(string captions)
+        public static async Task<IList<KeywordInformation>> SortKeywords(
+            IList<TopicInformation> allTopics,
+            TopicInformation currentTopic,
+            ILogger log = null)
         {
-            if (string.IsNullOrEmpty(captions))
+            var result = new List<KeywordInformation>();
+
+            foreach (var keyword in currentTopic.Keywords)
             {
-                return null;
+                var newKeyword = new KeywordInformation
+                {
+                    Keyword = keyword,
+                    Topic = currentTopic
+                };
+
+                var sameKeywords = allTopics
+                    .SelectMany(t => t.Keywords)
+                    .Where(k => k.ToLower() == keyword.ToLower());
+
+                if (sameKeywords.Count() > 1)
+                {
+                    newKeyword.MustDisambiguate = true;
+                }
+
+                if (newKeyword.Keyword.ToLower() == currentTopic.TopicName.ToLower())
+                {
+                    newKeyword.IsMainKeyword = true;
+                }
+
+                result.Add(newKeyword);
             }
 
-            var languages = captions.Split(new char[]
+            if (!result.Any(k => k.IsMainKeyword))
             {
-                ','
-            }, StringSplitOptions.RemoveEmptyEntries);
-
-            var result = new List<LanguageInfo>();
-
-            foreach (var language in languages)
-            {
-                var parts = language.Split(new char[]
+                var mainKeyword = new KeywordInformation
                 {
-                    '/'
-                });
+                    IsMainKeyword = true,
+                    Keyword = currentTopic.TopicName,
+                    Topic = currentTopic
+                };
 
-                result.Add(new LanguageInfo
-                {
-                    Code = parts[0].Trim(),
-                    Language = parts[1].Trim()
-                });
+                result.Add(mainKeyword);
             }
 
             return result;

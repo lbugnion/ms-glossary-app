@@ -67,7 +67,7 @@ namespace MsGlossaryApp.Model
                         //}
                         //else
                         //{
-                            //newUrlAlone = string.Format(SubtopicLinkTemplate, k.Topic., k.Subtopic);
+                        //newUrlAlone = string.Format(SubtopicLinkTemplate, k.Topic., k.Subtopic);
                         //}
 
                         log?.LogInformation($"newUrlAlone: {newUrlAlone}");

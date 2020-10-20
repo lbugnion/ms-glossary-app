@@ -1,34 +1,34 @@
-using System.IO;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using MsGlossaryApp.Model;
 using MsGlossaryApp.Model.GitHub;
+using Newtonsoft.Json;
 using System;
-using System.Net.Http;
 using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace MsGlossaryApp
 {
     public static class AddSynopsis
     {
-        private const string MsGlossaryGitHubAccountVariableName = "MsGlossaryGitHubAccount";
-        private const string MsGlossaryGitHubRepoVariableName = "MsGlossaryGitHubRepo";
-        private const string GitHubTokenVariableName = "GitHubToken";
-        private const string MsGlossaryGitHubMainBranchName = "MsGlossaryGitHubMainBranchName";
-        private const string RawTemplateUrl = "https://raw.githubusercontent.com/{0}/{1}/{2}/templates/synopsis-template.md";
-        private const string NewSynopsisUrl = "https://github.com/{0}/{1}/blob/{2}/synopsis/{2}.md";
-        private const string NewFileName = "synopsis/{0}.md";
-        private const string TopicMarker = "<!-- TOPIC -->";
-        private const string NameMarker = "<!-- ENTER YOUR NAME HERE -->";
-        private const string EmailMarker = "<!-- ENTER YOUR EMAIL HERE -->";
-        private const string ShortDescriptionMarker = "<!-- ENTER A SHORT DESCRIPTION HERE -->";
-        private const string TwitterMarker = "<!-- ENTER YOUR TWITTER NAME HERE -->";
         private const string CommitMessage = "Creating new synopsis for {0}";
+        private const string EmailMarker = "<!-- ENTER YOUR EMAIL HERE -->";
+        private const string GitHubTokenVariableName = "GitHubToken";
+        private const string MsGlossaryGitHubAccountVariableName = "MsGlossaryGitHubAccount";
+        private const string MsGlossaryGitHubMainBranchName = "MsGlossaryGitHubMainBranchName";
+        private const string MsGlossaryGitHubRepoVariableName = "MsGlossaryGitHubRepo";
+        private const string NameMarker = "<!-- ENTER YOUR NAME HERE -->";
+        private const string NewFileName = "synopsis/{0}.md";
+        private const string NewSynopsisUrl = "https://github.com/{0}/{1}/blob/{2}/synopsis/{2}.md";
+        private const string RawTemplateUrl = "https://raw.githubusercontent.com/{0}/{1}/{2}/templates/synopsis-template.md";
+        private const string ShortDescriptionMarker = "<!-- ENTER A SHORT DESCRIPTION HERE -->";
+        private const string TopicMarker = "<!-- TOPIC -->";
+        private const string TwitterMarker = "<!-- ENTER YOUR TWITTER NAME HERE -->";
 
         [FunctionName("AddSynopsis")]
         public static async Task<IActionResult> Run(

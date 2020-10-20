@@ -2,13 +2,13 @@
 {
     public class KeywordInformation
     {
-        public string Keyword
+        public bool IsMainKeyword
         {
             get;
             set;
         }
 
-        public TopicInformation Topic
+        public string Keyword
         {
             get;
             set;
@@ -20,10 +20,10 @@
             set;
         }
 
-        public bool IsMainKeyword 
-        { 
-            get; 
-            set; 
+        public TopicInformation Topic
+        {
+            get;
+            set;
         }
     }
 }

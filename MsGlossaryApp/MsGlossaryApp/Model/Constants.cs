@@ -3,29 +3,28 @@
     public static class Constants
     {
         public const string AzureWebJobsStorageVariableName = "AzureWebJobsStorage";
-        public const string NotifyFunctionCodeVariableName = "NotifyFunctionCode";
-        public const string TopicsContainerVariableName = "TopicsContainer";
-        public const string OutputContainerVariableName = "OutputContainer";
-
         public const string H1 = "# ";
         public const string H2 = "## ";
         public const string H3 = "### ";
+        public const string NotifyFunctionCodeVariableName = "NotifyFunctionCode";
+        public const string OutputContainerVariableName = "OutputContainer";
         public const char Separator = '|';
+        public const string TopicsContainerVariableName = "TopicsContainer";
 
         public static class Input
         {
-            public const string YouTubeMarker = "> YouTube: ";
-            public const string KeywordsMarker = "> Keywords: ";
+            public const string AuthorNameMarker = "> Author name: ";
             public const string BlurbMarker = "> Blurb: ";
             public const string CaptionsMarker = "> Captions: ";
-            public const string LanguageMarker = "> Language: ";
-            public const string TwitterMarker = "> Twitter: ";
+            public const string EmailMarker = "> Email: ";
             public const string GitHubMarker = "> GitHub: ";
+            public const string KeywordsMarker = "> Keywords: ";
+            public const string LanguageMarker = "> Language: ";
+            public const string LinksMarker = "## Links";
             public const string RecordingDateMarker = "> Recording date: ";
             public const string TranscriptMarker = "## Transcript";
-            public const string LinksMarker = "## Links";
-            public const string EmailMarker = "> Email: ";
-            public const string AuthorNameMarker = "> Author name: ";
+            public const string TwitterMarker = "> Twitter: ";
+            public const string YouTubeMarker = "> YouTube: ";
         }
 
         //public static class Texts

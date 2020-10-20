@@ -18,8 +18,8 @@ namespace MsGlossaryApp
         private const string BlobStoreNameVariableName = "BlobStoreName";
         private const string CommitMessage = "Updated the home page";
         private const string DocsGlossaryGitHubAccountVariableName = "DocsGlossaryGitHubAccount";
-        private const string DocsGlossaryGitHubRepoVariableName = "DocsGlossaryGitHubRepo";
         private const string DocsGlossaryGitHubMainBranchNameVariableName = "DocsGlossaryGitHubMainBranchName";
+        private const string DocsGlossaryGitHubRepoVariableName = "DocsGlossaryGitHubRepo";
         private const string GitHubTokenVariableName = "GitHubToken";
         private const string HomePageFilePath = "https://raw.githubusercontent.com/{0}/{1}/{2}/glossary/index.md";
         private const string IncludLineMask = "[!INCLUDE [Random topic for today:](./topic/{0}/index.md)]";
