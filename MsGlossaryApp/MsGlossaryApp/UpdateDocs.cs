@@ -66,13 +66,38 @@ namespace MsGlossaryApp
             //        nameof(ReplaceKeywords),
             //        (allTopics, topic)));
             //}
+
+            var filesCreationTasks = new List<Task<Exception>>();
+
+            foreach (var keyword in allKeywords)
+            {
+                //var keyword = allKeywords.First();
+
+                filesCreationTasks.Add(context.CallActivityAsync<Exception>(
+                    nameof(MakeMarkdown),
+                    keyword));
+            }
+
+            var exceptions = (await Task.WhenAll(filesCreationTasks))
+                .Where(e => e != null)
+                .ToList();
+        }
+
+        [FunctionName(nameof(MakeMarkdown))]
+        public static async Task<Exception> MakeMarkdown(
+            [ActivityTrigger]
+            KeywordInformation keyword,
+            ILogger log)
+        {
+            var exception = await TopicMaker.SaveKeyword(keyword, log);
+            return exception;
         }
 
         [FunctionName(nameof(ReplaceKeywords))]
         public static async Task<TopicInformation> ReplaceKeywords(
             [ActivityTrigger]
             (List<KeywordInformation> keywordsToReplace, TopicInformation currentTopic) input,
-            ILogger log = null)
+            ILogger log)
         {
             var newTranscript = await KeywordReplacer.Replace(
                 input.currentTopic.Transcript,
@@ -92,7 +117,7 @@ namespace MsGlossaryApp
         public static async Task<IList<KeywordInformation>> SortKeywords(
             [ActivityTrigger]
             (IList<TopicInformation> allTopics, TopicInformation currentTopic) input,
-            ILogger log = null)
+            ILogger log)
         {
             return await TopicMaker.SortKeywords(input.allTopics, input.currentTopic, log);
         }
@@ -101,7 +126,7 @@ namespace MsGlossaryApp
         public static async Task<TopicInformation> UpdateDocsParseTopic(
             [ActivityTrigger]
             Uri topicUri,
-            ILogger log = null)
+            ILogger log)
         {
             TopicInformation topic = null;
 
@@ -120,7 +145,7 @@ namespace MsGlossaryApp
         [FunctionName(nameof(UpdateDocsGetAllTopics))]
         public static async Task<List<string>> UpdateDocsGetAllTopics(
             [ActivityTrigger]
-            ILogger log = null)
+            ILogger log)
         {
             var account = CloudStorageAccount.Parse(
                 Environment.GetEnvironmentVariable(
@@ -158,7 +183,7 @@ namespace MsGlossaryApp
             HttpRequestMessage req,
             [DurableClient] 
             IDurableOrchestrationClient starter,
-            ILogger log = null)
+            ILogger log)
         {
             await NotificationService.Notify(
                 "Trigger received",

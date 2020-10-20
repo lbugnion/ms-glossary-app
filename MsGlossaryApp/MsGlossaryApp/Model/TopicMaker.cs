@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System;
 using System.Collections.Generic;
@@ -12,19 +13,6 @@ namespace MsGlossaryApp.Model
 {
     public static class TopicMaker
     {
-        private const string H1 = "# ";
-        private const char Separator = '|';
-        private const string YouTubeMarker = "> YouTube: ";
-        private const string KeywordsMarker = "> Keywords: ";
-        private const string BlurbMarker = "> Blurb: ";
-        private const string CaptionsMarker = "> Captions: ";
-        private const string LanguageMarker = "> Language: ";
-        private const string TwitterMarker = "> Twitter: ";
-        private const string GitHubMarker = "> GitHub: ";
-        private const string RecordingDateMarker = "> Recording date: ";
-        private const string TranscriptMarker = "## Transcript";
-        private const string LinksMarker = "## Links";
-
         public static async Task<IList<KeywordInformation>> SortKeywords(
             IList<TopicInformation> allTopics,
             TopicInformation currentTopic,
@@ -72,6 +60,152 @@ namespace MsGlossaryApp.Model
             return result;
         }
 
+        public static async Task<Exception> SaveKeyword(KeywordInformation keyword, ILogger log)
+        {
+            try
+            {
+                string name = null;
+
+                if (keyword.IsMainKeyword)
+                {
+                    name = $"{keyword.Topic.TopicName.MakeSafeFileName()}-index.md";
+                }
+                else
+                {
+                    name = $"{keyword.Topic.TopicName.MakeSafeFileName()}-{keyword.Keyword.MakeSafeFileName()}.md";
+                }
+
+                string text = MakeTopicText(keyword);
+
+                var account = CloudStorageAccount.Parse(
+                    Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
+
+                var client = account.CreateCloudBlobClient();
+                var helper = new BlobHelper(client, log);
+                var targetContainer = helper.GetContainer(Constants.OutputContainerVariableName);
+                var targetBlob = targetContainer.GetBlockBlobReference(name);
+
+                await targetBlob.UploadTextAsync(text);
+            }
+            catch (Exception ex)
+            {
+                return ex;
+            }
+
+            return null;
+        }
+
+        private static string MakeTopicText(
+            KeywordInformation keyword)
+        {
+            var topic = keyword.Topic;
+
+            var redirect = string.Empty;
+
+            if (!keyword.IsMainKeyword)
+            {
+                redirect += $" (redirected from {keyword.Keyword})";
+            }
+
+            var dateString = topic.RecordingDate.ToShortDateString();
+
+            var builder = new StringBuilder()
+                .AppendLine("---")
+                .Append($"title: {topic.Title}")
+                .AppendLine(redirect)
+                .AppendLine($"description: Microsoft Glossary definition for {topic.Title}")
+                .AppendLine($"author: {topic.Authors.First().GitHub}")
+                .AppendLine($"ms.date: {dateString}")
+                .AppendLine($"ms.prod: non-product-specific")
+                .AppendLine($"ms.topic: glossary")
+                .AppendLine("---")
+                .AppendLine()
+                .Append(Constants.H1)
+                .Append(MakeTitleLink(keyword))
+                .AppendLine(redirect)
+                .AppendLine()
+                .AppendLine($"> {topic.Blurb}")
+                .AppendLine()
+                .AppendLine($"> [!VIDEO https://www.youtube.com/embed/{topic.YouTubeCode}]")
+                .AppendLine()
+                .AppendLine($"{Constants.H2}Download")
+                .AppendLine()
+                .AppendLine($"[You can download this video here](https://msglossarystore.blob.core.windows.net/videos/{topic.TopicName}.{topic.Language.Code}.mp4).")
+                .AppendLine();
+
+            if (topic.Captions != null
+                && topic.Captions.Count > 0)
+            {
+                builder
+                .AppendLine("## Languages")
+                .AppendLine()
+                .AppendLine("There are captions for the following language(s):")
+                .AppendLine();
+
+                foreach (var caption in keyword.Topic.Captions)
+                {
+                    builder.AppendLine($"- [{caption.Language}](https://msglossarystore.blob.core.windows.net/captions/{topic.TopicName}.{topic.Language.Code}.{caption.Code}.srt)");
+                }
+
+                builder.AppendLine()
+                    .AppendLine("> Learn about [downloading and showing captions here](/glossary/captions).")
+                    .AppendLine();
+            }
+
+            builder
+                .AppendLine($"{Constants.H2}Links");
+
+            foreach (var linkSection in topic.Links)
+            {
+                builder.AppendLine()
+                    .AppendLine($"{Constants.H3}{linkSection.Key}")
+                    .AppendLine();
+
+                foreach (var link in linkSection.Value)
+                {
+                    builder.AppendLine(link);
+                }
+            }
+
+            builder.AppendLine()
+                .AppendLine($"{Constants.H2}Transcript")
+                .AppendLine()
+                .AppendLine(topic.Transcript)
+                .AppendLine();
+
+            if (topic.Authors != null
+                && topic.Authors.Count > 0)
+            {
+                builder
+                    .AppendLine($"{Constants.H2}Authors")
+                    .AppendLine()
+                    .Append("This topic was created by ");
+
+                foreach (var author in topic.Authors)
+                {
+                    builder.Append($"[{author.Name}](http://twitter.com/{author.Twitter}), ");
+                }
+
+                builder.Remove(builder.Length - 2, 2);
+            }
+
+            builder.AppendLine();
+
+            return builder.ToString();
+        }
+
+        private static string MakeTitleLink(KeywordInformation keyword)
+        {
+            if (keyword.IsMainKeyword)
+            {
+                return $"[{keyword.Topic.Title}](/glossary/topic/{keyword.Topic.TopicName})";
+            }
+            else
+            {
+                return $"[{keyword.Topic.Title}](/glossary/topic/{keyword.Topic.TopicName}/{keyword.Keyword.MakeSafeFileName()})";
+            }
+        }
+
         //private const string LanguagesTitleMarker = "<!-- LANGUAGESTITLE -->";
         //private const string YouTubeEmbed = "> [!VIDEO https://www.youtube.com/embed/{0}]";
         //private const string DownloadLinkTemplate = "https://msglossarystory.blob.core.windows.net/videos/{0}.{1}.mp4";
@@ -82,9 +216,6 @@ namespace MsGlossaryApp.Model
         //private const string DownloadCaptionsMarker = "<!-- DOWNLOAD-CAPTIONS -->";
         //private const string TwitterLinkMask = "http://twitter.com/{0}";
         //private const string LastChangeDateTimeFormat = "dd MMM yyyy HH:mm";
-        private const string EmailMarker = "> Email: ";
-        private const string AuthorNameMarker = "> Author name: ";
-        private const string H3 = "### ";
 
         public static async Task<TopicInformation> CreateTopic(Uri uri, ILogger log)
         {
@@ -123,13 +254,13 @@ namespace MsGlossaryApp.Model
 
             while ((line = markdownReader.ReadLine()) != null)
             {
-                if (line.StartsWith(TranscriptMarker))
+                if (line.StartsWith(Constants.Input.TranscriptMarker))
                 {
                     isLinks = false;
                     isTranscript = true;
                     continue;
                 }
-                else if (line.StartsWith(LinksMarker))
+                else if (line.StartsWith(Constants.Input.LinksMarker))
                 {
                     isLinks = true;
                     isTranscript = false;
@@ -146,69 +277,69 @@ namespace MsGlossaryApp.Model
                         continue;
                     }
 
-                    if (line.StartsWith(H3))
+                    if (line.StartsWith(Constants.H3))
                     {
                         currentLinksSection = new List<string>();
-                        links.Add(line.Substring(H3.Length).Trim(), currentLinksSection);
+                        links.Add(line.Substring(Constants.H3.Length).Trim(), currentLinksSection);
                         continue;
                     }
 
                     currentLinksSection.Add(line);
                 }
-                else if (line.StartsWith(H1))
+                else if (line.StartsWith(Constants.H1))
                 {
                     topicTitle = line
-                        .Substring(H1.Length)
+                        .Substring(Constants.H1.Length)
                         .Trim();
                 }
-                else if (line.StartsWith(YouTubeMarker))
+                else if (line.StartsWith(Constants.Input.YouTubeMarker))
                 {
-                    youTubeCode = line.Substring(YouTubeMarker.Length).Trim();
+                    youTubeCode = line.Substring(Constants.Input.YouTubeMarker.Length).Trim();
                     log?.LogInformation($"youTubeCode: {youTubeCode}");
                 }
-                else if (line.StartsWith(KeywordsMarker))
+                else if (line.StartsWith(Constants.Input.KeywordsMarker))
                 {
-                    keywordsLine = line.Substring(KeywordsMarker.Length).Trim();
+                    keywordsLine = line.Substring(Constants.Input.KeywordsMarker.Length).Trim();
                     log?.LogInformation($"keywordsLine: {keywordsLine}");
                 }
-                else if (line.StartsWith(BlurbMarker))
+                else if (line.StartsWith(Constants.Input.BlurbMarker))
                 {
-                    blurb = line.Substring(BlurbMarker.Length).Trim();
+                    blurb = line.Substring(Constants.Input.BlurbMarker.Length).Trim();
                     log?.LogInformation($"blurb: {blurb}");
                 }
-                else if (line.StartsWith(CaptionsMarker))
+                else if (line.StartsWith(Constants.Input.CaptionsMarker))
                 {
-                    captions = line.Substring(CaptionsMarker.Length).Trim();
+                    captions = line.Substring(Constants.Input.CaptionsMarker.Length).Trim();
                     log?.LogInformation($"captions: {captions}");
                 }
-                else if (line.StartsWith(LanguageMarker))
+                else if (line.StartsWith(Constants.Input.LanguageMarker))
                 {
-                    language = line.Substring(LanguageMarker.Length).Trim();
+                    language = line.Substring(Constants.Input.LanguageMarker.Length).Trim();
                     log?.LogInformation($"language: {language}");
                 }
-                else if (line.StartsWith(AuthorNameMarker))
+                else if (line.StartsWith(Constants.Input.AuthorNameMarker))
                 {
-                    authorName = line.Substring(AuthorNameMarker.Length).Trim();
+                    authorName = line.Substring(Constants.Input.AuthorNameMarker.Length).Trim();
                     log?.LogInformation($"authorName: {authorName}");
                 }
-                else if (line.StartsWith(EmailMarker))
+                else if (line.StartsWith(Constants.Input.EmailMarker))
                 {
-                    email = line.Substring(EmailMarker.Length).Trim();
+                    email = line.Substring(Constants.Input.EmailMarker.Length).Trim();
                     log?.LogInformation($"email: {email}");
                 }
-                else if (line.StartsWith(GitHubMarker))
+                else if (line.StartsWith(Constants.Input.GitHubMarker))
                 {
-                    github = line.Substring(GitHubMarker.Length).Trim();
+                    github = line.Substring(Constants.Input.GitHubMarker.Length).Trim();
                     log?.LogInformation($"github: {github}");
                 }
-                else if (line.StartsWith(TwitterMarker))
+                else if (line.StartsWith(Constants.Input.TwitterMarker))
                 {
-                    twitter = line.Substring(TwitterMarker.Length).Trim();
+                    twitter = line.Substring(Constants.Input.TwitterMarker.Length).Trim();
                     log?.LogInformation($"twitter: {twitter}");
                 }
-                else if (line.StartsWith(RecordingDateMarker))
+                else if (line.StartsWith(Constants.Input.RecordingDateMarker))
                 {
-                    var dateString = line.Substring(RecordingDateMarker.Length).Trim();
+                    var dateString = line.Substring(Constants.Input.RecordingDateMarker.Length).Trim();
                     log?.LogInformation($"dateString: {dateString}");
                     recordingDate = DateTime.ParseExact(dateString, "yyyyMMdd", CultureInfo.InvariantCulture);
                 }
@@ -451,22 +582,22 @@ namespace MsGlossaryApp.Model
         {
             var authorNames = authorName.Split(new char[]
             {
-                Separator
+                Constants.Separator
             });
 
             var emails = email.Split(new char[]
             {
-                Separator
+                Constants.Separator
             });
 
             var githubs = github.Split(new char[]
             {
-                Separator
+                Constants.Separator
             });
 
             var twitters = twitter.Split(new char[]
             {
-                Separator
+                Constants.Separator
             });
 
             if (authorNames.Length != emails.Length
