@@ -6,7 +6,8 @@ POST http://localhost:7071/api/add-new
     "shortdescription": "This is a test again",
     "submitteremail": "lbugnion@microsoft.com",
     "submittername": "Laurent Bugnion",
-    "submittertwitter": "LBugnion",
+    "submittertwitter": "@LBugnion",
+    "submittergithub": "LBugnion",
     "topic":"test-topic-07"
 }
 
