@@ -12,7 +12,7 @@ namespace MsGlossaryApp.Model
 
         static LoggerExtensions()
         {
-            var logLevelString = Environment.GetEnvironmentVariable(LogLevelVariableName);
+            var logLevelString = Environment.GetEnvironmentVariable(LogVerbosityVariableName);
 
             object logVerb;
 
