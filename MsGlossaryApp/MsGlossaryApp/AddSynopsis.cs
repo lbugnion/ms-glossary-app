@@ -39,7 +39,7 @@ namespace MsGlossaryApp
             HttpRequest req,
             ILogger log)
         {
-            log?.LogInformation("In AddSynopsis");
+            log?.LogInformationEx("In AddSynopsis", LogVerbosity.Normal);
 
             // Initialize
 
@@ -51,22 +51,33 @@ namespace MsGlossaryApp
             var mainBranchName = Environment.GetEnvironmentVariable(MsGlossaryGitHubMainBranchName);
             var token = Environment.GetEnvironmentVariable(GitHubTokenVariableName);
 
+            log?.LogInformationEx($"accountName: {accountName}", LogVerbosity.Debug);
+            log?.LogInformationEx($"repoName: {repoName}", LogVerbosity.Debug);
+            log?.LogInformationEx($"mainBranchName: {mainBranchName}", LogVerbosity.Debug);
+            log?.LogInformationEx($"token: {token}", LogVerbosity.Debug);
+
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var newTopic = JsonConvert.DeserializeObject<NewTopicInfo>(requestBody);
+
+            log?.LogInformationEx("Received new topic", LogVerbosity.Verbose);
+            log?.LogInformationEx($"newTopic.SubmitterName: {newTopic.SubmitterName}", LogVerbosity.Debug);
+            log?.LogInformationEx($"newTopic.SubmitterEmail: {newTopic.SubmitterEmail}", LogVerbosity.Debug);
+            log?.LogInformationEx($"newTopic.Topic: {newTopic.Topic}", LogVerbosity.Debug);
+            log?.LogInformationEx($"newTopic.ShortDescription: {newTopic.ShortDescription}", LogVerbosity.Debug);
 
             if (string.IsNullOrEmpty(newTopic.SubmitterName)
                 || string.IsNullOrEmpty(newTopic.SubmitterEmail)
                 || string.IsNullOrEmpty(newTopic.Topic)
                 || string.IsNullOrEmpty(newTopic.ShortDescription))
             {
-                log?.LogInformation("Incomplete submission");
+                log?.LogError("Incomplete submission");
                 return new BadRequestObjectResult("Incomplete submission");
             }
 
             // Get the main head
 
             newTopic.SafeTopic = newTopic.Topic.MakeSafeFileName();
-            log?.LogInformation($"Safe topic: {newTopic.SafeTopic}");
+            log?.LogInformationEx($"Safe topic: {newTopic.SafeTopic}", LogVerbosity.Verbose);
 
             var helper = new GitHubHelper(client);
 
@@ -107,8 +118,10 @@ namespace MsGlossaryApp
 
             // Get and update file template from GitHub
 
-            log?.LogInformation("Getting file template from GitHub");
+            log?.LogInformationEx("Getting file template from GitHub", LogVerbosity.Verbose);
             var templateUrl = string.Format(RawTemplateUrl, accountName, repoName, mainBranchName);
+            log?.LogInformationEx($"templateUrl: {templateUrl}", LogVerbosity.Debug);
+
             var markdownTemplate = await client.GetStringAsync(templateUrl);
 
             markdownTemplate = markdownTemplate
@@ -116,6 +129,8 @@ namespace MsGlossaryApp
                 .Replace(NameMarker, newTopic.SubmitterName)
                 .Replace(EmailMarker, newTopic.SubmitterEmail)
                 .Replace(ShortDescriptionMarker, newTopic.ShortDescription);
+
+            log?.LogInformationEx("Template replaced", LogVerbosity.Debug);
 
             if (!string.IsNullOrEmpty(newTopic.SubmitterTwitter))
             {
@@ -131,7 +146,7 @@ namespace MsGlossaryApp
                 markdownTemplate = markdownTemplate.Replace(TwitterMarker, string.Empty);
             }
 
-            log?.LogInformation("Done getting file template from GitHub and updating it");
+            log?.LogInformationEx("Done getting file template from GitHub and updating it", LogVerbosity.Verbose);
 
             // Commit new file to GitHub
 
@@ -152,8 +167,9 @@ namespace MsGlossaryApp
             newTopic.Url = string.Format(NewSynopsisUrl, accountName, repoName, newTopic.SafeTopic);
             var jsonResult = JsonConvert.SerializeObject(newTopic);
 
-            log?.LogInformation($"newTopic.Ref: {newTopic.Ref}");
-            log?.LogInformation($"newTopic.Url: {newTopic.Url}");
+            log?.LogInformationEx($"newTopic.Ref: {newTopic.Ref}", LogVerbosity.Debug);
+            log?.LogInformationEx($"newTopic.Url: {newTopic.Url}", LogVerbosity.Verbose);
+            log?.LogInformationEx("Out AddSynopsis", LogVerbosity.Normal);
 
             return new OkObjectResult(jsonResult);
         }

@@ -14,6 +14,8 @@ namespace MsGlossaryApp.Model
             string message,
             ILogger log)
         {
+            log?.LogInformationEx("In NotificationService.Notify", LogVerbosity.Normal);
+
             var json = $"{{\"title\":\"{title}\",\"body\": \"{message}\",\"channel\":\"MSGlossary\"}}";
             var client = new HttpClient();
             var content = new StringContent(json);
@@ -31,7 +33,7 @@ namespace MsGlossaryApp.Model
             request.Content = content;
             var response = await client.SendAsync(request);
             var result = await response.Content.ReadAsStringAsync();
-            log?.LogInformation(result);
+            log?.LogInformationEx(result, LogVerbosity.Verbose);
         }
     }
 }

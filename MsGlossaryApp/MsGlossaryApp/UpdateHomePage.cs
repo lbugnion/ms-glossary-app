@@ -33,7 +33,7 @@ namespace MsGlossaryApp
             //Microsoft.AspNetCore.Http.HttpRequest req,
             ILogger log)
         {
-            log.LogInformation($"UpdateHomePage function executed at: {DateTime.Now}");
+            log.LogInformationEx($"In UpdateHomePage", LogVerbosity.Normal);
             Exception error = null;
 
             try
@@ -42,9 +42,9 @@ namespace MsGlossaryApp
                 var repoName = Environment.GetEnvironmentVariable(DocsGlossaryGitHubRepoVariableName);
                 var branchName = Environment.GetEnvironmentVariable(DocsGlossaryGitHubMainBranchNameVariableName);
 
-                log.LogInformation($"accountName: {accountName}");
-                log.LogInformation($"repoName: {repoName}");
-                log.LogInformation($"branchName: {branchName}");
+                log.LogInformationEx($"accountName: {accountName}", LogVerbosity.Debug);
+                log.LogInformationEx($"repoName: {repoName}", LogVerbosity.Debug);
+                log.LogInformationEx($"branchName: {branchName}", LogVerbosity.Debug);
 
                 // Read the current state of the file
 
@@ -53,6 +53,8 @@ namespace MsGlossaryApp
                     accountName,
                     repoName,
                     branchName);
+
+                log.LogInformationEx($"filePath: {filePath}", LogVerbosity.Debug);
 
                 var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
@@ -68,7 +70,12 @@ namespace MsGlossaryApp
                     {
                         newContentBuilder.AppendLine(line);
                     }
+
+                    log.LogInformationEx($"line: {line}", LogVerbosity.Debug);
                 }
+
+
+                log.LogInformationEx("Obtained and read the content", LogVerbosity.Verbose);
 
                 var newContent = newContentBuilder.ToString()
                     .Trim();
@@ -77,7 +84,13 @@ namespace MsGlossaryApp
 
                 var blobStoreName = Environment.GetEnvironmentVariable(BlobStoreNameVariableName);
                 var topicsUrl = string.Format(ListOfTopicsUrlMask, blobStoreName);
+
+                log.LogInformationEx($"blobStoreName: {blobStoreName}", LogVerbosity.Debug);
+                log.LogInformationEx($"topicsUrl: {topicsUrl}", LogVerbosity.Debug);
+
                 var topicsJson = await client.GetStringAsync(topicsUrl);
+
+                log.LogInformationEx("Topics JSON loaded", LogVerbosity.Verbose);
 
                 // TODO Remove checking for test and another-test when these are removed from the repos.
                 var topics = JsonConvert.DeserializeObject<List<string>>(topicsJson)
@@ -85,13 +98,17 @@ namespace MsGlossaryApp
                         && s != "another-test")
                     .ToList();
 
+                log.LogInformationEx($"{topics.Count} topics found", LogVerbosity.Debug);
+
                 var random = new Random();
                 var index = random.Next(0, topics.Count - 1);
                 var randomTopic = topics[index];
 
-                log?.LogInformation($"New random topic: {randomTopic}");
+                log?.LogInformationEx($"New random topic: {randomTopic}", LogVerbosity.Verbose);
 
                 var include = string.Format(IncludLineMask, randomTopic);
+
+                log?.LogInformationEx($"include: {include}", LogVerbosity.Debug);
 
                 // Line before last is the include directive
 
@@ -101,6 +118,8 @@ namespace MsGlossaryApp
                     + Environment.NewLine;
 
                 var token = Environment.GetEnvironmentVariable(GitHubTokenVariableName);
+                log?.LogInformationEx($"GitHub topic: {token}", LogVerbosity.Debug);
+
                 var helper = new GitHubHelper(client);
 
                 var list = new List<(string, string)>
@@ -116,12 +135,14 @@ namespace MsGlossaryApp
                     CommitMessage,
                     list);
 
+                log?.LogInformationEx("Topic commited to Github", LogVerbosity.Verbose);
+
                 await NotificationService.Notify(
                     "Updated homepage",
                     $"The glossary homepage was updated with topic {randomTopic}",
                     log);
 
-                log.LogInformation("Done updating homepage");
+                log?.LogInformationEx("Done updating homepage", LogVerbosity.Verbose);
             }
             catch (Exception ex)
             {
@@ -136,6 +157,8 @@ namespace MsGlossaryApp
                     error.Message,
                     log);
             }
+
+            log.LogInformationEx($"Out UpdateHomePage", LogVerbosity.Normal);
         }
     }
 }
