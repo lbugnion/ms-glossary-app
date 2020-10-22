@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using MsGlossaryApp.Model;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -90,6 +91,10 @@ namespace MsGlossaryApp
 
             var allTopics = await Task.WhenAll(allTopicsTasks);
 
+            await context.CallActivityAsync<TopicInformation>(
+                nameof(SaveTopicsToSettings),
+                allTopics);
+
             var allKeywordsTasks = new List<Task<IList<KeywordInformation>>>();
 
             foreach (var topic in allTopics)
@@ -134,6 +139,34 @@ namespace MsGlossaryApp
             var exceptions = (await Task.WhenAll(filesCreationTasks))
                 .Where(e => e != null)
                 .ToList();
+        }
+
+        [FunctionName(nameof(SaveTopicsToSettings))]
+        public static async Task SaveTopicsToSettings(
+            [ActivityTrigger]
+            IList<TopicInformation> topics,
+            ILogger log)
+        {
+            log?.LogInformationEx("In SaveTopicsToSettings", LogVerbosity.Normal);
+
+            var account = CloudStorageAccount.Parse(
+                Environment.GetEnvironmentVariable(
+                    Constants.AzureWebJobsStorageVariableName));
+
+            var blobClient = account.CreateCloudBlobClient();
+            var blobHelper = new BlobHelper(blobClient, log);
+            var settingsContainer = blobHelper.GetContainer(
+                Constants.SettingsContainerVariableName);
+
+            var blob = settingsContainer.GetBlockBlobReference(Constants.TopicsSettingsFileName);
+
+            var topicsNames = topics.Select(t => t.TopicName).ToList();
+
+            var json = JsonConvert.SerializeObject(topicsNames);
+            log?.LogInformationEx($"json: {json}", LogVerbosity.Debug);
+
+            await blob.UploadTextAsync(json);
+            log?.LogInformationEx("Out SaveTopicsToSettings", LogVerbosity.Normal);
         }
 
         [FunctionName(nameof(SortKeywords))]
