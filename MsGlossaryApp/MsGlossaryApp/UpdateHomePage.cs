@@ -15,15 +15,9 @@ namespace MsGlossaryApp
 {
     public static class UpdateHomePage
     {
-        private const string BlobStoreNameVariableName = "BlobStoreName";
         private const string CommitMessage = "Updated the home page";
-        private const string DocsGlossaryGitHubAccountVariableName = "DocsGlossaryGitHubAccount";
-        private const string DocsGlossaryGitHubMainBranchNameVariableName = "DocsGlossaryGitHubMainBranchName";
-        private const string DocsGlossaryGitHubRepoVariableName = "DocsGlossaryGitHubRepo";
-        private const string GitHubTokenVariableName = "GitHubToken";
         private const string HomePageFilePath = "https://raw.githubusercontent.com/{0}/{1}/{2}/glossary/index.md";
         private const string IncludLineMask = "[!INCLUDE [Random topic for today:](./topic/{0}/index.md)]";
-        private const string ListOfTopicsUrlMask = "https://{0}.blob.core.windows.net/settings/topics.en.json";
 
         [FunctionName("UpdateHomePage")]
         public static async Task Run(
@@ -38,9 +32,9 @@ namespace MsGlossaryApp
 
             try
             {
-                var accountName = Environment.GetEnvironmentVariable(DocsGlossaryGitHubAccountVariableName);
-                var repoName = Environment.GetEnvironmentVariable(DocsGlossaryGitHubRepoVariableName);
-                var branchName = Environment.GetEnvironmentVariable(DocsGlossaryGitHubMainBranchNameVariableName);
+                var accountName = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubAccountVariableName);
+                var repoName = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubRepoVariableName);
+                var branchName = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubMainBranchNameVariableName);
 
                 log.LogInformationEx($"accountName: {accountName}", LogVerbosity.Debug);
                 log.LogInformationEx($"repoName: {repoName}", LogVerbosity.Debug);
@@ -82,10 +76,12 @@ namespace MsGlossaryApp
 
                 // Get the list of topics
 
-                var blobStoreName = Environment.GetEnvironmentVariable(BlobStoreNameVariableName);
-                var topicsUrl = string.Format(ListOfTopicsUrlMask, blobStoreName);
+                var blobStoreName = Environment.GetEnvironmentVariable(Constants.BlobStoreNameVariableName);
+                var settingsContainerName = Environment.GetEnvironmentVariable(Constants.SettingsContainerVariableName);
+                var topicsUrl = string.Format(Constants.ListOfTopicsUrlMask, blobStoreName, settingsContainerName, Constants.TopicsSettingsFileName);
 
                 log.LogInformationEx($"blobStoreName: {blobStoreName}", LogVerbosity.Debug);
+                log.LogInformationEx($"settingsContainerName: {settingsContainerName}", LogVerbosity.Debug);
                 log.LogInformationEx($"topicsUrl: {topicsUrl}", LogVerbosity.Debug);
 
                 var topicsJson = await client.GetStringAsync(topicsUrl);
@@ -117,7 +113,7 @@ namespace MsGlossaryApp
                     + include
                     + Environment.NewLine;
 
-                var token = Environment.GetEnvironmentVariable(GitHubTokenVariableName);
+                var token = Environment.GetEnvironmentVariable(Constants.GitHubTokenVariableName);
                 log?.LogInformationEx($"GitHub topic: {token}", LogVerbosity.Debug);
 
                 var helper = new GitHubHelper(client);

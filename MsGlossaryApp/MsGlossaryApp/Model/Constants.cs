@@ -10,6 +10,17 @@
         public const string OutputContainerVariableName = "OutputContainer";
         public const char Separator = '|';
         public const string TopicsContainerVariableName = "TopicsContainer";
+        public const string SettingsContainerVariableName = "SettingsContainer";
+        public const string GitHubTokenVariableName = "GitHubToken";
+        public const string BlobStoreNameVariableName = "BlobStoreName";
+        public const string DocsGlossaryGitHubAccountVariableName = "DocsGlossaryGitHubAccount";
+        public const string DocsGlossaryGitHubMainBranchNameVariableName = "DocsGlossaryGitHubMainBranchName";
+        public const string DocsGlossaryGitHubRepoVariableName = "DocsGlossaryGitHubRepo";
+        public const string ListOfTopicsUrlMask = "https://{0}.blob.core.windows.net/{1}/{2}";
+        public const string TopicsSettingsFileName = "topics.en.json";
+        public const string MsGlossaryGitHubAccountVariableName = "MsGlossaryGitHubAccount";
+        public const string MsGlossaryGitHubMainBranchName = "MsGlossaryGitHubMainBranchName";
+        public const string MsGlossaryGitHubRepoVariableName = "MsGlossaryGitHubRepo";
 
         public static class Input
         {
