@@ -7,7 +7,7 @@ namespace MsGlossaryApp.Model
 {
     public static class LoggerExtensions
     {
-        private const string LogLevelVariableName = "LogLevel";
+        private const string LogVerbosityVariableName = "LogVerbosity";
         private static LogVerbosity _logVerbosity;
 
         static LoggerExtensions()
