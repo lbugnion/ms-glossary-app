@@ -93,6 +93,11 @@ namespace MsGlossaryApp.Model
             return result;
         }
 
+        private static string MakeDisambiguationTitleLink(KeywordInformation keyword)
+        {
+            return $"[{keyword.Keyword}](/glossary/topic/{keyword.Keyword.MakeSafeFileName()}/disambiguation)";
+        }
+
         private static string MakeTitleLink(KeywordInformation keyword)
         {
             if (keyword.IsMainKeyword)
@@ -351,7 +356,73 @@ namespace MsGlossaryApp.Model
             return topic;
         }
 
-        public static async Task<Exception> SaveKeyword(KeywordInformation keyword, ILogger log)
+        // TODO Replace with committing to GitHub
+        public static async Task<string> SaveDisambiguation(IList<KeywordInformation> keywords, ILogger log)
+        {
+            try
+            {
+                var firstKeyword = keywords.First();
+
+                string name = $"{firstKeyword.Keyword.MakeSafeFileName()}-disambiguation.md";
+
+                string text = MakeDisambiguationText(keywords);
+
+                var account = CloudStorageAccount.Parse(
+                    Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
+
+                var client = account.CreateCloudBlobClient();
+                var helper = new BlobHelper(client, log);
+                var targetContainer = helper.GetContainer(Constants.OutputContainerVariableName);
+                var targetBlob = targetContainer.GetBlockBlobReference(name);
+
+                await targetBlob.UploadTextAsync(text);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+
+            return null;
+        }
+
+        private static string MakeDisambiguationText(IList<KeywordInformation> keywords)
+        {
+            var lastKeyword = keywords.OrderByDescending(k => k.Topic.RecordingDate).First();
+
+            var dateString = lastKeyword.Topic.RecordingDate.ToShortDateString();
+
+            var builder = new StringBuilder()
+                .AppendLine("---")
+                .Append($"title: {lastKeyword.Keyword}")
+                .AppendLine(" (disambiguation)")
+                .AppendLine($"description: Microsoft Glossary disambiguation for {lastKeyword.Keyword}")
+                .AppendLine($"author: {lastKeyword.Topic.Authors.First().GitHub}")
+                .AppendLine($"ms.date: {dateString}")
+                .AppendLine($"ms.prod: non-product-specific")
+                .AppendLine($"ms.topic: glossary")
+                .AppendLine("---")
+                .AppendLine()
+                .Append(Constants.H1)
+                .Append(MakeDisambiguationTitleLink(lastKeyword))
+                .AppendLine(" (disambiguation)")
+                .AppendLine()
+                .Append(Constants.H2)
+                .AppendLine($"`{lastKeyword.Keyword}` can be used in different contexts")
+                .AppendLine();
+
+            foreach (var keyword in keywords.OrderBy(k => k.Topic.Title))
+            {
+                builder
+                    .AppendLine($"- In {MakeTitleLink(keyword)}, {keyword.Topic.Blurb}");
+            }
+
+            builder.AppendLine();
+
+            return builder.ToString();
+        }
+
+        // TODO Replace with committing to GitHub
+        public static async Task<string> SaveKeyword(KeywordInformation keyword, ILogger log)
         {
             try
             {
@@ -380,7 +451,7 @@ namespace MsGlossaryApp.Model
             }
             catch (Exception ex)
             {
-                return ex;
+                return ex.Message;
             }
 
             return null;

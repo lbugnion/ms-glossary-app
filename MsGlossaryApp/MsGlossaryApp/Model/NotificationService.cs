@@ -12,7 +12,7 @@ namespace MsGlossaryApp.Model
         public static async Task Notify(
             string title,
             string message,
-            ILogger log)
+            ILogger log = null)
         {
             log?.LogInformationEx("In NotificationService.Notify", LogVerbosity.Normal);
 

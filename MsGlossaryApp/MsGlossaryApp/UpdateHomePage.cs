@@ -27,6 +27,8 @@ namespace MsGlossaryApp
             //Microsoft.AspNetCore.Http.HttpRequest req,
             ILogger log)
         {
+            return;
+             
             log.LogInformationEx($"In UpdateHomePage", LogVerbosity.Normal);
             Exception error = null;
 

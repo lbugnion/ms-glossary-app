@@ -39,12 +39,34 @@ namespace MsGlossaryApp
             return starter.CreateCheckStatusResponse(req, instanceId);
         }
 
+        //[FunctionName(nameof(MakeDisambiguation))]
+        //public static async Task<Exception> MakeDisambiguation(
+        //    [ActivityTrigger]
+        //    IList<KeywordInformation> keywords,
+        //    ILogger log)
+        //{
+        //    var exception = await TopicMaker.SaveDisambiguation(keywords, log);
+        //    return exception;
+        //}
+
+        [FunctionName(nameof(MakeDisambiguation))]
+        public static async Task<string> MakeDisambiguation(
+            [ActivityTrigger]
+            IList<KeywordInformation> keywords,
+            ILogger log)
+        {
+            log?.LogInformation("In MakeDisambiguation");
+            var exception = await TopicMaker.SaveDisambiguation(keywords, log);
+            return exception;
+        }
+
         [FunctionName(nameof(MakeMarkdown))]
-        public static async Task<Exception> MakeMarkdown(
+        public static async Task<string> MakeMarkdown(
             [ActivityTrigger]
             KeywordInformation keyword,
             ILogger log)
         {
+            log?.LogInformation("In MakeMarkdown");
             var exception = await TopicMaker.SaveKeyword(keyword, log);
             return exception;
         }
@@ -125,20 +147,67 @@ namespace MsGlossaryApp
             //        (allTopics, topic)));
             //}
 
-            var filesCreationTasks = new List<Task<Exception>>();
+            var filesCreationTasks = new List<Task<string>>();
 
             foreach (var keyword in allKeywords)
             {
                 //var keyword = allKeywords.First();
 
-                filesCreationTasks.Add(context.CallActivityAsync<Exception>(
+                filesCreationTasks.Add(context.CallActivityAsync<string>(
                     nameof(MakeMarkdown),
                     keyword));
             }
 
-            var exceptions = (await Task.WhenAll(filesCreationTasks))
-                .Where(e => e != null)
+            var errors = (await Task.WhenAll(filesCreationTasks))
+                .Where(e => !string.IsNullOrEmpty(e))
                 .ToList();
+
+            if (errors.Count > 0)
+            {
+                foreach (var e in errors)
+                {
+                    await NotificationService.Notify(
+                        "ERROR when updating topics",
+                        e,
+                        null);
+                }
+
+                return;
+            }
+
+            // Save the disambiguation
+
+            var keywordsGroups = allKeywords
+                .Where(k => k.MustDisambiguate)
+                .GroupBy(k => k.Keyword.ToLower());
+
+            var disambiguationTasks = new List<Task<string>>();
+
+            foreach (var group in keywordsGroups)
+            {
+                //var group = keywordsGroups.First();
+
+                disambiguationTasks.Add(context.CallActivityAsync<string>(
+                    nameof(MakeDisambiguation),
+                    group.ToList()));
+            }
+
+            errors = (await Task.WhenAll(disambiguationTasks))
+                .Where(s => !string.IsNullOrEmpty(s))
+                .ToList();
+
+            if (errors.Count > 0)
+            {
+                foreach (var e in errors)
+                {
+                    await NotificationService.Notify(
+                        "ERROR when updating disambiguations",
+                        e,
+                        null);
+                }
+
+                return;
+            }
         }
 
         [FunctionName(nameof(SaveTopicsToSettings))]
