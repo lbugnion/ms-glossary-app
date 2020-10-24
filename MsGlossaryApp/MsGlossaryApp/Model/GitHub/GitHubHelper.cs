@@ -37,7 +37,7 @@ namespace MsGlossaryApp.Model.GitHub
             GetHeadResult existingBranchInfo = null,
             ILogger log = null)
         {
-            log?.LogInformationEx("In GitHubHelper.CommitFiles", LogVerbosity.Normal);
+            log?.LogInformationEx("In GitHubHelper.CommitFiles", LogVerbosity.Verbose);
 
             if (existingBranchInfo == null)
             {
@@ -287,7 +287,7 @@ namespace MsGlossaryApp.Model.GitHub
             log?.LogInformationEx("Done updating the reference", LogVerbosity.Verbose);
             log?.LogInformationEx($"Ref: {headResult.Ref}", LogVerbosity.Debug);
 
-            log?.LogInformationEx("Out GitHubHelper.CommitFiles", LogVerbosity.Normal);
+            log?.LogInformationEx("Out GitHubHelper.CommitFiles", LogVerbosity.Verbose);
 
             return headResult;
         }
@@ -298,7 +298,7 @@ namespace MsGlossaryApp.Model.GitHub
         {
             // Grab main commit
 
-            log?.LogInformationEx("In GitHubHelper.GetMainCommit", LogVerbosity.Normal);
+            log?.LogInformationEx("In GitHubHelper.GetMainCommit", LogVerbosity.Verbose);
 
             var request = new HttpRequestMessage
             {
@@ -334,7 +334,7 @@ namespace MsGlossaryApp.Model.GitHub
             var masterCommitResult = JsonConvert.DeserializeObject<CommitResult>(jsonResult);
             log?.LogInformationEx($"Done grabbing master commit {masterCommitResult.Sha}", LogVerbosity.Debug);
 
-            log?.LogInformationEx("Out GitHubHelper.GetMainCommit", LogVerbosity.Normal);
+            log?.LogInformationEx("Out GitHubHelper.GetMainCommit", LogVerbosity.Verbose);
 
             return masterCommitResult;
         }
@@ -345,7 +345,7 @@ namespace MsGlossaryApp.Model.GitHub
             string branchName,
             ILogger log = null)
         {
-            log?.LogInformationEx("In GitHubHelper.GetHead", LogVerbosity.Normal);
+            log?.LogInformationEx("In GitHubHelper.GetHead", LogVerbosity.Verbose);
 
             var url = string.Format(
                 GitHubApiBaseUrlMask,
@@ -390,7 +390,7 @@ namespace MsGlossaryApp.Model.GitHub
             var mainHead = JsonConvert.DeserializeObject<GetHeadResult>(jsonResult);
             log?.LogInformationEx($"Found head for {branchName}", LogVerbosity.Verbose);
 
-            log?.LogInformationEx("Out GitHubHelper.GetHead", LogVerbosity.Normal);
+            log?.LogInformationEx("Out GitHubHelper.GetHead", LogVerbosity.Verbose);
 
             return mainHead;
         }
@@ -403,7 +403,7 @@ namespace MsGlossaryApp.Model.GitHub
             string newBranchName = null,
             ILogger log = null)
         {
-            log?.LogInformationEx("In GitHubHelper.CreateNewBranch", LogVerbosity.Normal);
+            log?.LogInformationEx("In GitHubHelper.CreateNewBranch", LogVerbosity.Verbose);
 
             var newBranchRequestBody = new NewBranchInfo
             {
@@ -440,7 +440,7 @@ namespace MsGlossaryApp.Model.GitHub
             var createNewBranchResult = JsonConvert.DeserializeObject<GetHeadResult>(jsonResult);
             log?.LogInformationEx($"Done creating new branch {createNewBranchResult.Object.Sha}", LogVerbosity.Verbose);
 
-            log?.LogInformationEx("Out GitHubHelper.CreateNewBranch", LogVerbosity.Normal);
+            log?.LogInformationEx("Out GitHubHelper.CreateNewBranch", LogVerbosity.Verbose);
 
             return createNewBranchResult;
         }

@@ -19,9 +19,9 @@ namespace MsGlossaryApp.Model
         public CloudBlobContainer GetContainer(string variableName)
         {
             var containerName = Environment.GetEnvironmentVariable(variableName);
-            _logger?.LogInformation($"containerName: {variableName} : {containerName}");
+            _logger?.LogInformationEx($"containerName: {variableName} : {containerName}", LogVerbosity.Verbose);
             var container = _client.GetContainerReference(containerName);
-            _logger?.LogInformation($"container: {variableName} : {container.Uri}");
+            _logger?.LogInformationEx($"container: {variableName} : {container.Uri}", LogVerbosity.Verbose);
             return container;
         }
     }

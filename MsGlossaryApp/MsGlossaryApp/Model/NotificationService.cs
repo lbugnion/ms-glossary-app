@@ -14,7 +14,7 @@ namespace MsGlossaryApp.Model
             string message,
             ILogger log = null)
         {
-            log?.LogInformationEx("In NotificationService.Notify", LogVerbosity.Normal);
+            log?.LogInformationEx("In NotificationService.Notify", LogVerbosity.Verbose);
 
             var json = $"{{\"title\":\"{title}\",\"body\": \"{message}\",\"channel\":\"MSGlossary\"}}";
             var client = new HttpClient();

@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "MsGlossaryApp.TestDownloadBlobs": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "OutputContainer": "output",
+        "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=msglossarystore;AccountKey=vNp9rrFVtxNLd8NYEBlsDulxWxcj4MT0Wpb990ujX8iy1P7iLAqcZEbxeqpzeuTitt7L8uR2VYDt24TbnDDKOA==;BlobEndpoint=https://msglossarystore.blob.core.windows.net/;TableEndpoint=https://msglossarystore.table.core.windows.net/;QueueEndpoint=https://msglossarystore.queue.core.windows.net/;FileEndpoint=https://msglossarystore.file.core.windows.net/"
+      }
+    }
+  }
+}

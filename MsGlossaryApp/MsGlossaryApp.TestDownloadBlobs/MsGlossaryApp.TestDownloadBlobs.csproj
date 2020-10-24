@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\MsGlossaryApp\Model\BlobHelper.cs" Link="BlobHelper.cs" />
+    <Compile Include="..\MsGlossaryApp\Model\Constants.cs" Link="Constants.cs" />
+    <Compile Include="..\MsGlossaryApp\Model\LoggerExtensions.cs" Link="LoggerExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.9" />
+    <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
+  </ItemGroup>
+
+</Project>

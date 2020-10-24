@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Mvc.Formatters.Internal;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,16 +11,19 @@ namespace MsGlossaryApp.Model
     {
         public const string KeywordLinkTemplate = "[{0}]({1})";
         public const string SingleWordCharacter = " [](){}*!&-_+=|/':;.,<>?\"";
-        public const string SubtopicLinkTemplate = "/topic/{0}/{1}";
-        public const string TopicLinkTemplate = "/topic/{0}/{1}";
+        public const string SubtopicLinkTemplate = "/glossary/topic/{0}/{1}";
+        public const string TopicLinkTemplate = "/glossary/topic/{0}";
+        public const string DisambiguationLinkTemplate = "/glossary/topic/{0}/disambiguation";
         public const string TranscriptTitle = "## Transcript";
 
-        public static async Task<string> Replace(
+        public static Task<string> Replace(
             string markdown,
             List<KeywordInformation> keywords,
             ILogger log = null)
         {
-            log?.LogInformation("In ReplaceInMarkdown");
+            var tcs = new TaskCompletionSource<string>();
+
+            log?.LogInformationEx("In Replace", LogVerbosity.Verbose);
             var builder = new StringBuilder(markdown);
 
             var replaced = string.Empty;
@@ -57,23 +61,30 @@ namespace MsGlossaryApp.Model
                     {
                         // Preserve casing
                         var oldKeyword = markdown.Substring(indexOfKeyword, k.Keyword.Length);
-                        log?.LogInformation($"oldKeyword: {oldKeyword}");
+                        log?.LogInformationEx($"oldKeyword: {oldKeyword}", LogVerbosity.Debug);
 
                         string newUrlAlone = null;
 
-                        //if (k.Topic == k.Keyword)
-                        //{
-                        //    newUrlAlone = string.Format(TopicLinkTemplate, k.LanguageCode, k.Topic);
-                        //}
-                        //else
-                        //{
-                        //newUrlAlone = string.Format(SubtopicLinkTemplate, k.Topic., k.Subtopic);
-                        //}
+                        if (k.IsDisambiguation)
+                        {
+                            newUrlAlone = string.Format(DisambiguationLinkTemplate, k.Keyword.MakeSafeFileName());
+                        }
+                        else
+                        {
+                            if (k.Topic.TopicName == k.Keyword)
+                            {
+                                newUrlAlone = string.Format(TopicLinkTemplate, k.Topic.TopicName);
+                            }
+                            else
+                            {
+                                newUrlAlone = string.Format(SubtopicLinkTemplate, k.Topic.TopicName, k.Keyword.MakeSafeFileName());
+                            }
+                        }
 
-                        log?.LogInformation($"newUrlAlone: {newUrlAlone}");
+                        log?.LogInformationEx($"newUrlAlone: {newUrlAlone}", LogVerbosity.Debug);
 
                         var newUrl = string.Format(KeywordLinkTemplate, oldKeyword, newUrlAlone);
-                        log?.LogInformation($"newUrl: {newUrl}");
+                        log?.LogInformationEx($"newUrl: {newUrl}", LogVerbosity.Debug);
 
                         var foundOpening = false;
                         var indexOfOpening = -1;
@@ -201,8 +212,10 @@ namespace MsGlossaryApp.Model
                 while (indexOfKeyword > -1 && !stop);
             }
 
-            log?.LogInformation("Done replacing keywords");
-            return builder.ToString();
+            tcs.SetResult(builder.ToString());
+
+            log?.LogInformationEx("Out Replace", LogVerbosity.Verbose);
+            return tcs.Task;
         }
     }
 }

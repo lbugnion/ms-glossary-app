@@ -25,5 +25,16 @@
             get;
             set;
         }
+
+        public bool IsDisambiguation 
+        { 
+            get; 
+            set; 
+        }
+
+        public override string ToString()
+        {
+            return $"{Keyword} - {Topic?.Title}";
+        }
     }
 }

@@ -17,8 +17,11 @@ namespace MsGlossaryApp.Model
             string authorName,
             string email,
             string github,
-            string twitter)
+            string twitter,
+            ILogger log = null)
         {
+            log?.LogInformationEx("In MakeAuthors", LogVerbosity.Verbose);
+
             var authorNames = authorName.Split(new char[]
             {
                 Constants.Separator
@@ -43,6 +46,7 @@ namespace MsGlossaryApp.Model
                 || authorNames.Length != githubs.Length
                 || authorNames.Length != twitters.Length)
             {
+                log?.LogError("Invalid author, email github or twitter lists");
                 throw new InvalidOperationException("Invalid author, email github or twitter lists");
             }
 
@@ -59,11 +63,16 @@ namespace MsGlossaryApp.Model
                 result.Add(author);
             }
 
+            log?.LogInformationEx("Out MakeAuthors", LogVerbosity.Verbose);
             return result;
         }
 
-        private static IList<LanguageInfo> MakeLanguages(string captions)
+        private static IList<LanguageInfo> MakeLanguages(
+            string captions,
+            ILogger log = null)
         {
+            log?.LogInformationEx("In MakeLanguages", LogVerbosity.Verbose);
+
             if (string.IsNullOrEmpty(captions))
             {
                 return null;
@@ -90,16 +99,23 @@ namespace MsGlossaryApp.Model
                 });
             }
 
+            log?.LogInformationEx("Out MakeLanguages", LogVerbosity.Verbose);
             return result;
         }
 
-        private static string MakeDisambiguationTitleLink(KeywordInformation keyword)
+        private static string MakeDisambiguationTitleLink(
+            KeywordInformation keyword,
+            ILogger log = null)
         {
+            log?.LogInformationEx("In MakeDisambiguationTitleLink", LogVerbosity.Verbose);
             return $"[{keyword.Keyword}](/glossary/topic/{keyword.Keyword.MakeSafeFileName()}/disambiguation)";
         }
 
-        private static string MakeTitleLink(KeywordInformation keyword)
+        private static string MakeTitleLink(
+            KeywordInformation keyword,
+            ILogger log = null)
         {
+            log?.LogInformationEx("In MakeTitleLink", LogVerbosity.Verbose);
             if (keyword.IsMainKeyword)
             {
                 return $"[{keyword.Topic.Title}](/glossary/topic/{keyword.Topic.TopicName})";
@@ -111,8 +127,10 @@ namespace MsGlossaryApp.Model
         }
 
         private static string MakeTopicText(
-            KeywordInformation keyword)
+            KeywordInformation keyword,
+            ILogger log)
         {
+            log?.LogInformationEx("In MakeTopicText", LogVerbosity.Verbose);
             var topic = keyword.Topic;
 
             var redirect = string.Empty;
@@ -136,7 +154,7 @@ namespace MsGlossaryApp.Model
                 .AppendLine("---")
                 .AppendLine()
                 .Append(Constants.H1)
-                .Append(MakeTitleLink(keyword))
+                .Append(MakeTitleLink(keyword, log))
                 .AppendLine(redirect)
                 .AppendLine()
                 .AppendLine($"> {topic.Blurb}")
@@ -205,12 +223,16 @@ namespace MsGlossaryApp.Model
             }
 
             builder.AppendLine();
-
+            log?.LogInformationEx("Out MakeTopicText", LogVerbosity.Verbose);
             return builder.ToString();
         }
 
-        public static async Task<TopicInformation> CreateTopic(Uri uri, ILogger log)
+        public static async Task<TopicInformation> CreateTopic(
+            Uri uri, 
+            ILogger log)
         {
+            log?.LogInformationEx("In CreateTopic", LogVerbosity.Verbose);
+
             var topic = new TopicInformation
             {
                 Uri = uri
@@ -220,8 +242,7 @@ namespace MsGlossaryApp.Model
             topic.TopicName = Path.GetFileNameWithoutExtension(topicBlob.Name);
             topic.TopicName = Path.GetFileNameWithoutExtension(topic.TopicName);
 
-            log?.LogInformation("In MarkdownUpdater.CreateTopics");
-            log?.LogInformation($"Topic: {topic.TopicName}");
+            log?.LogInformationEx($"Topic: {topic.TopicName}", LogVerbosity.Verbose);
 
             string oldMarkdown = await topicBlob.DownloadTextAsync();
             var markdownReader = new StringReader(oldMarkdown);
@@ -287,52 +308,52 @@ namespace MsGlossaryApp.Model
                 else if (line.StartsWith(Constants.Input.YouTubeMarker))
                 {
                     youTubeCode = line.Substring(Constants.Input.YouTubeMarker.Length).Trim();
-                    log?.LogInformation($"youTubeCode: {youTubeCode}");
+                    log?.LogInformationEx($"youTubeCode: {youTubeCode}", LogVerbosity.Debug);
                 }
                 else if (line.StartsWith(Constants.Input.KeywordsMarker))
                 {
                     keywordsLine = line.Substring(Constants.Input.KeywordsMarker.Length).Trim();
-                    log?.LogInformation($"keywordsLine: {keywordsLine}");
+                    log?.LogInformationEx($"keywordsLine: {keywordsLine}", LogVerbosity.Debug);
                 }
                 else if (line.StartsWith(Constants.Input.BlurbMarker))
                 {
                     blurb = line.Substring(Constants.Input.BlurbMarker.Length).Trim();
-                    log?.LogInformation($"blurb: {blurb}");
+                    log?.LogInformationEx($"blurb: {blurb}", LogVerbosity.Debug);
                 }
                 else if (line.StartsWith(Constants.Input.CaptionsMarker))
                 {
                     captions = line.Substring(Constants.Input.CaptionsMarker.Length).Trim();
-                    log?.LogInformation($"captions: {captions}");
+                    log?.LogInformationEx($"captions: {captions}", LogVerbosity.Debug);
                 }
                 else if (line.StartsWith(Constants.Input.LanguageMarker))
                 {
                     language = line.Substring(Constants.Input.LanguageMarker.Length).Trim();
-                    log?.LogInformation($"language: {language}");
+                    log?.LogInformationEx($"language: {language}", LogVerbosity.Debug);
                 }
                 else if (line.StartsWith(Constants.Input.AuthorNameMarker))
                 {
                     authorName = line.Substring(Constants.Input.AuthorNameMarker.Length).Trim();
-                    log?.LogInformation($"authorName: {authorName}");
+                    log?.LogInformationEx($"authorName: {authorName}", LogVerbosity.Debug);
                 }
                 else if (line.StartsWith(Constants.Input.EmailMarker))
                 {
                     email = line.Substring(Constants.Input.EmailMarker.Length).Trim();
-                    log?.LogInformation($"email: {email}");
+                    log?.LogInformationEx($"email: {email}", LogVerbosity.Debug);
                 }
                 else if (line.StartsWith(Constants.Input.GitHubMarker))
                 {
                     github = line.Substring(Constants.Input.GitHubMarker.Length).Trim();
-                    log?.LogInformation($"github: {github}");
+                    log?.LogInformationEx($"github: {github}", LogVerbosity.Debug);
                 }
                 else if (line.StartsWith(Constants.Input.TwitterMarker))
                 {
                     twitter = line.Substring(Constants.Input.TwitterMarker.Length).Trim();
-                    log?.LogInformation($"twitter: {twitter}");
+                    log?.LogInformationEx($"twitter: {twitter}", LogVerbosity.Debug);
                 }
                 else if (line.StartsWith(Constants.Input.RecordingDateMarker))
                 {
                     var dateString = line.Substring(Constants.Input.RecordingDateMarker.Length).Trim();
-                    log?.LogInformation($"dateString: {dateString}");
+                    log?.LogInformationEx($"dateString: {dateString}", LogVerbosity.Debug);
                     recordingDate = DateTime.ParseExact(dateString, "yyyyMMdd", CultureInfo.InvariantCulture);
                 }
             }
@@ -343,9 +364,9 @@ namespace MsGlossaryApp.Model
             topic.RecordingDate = recordingDate;
             topic.YouTubeCode = youTubeCode;
             topic.Blurb = blurb;
-            topic.Authors = MakeAuthors(authorName, email, github, twitter);
-            topic.Captions = MakeLanguages(captions);
-            topic.Language = MakeLanguages(language).First();
+            topic.Authors = MakeAuthors(authorName, email, github, twitter, log);
+            topic.Captions = MakeLanguages(captions, log);
+            topic.Language = MakeLanguages(language, log).First();
             topic.Keywords = keywordsLine.Split(new char[]
             {
                 ','
@@ -353,19 +374,54 @@ namespace MsGlossaryApp.Model
                 .Select(k => k.Trim())
                 .ToList();
 
+            log?.LogInformationEx("Out CreateTopic", LogVerbosity.Verbose);
             return topic;
         }
 
-        // TODO Replace with committing to GitHub
-        public static async Task<string> SaveDisambiguation(IList<KeywordInformation> keywords, ILogger log)
+        public static Task<IList<KeywordInformation>> SortDisambiguations(
+            IList<KeywordInformation> keywords,
+            ILogger log = null)
         {
+            log?.LogInformationEx("In SortDisambiguations", LogVerbosity.Verbose);
+
+            var tcs = new TaskCompletionSource<IList<KeywordInformation>>();
+
+            var disambiguations = keywords
+                .Where(k => k.MustDisambiguate)
+                .GroupBy(k => k.Keyword.ToLower())
+                .ToList();
+
+            foreach (var group in disambiguations)
+            {
+                keywords.Add(new KeywordInformation
+                {
+                    IsMainKeyword = false,
+                    Keyword = group.First().Keyword,
+                    MustDisambiguate = false,
+                    Topic = null,
+                    IsDisambiguation = true
+                });
+            }
+
+            tcs.SetResult(keywords);
+            log?.LogInformationEx("Out SortDisambiguations", LogVerbosity.Verbose);
+            return tcs.Task;
+        }
+
+        // TODO Replace with committing to GitHub
+        public static async Task<string> SaveDisambiguation(
+            IList<KeywordInformation> keywords, 
+            ILogger log = null)
+        {
+            log?.LogInformationEx("In SaveDisambiguation", LogVerbosity.Verbose);
+
             try
             {
                 var firstKeyword = keywords.First();
 
-                string name = $"{firstKeyword.Keyword.MakeSafeFileName()}-disambiguation.md";
+                string name = $"{firstKeyword.Keyword.MakeSafeFileName()}_disambiguation.md";
 
-                string text = MakeDisambiguationText(keywords);
+                string text = MakeDisambiguationText(keywords, log);
 
                 var account = CloudStorageAccount.Parse(
                     Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
@@ -379,14 +435,20 @@ namespace MsGlossaryApp.Model
             }
             catch (Exception ex)
             {
+                log?.LogError(ex, "Error in SaveDisambiguation");
                 return ex.Message;
             }
 
+            log?.LogInformationEx("Out SaveDisambiguation", LogVerbosity.Verbose);
             return null;
         }
 
-        private static string MakeDisambiguationText(IList<KeywordInformation> keywords)
+        private static string MakeDisambiguationText(
+            IList<KeywordInformation> keywords,
+            ILogger log = null)
         {
+            log?.LogInformationEx("In MakeDisambiguationText", LogVerbosity.Verbose);
+
             var lastKeyword = keywords.OrderByDescending(k => k.Topic.RecordingDate).First();
 
             var dateString = lastKeyword.Topic.RecordingDate.ToShortDateString();
@@ -403,7 +465,7 @@ namespace MsGlossaryApp.Model
                 .AppendLine("---")
                 .AppendLine()
                 .Append(Constants.H1)
-                .Append(MakeDisambiguationTitleLink(lastKeyword))
+                .Append(MakeDisambiguationTitleLink(lastKeyword, log))
                 .AppendLine(" (disambiguation)")
                 .AppendLine()
                 .Append(Constants.H2)
@@ -413,31 +475,35 @@ namespace MsGlossaryApp.Model
             foreach (var keyword in keywords.OrderBy(k => k.Topic.Title))
             {
                 builder
-                    .AppendLine($"- In {MakeTitleLink(keyword)}, {keyword.Topic.Blurb}");
+                    .AppendLine($"- In {MakeTitleLink(keyword, log)}, {keyword.Topic.Blurb}");
             }
 
             builder.AppendLine();
-
+            log?.LogInformationEx("Out MakeDisambiguationText", LogVerbosity.Verbose);
             return builder.ToString();
         }
 
         // TODO Replace with committing to GitHub
-        public static async Task<string> SaveKeyword(KeywordInformation keyword, ILogger log)
+        public static async Task<string> SaveKeyword(
+            KeywordInformation keyword, 
+            ILogger log = null)
         {
+            log?.LogInformationEx("In SaveKeyword", LogVerbosity.Verbose);
+
             try
             {
                 string name = null;
 
                 if (keyword.IsMainKeyword)
                 {
-                    name = $"{keyword.Topic.TopicName.MakeSafeFileName()}-index.md";
+                    name = $"{keyword.Topic.TopicName.MakeSafeFileName()}_index.md";
                 }
                 else
                 {
-                    name = $"{keyword.Topic.TopicName.MakeSafeFileName()}-{keyword.Keyword.MakeSafeFileName()}.md";
+                    name = $"{keyword.Topic.TopicName.MakeSafeFileName()}_{keyword.Keyword.MakeSafeFileName()}.md";
                 }
 
-                string text = MakeTopicText(keyword);
+                string text = MakeTopicText(keyword, log);
 
                 var account = CloudStorageAccount.Parse(
                     Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
@@ -451,17 +517,23 @@ namespace MsGlossaryApp.Model
             }
             catch (Exception ex)
             {
+                log?.LogError(ex, "Error in SaveKeyword");
                 return ex.Message;
             }
 
+            log?.LogInformationEx("Out SaveKeyword", LogVerbosity.Verbose);
             return null;
         }
 
-        public static async Task<IList<KeywordInformation>> SortKeywords(
+        public static Task<IList<KeywordInformation>> SortKeywords(
             IList<TopicInformation> allTopics,
             TopicInformation currentTopic,
             ILogger log = null)
         {
+            log?.LogInformationEx("In SortKeywords", LogVerbosity.Verbose);
+
+            var tcs = new TaskCompletionSource<IList<KeywordInformation>>();
+
             var result = new List<KeywordInformation>();
 
             foreach (var keyword in currentTopic.Keywords)
@@ -481,7 +553,7 @@ namespace MsGlossaryApp.Model
                     newKeyword.MustDisambiguate = true;
                 }
 
-                if (newKeyword.Keyword.ToLower() == currentTopic.TopicName.ToLower())
+                if (newKeyword.Keyword.MakeSafeFileName().ToLower() == currentTopic.TopicName.ToLower())
                 {
                     newKeyword.IsMainKeyword = true;
                 }
@@ -494,14 +566,16 @@ namespace MsGlossaryApp.Model
                 var mainKeyword = new KeywordInformation
                 {
                     IsMainKeyword = true,
-                    Keyword = currentTopic.TopicName,
+                    Keyword = currentTopic.Title,
                     Topic = currentTopic
                 };
 
                 result.Add(mainKeyword);
             }
 
-            return result;
+            tcs.SetResult(result);
+            log?.LogInformationEx("Out SortKeywords", LogVerbosity.Verbose);
+            return tcs.Task;
         }
     }
 }
