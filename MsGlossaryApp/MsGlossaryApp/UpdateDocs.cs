@@ -123,7 +123,7 @@ namespace MsGlossaryApp
                 nameof(UpdateDocsSortDisambiguations),
                 allKeywords);
 
-            var replaceKeywordsTasks = new List<Task>();
+            var replaceKeywordsTasks = new List<Task<TopicInformation>>();
 
             foreach (var topic in allTopics)
             {
@@ -142,13 +142,19 @@ namespace MsGlossaryApp
                 }
             }
 
-            await Task.WhenAll(replaceKeywordsTasks);
+            allTopics = await Task.WhenAll(replaceKeywordsTasks);
 
             var filesCreationTasks = new List<Task<string>>();
 
             foreach (var keyword in allKeywords.Where(k => !k.IsDisambiguation))
             {
-                //var keyword = allKeywords.First();
+                //var keyword = allKeywords.First(k => k.Keyword.MakeSafeFileName() == "aad"
+                //    && k.TopicName == "aad");
+
+                var currentTopic = allTopics
+                    .Single(testc => testc.TopicName == keyword.TopicName);
+
+                keyword.Topic = currentTopic;
 
                 filesCreationTasks.Add(context.CallActivityAsync<string>(
                     nameof(UpdateDocsMakeMarkdown),
@@ -183,6 +189,14 @@ namespace MsGlossaryApp
             foreach (var group in keywordsGroups)
             {
                 //var group = keywordsGroups.First();
+
+                foreach (var keyword in group)
+                {
+                    var currentTopic = allTopics
+                        .Single(testc => testc.TopicName == keyword.TopicName);
+
+                    keyword.Topic = currentTopic;
+                }
 
                 disambiguationTasks.Add(context.CallActivityAsync<string>(
                     nameof(UpdateDocsMakeDisambiguation),

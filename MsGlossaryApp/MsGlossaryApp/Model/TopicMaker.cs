@@ -541,7 +541,7 @@ namespace MsGlossaryApp.Model
                 var newKeyword = new KeywordInformation
                 {
                     Keyword = keyword,
-                    Topic = currentTopic
+                    TopicName = currentTopic.TopicName
                 };
 
                 var sameKeywords = allTopics
@@ -567,7 +567,7 @@ namespace MsGlossaryApp.Model
                 {
                     IsMainKeyword = true,
                     Keyword = currentTopic.Title,
-                    Topic = currentTopic
+                    TopicName = currentTopic.TopicName
                 };
 
                 result.Add(mainKeyword);

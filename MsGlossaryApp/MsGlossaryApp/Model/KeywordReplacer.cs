@@ -35,6 +35,12 @@ namespace MsGlossaryApp.Model
                 var indexOfKeyword = -1;
                 var stop = false;
 
+                if (k.Keyword.ToLower() == "authorization"
+                    && k.TopicName == "aad")
+                {
+                    Console.WriteLine("stop");
+                }
+
                 do
                 {
                     indexOfKeyword = markdown.IndexOf(
@@ -71,13 +77,13 @@ namespace MsGlossaryApp.Model
                         }
                         else
                         {
-                            if (k.Topic.TopicName == k.Keyword)
+                            if (k.TopicName == k.Keyword.MakeSafeFileName())
                             {
-                                newUrlAlone = string.Format(TopicLinkTemplate, k.Topic.TopicName);
+                                newUrlAlone = string.Format(TopicLinkTemplate, k.TopicName);
                             }
                             else
                             {
-                                newUrlAlone = string.Format(SubtopicLinkTemplate, k.Topic.TopicName, k.Keyword.MakeSafeFileName());
+                                newUrlAlone = string.Format(SubtopicLinkTemplate, k.TopicName, k.Keyword.MakeSafeFileName());
                             }
                         }
 

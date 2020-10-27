@@ -1,4 +1,7 @@
-﻿namespace MsGlossaryApp.Model
+﻿using Microsoft.WindowsAzure.Storage.Table;
+using Newtonsoft.Json;
+
+namespace MsGlossaryApp.Model
 {
     public class KeywordInformation
     {
@@ -20,6 +23,12 @@
             set;
         }
 
+        public string TopicName
+        {
+            get;
+            set;
+        }
+
         public TopicInformation Topic
         {
             get;
@@ -34,7 +43,7 @@
 
         public override string ToString()
         {
-            return $"{Keyword} - {Topic?.Title}";
+            return $"{Keyword} - {TopicName}";
         }
     }
 }
