@@ -127,10 +127,10 @@ namespace MsGlossaryApp
 
             foreach (var topic in allTopics)
             {
-                //var topic = allTopics.First();
+                //var topic = allTopics.First(t => t.TopicName == "aad");
 
                 var keywordsToReplace = allKeywords
-                    .Where(k => k.Topic == null || k.Topic.Title != topic.Title)
+                    .Where(k => k.Topic == null && k.TopicName != topic.TopicName)
                     .Where(k => !k.MustDisambiguate)
                     .ToList();
 
