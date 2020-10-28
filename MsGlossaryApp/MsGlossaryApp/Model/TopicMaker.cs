@@ -227,6 +227,82 @@ namespace MsGlossaryApp.Model
             return builder.ToString();
         }
 
+        private static string MakeTopicTextWithoutVideo(
+            KeywordInformation keyword,
+            ILogger log)
+        {
+            log?.LogInformationEx("In MakeTopicTextWithoutVideo", LogVerbosity.Verbose);
+            var topic = keyword.Topic;
+
+            var redirect = string.Empty;
+
+            if (!keyword.IsMainKeyword)
+            {
+                redirect += $" (redirected from {keyword.Keyword})";
+            }
+
+            var dateString = topic.RecordingDate.ToShortDateString();
+
+            var builder = new StringBuilder()
+                .AppendLine("---")
+                .Append($"title: {topic.Title}")
+                .AppendLine(redirect)
+                .AppendLine($"description: Microsoft Glossary definition for {topic.Title}")
+                .AppendLine($"author: {topic.Authors.First().GitHub}")
+                .AppendLine($"ms.date: {dateString}")
+                .AppendLine($"ms.prod: non-product-specific")
+                .AppendLine($"ms.topic: glossary")
+                .AppendLine("---")
+                .AppendLine()
+                .Append(Constants.H1)
+                .Append(MakeTitleLink(keyword, log))
+                .AppendLine(redirect)
+                .AppendLine()
+                .AppendLine($"> {topic.Blurb}")
+                .AppendLine();
+
+            builder
+                .AppendLine($"{Constants.H2}Definition")
+                .AppendLine()
+                .AppendLine(topic.Transcript)
+                .AppendLine();
+
+            builder
+                .AppendLine($"{Constants.H2}Links");
+
+            foreach (var linkSection in topic.Links)
+            {
+                builder.AppendLine()
+                    .AppendLine($"{Constants.H3}{linkSection.Key}")
+                    .AppendLine();
+
+                foreach (var link in linkSection.Value)
+                {
+                    builder.AppendLine(link);
+                }
+            }
+
+            if (topic.Authors != null
+                && topic.Authors.Count > 0)
+            {
+                builder.AppendLine()
+                    .AppendLine($"{Constants.H2}Authors")
+                    .AppendLine()
+                    .Append("This topic was created by ");
+
+                foreach (var author in topic.Authors)
+                {
+                    builder.Append($"[{author.Name}](http://twitter.com/{author.Twitter}), ");
+                }
+
+                builder.Remove(builder.Length - 2, 2);
+            }
+
+            builder.AppendLine();
+            log?.LogInformationEx("Out MakeTopicTextWithoutVideo", LogVerbosity.Verbose);
+            return builder.ToString();
+        }
+
         public static async Task<TopicInformation> CreateTopic(
             Uri uri, 
             ILogger log)
@@ -503,7 +579,16 @@ namespace MsGlossaryApp.Model
                     name = $"{keyword.Topic.TopicName.MakeSafeFileName()}_{keyword.Keyword.MakeSafeFileName()}.md";
                 }
 
-                string text = MakeTopicText(keyword, log);
+                string text = null;
+
+                if (string.IsNullOrEmpty(keyword.Topic.YouTubeCode))
+                {
+                    text = MakeTopicTextWithoutVideo(keyword, log);
+                }
+                else
+                {
+                    text = MakeTopicText(keyword, log);
+                }
 
                 var account = CloudStorageAccount.Parse(
                     Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));

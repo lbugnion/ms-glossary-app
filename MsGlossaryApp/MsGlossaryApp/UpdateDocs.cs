@@ -219,6 +219,8 @@ namespace MsGlossaryApp
 
                 return;
             }
+
+            // TODO Create and save TOC.yml
         }
 
         [FunctionName(nameof(UpdateDocsSortDisambiguations))]

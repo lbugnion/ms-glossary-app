@@ -35,12 +35,6 @@ namespace MsGlossaryApp.Model
                 var indexOfKeyword = -1;
                 var stop = false;
 
-                if (k.Keyword.ToLower() == "authorization"
-                    && k.TopicName == "aad")
-                {
-                    Console.WriteLine("stop");
-                }
-
                 do
                 {
                     indexOfKeyword = markdown.IndexOf(
