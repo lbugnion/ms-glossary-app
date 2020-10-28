@@ -111,6 +111,27 @@ namespace MsGlossaryApp.Model
             return $"[{keyword.Keyword}](/glossary/topic/{keyword.Keyword.MakeSafeFileName()}/disambiguation)";
         }
 
+        private static string MakeTocLink(
+            KeywordInformation keyword,
+            ILogger log = null)
+        {
+            log?.LogInformationEx("In MakeTocLink", LogVerbosity.Verbose);
+            
+            if (keyword.IsMainKeyword)
+            {
+                if (keyword.IsDisambiguation)
+                {
+                    return $"topic/{keyword.Keyword.MakeSafeFileName()}/disambiguation";
+                }
+
+                return $"topic/{keyword.Topic.TopicName}";
+            }
+            else
+            {
+                return $"topic/{keyword.Topic.TopicName}/{keyword.Keyword.MakeSafeFileName()}";
+            }
+        }
+
         private static string MakeTitleLink(
             KeywordInformation keyword,
             ILogger log = null)
@@ -303,6 +324,73 @@ namespace MsGlossaryApp.Model
             return builder.ToString();
         }
 
+        public static async Task<string> SaveTableOfContents(
+            IList<KeywordInformation> keywords,
+            ILogger log = null)
+        {
+            try
+            {
+                var tocBuilder = new StringBuilder()
+                    .AppendLine("- name: Microsoft Glossary")
+                    .AppendLine("  href: index.md")
+                    .AppendLine();
+
+                var groups = keywords
+                    .GroupBy(k => k.Topic.Title);
+
+                foreach (var g in groups.OrderBy(g => g.Key))
+                {
+                    var mainKeyword = g.First(k => k.IsMainKeyword);
+
+                    if (mainKeyword.IsDisambiguation)
+                    {
+                        tocBuilder
+                            .AppendLine($"- name: {mainKeyword.Keyword} (disambiguation)")
+                            .AppendLine($"  href: {MakeTocLink(mainKeyword)}");
+                    }
+                    else
+                    {
+                        tocBuilder
+                            .AppendLine($"- name: {mainKeyword.Topic.Title}")
+                            .AppendLine($"  href: {MakeTocLink(mainKeyword)}");
+                    }
+
+                    var count = g.Count();
+
+                    if (count > 1)
+                    {
+                        tocBuilder
+                            .AppendLine("  items:");
+
+                        foreach (var k in g.Where(k => !k.IsMainKeyword).OrderBy(k => k.Keyword))
+                        {
+                            tocBuilder
+                                .AppendLine($"  - name: {k.Keyword}")
+                                .AppendLine($"    href: {MakeTocLink(k)}");
+                        }
+                    }
+                }
+
+                var name = "TOC.yml";
+
+                var account = CloudStorageAccount.Parse(
+                    Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
+
+                var client = account.CreateCloudBlobClient();
+                var helper = new BlobHelper(client, log);
+                var targetContainer = helper.GetContainer(Constants.OutputContainerVariableName);
+                var targetBlob = targetContainer.GetBlockBlobReference(name);
+
+                await targetBlob.UploadTextAsync(tocBuilder.ToString());
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+
+            return null;
+        }
+
         public static async Task<TopicInformation> CreateTopic(
             Uri uri, 
             ILogger log)
@@ -469,12 +557,20 @@ namespace MsGlossaryApp.Model
 
             foreach (var group in disambiguations)
             {
+                var first = group.First();
+                var topicName = first.Keyword.MakeSafeFileName();
+
                 keywords.Add(new KeywordInformation
                 {
-                    IsMainKeyword = false,
-                    Keyword = group.First().Keyword,
+                    IsMainKeyword = true,
+                    Keyword = first.Keyword,
                     MustDisambiguate = false,
-                    Topic = null,
+                    Topic = new TopicInformation
+                    {
+                        Title = first.Keyword,
+                        TopicName = "disambiguation"
+                    },
+                    TopicName = "disambiguation",
                     IsDisambiguation = true
                 });
             }

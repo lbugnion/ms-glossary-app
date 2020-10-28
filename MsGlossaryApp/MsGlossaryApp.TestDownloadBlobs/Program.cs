@@ -20,48 +20,68 @@ namespace MsGlossaryApp.TestDownloadBlobs
             var outputContainer = blobHelper.GetContainer(
                 Constants.OutputContainerVariableName);
 
-            BlobContinuationToken continuationToken = null;
+            Console.WriteLine("Ready, press any key except N to start");
 
-            var outputFolder = new DirectoryInfo(@"C:\Users\lbugnion\Desktop\blobs");
-
-            do
+            while (Console.ReadLine() != "N")
             {
-                var response = await outputContainer.ListBlobsSegmentedAsync(continuationToken);
-                continuationToken = response.ContinuationToken;
+                BlobContinuationToken continuationToken = null;
 
-                foreach (CloudBlockBlob blob in response.Results)
+                var outputFolder = new DirectoryInfo(@"C:\Users\lbugnion\Desktop\blobs");
+
+                do
                 {
-                    var nameParts = blob.Name.Split(new char[]
-                    {
-                        '_'
-                    });
+                    var response = await outputContainer.ListBlobsSegmentedAsync(continuationToken);
+                    continuationToken = response.ContinuationToken;
 
-                    var blobFolder = new DirectoryInfo(
-                        Path.Combine(
-                            outputFolder.FullName,
-                            nameParts[0]));
-
-                    if (!blobFolder.Exists)
+                    foreach (CloudBlockBlob blob in response.Results)
                     {
-                        blobFolder.Create();
+                        var content = await blob.DownloadTextAsync();
+                        string fileName;
+                        DirectoryInfo blobFolder;
+
+                        if (blob.Name.ToLower() == "toc.yml")
+                        {
+                            fileName = blob.Name;
+                            blobFolder = outputFolder;
+                        }
+                        else
+                        {
+                            var nameParts = blob.Name.Split(new char[]
+                            {
+                            '_'
+                            });
+
+                            blobFolder = new DirectoryInfo(
+                                Path.Combine(
+                                    outputFolder.FullName,
+                                    nameParts[0]));
+
+                            if (!blobFolder.Exists)
+                            {
+                                blobFolder.Create();
+                            }
+
+                            fileName = nameParts[1];
+                        }
+
+                        var file = new FileInfo(
+                            Path.Combine(
+                                blobFolder.FullName,
+                                fileName));
+
+                        using (var writer = new StreamWriter(file.FullName))
+                        {
+                            writer.Write(content);
+                        }
+
+                        Console.WriteLine(file.FullName);
                     }
-
-                    var content = await blob.DownloadTextAsync();
-
-                    var file = new FileInfo(
-                        Path.Combine(
-                            blobFolder.FullName,
-                            nameParts[1]));
-
-                    using (var writer = new StreamWriter(file.FullName))
-                    {
-                        writer.Write(content);
-                    }
-
-                    Console.WriteLine(file.FullName);
                 }
+                while (continuationToken != null);
+
+                Console.WriteLine("Press N to finish, any key to download again");
             }
-            while (continuationToken != null);
+
 
         }
     }

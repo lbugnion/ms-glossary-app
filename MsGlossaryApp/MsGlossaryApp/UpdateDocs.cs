@@ -130,8 +130,9 @@ namespace MsGlossaryApp
                 //var topic = allTopics.First(t => t.TopicName == "aad");
 
                 var keywordsToReplace = allKeywords
-                    .Where(k => k.Topic == null && k.TopicName != topic.TopicName)
-                    .Where(k => !k.MustDisambiguate)
+                    .Where(k => 
+                        k.TopicName != topic.TopicName
+                        && !k.MustDisambiguate)
                     .ToList();
 
                 if (keywordsToReplace.Count > 0)
@@ -220,7 +221,29 @@ namespace MsGlossaryApp
                 return;
             }
 
-            // TODO Create and save TOC.yml
+            // Create the TOC
+
+            var error = await context.CallActivityAsync<string>(
+                nameof(UpdateTableOfContents),
+                allKeywords);
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                await NotificationService.Notify(
+                    "ERROR when updating TOC",
+                    error,
+                    null);
+                return;
+            }
+        }
+
+        [FunctionName(nameof(UpdateTableOfContents))]
+        public static async Task<string> UpdateTableOfContents(
+            [ActivityTrigger]
+            IList<KeywordInformation> keywords,
+            ILogger log)
+        {
+            return await TopicMaker.SaveTableOfContents(keywords, log);
         }
 
         [FunctionName(nameof(UpdateDocsSortDisambiguations))]
