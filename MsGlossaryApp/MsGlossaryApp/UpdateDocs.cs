@@ -40,23 +40,23 @@ namespace MsGlossaryApp
         }
 
         [FunctionName(nameof(UpdateDocsMakeDisambiguation))]
-        public static async Task<string> UpdateDocsMakeDisambiguation(
+        public static async Task<GlossaryFileInfo> UpdateDocsMakeDisambiguation(
             [ActivityTrigger]
             IList<KeywordInformation> keywords,
             ILogger log)
         {
-            var exception = await TopicMaker.SaveDisambiguation(keywords, log);
-            return exception;
+            var file = await TopicMaker.CreateDisambiguationFile(keywords, log);
+            return file;
         }
 
         [FunctionName(nameof(UpdateDocsMakeMarkdown))]
-        public static async Task<string> UpdateDocsMakeMarkdown(
+        public static async Task<GlossaryFileInfo> UpdateDocsMakeMarkdown(
             [ActivityTrigger]
             KeywordInformation keyword,
             ILogger log)
         {
-            var exception = await TopicMaker.SaveKeyword(keyword, log);
-            return exception;
+            var file = await TopicMaker.CreateKeywordFile(keyword, log);
+            return file;
         }
 
         [FunctionName(nameof(UpdateDocsReplaceKeywords))]
@@ -127,7 +127,7 @@ namespace MsGlossaryApp
 
             foreach (var topic in allTopics)
             {
-                //var topic = allTopics.First(t => t.TopicName == "aad");
+                // var topic = allTopics.First(t => t.TopicName == "aad");
 
                 var keywordsToReplace = allKeywords
                     .Where(k => 
@@ -145,7 +145,7 @@ namespace MsGlossaryApp
 
             allTopics = await Task.WhenAll(replaceKeywordsTasks);
 
-            var filesCreationTasks = new List<Task<string>>();
+            var filesCreationTasks = new List<Task<GlossaryFileInfo>>();
 
             foreach (var keyword in allKeywords.Where(k => !k.IsDisambiguation))
             {
@@ -157,13 +157,17 @@ namespace MsGlossaryApp
 
                 keyword.Topic = currentTopic;
 
-                filesCreationTasks.Add(context.CallActivityAsync<string>(
+                filesCreationTasks.Add(context.CallActivityAsync<GlossaryFileInfo>(
                     nameof(UpdateDocsMakeMarkdown),
                     keyword));
             }
 
-            var errors = (await Task.WhenAll(filesCreationTasks))
-                .Where(e => !string.IsNullOrEmpty(e))
+            var filesToSave = (await Task.WhenAll(filesCreationTasks))
+                .ToList();
+
+            var errors = filesToSave
+                .Where(f => !string.IsNullOrEmpty(f.ErrorMessage))
+                .Select(f => f.ErrorMessage)
                 .ToList();
 
             if (errors.Count > 0)
@@ -185,7 +189,7 @@ namespace MsGlossaryApp
                 .Where(k => k.MustDisambiguate)
                 .GroupBy(k => k.Keyword.ToLower());
 
-            var disambiguationTasks = new List<Task<string>>();
+            var disambiguationTasks = new List<Task<GlossaryFileInfo>>();
 
             foreach (var group in keywordsGroups)
             {
@@ -199,13 +203,16 @@ namespace MsGlossaryApp
                     keyword.Topic = currentTopic;
                 }
 
-                disambiguationTasks.Add(context.CallActivityAsync<string>(
+                disambiguationTasks.Add(context.CallActivityAsync<GlossaryFileInfo>(
                     nameof(UpdateDocsMakeDisambiguation),
                     group.ToList()));
             }
 
-            errors = (await Task.WhenAll(disambiguationTasks))
-                .Where(s => !string.IsNullOrEmpty(s))
+            filesToSave.AddRange(await Task.WhenAll(disambiguationTasks));
+
+            errors = filesToSave
+                .Where(f => !string.IsNullOrEmpty(f.ErrorMessage))
+                .Select(f => f.ErrorMessage)
                 .ToList();
 
             if (errors.Count > 0)
@@ -223,27 +230,51 @@ namespace MsGlossaryApp
 
             // Create the TOC
 
-            var error = await context.CallActivityAsync<string>(
-                nameof(UpdateTableOfContents),
+            var toc = await context.CallActivityAsync<GlossaryFileInfo>(
+                nameof(UpdateDocsUpdateTableOfContents),
                 allKeywords);
 
-            if (!string.IsNullOrEmpty(error))
+            if (!string.IsNullOrEmpty(toc.ErrorMessage))
             {
                 await NotificationService.Notify(
                     "ERROR when updating TOC",
-                    error,
+                    toc.ErrorMessage,
                     null);
                 return;
             }
+
+            filesToSave.Add(toc);
+
+            var verifyTasks = new List<Task<GlossaryFileInfo>>();
+
+            foreach (var file in filesToSave)
+            {
+                //var file = filesToSave.First();
+
+                verifyTasks.Add(context.CallActivityAsync<GlossaryFileInfo>(
+                    nameof(UpdateDocsVerifyFiles),
+                    file));
+            }
+
+            var verifiedFiles = await Task.WhenAll(verifyTasks);
         }
 
-        [FunctionName(nameof(UpdateTableOfContents))]
-        public static async Task<string> UpdateTableOfContents(
+        [FunctionName(nameof(UpdateDocsVerifyFiles))]
+        public static async Task<GlossaryFileInfo> UpdateDocsVerifyFiles(
+            [ActivityTrigger]
+            GlossaryFileInfo file,
+            ILogger log)
+        {
+            return await TopicMaker.VerifyFile(file);
+        }
+
+        [FunctionName(nameof(UpdateDocsUpdateTableOfContents))]
+        public static async Task<GlossaryFileInfo> UpdateDocsUpdateTableOfContents(
             [ActivityTrigger]
             IList<KeywordInformation> keywords,
             ILogger log)
         {
-            return await TopicMaker.SaveTableOfContents(keywords, log);
+            return await TopicMaker.CreateTableOfContentsFile(keywords, log);
         }
 
         [FunctionName(nameof(UpdateDocsSortDisambiguations))]

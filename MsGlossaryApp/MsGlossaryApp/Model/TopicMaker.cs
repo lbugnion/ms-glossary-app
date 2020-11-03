@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,6 +14,8 @@ namespace MsGlossaryApp.Model
 {
     public static class TopicMaker
     {
+        private const string GitHubRawPathTemplate = "https://raw.githubusercontent.com/{0}/{1}/{2}/{3}";
+
         private static IList<AuthorInformation> MakeAuthors(
             string authorName,
             string email,
@@ -324,10 +327,45 @@ namespace MsGlossaryApp.Model
             return builder.ToString();
         }
 
-        public static async Task<string> SaveTableOfContents(
+        public static async Task<GlossaryFileInfo> VerifyFile(GlossaryFileInfo file)
+        {
+            var account = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubAccountVariableName);
+            var repo = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubRepoVariableName);
+            var branch = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubMainBranchNameVariableName);
+
+            var url = string.Format(
+                GitHubRawPathTemplate,
+                account,
+                repo,
+                branch,
+                file.Path);
+
+            try
+            {
+                var client = new HttpClient();
+                var currentText = await client.GetStringAsync(url);
+
+                if (currentText != file.Content)
+                {
+                    file.MustSave = true;
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                file.MustSave = true;
+            }
+
+            return file;
+        }
+
+        public static Task<GlossaryFileInfo> CreateTableOfContentsFile(
             IList<KeywordInformation> keywords,
             ILogger log = null)
         {
+            log?.LogInformationEx("In CreateTableOfContentsFile", LogVerbosity.Verbose);
+            var result = new GlossaryFileInfo();
+            var tcs = new TaskCompletionSource<GlossaryFileInfo>();
+
             try
             {
                 var tocBuilder = new StringBuilder()
@@ -371,24 +409,18 @@ namespace MsGlossaryApp.Model
                     }
                 }
 
-                var name = "TOC.yml";
-
-                var account = CloudStorageAccount.Parse(
-                    Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
-
-                var client = account.CreateCloudBlobClient();
-                var helper = new BlobHelper(client, log);
-                var targetContainer = helper.GetContainer(Constants.OutputContainerVariableName);
-                var targetBlob = targetContainer.GetBlockBlobReference(name);
-
-                await targetBlob.UploadTextAsync(tocBuilder.ToString());
+                result.Path = "glossary/TOC.yml";
+                result.Content = tocBuilder.ToString();
             }
             catch (Exception ex)
             {
-                return ex.Message;
+                log?.LogError("Error in CreateTableOfContentsFile", ex);
+                result.ErrorMessage = ex.Message;
             }
 
-            return null;
+            log?.LogInformationEx("Out CreateTableOfContentsFile", LogVerbosity.Verbose);
+            tcs.SetResult(result);
+            return tcs.Task;
         }
 
         public static async Task<TopicInformation> CreateTopic(
@@ -580,39 +612,34 @@ namespace MsGlossaryApp.Model
             return tcs.Task;
         }
 
-        // TODO Replace with committing to GitHub
-        public static async Task<string> SaveDisambiguation(
+        public static Task<GlossaryFileInfo> CreateDisambiguationFile(
             IList<KeywordInformation> keywords, 
             ILogger log = null)
         {
-            log?.LogInformationEx("In SaveDisambiguation", LogVerbosity.Verbose);
+            log?.LogInformationEx("In CreateDisambiguationFile", LogVerbosity.Verbose);
+            var result = new GlossaryFileInfo();
+            var tcs = new TaskCompletionSource<GlossaryFileInfo>();
 
             try
             {
                 var firstKeyword = keywords.First();
 
-                string name = $"{firstKeyword.Keyword.MakeSafeFileName()}_disambiguation.md";
+                string path = $"glossary/topic/{firstKeyword.Keyword.MakeSafeFileName()}/disambiguation.md";
 
                 string text = MakeDisambiguationText(keywords, log);
 
-                var account = CloudStorageAccount.Parse(
-                    Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
-
-                var client = account.CreateCloudBlobClient();
-                var helper = new BlobHelper(client, log);
-                var targetContainer = helper.GetContainer(Constants.OutputContainerVariableName);
-                var targetBlob = targetContainer.GetBlockBlobReference(name);
-
-                await targetBlob.UploadTextAsync(text);
+                result.Path = path;
+                result.Content = text;
             }
             catch (Exception ex)
             {
-                log?.LogError(ex, "Error in SaveDisambiguation");
-                return ex.Message;
+                log?.LogError(ex, "Error in CreateDisambiguationFile");
+                result.ErrorMessage = ex.Message;
             }
 
-            log?.LogInformationEx("Out SaveDisambiguation", LogVerbosity.Verbose);
-            return null;
+            log?.LogInformationEx("Out CreateDisambiguationFile", LogVerbosity.Verbose);
+            tcs.SetResult(result);
+            return tcs.Task;
         }
 
         private static string MakeDisambiguationText(
@@ -655,24 +682,26 @@ namespace MsGlossaryApp.Model
             return builder.ToString();
         }
 
-        // TODO Replace with committing to GitHub
-        public static async Task<string> SaveKeyword(
+        public static Task<GlossaryFileInfo> CreateKeywordFile(
             KeywordInformation keyword, 
             ILogger log = null)
         {
-            log?.LogInformationEx("In SaveKeyword", LogVerbosity.Verbose);
+            log?.LogInformationEx("In CreateKeywordFile", LogVerbosity.Verbose);
+
+            var tcs = new TaskCompletionSource<GlossaryFileInfo>();
+            var result = new GlossaryFileInfo();
 
             try
             {
-                string name = null;
+                string path = null;
 
                 if (keyword.IsMainKeyword)
                 {
-                    name = $"{keyword.Topic.TopicName.MakeSafeFileName()}_index.md";
+                    path = $"glossary/topic/{keyword.Topic.TopicName.MakeSafeFileName()}/index.md";
                 }
                 else
                 {
-                    name = $"{keyword.Topic.TopicName.MakeSafeFileName()}_{keyword.Keyword.MakeSafeFileName()}.md";
+                    path = $"glossary/topic/{keyword.Topic.TopicName.MakeSafeFileName()}/{keyword.Keyword.MakeSafeFileName()}.md";
                 }
 
                 string text = null;
@@ -686,24 +715,18 @@ namespace MsGlossaryApp.Model
                     text = MakeTopicText(keyword, log);
                 }
 
-                var account = CloudStorageAccount.Parse(
-                    Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
-
-                var client = account.CreateCloudBlobClient();
-                var helper = new BlobHelper(client, log);
-                var targetContainer = helper.GetContainer(Constants.OutputContainerVariableName);
-                var targetBlob = targetContainer.GetBlockBlobReference(name);
-
-                await targetBlob.UploadTextAsync(text);
+                result.Path = path;
+                result.Content = text;
             }
             catch (Exception ex)
             {
-                log?.LogError(ex, "Error in SaveKeyword");
-                return ex.Message;
+                log?.LogError(ex, "Error in CreateKeywordFile");
+                result.ErrorMessage = ex.Message;
             }
 
-            log?.LogInformationEx("Out SaveKeyword", LogVerbosity.Verbose);
-            return null;
+            log?.LogInformationEx("Out CreateKeywordFile", LogVerbosity.Verbose);
+            tcs.SetResult(result);
+            return tcs.Task;
         }
 
         public static Task<IList<KeywordInformation>> SortKeywords(
