@@ -21,6 +21,7 @@
         public const string MsGlossaryGitHubAccountVariableName = "MsGlossaryGitHubAccount";
         public const string MsGlossaryGitHubMainBranchName = "MsGlossaryGitHubMainBranchName";
         public const string MsGlossaryGitHubRepoVariableName = "MsGlossaryGitHubRepo";
+        public const string SavingLocationVariableName = "SavingLocation";
 
         public static class Input
         {

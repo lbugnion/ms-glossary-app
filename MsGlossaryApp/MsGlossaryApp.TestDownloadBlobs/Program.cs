@@ -37,32 +37,29 @@ namespace MsGlossaryApp.TestDownloadBlobs
                     {
                         var content = await blob.DownloadTextAsync();
                         string fileName;
-                        DirectoryInfo blobFolder;
+                        DirectoryInfo blobFolder = outputFolder;
 
-                        if (blob.Name.ToLower() == "toc.yml")
+                        var nameParts = blob.Name.Split(new char[]
                         {
-                            fileName = blob.Name;
-                            blobFolder = outputFolder;
-                        }
-                        else
-                        {
-                            var nameParts = blob.Name.Split(new char[]
-                            {
                             '_'
-                            });
+                        });
 
+                        var root = outputFolder.FullName;
+
+                        for (var index = 0; index < nameParts.Length - 1; index++)
+                        {
                             blobFolder = new DirectoryInfo(
                                 Path.Combine(
-                                    outputFolder.FullName,
-                                    nameParts[0]));
+                                    blobFolder.FullName,
+                                    nameParts[index]));
 
                             if (!blobFolder.Exists)
                             {
                                 blobFolder.Create();
                             }
-
-                            fileName = nameParts[1];
                         }
+
+                        fileName = nameParts[nameParts.Length - 1];
 
                         var file = new FileInfo(
                             Path.Combine(

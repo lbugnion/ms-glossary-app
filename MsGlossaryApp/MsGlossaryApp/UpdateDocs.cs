@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using MsGlossaryApp.Model;
+using MsGlossaryApp.Model.GitHub;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,8 @@ namespace MsGlossaryApp
 {
     public static class UpdateDocs
     {
+        private const string CommitMessage = "New files committed by the pipeline";
+
         [FunctionName("UpdateDocs_HttpStart")]
         public static async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(
@@ -162,10 +165,10 @@ namespace MsGlossaryApp
                     keyword));
             }
 
-            var filesToSave = (await Task.WhenAll(filesCreationTasks))
+            var filesToVerify = (await Task.WhenAll(filesCreationTasks))
                 .ToList();
 
-            var errors = filesToSave
+            var errors = filesToVerify
                 .Where(f => !string.IsNullOrEmpty(f.ErrorMessage))
                 .Select(f => f.ErrorMessage)
                 .ToList();
@@ -208,9 +211,9 @@ namespace MsGlossaryApp
                     group.ToList()));
             }
 
-            filesToSave.AddRange(await Task.WhenAll(disambiguationTasks));
+            filesToVerify.AddRange(await Task.WhenAll(disambiguationTasks));
 
-            errors = filesToSave
+            errors = filesToVerify
                 .Where(f => !string.IsNullOrEmpty(f.ErrorMessage))
                 .Select(f => f.ErrorMessage)
                 .ToList();
@@ -243,11 +246,11 @@ namespace MsGlossaryApp
                 return;
             }
 
-            filesToSave.Add(toc);
+            filesToVerify.Add(toc);
 
             var verifyTasks = new List<Task<GlossaryFileInfo>>();
 
-            foreach (var file in filesToSave)
+            foreach (var file in filesToVerify)
             {
                 //var file = filesToSave.First();
 
@@ -256,7 +259,144 @@ namespace MsGlossaryApp
                     file));
             }
 
-            var verifiedFiles = await Task.WhenAll(verifyTasks);
+            var filesToSave = (await Task.WhenAll(verifyTasks))
+                .Where(f => f.MustSave)
+                .ToList();
+
+            if (filesToSave.Count == 0)
+            {
+                await NotificationService.Notify(
+                    "Nothing to commit",
+                    "No changes detected in the files to commit",
+                    null);
+                return;
+            }
+
+            //string error = null;
+            var error = await context.CallActivityAsync<string>(
+                nameof(UpdateDocsCommitFiles),
+                filesToSave);
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                await NotificationService.Notify(
+                    "ERROR when committing files",
+                    error,
+                    null);
+                return;
+            }
+
+            await NotificationService.Notify(
+                "New files committed",
+                "New files have been committed without errors",
+                null);
+        }
+
+        [FunctionName(nameof(UpdateDocsCommitFiles))]
+        public static async Task<string> UpdateDocsCommitFiles(
+            [ActivityTrigger]
+            IList<GlossaryFileInfo> files,
+            ILogger log)
+        {
+            log?.LogInformationEx("In UpdateDocsCommitFiles", LogVerbosity.Normal);
+            //return null;
+
+            SavingLocations savingLocation = SavingLocations.GitHub;
+
+            var savingLocationString = Environment.GetEnvironmentVariable(
+                Constants.SavingLocationVariableName);
+
+            if (!string.IsNullOrEmpty(savingLocationString))
+            {
+                var success = Enum.TryParse(
+                    savingLocationString, 
+                    out savingLocation);
+
+                if (!success)
+                {
+                    savingLocation = SavingLocations.GitHub;
+                }
+            }
+
+            string errorMessage = null;
+
+            if (savingLocation == SavingLocations.GitHub
+                || savingLocation == SavingLocations.Both)
+            {
+                log?.LogInformationEx("Committing to GitHub", LogVerbosity.Verbose);
+
+                var accountName = Environment.GetEnvironmentVariable(
+                    Constants.DocsGlossaryGitHubAccountVariableName);
+                var repoName = Environment.GetEnvironmentVariable(
+                    Constants.DocsGlossaryGitHubRepoVariableName);
+                var branchName = Environment.GetEnvironmentVariable(
+                    Constants.DocsGlossaryGitHubMainBranchNameVariableName);
+                var token = Environment.GetEnvironmentVariable(
+                    Constants.GitHubTokenVariableName);
+
+                log?.LogInformationEx($"accountName: {accountName}", LogVerbosity.Debug);
+                log?.LogInformationEx($"repoName: {repoName}", LogVerbosity.Debug);
+                log?.LogInformationEx($"branchName: {branchName}", LogVerbosity.Debug);
+                log?.LogInformationEx($"token: {token}", LogVerbosity.Debug);
+
+                var commitContent = files
+                    .Select(f => (f.Path, f.Content))
+                    .ToList();
+
+                var helper = new GitHubHelper();
+
+                var result = await helper.CommitFiles(
+                    accountName,
+                    repoName,
+                    branchName,
+                    token,
+                    CommitMessage,
+                    commitContent,
+                    log: log);
+
+                errorMessage = result.ErrorMessage;
+                log?.LogInformationEx("Done committing to GitHub", LogVerbosity.Verbose);
+            }
+
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                log?.LogError($"Error when committing files: {errorMessage}");
+                return errorMessage;
+            }
+
+            if (savingLocation == SavingLocations.Storage
+                || savingLocation == SavingLocations.Both)
+            {
+                log?.LogInformationEx("Saving to storage", LogVerbosity.Verbose);
+
+                try
+                {
+                    var account = CloudStorageAccount.Parse(
+                        Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
+
+                    var client = account.CreateCloudBlobClient();
+                    var helper = new BlobHelper(client, log);
+                    var targetContainer = helper.GetContainer(Constants.OutputContainerVariableName);
+
+                    foreach (var file in files)
+                    {
+                        var name = file.Path.Replace("/", "_");
+                        var targetBlob = targetContainer.GetBlockBlobReference(name);
+                        await targetBlob.UploadTextAsync(file.Content);
+                        log?.LogInformationEx($"Uploaded {name} to storage", LogVerbosity.Debug);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log?.LogError($"Error when committing files: {ex.Message}");
+                    return ex.Message;
+                }
+
+                log?.LogInformationEx("Done saving to storage", LogVerbosity.Verbose);
+            }
+
+            log?.LogInformationEx("Out UpdateDocsCommitFiles", LogVerbosity.Normal);
+            return null;
         }
 
         [FunctionName(nameof(UpdateDocsVerifyFiles))]
@@ -292,7 +432,7 @@ namespace MsGlossaryApp
             IList<TopicInformation> topics,
             ILogger log)
         {
-            log?.LogInformationEx("In SaveTopicsToSettings", LogVerbosity.Verbose);
+            log?.LogInformationEx("In UpdateDocsSaveTopicsToSettings", LogVerbosity.Normal);
 
             var account = CloudStorageAccount.Parse(
                 Environment.GetEnvironmentVariable(
@@ -311,7 +451,7 @@ namespace MsGlossaryApp
             log?.LogInformationEx($"json: {json}", LogVerbosity.Debug);
 
             await blob.UploadTextAsync(json);
-            log?.LogInformationEx("Out SaveTopicsToSettings", LogVerbosity.Verbose);
+            log?.LogInformationEx("Out UpdateDocsSaveTopicsToSettings", LogVerbosity.Normal);
         }
 
         [FunctionName(nameof(UpdateDocsSortKeywords))]

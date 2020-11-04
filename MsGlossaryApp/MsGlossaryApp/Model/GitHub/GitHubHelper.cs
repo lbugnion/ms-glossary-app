@@ -22,6 +22,12 @@ namespace MsGlossaryApp.Model.GitHub
 
         private HttpClient _client;
 
+        public GitHubHelper()
+        {
+            _client = new HttpClient();
+            _client.DefaultRequestHeaders.Add("User-Agent", "GalaSoft.GitHubHelper");
+        }
+
         public GitHubHelper(HttpClient client)
         {
             _client = client;
