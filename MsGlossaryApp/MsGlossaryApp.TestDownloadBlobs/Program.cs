@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace MsGlossaryApp.TestDownloadBlobs
 {
-    class Program
+    internal class Program
     {
-        static async Task Main(string[] args)
+        private static async Task Main(string[] args)
         {
             var account = CloudStorageAccount.Parse(
                 Environment.GetEnvironmentVariable(
@@ -78,7 +78,6 @@ namespace MsGlossaryApp.TestDownloadBlobs
 
                 Console.WriteLine("Press N to finish, any key to download again");
             }
-
 
         }
     }

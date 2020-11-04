@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MsGlossaryApp.Model
+﻿namespace MsGlossaryApp.Model
 {
     public class GlossaryFileInfo
     {
         public string Content
-        {
-            get;
-            set;
-        }
-
-        public string Path
         {
             get;
             set;
@@ -25,6 +15,12 @@ namespace MsGlossaryApp.Model
         }
 
         public bool MustSave
+        {
+            get;
+            set;
+        }
+
+        public string Path
         {
             get;
             set;

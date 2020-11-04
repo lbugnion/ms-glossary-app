@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System;
 using System.Collections.Generic;
@@ -70,8 +69,56 @@ namespace MsGlossaryApp.Model
             return result;
         }
 
+        private static string MakeDisambiguationText(
+            IList<KeywordInformation> keywords,
+            ILogger log = null)
+        {
+            log?.LogInformationEx("In MakeDisambiguationText", LogVerbosity.Verbose);
+
+            var lastKeyword = keywords.OrderByDescending(k => k.Topic.RecordingDate).First();
+
+            var dateString = lastKeyword.Topic.RecordingDate.ToShortDateString();
+
+            var builder = new StringBuilder()
+                .AppendLine("---")
+                .Append($"title: {lastKeyword.Keyword}")
+                .AppendLine(" (disambiguation)")
+                .AppendLine($"description: Microsoft Glossary disambiguation for {lastKeyword.Keyword}")
+                .AppendLine($"author: {lastKeyword.Topic.Authors.First().GitHub}")
+                .AppendLine($"ms.date: {dateString}")
+                .AppendLine($"ms.prod: non-product-specific")
+                .AppendLine($"ms.topic: glossary")
+                .AppendLine("---")
+                .AppendLine()
+                .Append(Constants.H1)
+                .Append(MakeDisambiguationTitleLink(lastKeyword, log))
+                .AppendLine(" (disambiguation)")
+                .AppendLine()
+                .Append(Constants.H2)
+                .AppendLine($"`{lastKeyword.Keyword}` can be used in different contexts")
+                .AppendLine();
+
+            foreach (var keyword in keywords.OrderBy(k => k.Topic.Title))
+            {
+                builder
+                    .AppendLine($"- In {MakeTitleLink(keyword, log)}, {keyword.Topic.Blurb}");
+            }
+
+            builder.AppendLine();
+            log?.LogInformationEx("Out MakeDisambiguationText", LogVerbosity.Verbose);
+            return builder.ToString();
+        }
+
+        private static string MakeDisambiguationTitleLink(
+            KeywordInformation keyword,
+            ILogger log = null)
+        {
+            log?.LogInformationEx("In MakeDisambiguationTitleLink", LogVerbosity.Verbose);
+            return $"[{keyword.Keyword}](/glossary/topic/{keyword.Keyword.MakeSafeFileName()}/disambiguation)";
+        }
+
         private static IList<LanguageInfo> MakeLanguages(
-            string captions,
+                            string captions,
             ILogger log = null)
         {
             log?.LogInformationEx("In MakeLanguages", LogVerbosity.Verbose);
@@ -106,35 +153,6 @@ namespace MsGlossaryApp.Model
             return result;
         }
 
-        private static string MakeDisambiguationTitleLink(
-            KeywordInformation keyword,
-            ILogger log = null)
-        {
-            log?.LogInformationEx("In MakeDisambiguationTitleLink", LogVerbosity.Verbose);
-            return $"[{keyword.Keyword}](/glossary/topic/{keyword.Keyword.MakeSafeFileName()}/disambiguation)";
-        }
-
-        private static string MakeTocLink(
-            KeywordInformation keyword,
-            ILogger log = null)
-        {
-            log?.LogInformationEx("In MakeTocLink", LogVerbosity.Verbose);
-            
-            if (keyword.IsMainKeyword)
-            {
-                if (keyword.IsDisambiguation)
-                {
-                    return $"topic/{keyword.Keyword.MakeSafeFileName()}/disambiguation";
-                }
-
-                return $"topic/{keyword.Topic.TopicName}";
-            }
-            else
-            {
-                return $"topic/{keyword.Topic.TopicName}/{keyword.Keyword.MakeSafeFileName()}";
-            }
-        }
-
         private static string MakeTitleLink(
             KeywordInformation keyword,
             ILogger log = null)
@@ -147,6 +165,27 @@ namespace MsGlossaryApp.Model
             else
             {
                 return $"[{keyword.Topic.Title}](/glossary/topic/{keyword.Topic.TopicName}/{keyword.Keyword.MakeSafeFileName()})";
+            }
+        }
+
+        private static string MakeTocLink(
+                    KeywordInformation keyword,
+            ILogger log = null)
+        {
+            log?.LogInformationEx("In MakeTocLink", LogVerbosity.Verbose);
+
+            if (keyword.IsMainKeyword)
+            {
+                if (keyword.IsDisambiguation)
+                {
+                    return $"topic/{keyword.Keyword.MakeSafeFileName()}/disambiguation";
+                }
+
+                return $"topic/{keyword.Topic.TopicName}";
+            }
+            else
+            {
+                return $"topic/{keyword.Topic.TopicName}/{keyword.Keyword.MakeSafeFileName()}";
             }
         }
 
@@ -327,35 +366,81 @@ namespace MsGlossaryApp.Model
             return builder.ToString();
         }
 
-        public static async Task<GlossaryFileInfo> VerifyFile(GlossaryFileInfo file)
+        public static Task<GlossaryFileInfo> CreateDisambiguationFile(
+            IList<KeywordInformation> keywords,
+            ILogger log = null)
         {
-            var account = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubAccountVariableName);
-            var repo = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubRepoVariableName);
-            var branch = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubMainBranchNameVariableName);
-
-            var url = string.Format(
-                GitHubRawPathTemplate,
-                account,
-                repo,
-                branch,
-                file.Path);
+            log?.LogInformationEx("In CreateDisambiguationFile", LogVerbosity.Verbose);
+            var result = new GlossaryFileInfo();
+            var tcs = new TaskCompletionSource<GlossaryFileInfo>();
 
             try
             {
-                var client = new HttpClient();
-                var currentText = await client.GetStringAsync(url);
+                var firstKeyword = keywords.First();
 
-                if (currentText != file.Content)
-                {
-                    file.MustSave = true;
-                }
+                string path = $"glossary/topic/{firstKeyword.Keyword.MakeSafeFileName()}/disambiguation.md";
+
+                string text = MakeDisambiguationText(keywords, log);
+
+                result.Path = path;
+                result.Content = text;
             }
-            catch (HttpRequestException ex)
+            catch (Exception ex)
             {
-                file.MustSave = true;
+                log?.LogError(ex, "Error in CreateDisambiguationFile");
+                result.ErrorMessage = ex.Message;
             }
 
-            return file;
+            log?.LogInformationEx("Out CreateDisambiguationFile", LogVerbosity.Verbose);
+            tcs.SetResult(result);
+            return tcs.Task;
+        }
+
+        public static Task<GlossaryFileInfo> CreateKeywordFile(
+            KeywordInformation keyword,
+            ILogger log = null)
+        {
+            log?.LogInformationEx("In CreateKeywordFile", LogVerbosity.Verbose);
+
+            var tcs = new TaskCompletionSource<GlossaryFileInfo>();
+            var result = new GlossaryFileInfo();
+
+            try
+            {
+                string path = null;
+
+                if (keyword.IsMainKeyword)
+                {
+                    path = $"glossary/topic/{keyword.Topic.TopicName.MakeSafeFileName()}/index.md";
+                }
+                else
+                {
+                    path = $"glossary/topic/{keyword.Topic.TopicName.MakeSafeFileName()}/{keyword.Keyword.MakeSafeFileName()}.md";
+                }
+
+                string text = null;
+
+                if (string.IsNullOrEmpty(keyword.Topic.YouTubeCode))
+                {
+                    text = MakeTopicTextWithoutVideo(keyword, log);
+                }
+                else
+                {
+                    text = MakeTopicText(keyword, log);
+                }
+
+                result.Path = path;
+                result.Content = text;
+            }
+            catch (Exception ex)
+            {
+                log?.LogError(ex, "Error in CreateKeywordFile");
+                result.ErrorMessage = ex.Message;
+            }
+
+            log?.LogInformationEx("Out CreateKeywordFile", LogVerbosity.Verbose);
+            tcs.SetResult(result);
+            return tcs.Task;
         }
 
         public static Task<GlossaryFileInfo> CreateTableOfContentsFile(
@@ -424,7 +509,7 @@ namespace MsGlossaryApp.Model
         }
 
         public static async Task<TopicInformation> CreateTopic(
-            Uri uri, 
+            Uri uri,
             ILogger log)
         {
             log?.LogInformationEx("In CreateTopic", LogVerbosity.Verbose);
@@ -612,123 +697,6 @@ namespace MsGlossaryApp.Model
             return tcs.Task;
         }
 
-        public static Task<GlossaryFileInfo> CreateDisambiguationFile(
-            IList<KeywordInformation> keywords, 
-            ILogger log = null)
-        {
-            log?.LogInformationEx("In CreateDisambiguationFile", LogVerbosity.Verbose);
-            var result = new GlossaryFileInfo();
-            var tcs = new TaskCompletionSource<GlossaryFileInfo>();
-
-            try
-            {
-                var firstKeyword = keywords.First();
-
-                string path = $"glossary/topic/{firstKeyword.Keyword.MakeSafeFileName()}/disambiguation.md";
-
-                string text = MakeDisambiguationText(keywords, log);
-
-                result.Path = path;
-                result.Content = text;
-            }
-            catch (Exception ex)
-            {
-                log?.LogError(ex, "Error in CreateDisambiguationFile");
-                result.ErrorMessage = ex.Message;
-            }
-
-            log?.LogInformationEx("Out CreateDisambiguationFile", LogVerbosity.Verbose);
-            tcs.SetResult(result);
-            return tcs.Task;
-        }
-
-        private static string MakeDisambiguationText(
-            IList<KeywordInformation> keywords,
-            ILogger log = null)
-        {
-            log?.LogInformationEx("In MakeDisambiguationText", LogVerbosity.Verbose);
-
-            var lastKeyword = keywords.OrderByDescending(k => k.Topic.RecordingDate).First();
-
-            var dateString = lastKeyword.Topic.RecordingDate.ToShortDateString();
-
-            var builder = new StringBuilder()
-                .AppendLine("---")
-                .Append($"title: {lastKeyword.Keyword}")
-                .AppendLine(" (disambiguation)")
-                .AppendLine($"description: Microsoft Glossary disambiguation for {lastKeyword.Keyword}")
-                .AppendLine($"author: {lastKeyword.Topic.Authors.First().GitHub}")
-                .AppendLine($"ms.date: {dateString}")
-                .AppendLine($"ms.prod: non-product-specific")
-                .AppendLine($"ms.topic: glossary")
-                .AppendLine("---")
-                .AppendLine()
-                .Append(Constants.H1)
-                .Append(MakeDisambiguationTitleLink(lastKeyword, log))
-                .AppendLine(" (disambiguation)")
-                .AppendLine()
-                .Append(Constants.H2)
-                .AppendLine($"`{lastKeyword.Keyword}` can be used in different contexts")
-                .AppendLine();
-
-            foreach (var keyword in keywords.OrderBy(k => k.Topic.Title))
-            {
-                builder
-                    .AppendLine($"- In {MakeTitleLink(keyword, log)}, {keyword.Topic.Blurb}");
-            }
-
-            builder.AppendLine();
-            log?.LogInformationEx("Out MakeDisambiguationText", LogVerbosity.Verbose);
-            return builder.ToString();
-        }
-
-        public static Task<GlossaryFileInfo> CreateKeywordFile(
-            KeywordInformation keyword, 
-            ILogger log = null)
-        {
-            log?.LogInformationEx("In CreateKeywordFile", LogVerbosity.Verbose);
-
-            var tcs = new TaskCompletionSource<GlossaryFileInfo>();
-            var result = new GlossaryFileInfo();
-
-            try
-            {
-                string path = null;
-
-                if (keyword.IsMainKeyword)
-                {
-                    path = $"glossary/topic/{keyword.Topic.TopicName.MakeSafeFileName()}/index.md";
-                }
-                else
-                {
-                    path = $"glossary/topic/{keyword.Topic.TopicName.MakeSafeFileName()}/{keyword.Keyword.MakeSafeFileName()}.md";
-                }
-
-                string text = null;
-
-                if (string.IsNullOrEmpty(keyword.Topic.YouTubeCode))
-                {
-                    text = MakeTopicTextWithoutVideo(keyword, log);
-                }
-                else
-                {
-                    text = MakeTopicText(keyword, log);
-                }
-
-                result.Path = path;
-                result.Content = text;
-            }
-            catch (Exception ex)
-            {
-                log?.LogError(ex, "Error in CreateKeywordFile");
-                result.ErrorMessage = ex.Message;
-            }
-
-            log?.LogInformationEx("Out CreateKeywordFile", LogVerbosity.Verbose);
-            tcs.SetResult(result);
-            return tcs.Task;
-        }
-
         public static Task<IList<KeywordInformation>> SortKeywords(
             IList<TopicInformation> allTopics,
             TopicInformation currentTopic,
@@ -780,6 +748,37 @@ namespace MsGlossaryApp.Model
             tcs.SetResult(result);
             log?.LogInformationEx("Out SortKeywords", LogVerbosity.Verbose);
             return tcs.Task;
+        }
+
+        public static async Task<GlossaryFileInfo> VerifyFile(GlossaryFileInfo file)
+        {
+            var account = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubAccountVariableName);
+            var repo = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubRepoVariableName);
+            var branch = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubMainBranchNameVariableName);
+
+            var url = string.Format(
+                GitHubRawPathTemplate,
+                account,
+                repo,
+                branch,
+                file.Path);
+
+            try
+            {
+                var client = new HttpClient();
+                var currentText = await client.GetStringAsync(url);
+
+                if (currentText != file.Content)
+                {
+                    file.MustSave = true;
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                file.MustSave = true;
+            }
+
+            return file;
         }
     }
 }

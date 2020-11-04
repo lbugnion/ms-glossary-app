@@ -1,10 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MsGlossaryApp.Model
 {
+    public enum LogVerbosity
+    {
+        Normal = 0,
+        Verbose = 1,
+        Debug = 2
+    }
+
     public static class LoggerExtensions
     {
         private const string LogVerbosityVariableName = "LogVerbosity";
@@ -17,9 +22,9 @@ namespace MsGlossaryApp.Model
             object logVerb;
 
             var success = Enum.TryParse(
-                typeof(LogVerbosity), 
-                logLevelString, 
-                true, 
+                typeof(LogVerbosity),
+                logLevelString,
+                true,
                 out logVerb);
 
             if (success)
@@ -33,8 +38,8 @@ namespace MsGlossaryApp.Model
         }
 
         public static void LogInformationEx(
-            this ILogger log, 
-            string message, 
+            this ILogger log,
+            string message,
             LogVerbosity verbosity,
             params object[] args)
         {
@@ -43,12 +48,5 @@ namespace MsGlossaryApp.Model
                 log.LogInformation(message, args);
             }
         }
-    }
-
-    public enum LogVerbosity
-    {
-        Normal = 0,
-        Verbose = 1,
-        Debug = 2
     }
 }

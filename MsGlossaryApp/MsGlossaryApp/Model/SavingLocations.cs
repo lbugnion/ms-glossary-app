@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MsGlossaryApp.Model
+﻿namespace MsGlossaryApp.Model
 {
     public enum SavingLocations
     {

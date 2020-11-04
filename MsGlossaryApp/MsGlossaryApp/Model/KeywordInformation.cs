@@ -1,10 +1,13 @@
-﻿using Microsoft.WindowsAzure.Storage.Table;
-using Newtonsoft.Json;
-
-namespace MsGlossaryApp.Model
+﻿namespace MsGlossaryApp.Model
 {
     public class KeywordInformation
     {
+        public bool IsDisambiguation
+        {
+            get;
+            set;
+        }
+
         public bool IsMainKeyword
         {
             get;
@@ -23,22 +26,16 @@ namespace MsGlossaryApp.Model
             set;
         }
 
-        public string TopicName
-        {
-            get;
-            set;
-        }
-
         public TopicInformation Topic
         {
             get;
             set;
         }
 
-        public bool IsDisambiguation 
-        { 
-            get; 
-            set; 
+        public string TopicName
+        {
+            get;
+            set;
         }
 
         public override string ToString()

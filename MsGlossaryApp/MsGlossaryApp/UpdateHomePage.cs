@@ -28,7 +28,7 @@ namespace MsGlossaryApp
             ILogger log)
         {
             return;
-             
+
             log.LogInformationEx($"In UpdateHomePage", LogVerbosity.Normal);
             Exception error = null;
 
@@ -69,7 +69,6 @@ namespace MsGlossaryApp
 
                     log.LogInformationEx($"line: {line}", LogVerbosity.Debug);
                 }
-
 
                 log.LogInformationEx("Obtained and read the content", LogVerbosity.Verbose);
 

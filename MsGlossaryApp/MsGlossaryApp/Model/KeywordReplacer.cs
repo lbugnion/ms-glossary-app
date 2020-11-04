@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Formatters.Internal;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,11 +8,11 @@ namespace MsGlossaryApp.Model
 {
     public class KeywordReplacer
     {
+        public const string DisambiguationLinkTemplate = "/glossary/topic/{0}/disambiguation";
         public const string KeywordLinkTemplate = "[{0}]({1})";
         public const string SingleWordCharacter = " [](){}*!&-_+=|/':;.,<>?\"";
         public const string SubtopicLinkTemplate = "/glossary/topic/{0}/{1}";
         public const string TopicLinkTemplate = "/glossary/topic/{0}";
-        public const string DisambiguationLinkTemplate = "/glossary/topic/{0}/disambiguation";
         public const string TranscriptTitle = "## Transcript";
 
         public static Task<string> Replace(

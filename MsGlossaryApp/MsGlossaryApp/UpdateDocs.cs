@@ -42,46 +42,6 @@ namespace MsGlossaryApp
             return starter.CreateCheckStatusResponse(req, instanceId);
         }
 
-        [FunctionName(nameof(UpdateDocsMakeDisambiguation))]
-        public static async Task<GlossaryFileInfo> UpdateDocsMakeDisambiguation(
-            [ActivityTrigger]
-            IList<KeywordInformation> keywords,
-            ILogger log)
-        {
-            var file = await TopicMaker.CreateDisambiguationFile(keywords, log);
-            return file;
-        }
-
-        [FunctionName(nameof(UpdateDocsMakeMarkdown))]
-        public static async Task<GlossaryFileInfo> UpdateDocsMakeMarkdown(
-            [ActivityTrigger]
-            KeywordInformation keyword,
-            ILogger log)
-        {
-            var file = await TopicMaker.CreateKeywordFile(keyword, log);
-            return file;
-        }
-
-        [FunctionName(nameof(UpdateDocsReplaceKeywords))]
-        public static async Task<TopicInformation> UpdateDocsReplaceKeywords(
-            [ActivityTrigger]
-            (List<KeywordInformation> keywordsToReplace, TopicInformation currentTopic) input,
-            ILogger log)
-        {
-            var newTranscript = await KeywordReplacer.Replace(
-                input.currentTopic.Transcript,
-                input.keywordsToReplace,
-                log);
-
-            if (newTranscript != input.currentTopic.Transcript)
-            {
-                input.currentTopic.Transcript = newTranscript;
-                input.currentTopic.MustSave = true;
-            }
-
-            return input.currentTopic;
-        }
-
         [FunctionName("UpdateDocs")]
         public static async Task RunOrchestrator(
             [OrchestrationTrigger]
@@ -133,7 +93,7 @@ namespace MsGlossaryApp
                 // var topic = allTopics.First(t => t.TopicName == "aad");
 
                 var keywordsToReplace = allKeywords
-                    .Where(k => 
+                    .Where(k =>
                         k.TopicName != topic.TopicName
                         && !k.MustDisambiguate)
                     .ToList();
@@ -309,7 +269,7 @@ namespace MsGlossaryApp
             if (!string.IsNullOrEmpty(savingLocationString))
             {
                 var success = Enum.TryParse(
-                    savingLocationString, 
+                    savingLocationString,
                     out savingLocation);
 
                 if (!success)
@@ -399,70 +359,6 @@ namespace MsGlossaryApp
             return null;
         }
 
-        [FunctionName(nameof(UpdateDocsVerifyFiles))]
-        public static async Task<GlossaryFileInfo> UpdateDocsVerifyFiles(
-            [ActivityTrigger]
-            GlossaryFileInfo file,
-            ILogger log)
-        {
-            return await TopicMaker.VerifyFile(file);
-        }
-
-        [FunctionName(nameof(UpdateDocsUpdateTableOfContents))]
-        public static async Task<GlossaryFileInfo> UpdateDocsUpdateTableOfContents(
-            [ActivityTrigger]
-            IList<KeywordInformation> keywords,
-            ILogger log)
-        {
-            return await TopicMaker.CreateTableOfContentsFile(keywords, log);
-        }
-
-        [FunctionName(nameof(UpdateDocsSortDisambiguations))]
-        public static async Task<IList<KeywordInformation>> UpdateDocsSortDisambiguations(
-            [ActivityTrigger]
-            IList<KeywordInformation> keywords,
-            ILogger log)
-        {
-            return await TopicMaker.SortDisambiguations(keywords, log);
-        }
-
-        [FunctionName(nameof(UpdateDocsSaveTopicsToSettings))]
-        public static async Task UpdateDocsSaveTopicsToSettings(
-            [ActivityTrigger]
-            IList<TopicInformation> topics,
-            ILogger log)
-        {
-            log?.LogInformationEx("In UpdateDocsSaveTopicsToSettings", LogVerbosity.Normal);
-
-            var account = CloudStorageAccount.Parse(
-                Environment.GetEnvironmentVariable(
-                    Constants.AzureWebJobsStorageVariableName));
-
-            var blobClient = account.CreateCloudBlobClient();
-            var blobHelper = new BlobHelper(blobClient, log);
-            var settingsContainer = blobHelper.GetContainer(
-                Constants.SettingsContainerVariableName);
-
-            var blob = settingsContainer.GetBlockBlobReference(Constants.TopicsSettingsFileName);
-
-            var topicsNames = topics.Select(t => t.TopicName).ToList();
-
-            var json = JsonConvert.SerializeObject(topicsNames);
-            log?.LogInformationEx($"json: {json}", LogVerbosity.Debug);
-
-            await blob.UploadTextAsync(json);
-            log?.LogInformationEx("Out UpdateDocsSaveTopicsToSettings", LogVerbosity.Normal);
-        }
-
-        [FunctionName(nameof(UpdateDocsSortKeywords))]
-        public static async Task<IList<KeywordInformation>> UpdateDocsSortKeywords(
-            [ActivityTrigger]
-            (IList<TopicInformation> allTopics, TopicInformation currentTopic) input,
-            ILogger log)
-        {
-            return await TopicMaker.SortKeywords(input.allTopics, input.currentTopic, log);
-        }
-
         [FunctionName(nameof(UpdateDocsGetAllTopics))]
         public static async Task<List<string>> UpdateDocsGetAllTopics(
             [ActivityTrigger]
@@ -496,6 +392,26 @@ namespace MsGlossaryApp
             return topics;
         }
 
+        [FunctionName(nameof(UpdateDocsMakeDisambiguation))]
+        public static async Task<GlossaryFileInfo> UpdateDocsMakeDisambiguation(
+            [ActivityTrigger]
+            IList<KeywordInformation> keywords,
+            ILogger log)
+        {
+            var file = await TopicMaker.CreateDisambiguationFile(keywords, log);
+            return file;
+        }
+
+        [FunctionName(nameof(UpdateDocsMakeMarkdown))]
+        public static async Task<GlossaryFileInfo> UpdateDocsMakeMarkdown(
+            [ActivityTrigger]
+            KeywordInformation keyword,
+            ILogger log)
+        {
+            var file = await TopicMaker.CreateKeywordFile(keyword, log);
+            return file;
+        }
+
         [FunctionName(nameof(UpdateDocsParseTopic))]
         public static async Task<TopicInformation> UpdateDocsParseTopic(
             [ActivityTrigger]
@@ -514,6 +430,90 @@ namespace MsGlossaryApp
             }
 
             return topic;
+        }
+
+        [FunctionName(nameof(UpdateDocsReplaceKeywords))]
+        public static async Task<TopicInformation> UpdateDocsReplaceKeywords(
+            [ActivityTrigger]
+            (List<KeywordInformation> keywordsToReplace, TopicInformation currentTopic) input,
+            ILogger log)
+        {
+            var newTranscript = await KeywordReplacer.Replace(
+                input.currentTopic.Transcript,
+                input.keywordsToReplace,
+                log);
+
+            if (newTranscript != input.currentTopic.Transcript)
+            {
+                input.currentTopic.Transcript = newTranscript;
+                input.currentTopic.MustSave = true;
+            }
+
+            return input.currentTopic;
+        }
+
+        [FunctionName(nameof(UpdateDocsSaveTopicsToSettings))]
+        public static async Task UpdateDocsSaveTopicsToSettings(
+            [ActivityTrigger]
+            IList<TopicInformation> topics,
+            ILogger log)
+        {
+            log?.LogInformationEx("In UpdateDocsSaveTopicsToSettings", LogVerbosity.Normal);
+
+            var account = CloudStorageAccount.Parse(
+                Environment.GetEnvironmentVariable(
+                    Constants.AzureWebJobsStorageVariableName));
+
+            var blobClient = account.CreateCloudBlobClient();
+            var blobHelper = new BlobHelper(blobClient, log);
+            var settingsContainer = blobHelper.GetContainer(
+                Constants.SettingsContainerVariableName);
+
+            var blob = settingsContainer.GetBlockBlobReference(Constants.TopicsSettingsFileName);
+
+            var topicsNames = topics.Select(t => t.TopicName).ToList();
+
+            var json = JsonConvert.SerializeObject(topicsNames);
+            log?.LogInformationEx($"json: {json}", LogVerbosity.Debug);
+
+            await blob.UploadTextAsync(json);
+            log?.LogInformationEx("Out UpdateDocsSaveTopicsToSettings", LogVerbosity.Normal);
+        }
+
+        [FunctionName(nameof(UpdateDocsSortDisambiguations))]
+        public static async Task<IList<KeywordInformation>> UpdateDocsSortDisambiguations(
+            [ActivityTrigger]
+            IList<KeywordInformation> keywords,
+            ILogger log)
+        {
+            return await TopicMaker.SortDisambiguations(keywords, log);
+        }
+
+        [FunctionName(nameof(UpdateDocsSortKeywords))]
+        public static async Task<IList<KeywordInformation>> UpdateDocsSortKeywords(
+            [ActivityTrigger]
+            (IList<TopicInformation> allTopics, TopicInformation currentTopic) input,
+            ILogger log)
+        {
+            return await TopicMaker.SortKeywords(input.allTopics, input.currentTopic, log);
+        }
+
+        [FunctionName(nameof(UpdateDocsUpdateTableOfContents))]
+        public static async Task<GlossaryFileInfo> UpdateDocsUpdateTableOfContents(
+            [ActivityTrigger]
+            IList<KeywordInformation> keywords,
+            ILogger log)
+        {
+            return await TopicMaker.CreateTableOfContentsFile(keywords, log);
+        }
+
+        [FunctionName(nameof(UpdateDocsVerifyFiles))]
+        public static async Task<GlossaryFileInfo> UpdateDocsVerifyFiles(
+            [ActivityTrigger]
+            GlossaryFileInfo file,
+            ILogger log)
+        {
+            return await TopicMaker.VerifyFile(file);
         }
     }
 }
