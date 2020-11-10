@@ -2,7 +2,7 @@
 {
     public static class TextHelper
     {
-        public static string GetText(string languageCode, string key)
+        public static string GetText(string key, string languageCode = "en")
         {
             var text = Texts.ResourceManager.GetString($"{languageCode}.{key}");
 

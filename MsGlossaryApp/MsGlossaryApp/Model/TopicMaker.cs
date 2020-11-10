@@ -82,26 +82,26 @@ namespace MsGlossaryApp.Model
             var builder = new StringBuilder()
                 .AppendLine("---")
                 .Append($"title: {lastKeyword.Keyword}")
-                .AppendLine(" (disambiguation)")
-                .AppendLine($"description: Microsoft Glossary disambiguation for {lastKeyword.Keyword}")
+                .AppendLine($" ({TextHelper.GetText("TopicDisambiguation")})")
+                .AppendLine($"description: {string.Format(TextHelper.GetText("TopicDescriptionDisambiguation"), lastKeyword.Keyword)}")
                 .AppendLine($"author: {lastKeyword.Topic.Authors.First().GitHub}")
                 .AppendLine($"ms.date: {dateString}")
-                .AppendLine($"ms.prod: non-product-specific")
-                .AppendLine($"ms.topic: glossary")
+                .AppendLine($"ms.prod: {TextHelper.GetText("TopicNonProductSpecific")}")
+                .AppendLine("ms.topic: glossary")
                 .AppendLine("---")
                 .AppendLine()
                 .Append(Constants.H1)
                 .Append(MakeDisambiguationTitleLink(lastKeyword, log))
-                .AppendLine(" (disambiguation)")
+                .AppendLine($" ({TextHelper.GetText("TopicDisambiguation")})")
                 .AppendLine()
                 .Append(Constants.H2)
-                .AppendLine($"`{lastKeyword.Keyword}` can be used in different contexts")
+                .AppendLine(string.Format(TextHelper.GetText("TopicDifferentContexts"), lastKeyword.Keyword))
                 .AppendLine();
 
             foreach (var keyword in keywords.OrderBy(k => k.Topic.Title))
             {
                 builder
-                    .AppendLine($"- In {MakeTitleLink(keyword, log)}, {keyword.Topic.Blurb}");
+                    .AppendLine(string.Format(TextHelper.GetText("TopicIn"), MakeTitleLink(keyword, log), keyword.Topic.Blurb));
             }
 
             builder.AppendLine();
@@ -200,7 +200,7 @@ namespace MsGlossaryApp.Model
 
             if (!keyword.IsMainKeyword)
             {
-                redirect += $" (redirected from {keyword.Keyword})";
+                redirect += $" ({string.Format(TextHelper.GetText("TopicRedirectedFrom"), keyword.Keyword)}";
             }
 
             var dateString = topic.RecordingDate.ToShortDateString();
@@ -209,11 +209,11 @@ namespace MsGlossaryApp.Model
                 .AppendLine("---")
                 .Append($"title: {topic.Title}")
                 .AppendLine(redirect)
-                .AppendLine($"description: Microsoft Glossary definition for {topic.Title}")
+                .AppendLine($"description: {string.Format(TextHelper.GetText("TopicDescription"), topic.Title)}")
                 .AppendLine($"author: {topic.Authors.First().GitHub}")
                 .AppendLine($"ms.date: {dateString}")
-                .AppendLine($"ms.prod: non-product-specific")
-                .AppendLine($"ms.topic: glossary")
+                .AppendLine($"ms.prod: {TextHelper.GetText("TopicNonProductSpecific")}")
+                .AppendLine("ms.topic: glossary")
                 .AppendLine("---")
                 .AppendLine()
                 .Append(Constants.H1)
@@ -224,18 +224,18 @@ namespace MsGlossaryApp.Model
                 .AppendLine()
                 .AppendLine($"> [!VIDEO https://www.youtube.com/embed/{topic.YouTubeCode}]")
                 .AppendLine()
-                .AppendLine($"{Constants.H2}Download")
+                .AppendLine($"{Constants.H2}{TextHelper.GetText("TopicDownload")}")
                 .AppendLine()
-                .AppendLine($"[You can download this video here](https://msglossarystore.blob.core.windows.net/videos/{topic.TopicName}.{topic.Language.Code}.mp4).")
+                .AppendLine($"[{TextHelper.GetText("TopicDownloadHere")}](https://msglossarystore.blob.core.windows.net/videos/{topic.TopicName}.{topic.Language.Code}.mp4).")
                 .AppendLine();
 
             if (topic.Captions != null
                 && topic.Captions.Count > 0)
             {
                 builder
-                .AppendLine("## Languages")
+                .AppendLine($"{Constants.H2}{TextHelper.GetText("TopicLanguages")}")
                 .AppendLine()
-                .AppendLine("There are captions for the following language(s):")
+                .AppendLine(TextHelper.GetText("TopicCaptions"))
                 .AppendLine();
 
                 foreach (var caption in keyword.Topic.Captions)
@@ -244,12 +244,12 @@ namespace MsGlossaryApp.Model
                 }
 
                 builder.AppendLine()
-                    .AppendLine("> Learn about [downloading and showing captions here](/glossary/captions).")
+                    .AppendLine($"> {TextHelper.GetText("TopicCaptionsLearn")}(/glossary/captions).")
                     .AppendLine();
             }
 
             builder
-                .AppendLine($"{Constants.H2}Links");
+                .AppendLine($"{Constants.H2}{TextHelper.GetText("TopicLinks")}");
 
             foreach (var linkSection in topic.Links)
             {
@@ -264,7 +264,7 @@ namespace MsGlossaryApp.Model
             }
 
             builder.AppendLine()
-                .AppendLine($"{Constants.H2}Transcript")
+                .AppendLine($"{Constants.H2}{TextHelper.GetText("TopicTranscript")}")
                 .AppendLine()
                 .AppendLine(topic.Transcript)
                 .AppendLine();
@@ -273,9 +273,9 @@ namespace MsGlossaryApp.Model
                 && topic.Authors.Count > 0)
             {
                 builder
-                    .AppendLine($"{Constants.H2}Authors")
+                    .AppendLine($"{Constants.H2}{TextHelper.GetText("TopicAuthors")}")
                     .AppendLine()
-                    .Append("This topic was created by ");
+                    .Append($"{TextHelper.GetText("TopicCreatedBy")} ");
 
                 foreach (var author in topic.Authors)
                 {
@@ -301,7 +301,7 @@ namespace MsGlossaryApp.Model
 
             if (!keyword.IsMainKeyword)
             {
-                redirect += $" (redirected from {keyword.Keyword})";
+                redirect += $" ({string.Format(TextHelper.GetText("TopicRedirectedFrom"), keyword.Keyword)}";
             }
 
             var dateString = topic.RecordingDate.ToShortDateString();
@@ -310,10 +310,10 @@ namespace MsGlossaryApp.Model
                 .AppendLine("---")
                 .Append($"title: {topic.Title}")
                 .AppendLine(redirect)
-                .AppendLine($"description: Microsoft Glossary definition for {topic.Title}")
+                .AppendLine($"description: {string.Format(TextHelper.GetText("TopicDescription"), topic.Title)}")
                 .AppendLine($"author: {topic.Authors.First().GitHub}")
                 .AppendLine($"ms.date: {dateString}")
-                .AppendLine($"ms.prod: non-product-specific")
+                .AppendLine($"ms.prod: {TextHelper.GetText("TopicNonProductSpecific")}")
                 .AppendLine($"ms.topic: glossary")
                 .AppendLine("---")
                 .AppendLine()
@@ -322,16 +322,14 @@ namespace MsGlossaryApp.Model
                 .AppendLine(redirect)
                 .AppendLine()
                 .AppendLine($"> {topic.Blurb}")
-                .AppendLine();
-
-            builder
-                .AppendLine($"{Constants.H2}Definition")
+                .AppendLine()
+                .AppendLine($"{Constants.H2}{TextHelper.GetText("TopicDefinition")}")
                 .AppendLine()
                 .AppendLine(topic.Transcript)
                 .AppendLine();
 
             builder
-                .AppendLine($"{Constants.H2}Links");
+                .AppendLine($"{Constants.H2}{TextHelper.GetText("TopicLinks")}");
 
             foreach (var linkSection in topic.Links)
             {
@@ -349,9 +347,9 @@ namespace MsGlossaryApp.Model
                 && topic.Authors.Count > 0)
             {
                 builder.AppendLine()
-                    .AppendLine($"{Constants.H2}Authors")
+                    .AppendLine($"{Constants.H2}{TextHelper.GetText("TopicAuthors")}")
                     .AppendLine()
-                    .Append("This topic was created by ");
+                    .Append($"{TextHelper.GetText("TopicCreatedBy")} ");
 
                 foreach (var author in topic.Authors)
                 {
@@ -434,7 +432,7 @@ namespace MsGlossaryApp.Model
             }
             catch (Exception ex)
             {
-                log?.LogError(ex, "Error in CreateKeywordFile");
+                log?.LogError(ex, $"Error in CreateKeywordFile for {keyword}");
                 result.ErrorMessage = ex.Message;
             }
 
@@ -454,7 +452,7 @@ namespace MsGlossaryApp.Model
             try
             {
                 var tocBuilder = new StringBuilder()
-                    .AppendLine("- name: Microsoft Glossary")
+                    .AppendLine($"- name: {TextHelper.GetText("TopicTocTitle")}")
                     .AppendLine("  href: index.md")
                     .AppendLine();
 
@@ -468,7 +466,7 @@ namespace MsGlossaryApp.Model
                     if (mainKeyword.IsDisambiguation)
                     {
                         tocBuilder
-                            .AppendLine($"- name: {mainKeyword.Keyword} (disambiguation)")
+                            .AppendLine($"- name: {mainKeyword.Keyword} ({TextHelper.GetText("TopicDisambiguation")})")
                             .AppendLine($"  href: {MakeTocLink(mainKeyword)}");
                     }
                     else
@@ -773,7 +771,7 @@ namespace MsGlossaryApp.Model
                     file.MustSave = true;
                 }
             }
-            catch (HttpRequestException ex)
+            catch (HttpRequestException)
             {
                 file.MustSave = true;
             }

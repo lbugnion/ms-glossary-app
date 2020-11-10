@@ -117,64 +117,81 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="en.By" xml:space="preserve">
-    <value>by</value>
-    <comment>by</comment>
+  <data name="en.TopicAuthors" xml:space="preserve">
+    <value>Authors</value>
+    <comment>Authors</comment>
   </data>
-  <data name="en.CaptionsDownload" xml:space="preserve">
-    <value>&gt; Learn about [downloading and showing captions here](/captions/en).</value>
-    <comment>&gt; Learn about [downloading and showing captions here](/captions/en).</comment>
-  </data>
-  <data name="en.CaptionsDownloadTitle" xml:space="preserve">
+  <data name="en.TopicCaptions" xml:space="preserve">
     <value>There are captions for the following language(s):</value>
     <comment>There are captions for the following language(s):</comment>
   </data>
-  <data name="en.CopyrightInfo" xml:space="preserve">
-    <value>*Copyright {0} by Microsoft Glossary - [Contact us]({1})*</value>
-    <comment>*Copyright {0} by Microsoft Glossary - [Contact us]({1})*</comment>
+  <data name="en.TopicCaptionsLearn" xml:space="preserve">
+    <value>Learn about [downloading and showing captions here]</value>
+    <comment>Learn about [downloading and showing captions here]</comment>
   </data>
-  <data name="en.DisambiguationIntro" xml:space="preserve">
-    <value>### `{0}` can be used in different contexts:</value>
-    <comment>### `{0}` can be used in different contexts:</comment>
+  <data name="en.TopicCreatedBy" xml:space="preserve">
+    <value>This topic was created by</value>
+    <comment>This topic was created by</comment>
   </data>
-  <data name="en.DisambiguationItem" xml:space="preserve">
-    <value>- In [{0}](/topic/{1}/{2}_{3}), {4}</value>
-    <comment>- In [{0}](/topic/{1}/{2}_{3}), {4}</comment>
+  <data name="en.TopicDefinition" xml:space="preserve">
+    <value>Definition</value>
+    <comment>Definition</comment>
   </data>
-  <data name="en.DisambiguationTitle" xml:space="preserve">
-    <value># [{0}](/topic/{1}/{2}) (disambiguation)</value>
-    <comment># [{0}](/topic/{1}/{2}) (disambiguation)</comment>
+  <data name="en.TopicDescription" xml:space="preserve">
+    <value>Microsoft Glossary definition for {0}</value>
+    <comment>Microsoft Glossary definition for {0}</comment>
   </data>
-  <data name="en.DownloadTitle" xml:space="preserve">
-    <value>## Download</value>
+  <data name="en.TopicDescriptionDisambiguation" xml:space="preserve">
+    <value>Microsoft Glossary disambiguation for {0}</value>
+    <comment>Microsoft Glossary disambiguation for {0}</comment>
   </data>
-  <data name="en.LanguagesTitle" xml:space="preserve">
-    <value>## Languages</value>
-    <comment>## Languages</comment>
+  <data name="en.TopicDifferentContexts" xml:space="preserve">
+    <value>`{0}` can be used in different contexts</value>
+    <comment>`{0}` can be used in different contexts</comment>
   </data>
-  <data name="en.LastModified" xml:space="preserve">
-    <value>*Last modified: {0}*</value>
-    <comment>*Last modified: {0}*</comment>
+  <data name="en.TopicDisambiguation" xml:space="preserve">
+    <value>disambiguation</value>
+    <comment>disambiguation</comment>
   </data>
-  <data name="en.RedirectedFrom" xml:space="preserve">
-    <value>Redirected from {0}</value>
-    <comment>Redirected from {0}</comment>
+  <data name="en.TopicDownload" xml:space="preserve">
+    <value>Download</value>
+    <comment>Download</comment>
   </data>
-  <data name="en.ThisPageIsAlsoAvailableIn" xml:space="preserve">
-    <value>This page is also available in:</value>
-    <comment>This page is also available in:</comment>
+  <data name="en.TopicDownloadHere" xml:space="preserve">
+    <value>You can download this video here</value>
+    <comment>You can download this video here</comment>
   </data>
-  <data name="en.TopicHeader" xml:space="preserve">
-    <value>### Microsoft Glossary presents:</value>
-    <comment>### Microsoft Glossary presents:</comment>
+  <data name="en.TopicIn" xml:space="preserve">
+    <value>- In {0}, {1}</value>
+    <comment>- In {0}, {1}</comment>
   </data>
-  <data name="en.VideoDownload" xml:space="preserve">
-    <value>###### [(Download the video and captions)](#download)</value>
-    <comment>###### [(Download the video and captions)](#download)</comment>
+  <data name="en.TopicLanguages" xml:space="preserve">
+    <value>Languages</value>
+    <comment>Languages</comment>
   </data>
-  <data name="en.VideoDownloadLink" xml:space="preserve">
-    <value>[You can download this video here](LINK).</value>
-    <comment>[You can download this video here](LINK).</comment>
+  <data name="en.TopicLinks" xml:space="preserve">
+    <value>Links</value>
+    <comment>Links</comment>
+  </data>
+  <data name="en.TopicNonProductSpecific" xml:space="preserve">
+    <value>non-product-specific</value>
+    <comment>non-product-specific</comment>
+  </data>
+  <data name="en.TopicRandomTopic" xml:space="preserve">
+    <value>Random topic for today</value>
+    <comment>Random topic for today</comment>
+  </data>
+  <data name="en.TopicRedirectedFrom" xml:space="preserve">
+    <value>redirected from {0}</value>
+    <comment>redirected from {0}</comment>
+  </data>
+  <data name="en.TopicTocTitle" xml:space="preserve">
+    <value>Microsoft Glossary</value>
+    <comment>Microsoft Glossary</comment>
+  </data>
+  <data name="en.TopicTranscript" xml:space="preserve">
+    <value>Transcript</value>
+    <comment>Transcript</comment>
   </data>
   <data name="TwitterUrl" xml:space="preserve">
     <value>https://twitter.com/AzWordsOfTheDay</value>

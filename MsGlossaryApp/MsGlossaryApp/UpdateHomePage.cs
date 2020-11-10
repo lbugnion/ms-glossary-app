@@ -17,18 +17,16 @@ namespace MsGlossaryApp
     {
         private const string CommitMessage = "Updated the home page";
         private const string HomePageFilePath = "https://raw.githubusercontent.com/{0}/{1}/{2}/glossary/index.md";
-        private const string IncludLineMask = "[!INCLUDE [Random topic for today:](./topic/{0}/index.md)]";
+        private const string IncludeLineMask = "[!INCLUDE [{0}:](./topic/{1}/index.md)]";
 
         [FunctionName("UpdateHomePage")]
         public static async Task Run(
-            [TimerTrigger("0 0 6 * * *")]
-            TimerInfo myTimer,
-            //[HttpTrigger(Microsoft.Azure.WebJobs.Extensions.Http.AuthorizationLevel.Function, "get", Route = null)]
-            //Microsoft.AspNetCore.Http.HttpRequest req,
+            //[TimerTrigger("0 0 6 * * *")]
+            //TimerInfo myTimer,
+            [HttpTrigger(Microsoft.Azure.WebJobs.Extensions.Http.AuthorizationLevel.Function, "get", Route = null)]
+            Microsoft.AspNetCore.Http.HttpRequest req,
             ILogger log)
         {
-            return;
-
             log.LogInformationEx($"In UpdateHomePage", LogVerbosity.Normal);
             Exception error = null;
 
@@ -103,7 +101,10 @@ namespace MsGlossaryApp
 
                 log?.LogInformationEx($"New random topic: {randomTopic}", LogVerbosity.Verbose);
 
-                var include = string.Format(IncludLineMask, randomTopic);
+                var include = string.Format(
+                    IncludeLineMask, 
+                    TextHelper.GetText("TopicRandomTopic"),
+                    randomTopic);
 
                 log?.LogInformationEx($"include: {include}", LogVerbosity.Debug);
 

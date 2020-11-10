@@ -13,7 +13,7 @@ namespace MsGlossaryApp.Model
         public const string SingleWordCharacter = " [](){}*!&-_+=|/':;.,<>?\"";
         public const string SubtopicLinkTemplate = "/glossary/topic/{0}/{1}";
         public const string TopicLinkTemplate = "/glossary/topic/{0}";
-        public const string TranscriptTitle = "## Transcript";
+        public static readonly string TranscriptTitle = $"## {TextHelper.GetText("TopicTranscript")}";
 
         public static Task<string> Replace(
             string markdown,

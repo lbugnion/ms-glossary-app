@@ -112,8 +112,8 @@ namespace MsGlossaryApp
 
             foreach (var keyword in allKeywords.Where(k => !k.IsDisambiguation))
             {
-                //var keyword = allKeywords.First(k => k.Keyword.MakeSafeFileName() == "aad"
-                //    && k.TopicName == "aad");
+                //var keyword = allKeywords.First(k => k.Keyword.MakeSafeFileName() == "node-js"
+                //    && k.TopicName == "app-service");
 
                 var currentTopic = allTopics
                     .Single(testc => testc.TopicName == keyword.TopicName);

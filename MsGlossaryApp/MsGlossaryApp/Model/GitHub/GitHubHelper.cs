@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace MsGlossaryApp.Model.GitHub
 {
+    // See http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
     public class GitHubHelper
     {
         private const string CommitUrl = "git/commits";
@@ -18,7 +19,6 @@ namespace MsGlossaryApp.Model.GitHub
         private const string GitHubApiBaseUrlMask = "https://api.github.com/repos/{0}/{1}/{2}";
         private const string UpdateReferenceUrl = "git/refs/heads/{0}";
         private const string UploadBlobUrl = "git/blobs";
-        // See http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
 
         private HttpClient _client;
 

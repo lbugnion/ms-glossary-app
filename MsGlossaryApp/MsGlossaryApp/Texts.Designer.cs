@@ -61,137 +61,173 @@ namespace MsGlossaryApp {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to by.
+        ///   Looks up a localized string similar to Authors.
         /// </summary>
-        internal static string en_By {
+        internal static string en_TopicAuthors {
             get {
-                return ResourceManager.GetString("en.By", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &gt; Learn about [downloading and showing captions here](/captions/en)..
-        /// </summary>
-        internal static string en_CaptionsDownload {
-            get {
-                return ResourceManager.GetString("en.CaptionsDownload", resourceCulture);
+                return ResourceManager.GetString("en.TopicAuthors", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to There are captions for the following language(s):.
         /// </summary>
-        internal static string en_CaptionsDownloadTitle {
+        internal static string en_TopicCaptions {
             get {
-                return ResourceManager.GetString("en.CaptionsDownloadTitle", resourceCulture);
+                return ResourceManager.GetString("en.TopicCaptions", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to *Copyright {0} by Microsoft Glossary - [Contact us]({1})*.
+        ///   Looks up a localized string similar to Learn about [downloading and showing captions here].
         /// </summary>
-        internal static string en_CopyrightInfo {
+        internal static string en_TopicCaptionsLearn {
             get {
-                return ResourceManager.GetString("en.CopyrightInfo", resourceCulture);
+                return ResourceManager.GetString("en.TopicCaptionsLearn", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ### `{0}` can be used in different contexts:.
+        ///   Looks up a localized string similar to This topic was created by.
         /// </summary>
-        internal static string en_DisambiguationIntro {
+        internal static string en_TopicCreatedBy {
             get {
-                return ResourceManager.GetString("en.DisambiguationIntro", resourceCulture);
+                return ResourceManager.GetString("en.TopicCreatedBy", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to - In [{0}](/topic/{1}/{2}_{3}), {4}.
+        ///   Looks up a localized string similar to Definition.
         /// </summary>
-        internal static string en_DisambiguationItem {
+        internal static string en_TopicDefinition {
             get {
-                return ResourceManager.GetString("en.DisambiguationItem", resourceCulture);
+                return ResourceManager.GetString("en.TopicDefinition", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to # [{0}](/topic/{1}/{2}) (disambiguation).
+        ///   Looks up a localized string similar to Microsoft Glossary definition for {0}.
         /// </summary>
-        internal static string en_DisambiguationTitle {
+        internal static string en_TopicDescription {
             get {
-                return ResourceManager.GetString("en.DisambiguationTitle", resourceCulture);
+                return ResourceManager.GetString("en.TopicDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ## Download.
+        ///   Looks up a localized string similar to Microsoft Glossary disambiguation for {0}.
         /// </summary>
-        internal static string en_DownloadTitle {
+        internal static string en_TopicDescriptionDisambiguation {
             get {
-                return ResourceManager.GetString("en.DownloadTitle", resourceCulture);
+                return ResourceManager.GetString("en.TopicDescriptionDisambiguation", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ## Languages.
+        ///   Looks up a localized string similar to `{0}` can be used in different contexts.
         /// </summary>
-        internal static string en_LanguagesTitle {
+        internal static string en_TopicDifferentContexts {
             get {
-                return ResourceManager.GetString("en.LanguagesTitle", resourceCulture);
+                return ResourceManager.GetString("en.TopicDifferentContexts", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to *Last modified: {0}*.
+        ///   Looks up a localized string similar to disambiguation.
         /// </summary>
-        internal static string en_LastModified {
+        internal static string en_TopicDisambiguation {
             get {
-                return ResourceManager.GetString("en.LastModified", resourceCulture);
+                return ResourceManager.GetString("en.TopicDisambiguation", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Redirected from {0}.
+        ///   Looks up a localized string similar to Download.
         /// </summary>
-        internal static string en_RedirectedFrom {
+        internal static string en_TopicDownload {
             get {
-                return ResourceManager.GetString("en.RedirectedFrom", resourceCulture);
+                return ResourceManager.GetString("en.TopicDownload", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This page is also available in:.
+        ///   Looks up a localized string similar to You can download this video here.
         /// </summary>
-        internal static string en_ThisPageIsAlsoAvailableIn {
+        internal static string en_TopicDownloadHere {
             get {
-                return ResourceManager.GetString("en.ThisPageIsAlsoAvailableIn", resourceCulture);
+                return ResourceManager.GetString("en.TopicDownloadHere", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ### Microsoft Glossary presents:.
+        ///   Looks up a localized string similar to - In {0}, {1}.
         /// </summary>
-        internal static string en_TopicHeader {
+        internal static string en_TopicIn {
             get {
-                return ResourceManager.GetString("en.TopicHeader", resourceCulture);
+                return ResourceManager.GetString("en.TopicIn", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ###### [(Download the video and captions)](#download).
+        ///   Looks up a localized string similar to Languages.
         /// </summary>
-        internal static string en_VideoDownload {
+        internal static string en_TopicLanguages {
             get {
-                return ResourceManager.GetString("en.VideoDownload", resourceCulture);
+                return ResourceManager.GetString("en.TopicLanguages", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [You can download this video here](LINK)..
+        ///   Looks up a localized string similar to Links.
         /// </summary>
-        internal static string en_VideoDownloadLink {
+        internal static string en_TopicLinks {
             get {
-                return ResourceManager.GetString("en.VideoDownloadLink", resourceCulture);
+                return ResourceManager.GetString("en.TopicLinks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to non-product-specific.
+        /// </summary>
+        internal static string en_TopicNonProductSpecific {
+            get {
+                return ResourceManager.GetString("en.TopicNonProductSpecific", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Random topic for today.
+        /// </summary>
+        internal static string en_TopicRandomTopic {
+            get {
+                return ResourceManager.GetString("en.TopicRandomTopic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to redirected from {0}.
+        /// </summary>
+        internal static string en_TopicRedirectedFrom {
+            get {
+                return ResourceManager.GetString("en.TopicRedirectedFrom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Microsoft Glossary.
+        /// </summary>
+        internal static string en_TopicTocTitle {
+            get {
+                return ResourceManager.GetString("en.TopicTocTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transcript.
+        /// </summary>
+        internal static string en_TopicTranscript {
+            get {
+                return ResourceManager.GetString("en.TopicTranscript", resourceCulture);
             }
         }
         
