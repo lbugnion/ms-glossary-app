@@ -23,6 +23,8 @@ namespace MsGlossaryApp.TestDownloadBlobs
             var containers = new List<CloudBlobContainer>()
             {
                 blobHelper.GetContainerFromName(
+                    "output"),
+                blobHelper.GetContainerFromName(
                     "output-staging"),
                 blobHelper.GetContainerFromName(
                     "output-testing")

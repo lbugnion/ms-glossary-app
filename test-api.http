@@ -14,6 +14,10 @@ POST http://localhost:7071/api/add-new
 ### Update Homepage local
 http://localhost:7071/api/UpdateHomePage
 
+### Update Docs
+https://msglossary-app.azurewebsites.net/api/UpdateDocs_HttpStart
+x-functions-key: djXnjM/5wuUarZcaxmvj84bt0WGOH6g10G3PtJxpVmCFiKVsqlNm2A==
+
 ### Update Docs local
 http://localhost:7071/api/UpdateDocs_HttpStart
 
