@@ -16,3 +16,7 @@ http://localhost:7071/api/UpdateHomePage
 
 ### Update Docs local
 http://localhost:7071/api/UpdateDocs_HttpStart
+
+### Update Docs Staging
+https://msglossary-app-staging.azurewebsites.net/api/UpdateDocs_HttpStart
+x-functions-key: Xq9pl6xS6uI1RVuxKaN0e2HG6ts0AKgqAbniQQXKUCaHxDEAdtC1Fw==

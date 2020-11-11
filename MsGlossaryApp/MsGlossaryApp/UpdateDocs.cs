@@ -221,17 +221,7 @@ namespace MsGlossaryApp
             }
 
             var filesToSave = (await Task.WhenAll(verifyTasks))
-                .Where(f => f.MustSave)
                 .ToList();
-
-            if (filesToSave.Count == 0)
-            {
-                await NotificationService.Notify(
-                    "Nothing to commit",
-                    "No changes detected in the files to commit",
-                    null);
-                return;
-            }
 
             //string error = null;
             var error = await context.CallActivityAsync<string>(
@@ -241,9 +231,10 @@ namespace MsGlossaryApp
             if (!string.IsNullOrEmpty(error))
             {
                 await NotificationService.Notify(
-                    "ERROR when committing files",
+                    "ATTENTION Files not committed",
                     error,
                     null);
+
                 return;
             }
 
@@ -280,10 +271,21 @@ namespace MsGlossaryApp
 
             var savingLocation = GetSavingLocation();
 
-            string errorMessage = null;
+            var filesToCommit = files
+                .Where(f => f.MustSave)
+                .ToList();
 
             if (savingLocation == SavingLocations.GitHub
-                || savingLocation == SavingLocations.Both)
+                && filesToCommit.Count == 0)
+            {
+                return "No changes detected in the files to commit";
+            }
+
+            string errorMessage = null;
+
+            if ((savingLocation == SavingLocations.GitHub
+                    || savingLocation == SavingLocations.Both)
+                && filesToCommit.Count > 0)
             {
                 log?.LogInformationEx("Committing to GitHub", LogVerbosity.Verbose);
 
@@ -301,7 +303,8 @@ namespace MsGlossaryApp
                 log?.LogInformationEx($"branchName: {branchName}", LogVerbosity.Debug);
                 log?.LogInformationEx($"token: {token}", LogVerbosity.Debug);
 
-                var commitContent = files
+                // Commit only files who have changed
+                var commitContent = filesToCommit
                     .Select(f => (f.Path, f.Content))
                     .ToList();
 
@@ -326,8 +329,9 @@ namespace MsGlossaryApp
                 return errorMessage;
             }
 
-            if (savingLocation == SavingLocations.Storage
-                || savingLocation == SavingLocations.Both)
+            if ((savingLocation == SavingLocations.Storage
+                    || savingLocation == SavingLocations.Both)
+                && files.Count > 0)
             {
                 log?.LogInformationEx("Saving to storage", LogVerbosity.Verbose);
 
@@ -340,6 +344,7 @@ namespace MsGlossaryApp
                     var helper = new BlobHelper(client, log);
                     var targetContainer = helper.GetContainer(Constants.OutputContainerVariableName);
 
+                    // Always save all files
                     foreach (var file in files)
                     {
                         var name = file.Path.Replace("/", "_");

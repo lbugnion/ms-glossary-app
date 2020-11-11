@@ -200,7 +200,7 @@ namespace MsGlossaryApp.Model
 
             if (!keyword.IsMainKeyword)
             {
-                redirect += $" ({string.Format(TextHelper.GetText("TopicRedirectedFrom"), keyword.Keyword)}";
+                redirect += $" ({string.Format(TextHelper.GetText("TopicRedirectedFrom"), keyword.Keyword)})";
             }
 
             var dateString = topic.RecordingDate.ToShortDateString();
