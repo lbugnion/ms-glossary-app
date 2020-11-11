@@ -16,13 +16,18 @@ namespace MsGlossaryApp.Model
             _client = client ?? throw new ArgumentNullException("client");
         }
 
-        public CloudBlobContainer GetContainer(string variableName)
+        public CloudBlobContainer GetContainerFromName(string containerName)
+        {
+            var container = _client.GetContainerReference(containerName);
+            _logger?.LogInformationEx($"container: {containerName} : {container.Uri}", LogVerbosity.Verbose);
+            return container;
+        }
+
+        public CloudBlobContainer GetContainerFromVariable(string variableName)
         {
             var containerName = Environment.GetEnvironmentVariable(variableName);
-            _logger?.LogInformationEx($"containerName: {variableName} : {containerName}", LogVerbosity.Verbose);
-            var container = _client.GetContainerReference(containerName);
-            _logger?.LogInformationEx($"container: {variableName} : {container.Uri}", LogVerbosity.Verbose);
-            return container;
+            _logger?.LogInformationEx($"variableName: {variableName} : {containerName}", LogVerbosity.Verbose);
+            return GetContainerFromName(containerName);
         }
     }
 }

@@ -342,7 +342,7 @@ namespace MsGlossaryApp
 
                     var client = account.CreateCloudBlobClient();
                     var helper = new BlobHelper(client, log);
-                    var targetContainer = helper.GetContainer(Constants.OutputContainerVariableName);
+                    var targetContainer = helper.GetContainerFromVariable(Constants.OutputContainerVariableName);
 
                     // Always save all files
                     foreach (var file in files)
@@ -399,7 +399,7 @@ namespace MsGlossaryApp
 
             var blobClient = account.CreateCloudBlobClient();
             var blobHelper = new BlobHelper(blobClient, log);
-            var topicsContainer = blobHelper.GetContainer(
+            var topicsContainer = blobHelper.GetContainerFromVariable(
                 Constants.TopicsContainerVariableName);
 
             BlobContinuationToken continuationToken = null;
@@ -495,7 +495,7 @@ namespace MsGlossaryApp
 
             var blobClient = account.CreateCloudBlobClient();
             var blobHelper = new BlobHelper(blobClient, log);
-            var settingsContainer = blobHelper.GetContainer(
+            var settingsContainer = blobHelper.GetContainerFromVariable(
                 Constants.SettingsContainerVariableName);
 
             var blob = settingsContainer.GetBlockBlobReference(Constants.TopicsSettingsFileName);
