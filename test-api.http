@@ -15,12 +15,12 @@ POST http://localhost:7071/api/add-new
 http://localhost:7071/api/UpdateHomePage
 
 ### Update Docs
-https://msglossary-app.azurewebsites.net/api/UpdateDocs_HttpStart
+https://msglossary-app.azurewebsites.net/api/update-docs
 x-functions-key: djXnjM/5wuUarZcaxmvj84bt0WGOH6g10G3PtJxpVmCFiKVsqlNm2A==
 
 ### Update Docs local
-http://localhost:7071/api/UpdateDocs_HttpStart
+http://localhost:7071/api/update-docs
 
 ### Update Docs Staging
-https://msglossary-app-staging.azurewebsites.net/api/UpdateDocs_HttpStart
+https://msglossary-app-staging.azurewebsites.net/api/update-docs
 x-functions-key: Xq9pl6xS6uI1RVuxKaN0e2HG6ts0AKgqAbniQQXKUCaHxDEAdtC1Fw==

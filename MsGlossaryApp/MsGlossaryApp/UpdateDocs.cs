@@ -24,7 +24,7 @@ namespace MsGlossaryApp
             [HttpTrigger(
                 AuthorizationLevel.Function,
                 "get",
-                "orchestrators/update-docs")]
+                Route = "update-docs")]
             HttpRequestMessage req,
             [DurableClient]
             IDurableOrchestrationClient starter,
