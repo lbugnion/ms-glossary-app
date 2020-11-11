@@ -23,9 +23,10 @@ namespace MsGlossaryApp
         public static async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(
                 AuthorizationLevel.Function,
-                "get")]
+                "get",
+                "orchestrators/update-docs")]
             HttpRequestMessage req,
-            [DurableClient]
+            [DurableClient(TaskHub = "%UpdateDocsTaskHub%")]
             IDurableOrchestrationClient starter,
             ILogger log)
         {
