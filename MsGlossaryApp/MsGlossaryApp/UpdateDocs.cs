@@ -26,7 +26,7 @@ namespace MsGlossaryApp
                 "get",
                 "orchestrators/update-docs")]
             HttpRequestMessage req,
-            [DurableClient(TaskHub = "%UpdateDocsTaskHub%")]
+            [DurableClient]
             IDurableOrchestrationClient starter,
             ILogger log)
         {
@@ -247,9 +247,25 @@ namespace MsGlossaryApp
                 return;
             }
 
+            var message = "New files committed";
+            var savingLocation = GetSavingLocation();
+
+            switch (savingLocation)
+            {
+                case SavingLocations.Both:
+                    message += " and saved to storage";
+                    break;
+
+                case SavingLocations.Storage:
+                    message = "New files saved to storage";
+                    break;
+            }
+
+            message += " without errors";
+
             await NotificationService.Notify(
-                "New files committed",
-                "New files have been committed without errors",
+                "New files saved",
+                message,
                 null);
         }
 
@@ -262,22 +278,7 @@ namespace MsGlossaryApp
             log?.LogInformationEx("In UpdateDocsCommitFiles", LogVerbosity.Normal);
             //return null;
 
-            SavingLocations savingLocation = SavingLocations.GitHub;
-
-            var savingLocationString = Environment.GetEnvironmentVariable(
-                Constants.SavingLocationVariableName);
-
-            if (!string.IsNullOrEmpty(savingLocationString))
-            {
-                var success = Enum.TryParse(
-                    savingLocationString,
-                    out savingLocation);
-
-                if (!success)
-                {
-                    savingLocation = SavingLocations.GitHub;
-                }
-            }
+            var savingLocation = GetSavingLocation();
 
             string errorMessage = null;
 
@@ -358,6 +359,28 @@ namespace MsGlossaryApp
 
             log?.LogInformationEx("Out UpdateDocsCommitFiles", LogVerbosity.Normal);
             return null;
+        }
+
+        private static SavingLocations GetSavingLocation()
+        {
+            SavingLocations savingLocation = SavingLocations.GitHub;
+
+            var savingLocationString = Environment.GetEnvironmentVariable(
+                Constants.SavingLocationVariableName);
+
+            if (!string.IsNullOrEmpty(savingLocationString))
+            {
+                var success = Enum.TryParse(
+                    savingLocationString,
+                    out savingLocation);
+
+                if (!success)
+                {
+                    savingLocation = SavingLocations.GitHub;
+                }
+            }
+
+            return savingLocation;
         }
 
         [FunctionName(nameof(UpdateDocsGetAllTopics))]
