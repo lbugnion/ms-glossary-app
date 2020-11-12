@@ -28,9 +28,9 @@
             "HTTP": {
                 "inputs": {
                     "body": {
-                        "body": "New video file found in Onedrive and uploaded: @{base64ToString(triggerOutputs()['headers']['x-ms-file-name-encoded'])}",
+                        "body": "Modified video file found in Onedrive and uploaded: @{base64ToString(triggerOutputs()['headers']['x-ms-file-name-encoded'])}",
                         "channel": "MSGlossary",
-                        "title": "Video file uploaded"
+                        "title": "Modified video file uploaded"
                     },
                     "headers": {
                         "x-functions-key": "CfPYAamajXsaZQiFOk3CaLxFnDEKThXDnt86NWimMi5O2Gw8yeIK/Q=="
@@ -48,9 +48,9 @@
             "HTTP_2": {
                 "inputs": {
                     "body": {
-                        "body": "New video file was NOT uploaded to OneDrive because of errors: @{base64ToString(triggerOutputs()['headers']['x-ms-file-name-encoded'])}",
+                        "body": "ERROR when copying modifed video file found in Onedrive: @{base64ToString(triggerOutputs()['headers']['x-ms-file-name-encoded'])}",
                         "channel": "MSGlossary",
-                        "title": "ERROR Video file NOT uploaded"
+                        "title": "ERROR Modified video file NOT uploaded"
                     },
                     "headers": {
                         "x-functions-key": "CfPYAamajXsaZQiFOk3CaLxFnDEKThXDnt86NWimMi5O2Gw8yeIK/Q=="
@@ -77,7 +77,7 @@
             }
         },
         "triggers": {
-            "When_a_file_is_created": {
+            "When_a_file_is_modified": {
                 "inputs": {
                     "host": {
                         "connection": {
@@ -85,9 +85,10 @@
                         }
                     },
                     "method": "get",
-                    "path": "/datasets/default/triggers/onnewfilev2",
+                    "path": "/datasets/default/triggers/onupdatedfilev2",
                     "queries": {
                         "folderId": "FB0D8F97004979CD!881222",
+                        "includeFileContent": true,
                         "includeSubfolders": false,
                         "inferContentType": true,
                         "simulate": false

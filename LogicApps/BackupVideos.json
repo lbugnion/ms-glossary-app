@@ -1,0 +1,144 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "For_each": {
+                "actions": {
+                    "Copy_blob": {
+                        "inputs": {
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['azureblob']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/datasets/default/copyFile",
+                            "queries": {
+                                "destination": "/backups/@{variables('BackupFolderName')}/videos/@{items('For_each')?['Name']}",
+                                "overwrite": true,
+                                "queryParametersSingleEncoded": true,
+                                "source": "@items('For_each')?['Path']"
+                            }
+                        },
+                        "runAfter": {},
+                        "type": "ApiConnection"
+                    }
+                },
+                "foreach": "@body('List_blobs')?['value']",
+                "runAfter": {
+                    "List_blobs": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Foreach"
+            },
+            "HTTP": {
+                "inputs": {
+                    "body": {
+                        "body": "ERROR creating Backup for videos",
+                        "channel": "MSGlossary",
+                        "title": "ERROR in Videos backup"
+                    },
+                    "headers": {
+                        "x-functions-key": "CfPYAamajXsaZQiFOk3CaLxFnDEKThXDnt86NWimMi5O2Gw8yeIK/Q=="
+                    },
+                    "method": "POST",
+                    "uri": "https://notificationsendpoint.azurewebsites.net/api/send"
+                },
+                "runAfter": {
+                    "For_each": [
+                        "Failed",
+                        "Skipped",
+                        "TimedOut"
+                    ]
+                },
+                "type": "Http"
+            },
+            "HTTP_2": {
+                "inputs": {
+                    "body": {
+                        "body": "Backup for videos was successfully created at @{variables('BackupFolderName')}",
+                        "channel": "MSGlossary",
+                        "title": "Videos backup created"
+                    },
+                    "headers": {
+                        "x-functions-key": "CfPYAamajXsaZQiFOk3CaLxFnDEKThXDnt86NWimMi5O2Gw8yeIK/Q=="
+                    },
+                    "method": "POST",
+                    "uri": "https://notificationsendpoint.azurewebsites.net/api/send"
+                },
+                "runAfter": {
+                    "For_each": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Http"
+            },
+            "Initialize_variable": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "BackupFolderName",
+                            "type": "string",
+                            "value": "@{utcNow()}"
+                        }
+                    ]
+                },
+                "runAfter": {},
+                "type": "InitializeVariable"
+            },
+            "List_blobs": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureblob']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/datasets/default/foldersV2/@{encodeURIComponent(encodeURIComponent('JTJmdmlkZW9z'))}",
+                    "queries": {
+                        "nextPageMarker": "",
+                        "useFlatListing": true
+                    }
+                },
+                "metadata": {
+                    "JTJmdmlkZW9z": "/videos"
+                },
+                "runAfter": {
+                    "Initialize_variable": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "Recurrence": {
+                "recurrence": {
+                    "frequency": "Week",
+                    "interval": 1
+                },
+                "type": "Recurrence"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "azureblob": {
+                    "connectionId": "/subscriptions/6e69cf24-0859-4dec-84e2-695e2618e473/resourceGroups/msglossary/providers/Microsoft.Web/connections/azureblob-1",
+                    "connectionName": "azureblob-1",
+                    "id": "/subscriptions/6e69cf24-0859-4dec-84e2-695e2618e473/providers/Microsoft.Web/locations/westeurope/managedApis/azureblob"
+                }
+            }
+        }
+    }
+}

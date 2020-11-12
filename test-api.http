@@ -1,5 +1,4 @@
 ### Add New Synopsis local
-
 POST http://localhost:7071/api/add-new
 
 {

@@ -6,6 +6,7 @@
                 "inputs": {
                     "shortdescription": "@{variables('Description')}",
                     "submitteremail": "@{body('Get_response_details')?['responder']}",
+                    "submittergithub": "@variables('SubmitterGithub')",
                     "submittername": "@{variables('SubmitterName')}",
                     "submittertwitter": "@{variables('SubmitterTwitter')}",
                     "topic": "@{variables('Topic')}"
@@ -37,10 +38,10 @@
                 "inputs": {
                     "body": "@outputs('Compose')",
                     "headers": {
-                        "x-functions-key": "OTQgPYaBCra07bwwQT4TtoTa6hP26oWm1jHoCJg2UiJjV8RRWoOMIw=="
+                        "x-functions-key": "dABxrU7nM7lbebsLLp58zuFsY0F9TeEQ2MdkQDvCQQaccHW9hUml3A=="
                     },
                     "method": "POST",
-                    "uri": "https://msglossary-app-staging.azurewebsites.net/api/add-new"
+                    "uri": "https://msglossary-app.azurewebsites.net/api/add-new"
                 },
                 "runAfter": {
                     "Compose": [
@@ -134,7 +135,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Initialize_variable_2": [
+                    "Initialize_variable_5": [
                         "Succeeded"
                     ]
                 },
@@ -152,6 +153,23 @@
                 },
                 "runAfter": {
                     "Initialize_variable_3": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_5": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "SubmitterGithub",
+                            "type": "string",
+                            "value": "@body('Get_response_details')?['rf46f3efb9b5640268970c7f8805ec338']"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_variable_2": [
                         "Succeeded"
                     ]
                 },

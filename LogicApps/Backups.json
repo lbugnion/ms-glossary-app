@@ -8,7 +8,7 @@
                         "inputs": {
                             "host": {
                                 "connection": {
-                                    "name": "@parameters('$connections')['azureblob']['connectionId']"
+                                    "name": "@parameters('$connections')['azureblob_1']['connectionId']"
                                 }
                             },
                             "method": "post",
@@ -38,7 +38,7 @@
                         "inputs": {
                             "host": {
                                 "connection": {
-                                    "name": "@parameters('$connections')['azureblob']['connectionId']"
+                                    "name": "@parameters('$connections')['azureblob_1']['connectionId']"
                                 }
                             },
                             "method": "post",
@@ -62,11 +62,41 @@
                 },
                 "type": "Foreach"
             },
+            "For_each_3": {
+                "actions": {
+                    "Copy_blob_3": {
+                        "inputs": {
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['azureblob_1']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/datasets/default/copyFile",
+                            "queries": {
+                                "destination": "/backups/@{variables('BackupFolderName')}/captions/@{items('For_each_3')?['Name']}",
+                                "overwrite": true,
+                                "queryParametersSingleEncoded": true,
+                                "source": "@items('For_each_3')?['Path']"
+                            }
+                        },
+                        "runAfter": {},
+                        "type": "ApiConnection"
+                    }
+                },
+                "foreach": "@body('List_blobs_3')?['value']",
+                "runAfter": {
+                    "List_blobs_3": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Foreach"
+            },
             "HTTP": {
                 "inputs": {
                     "body": {
-                        "body": "Backup was successfully created at @{variables('BackupFolderName')}",
-                        "channel": "WordsOfTheDay",
+                        "body": "Backup for settings, topics and captions was successfully created at @{variables('BackupFolderName')}",
+                        "channel": "MSGlossary",
                         "title": "Backup created"
                     },
                     "headers": {
@@ -76,7 +106,7 @@
                     "uri": "https://notificationsendpoint.azurewebsites.net/api/send"
                 },
                 "runAfter": {
-                    "For_each_2": [
+                    "For_each_3": [
                         "Succeeded"
                     ]
                 },
@@ -85,8 +115,8 @@
             "HTTP_2": {
                 "inputs": {
                     "body": {
-                        "body": "Error when creating backup at @{variables('BackupFolderName')}",
-                        "channel": "WordsOfTheDay",
+                        "body": "Error when creating backup for settings, topics and captions at @{variables('BackupFolderName')}",
+                        "channel": "MSGlossary",
                         "title": "Backup was NOT created"
                     },
                     "headers": {
@@ -96,7 +126,7 @@
                     "uri": "https://notificationsendpoint.azurewebsites.net/api/send"
                 },
                 "runAfter": {
-                    "For_each_2": [
+                    "For_each_3": [
                         "Failed",
                         "Skipped",
                         "TimedOut"
@@ -121,7 +151,7 @@
                 "inputs": {
                     "host": {
                         "connection": {
-                            "name": "@parameters('$connections')['azureblob']['connectionId']"
+                            "name": "@parameters('$connections')['azureblob_1']['connectionId']"
                         }
                     },
                     "method": "get",
@@ -144,7 +174,7 @@
                 "inputs": {
                     "host": {
                         "connection": {
-                            "name": "@parameters('$connections')['azureblob']['connectionId']"
+                            "name": "@parameters('$connections')['azureblob_1']['connectionId']"
                         }
                     },
                     "method": "get",
@@ -158,6 +188,30 @@
                 },
                 "runAfter": {
                     "For_each": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "List_blobs_3": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureblob_1']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/datasets/default/foldersV2/@{encodeURIComponent(encodeURIComponent('JTJmY2FwdGlvbnM='))}",
+                    "queries": {
+                        "nextPageMarker": "",
+                        "useFlatListing": true
+                    }
+                },
+                "metadata": {
+                    "JTJmY2FwdGlvbnM=": "/captions"
+                },
+                "runAfter": {
+                    "For_each_2": [
                         "Succeeded"
                     ]
                 },
@@ -176,7 +230,7 @@
             "Recurrence": {
                 "recurrence": {
                     "frequency": "Hour",
-                    "interval": 12
+                    "interval": 24
                 },
                 "type": "Recurrence"
             }
@@ -185,9 +239,9 @@
     "parameters": {
         "$connections": {
             "value": {
-                "azureblob": {
-                    "connectionId": "/subscriptions/6e69cf24-0859-4dec-84e2-695e2618e473/resourceGroups/wordsoftheday/providers/Microsoft.Web/connections/azureblob",
-                    "connectionName": "azureblob",
+                "azureblob_1": {
+                    "connectionId": "/subscriptions/6e69cf24-0859-4dec-84e2-695e2618e473/resourceGroups/msglossary/providers/Microsoft.Web/connections/azureblob-1",
+                    "connectionName": "azureblob-1",
                     "id": "/subscriptions/6e69cf24-0859-4dec-84e2-695e2618e473/providers/Microsoft.Web/locations/westeurope/managedApis/azureblob"
                 }
             }
