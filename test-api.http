@@ -7,7 +7,7 @@ POST http://localhost:7071/api/add-new
     "submittername": "Laurent Bugnion",
     "submittertwitter": "@LBugnion",
     "submittergithub": "LBugnion",
-    "topic":"test-topic-07"
+    "topic":"test-topic-08"
 }
 
 ### Update Homepage local

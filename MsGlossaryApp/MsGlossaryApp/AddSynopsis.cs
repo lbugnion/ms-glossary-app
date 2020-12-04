@@ -86,6 +86,7 @@ namespace MsGlossaryApp
                 accountName,
                 repoName,
                 mainBranchName,
+                token,
                 log);
 
             if (!string.IsNullOrEmpty(mainHead.ErrorMessage))
@@ -107,15 +108,6 @@ namespace MsGlossaryApp
             {
                 return new BadRequestObjectResult(newBranch.ErrorMessage);
             }
-
-            //// Grab main commit
-
-            //var mainCommit = await helper.GetMainCommit(mainHead, log);
-
-            //if (!string.IsNullOrEmpty(mainCommit.ErrorMessage))
-            //{
-            //    return new BadRequestObjectResult(mainCommit.ErrorMessage);
-            //}
 
             // Get and update file template from GitHub
 

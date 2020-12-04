@@ -51,6 +51,7 @@ namespace MsGlossaryApp.Model.GitHub
                     accountName,
                     repoName,
                     branchName,
+                    githubToken,
                     log);
 
                 if (!string.IsNullOrEmpty(existingBranchInfo.ErrorMessage))
@@ -352,6 +353,7 @@ namespace MsGlossaryApp.Model.GitHub
             string accountName,
             string repoName,
             string branchName,
+            string token,
             ILogger log = null)
         {
             log?.LogInformationEx("In GitHubHelper.GetHead", LogVerbosity.Verbose);
@@ -368,8 +370,10 @@ namespace MsGlossaryApp.Model.GitHub
             var request = new HttpRequestMessage
             {
                 RequestUri = new Uri(url),
-                Method = HttpMethod.Get
+                Method = HttpMethod.Get,
             };
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var response = await _client.SendAsync(request);
 
