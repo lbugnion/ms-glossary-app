@@ -10,6 +10,19 @@ POST http://localhost:7071/api/add-new
     "topic":"test-topic-08"
 }
 
+### Add New Synopsis Staging
+POST https://msglossary-app-staging.azurewebsites.net/api/add-new
+x-functions-key: OTQgPYaBCra07bwwQT4TtoTa6hP26oWm1jHoCJg2UiJjV8RRWoOMIw==
+
+{
+    "shortdescription": "This is a test again",
+    "submitteremail": "lbugnion@microsoft.com",
+    "submittername": "Laurent Bugnion",
+    "submittertwitter": "@LBugnion",
+    "submittergithub": "LBugnion",
+    "topic":"test-topic-09"
+}
+
 ### Update Homepage local
 http://localhost:7071/api/UpdateHomePage
 
