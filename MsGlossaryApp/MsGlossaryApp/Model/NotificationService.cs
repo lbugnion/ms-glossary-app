@@ -16,6 +16,8 @@ namespace MsGlossaryApp.Model
         {
             log?.LogInformationEx("In NotificationService.Notify", LogVerbosity.Verbose);
 
+            message = message.Replace("\"", "\\\"");
+
             var json = $"{{\"title\":\"{title}\",\"body\": \"{message}\",\"channel\":\"MSGlossary\"}}";
             var client = new HttpClient();
             var content = new StringContent(json);

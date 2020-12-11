@@ -125,13 +125,23 @@ namespace MsGlossaryApp
                     ("glossary/index.md", newContent)
                 };
 
-                await helper.CommitFiles(
+                var result = await helper.CommitFiles(
                     accountName,
                     repoName,
                     branchName,
                     token,
                     CommitMessage,
                     list);
+
+                if (!string.IsNullOrEmpty(result.ErrorMessage))
+                {
+                    log.LogError(result.ErrorMessage, "Error updating homepage");
+                    await NotificationService.Notify(
+                        "Error when updating the homepage",
+                        result.ErrorMessage,
+                        log);
+                    return;
+                }
 
                 log?.LogInformationEx("Topic commited to Github", LogVerbosity.Verbose);
 
