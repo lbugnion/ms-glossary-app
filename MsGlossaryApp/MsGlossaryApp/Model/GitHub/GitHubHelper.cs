@@ -63,7 +63,7 @@ namespace MsGlossaryApp.Model.GitHub
                 }
             }
 
-            var mainCommit = await GetMainCommit(existingBranchInfo, log);
+            var mainCommit = await GetMainCommit(existingBranchInfo, githubToken, log);
 
             if (!string.IsNullOrEmpty(mainCommit.ErrorMessage))
             {
@@ -409,7 +409,8 @@ namespace MsGlossaryApp.Model.GitHub
         }
 
         public async Task<CommitResult> GetMainCommit(
-                            GetHeadResult branchHead,
+            GetHeadResult branchHead,
+            string githubToken,
             ILogger log = null)
         {
             // Grab main commit
@@ -421,6 +422,8 @@ namespace MsGlossaryApp.Model.GitHub
                 RequestUri = new Uri(branchHead.Object.Url),
                 Method = HttpMethod.Get
             };
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
 
             var response = await _client.SendAsync(request);
 
