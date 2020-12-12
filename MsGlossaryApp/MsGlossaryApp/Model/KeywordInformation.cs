@@ -26,13 +26,13 @@
             set;
         }
 
-        public TopicInformation Topic
+        public TermInformation Term
         {
             get;
             set;
         }
 
-        public string TopicName
+        public string TermName
         {
             get;
             set;
@@ -40,7 +40,7 @@
 
         public override string ToString()
         {
-            return $"{Keyword} - {TopicName}";
+            return $"{Keyword} - {TermName}";
         }
     }
 }

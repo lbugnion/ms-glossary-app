@@ -8,12 +8,12 @@ namespace MsGlossaryApp.Model
 {
     public class KeywordReplacer
     {
-        public const string DisambiguationLinkTemplate = "/glossary/topic/{0}/disambiguation";
+        public const string DisambiguationLinkTemplate = "/glossary/term/{0}/disambiguation";
         public const string KeywordLinkTemplate = "[{0}]({1})";
         public const string SingleWordCharacter = " [](){}*!&-_+=|/':;.,<>?\"";
-        public const string SubtopicLinkTemplate = "/glossary/topic/{0}/{1}";
-        public const string TopicLinkTemplate = "/glossary/topic/{0}";
-        public static readonly string TranscriptTitle = $"## {TextHelper.GetText("TopicTranscript")}";
+        public const string SubtermLinkTemplate = "/glossary/term/{0}/{1}";
+        public const string TermLinkTemplate = "/glossary/term/{0}";
+        public static readonly string TranscriptTitle = $"## {TextHelper.GetText("TermTranscript")}";
 
         public static Task<string> Replace(
             string markdown,
@@ -70,13 +70,13 @@ namespace MsGlossaryApp.Model
                         }
                         else
                         {
-                            if (k.TopicName == k.Keyword.MakeSafeFileName())
+                            if (k.TermName == k.Keyword.MakeSafeFileName())
                             {
-                                newUrlAlone = string.Format(TopicLinkTemplate, k.TopicName);
+                                newUrlAlone = string.Format(TermLinkTemplate, k.TermName);
                             }
                             else
                             {
-                                newUrlAlone = string.Format(SubtopicLinkTemplate, k.TopicName, k.Keyword.MakeSafeFileName());
+                                newUrlAlone = string.Format(SubtermLinkTemplate, k.TermName, k.Keyword.MakeSafeFileName());
                             }
                         }
 

@@ -52,20 +52,20 @@ namespace MsGlossaryApp
                 nameof(UpdateDocsGetAllTopics),
                 null);
 
-            var allTopicsTasks = new List<Task<TopicInformation>>();
+            var allTopicsTasks = new List<Task<TermInformation>>();
 
             foreach (var topicUrl in allTopicsUrls)
             {
                 //var topicUrl = allTopicsUrls.First();
 
-                allTopicsTasks.Add(context.CallActivityAsync<TopicInformation>(
+                allTopicsTasks.Add(context.CallActivityAsync<TermInformation>(
                     nameof(UpdateDocsParseTopic),
                     new Uri(topicUrl)));
             }
 
             var allTopics = await Task.WhenAll(allTopicsTasks);
 
-            await context.CallActivityAsync<TopicInformation>(
+            await context.CallActivityAsync<TermInformation>(
                 nameof(UpdateDocsSaveTopicsToSettings),
                 allTopics);
 
@@ -87,7 +87,7 @@ namespace MsGlossaryApp
                 nameof(UpdateDocsSortDisambiguations),
                 allKeywords);
 
-            var replaceKeywordsTasks = new List<Task<TopicInformation>>();
+            var replaceKeywordsTasks = new List<Task<TermInformation>>();
 
             foreach (var topic in allTopics)
             {
@@ -101,7 +101,7 @@ namespace MsGlossaryApp
 
                 if (keywordsToReplace.Count > 0)
                 {
-                    replaceKeywordsTasks.Add(context.CallActivityAsync<TopicInformation>(
+                    replaceKeywordsTasks.Add(context.CallActivityAsync<TermInformation>(
                         nameof(UpdateDocsReplaceKeywords),
                         (keywordsToReplace, topic)));
                 }
@@ -427,7 +427,7 @@ namespace MsGlossaryApp
             IList<KeywordInformation> keywords,
             ILogger log)
         {
-            var file = await TopicMaker.CreateDisambiguationFile(keywords, log);
+            var file = await TermMaker.CreateDisambiguationFile(keywords, log);
             return file;
         }
 
@@ -437,21 +437,21 @@ namespace MsGlossaryApp
             KeywordInformation keyword,
             ILogger log)
         {
-            var file = await TopicMaker.CreateKeywordFile(keyword, log);
+            var file = await TermMaker.CreateKeywordFile(keyword, log);
             return file;
         }
 
         [FunctionName(nameof(UpdateDocsParseTopic))]
-        public static async Task<TopicInformation> UpdateDocsParseTopic(
+        public static async Task<TermInformation> UpdateDocsParseTopic(
             [ActivityTrigger]
             Uri topicUri,
             ILogger log)
         {
-            TopicInformation topic = null;
+            TermInformation topic = null;
 
             try
             {
-                topic = await TopicMaker.CreateTopic(topicUri, log);
+                topic = await TermMaker.CreateTopic(topicUri, log);
             }
             catch (Exception ex)
             {
@@ -462,9 +462,9 @@ namespace MsGlossaryApp
         }
 
         [FunctionName(nameof(UpdateDocsReplaceKeywords))]
-        public static async Task<TopicInformation> UpdateDocsReplaceKeywords(
+        public static async Task<TermInformation> UpdateDocsReplaceKeywords(
             [ActivityTrigger]
-            (List<KeywordInformation> keywordsToReplace, TopicInformation currentTopic) input,
+            (List<KeywordInformation> keywordsToReplace, TermInformation currentTopic) input,
             ILogger log)
         {
             var newTranscript = await KeywordReplacer.Replace(
@@ -484,7 +484,7 @@ namespace MsGlossaryApp
         [FunctionName(nameof(UpdateDocsSaveTopicsToSettings))]
         public static async Task UpdateDocsSaveTopicsToSettings(
             [ActivityTrigger]
-            IList<TopicInformation> topics,
+            IList<TermInformation> topics,
             ILogger log)
         {
             log?.LogInformationEx("In UpdateDocsSaveTopicsToSettings", LogVerbosity.Normal);
@@ -515,16 +515,16 @@ namespace MsGlossaryApp
             IList<KeywordInformation> keywords,
             ILogger log)
         {
-            return await TopicMaker.SortDisambiguations(keywords, log);
+            return await TermMaker.SortDisambiguations(keywords, log);
         }
 
         [FunctionName(nameof(UpdateDocsSortKeywords))]
         public static async Task<IList<KeywordInformation>> UpdateDocsSortKeywords(
             [ActivityTrigger]
-            (IList<TopicInformation> allTopics, TopicInformation currentTopic) input,
+            (IList<TermInformation> allTopics, TermInformation currentTopic) input,
             ILogger log)
         {
-            return await TopicMaker.SortKeywords(input.allTopics, input.currentTopic, log);
+            return await TermMaker.SortKeywords(input.allTopics, input.currentTopic, log);
         }
 
         [FunctionName(nameof(UpdateDocsUpdateTableOfContents))]
@@ -533,7 +533,7 @@ namespace MsGlossaryApp
             IList<KeywordInformation> keywords,
             ILogger log)
         {
-            return await TopicMaker.CreateTableOfContentsFile(keywords, log);
+            return await TermMaker.CreateTableOfContentsFile(keywords, log);
         }
 
         [FunctionName(nameof(UpdateDocsVerifyFiles))]
@@ -542,7 +542,7 @@ namespace MsGlossaryApp
             GlossaryFileInfo file,
             ILogger log)
         {
-            return await TopicMaker.VerifyFile(file);
+            return await TermMaker.VerifyFile(file);
         }
     }
 }

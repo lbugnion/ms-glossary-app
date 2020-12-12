@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MsGlossaryApp.Model
 {
-    public class TopicInformation
+    public class TermInformation
     {
         public IList<AuthorInformation> Authors { get; set; }
 
@@ -23,7 +23,7 @@ namespace MsGlossaryApp.Model
 
         public string Title { get; set; }
 
-        public string TopicName { get; set; }
+        public string TermName { get; set; }
 
         public string Transcript { get; set; }
 

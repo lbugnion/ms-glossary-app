@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MsGlossaryApp.Model
 {
-    public static class TopicMaker
+    public static class TermMaker
     {
         private const string GitHubRawPathTemplate = "https://raw.githubusercontent.com/{0}/{1}/{2}/{3}";
 
@@ -506,13 +506,13 @@ namespace MsGlossaryApp.Model
             return tcs.Task;
         }
 
-        public static async Task<TopicInformation> CreateTopic(
+        public static async Task<TermInformation> CreateTopic(
             Uri uri,
             ILogger log)
         {
             log?.LogInformationEx("In CreateTopic", LogVerbosity.Verbose);
 
-            var topic = new TopicInformation
+            var topic = new TermInformation
             {
                 Uri = uri
             };
@@ -680,7 +680,7 @@ namespace MsGlossaryApp.Model
                     IsMainKeyword = true,
                     Keyword = first.Keyword,
                     MustDisambiguate = false,
-                    Topic = new TopicInformation
+                    Topic = new TermInformation
                     {
                         Title = first.Keyword,
                         TopicName = "disambiguation"
@@ -696,8 +696,8 @@ namespace MsGlossaryApp.Model
         }
 
         public static Task<IList<KeywordInformation>> SortKeywords(
-            IList<TopicInformation> allTopics,
-            TopicInformation currentTopic,
+            IList<TermInformation> allTerms,
+            TermInformation currentTopic,
             ILogger log = null)
         {
             log?.LogInformationEx("In SortKeywords", LogVerbosity.Verbose);
@@ -714,7 +714,7 @@ namespace MsGlossaryApp.Model
                     TopicName = currentTopic.TopicName
                 };
 
-                var sameKeywords = allTopics
+                var sameKeywords = allTerms
                     .SelectMany(t => t.Keywords)
                     .Where(k => k.ToLower() == keyword.ToLower());
 

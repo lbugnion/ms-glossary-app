@@ -2,7 +2,7 @@
 
 namespace MsGlossaryApp.Model
 {
-    public class NewTopicInfo
+    public class NewTermInfo
     {
         [JsonProperty("ref")]
         public string Ref
@@ -11,8 +11,8 @@ namespace MsGlossaryApp.Model
             set;
         }
 
-        [JsonProperty("safetopic")]
-        public string SafeTopic
+        [JsonProperty("safeterm")]
+        public string SafeTerm
         {
             get;
             set;
@@ -53,8 +53,8 @@ namespace MsGlossaryApp.Model
             set;
         }
 
-        [JsonProperty("topic")]
-        public string Topic
+        [JsonProperty("term")]
+        public string Term
         {
             get;
             set;
