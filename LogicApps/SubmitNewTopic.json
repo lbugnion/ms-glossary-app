@@ -90,6 +90,26 @@
                 },
                 "type": "Http"
             },
+            "HTTP_4": {
+                "inputs": {
+                    "body": {
+                        "body": "An error happened on new topic submitted by @{body('Get_response_details')?['responder']}: @{body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']}",
+                        "channel": "MSGlossary",
+                        "title": "Error with new topic"
+                    },
+                    "headers": {
+                        "x-functions-key": "CfPYAamajXsaZQiFOk3CaLxFnDEKThXDnt86NWimMi5O2Gw8yeIK/Q=="
+                    },
+                    "method": "POST",
+                    "uri": "https://notificationsendpoint.azurewebsites.net/api/send"
+                },
+                "runAfter": {
+                    "Send_an_email_(V2)_3": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Http"
+            },
             "Initialize_variable": {
                 "inputs": {
                     "variables": [
@@ -218,7 +238,7 @@
             "Send_an_email_(V2)": {
                 "inputs": {
                     "body": {
-                        "Body": "<p>Thank you for submitting a new topic to the Microsoft Glossary. We need your action now:<br>\n<br>\nThe new topic you submitted is available here:<br>\n@{body('Parse_JSON')?['url']}<br>\n<br>\nThe instructions to proceed with the submission are available here .<br>\n<br>\nIn case of doubt, please reply to this email and I will assist you.<br>\n<br>\nThanks again!!<br>\nLaurent<br>\n<br>\nName: @{body('Get_response_details')?['r67076393da1440d49a0e20d12516d1a9']}<br>\nTwitter: @{body('Get_response_details')?['r3a51f04a2587472c903688778835bffe']}<br>\nGitHub: @{body('Get_response_details')?['rf46f3efb9b5640268970c7f8805ec338']}<br>\nTerm: @{body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']}<br>\nDescription: @{body('Get_response_details')?['r46ea1f89309e4a2185e25fee32497f12']}<br>\nSubmitted at: @{body('Get_response_details')?['submitDate']}</p>",
+                        "Body": "<p>Thank you for submitting a new topic to the Microsoft Glossary. We need your action now:<br>\n<br>\nThe new topic you submitted is available here:<br>\n@{body('Parse_JSON')?['url']}<br>\n<br>\nThe instructions to proceed with the submission are available here.<br>\n<br>\nIn case of doubt, please reply to this email and I will assist you.<br>\n<br>\nThanks again!!<br>\nLaurent<br>\n<br>\nName: @{body('Get_response_details')?['r67076393da1440d49a0e20d12516d1a9']}<br>\nTwitter: @{body('Get_response_details')?['r3a51f04a2587472c903688778835bffe']}<br>\nGitHub: @{body('Get_response_details')?['rf46f3efb9b5640268970c7f8805ec338']}<br>\nTerm: @{body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']}<br>\nDescription: @{body('Get_response_details')?['r46ea1f89309e4a2185e25fee32497f12']}<br>\nSubmitted at: @{body('Get_response_details')?['submitDate']}</p>",
                         "Subject": "ACTION NEEDED: Thanks for submitting to the Microsoft Glossary",
                         "To": "@{body('Get_response_details')?['responder']}; lbugnion@microsoft.com"
                     },
@@ -254,6 +274,30 @@
                 },
                 "runAfter": {
                     "HTTP": [
+                        "Failed",
+                        "Skipped",
+                        "TimedOut"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Send_an_email_(V2)_3": {
+                "inputs": {
+                    "body": {
+                        "Body": "<p>Thank you for submitting a new topic to the Microsoft Glossary. There was a small problem with your submission but don't worry, your input is saved!<br>\n<br>\nWe will contact you after we check what the issue was, so we can resolve it together.<br>\n<br>\nTake care!<br>\nLaurent</p>",
+                        "Subject": "PLEASE NOTE: Issue with your Microsoft Glossary submission",
+                        "To": "@{body('Get_response_details')?['responder']}; lbugnion@microsoft.com"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['office365']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/v2/Mail"
+                },
+                "runAfter": {
+                    "Parse_JSON": [
                         "Failed",
                         "Skipped",
                         "TimedOut"
