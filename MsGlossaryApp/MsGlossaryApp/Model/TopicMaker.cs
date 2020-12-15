@@ -14,6 +14,12 @@ namespace MsGlossaryApp.Model
     public static class TopicMaker
     {
         private const string GitHubRawPathTemplate = "https://raw.githubusercontent.com/{0}/{1}/{2}/{3}";
+        private const string ShortLinksHeaderLine = "ShortUrl\tTargetUrl\tMobileUrl\tOwners\tGroupOwner\tDescription";
+        private const string DocsShortLinkTemplate = "define/{0}/docs/{1}";
+        private const string LearnShortLinkTemplate = "define/{0}/learn/{1}";
+        private const string OthersShortLinkTemplate = "define/{0}/others/{1}";
+        private const string LongLinkTemplate = "{0}{1}{2}=scalablecontent-11862-cxa";
+        private const string Tracking = "WT.mc_id";
 
         private static IList<AuthorInformation> MakeAuthors(
             string authorName,
@@ -655,6 +661,56 @@ namespace MsGlossaryApp.Model
 
             log?.LogInformationEx("Out CreateTopic", LogVerbosity.Verbose);
             return topic;
+        }
+
+        public static Task<GlossaryFileInfo> CreateShortLinks(IList<TopicInformation> terms, ILogger log)
+        {
+            var builder = new StringBuilder()
+                .AppendLine(ShortLinksHeaderLine);
+
+            foreach (var term in terms)
+            {
+                foreach (var linkSectionKey in term.Links.Keys)
+                {
+                    string shortLinkTemplate;
+
+                    switch (linkSectionKey)
+                    {
+                        case "TODO1":
+                            shortLinkTemplate = DocsShortLinkTemplate;
+                            break;
+
+                        case "TODO2":
+                            shortLinkTemplate = LearnShortLinkTemplate;
+                            break;
+
+                        default:
+                            shortLinkTemplate = OthersShortLinkTemplate;
+                            break;
+                    }
+
+                    foreach (var link in term.Links[linkSectionKey])
+                    {
+                        string longLink;
+
+                        if (!link.Contains(Tracking))
+                        {
+                            if (link.Contains('?'))
+                            {
+                                longLink = string.Format(LongLinkTemplate, link, '&', Tracking);
+                            }
+                            else
+                            {
+                                longLink = string.Format(LongLinkTemplate, link, '?', Tracking);
+                            }
+                        }
+
+                        var shortLink = string.Format()
+                    }
+                }
+            }
+
+            
         }
 
         public static Task<IList<KeywordInformation>> SortDisambiguations(

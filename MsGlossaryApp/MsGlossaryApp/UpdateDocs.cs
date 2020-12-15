@@ -109,6 +109,10 @@ namespace MsGlossaryApp
 
             allTopics = await Task.WhenAll(replaceKeywordsTasks);
 
+            await context.CallActivityAsync(
+                nameof(UpdateDocsCreateShortLinks),
+                allTopics.ToList());
+
             var filesCreationTasks = new List<Task<GlossaryFileInfo>>();
 
             foreach (var keyword in allKeywords.Where(k => !k.IsDisambiguation))
@@ -534,6 +538,15 @@ namespace MsGlossaryApp
             ILogger log)
         {
             return await TopicMaker.CreateTableOfContentsFile(keywords, log);
+        }
+
+        [FunctionName(nameof(UpdateDocsCreateShortLinks))]
+        public static async Task<GlossaryFileInfo> UpdateDocsCreateShortLinks(
+            [ActivityTrigger]
+            IList<TopicInformation> terms,
+            ILogger log)
+        {
+            return await TopicMaker.CreateShortLinks(terms, log);
         }
 
         [FunctionName(nameof(UpdateDocsVerifyFiles))]
