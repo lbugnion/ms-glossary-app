@@ -2,9 +2,9 @@
 {
     public static class StringExtensions
     {
-        public static string MakeSafeFileName(this string topic)
+        public static string MakeSafeFileName(this string term)
         {
-            return topic.ToLower()
+            return term.ToLower()
                 .Replace(' ', '-')
                 .Replace('/', '-')
                 .Replace('.', '-');

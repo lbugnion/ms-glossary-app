@@ -7,7 +7,7 @@ POST http://localhost:7071/api/add-new
     "submittername": "Laurent Bugnion",
     "submittertwitter": "@LBugnion",
     "submittergithub": "LBugnion",
-    "topic":"test-topic-08"
+    "term":"My new term"
 }
 
 ### Add New Synopsis Staging
@@ -20,7 +20,7 @@ x-functions-key: OTQgPYaBCra07bwwQT4TtoTa6hP26oWm1jHoCJg2UiJjV8RRWoOMIw==
     "submittername": "Laurent Bugnion",
     "submittertwitter": "@LBugnion",
     "submittergithub": "LBugnion",
-    "topic":"test-topic-09"
+    "term":"test-topic-09"
 }
 
 ### Update Homepage local

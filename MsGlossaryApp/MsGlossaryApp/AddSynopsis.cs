@@ -24,7 +24,7 @@ namespace MsGlossaryApp
         private const string NewSynopsisUrl = "https://github.com/{0}/{1}/blob/{2}/synopsis/{2}.md";
         private const string RawTemplateUrl = "https://raw.githubusercontent.com/{0}/{1}/{2}/templates/synopsis-template.md";
         private const string ShortDescriptionMarker = "<!-- ENTER A SHORT DESCRIPTION HERE -->";
-        private const string TopicMarker = "<!-- TOPIC -->";
+        private const string TermMarker = "<!-- TERM -->";
         private const string TwitterMarker = "<!-- ENTER YOUR TWITTER NAME HERE -->";
 
         [FunctionName("AddSynopsis")]
@@ -54,22 +54,22 @@ namespace MsGlossaryApp
             log?.LogInformationEx($"token: {token}", LogVerbosity.Debug);
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var newTopic = JsonConvert.DeserializeObject<NewTopicInfo>(requestBody);
+            var newTerm = JsonConvert.DeserializeObject<NewTermInfo>(requestBody);
 
-            log?.LogInformationEx("Received new topic", LogVerbosity.Verbose);
-            log?.LogInformationEx($"newTopic.SubmitterName: {newTopic.SubmitterName}", LogVerbosity.Debug);
-            log?.LogInformationEx($"newTopic.SubmitterEmail: {newTopic.SubmitterEmail}", LogVerbosity.Debug);
-            log?.LogInformationEx($"newTopic.SubmitterTwitter: {newTopic.SubmitterTwitter}", LogVerbosity.Debug);
-            log?.LogInformationEx($"newTopic.SubmitterGithub: {newTopic.SubmitterGithub}", LogVerbosity.Debug);
-            log?.LogInformationEx($"newTopic.Topic: {newTopic.Topic}", LogVerbosity.Debug);
-            log?.LogInformationEx($"newTopic.ShortDescription: {newTopic.ShortDescription}", LogVerbosity.Debug);
+            log?.LogInformationEx("Received new term", LogVerbosity.Verbose);
+            log?.LogInformationEx($"newTerm.SubmitterName: {newTerm.SubmitterName}", LogVerbosity.Debug);
+            log?.LogInformationEx($"newTerm.SubmitterEmail: {newTerm.SubmitterEmail}", LogVerbosity.Debug);
+            log?.LogInformationEx($"newTerm.SubmitterTwitter: {newTerm.SubmitterTwitter}", LogVerbosity.Debug);
+            log?.LogInformationEx($"newTerm.SubmitterGithub: {newTerm.SubmitterGithub}", LogVerbosity.Debug);
+            log?.LogInformationEx($"newTerm.Term: {newTerm.Term}", LogVerbosity.Debug);
+            log?.LogInformationEx($"newTerm.ShortDescription: {newTerm.ShortDescription}", LogVerbosity.Debug);
 
-            if (string.IsNullOrEmpty(newTopic.SubmitterName)
-                || string.IsNullOrEmpty(newTopic.SubmitterEmail)
-                || string.IsNullOrEmpty(newTopic.SubmitterTwitter)
-                || string.IsNullOrEmpty(newTopic.SubmitterGithub)
-                || string.IsNullOrEmpty(newTopic.Topic)
-                || string.IsNullOrEmpty(newTopic.ShortDescription))
+            if (string.IsNullOrEmpty(newTerm.SubmitterName)
+                || string.IsNullOrEmpty(newTerm.SubmitterEmail)
+                || string.IsNullOrEmpty(newTerm.SubmitterTwitter)
+                || string.IsNullOrEmpty(newTerm.SubmitterGithub)
+                || string.IsNullOrEmpty(newTerm.Term)
+                || string.IsNullOrEmpty(newTerm.ShortDescription))
             {
                 log?.LogError("Incomplete submission");
                 return new BadRequestObjectResult("Incomplete submission");
@@ -77,8 +77,8 @@ namespace MsGlossaryApp
 
             // Get the main head
 
-            newTopic.SafeTopic = newTopic.Topic.MakeSafeFileName();
-            log?.LogInformationEx($"Safe topic: {newTopic.SafeTopic}", LogVerbosity.Verbose);
+            newTerm.SafeTerm = newTerm.Term.MakeSafeFileName();
+            log?.LogInformationEx($"Safe term: {newTerm.SafeTerm}", LogVerbosity.Verbose);
 
             var helper = new GitHubHelper(client);
 
@@ -101,7 +101,7 @@ namespace MsGlossaryApp
                 repoName,
                 token,
                 mainHead,
-                newTopic.SafeTopic,
+                newTerm.SafeTerm,
                 log);
 
             if (!string.IsNullOrEmpty(newBranch.ErrorMessage))
@@ -118,20 +118,20 @@ namespace MsGlossaryApp
             var markdownTemplate = await client.GetStringAsync(templateUrl);
 
             markdownTemplate = markdownTemplate
-                .Replace(TopicMarker, newTopic.Topic)
-                .Replace(NameMarker, newTopic.SubmitterName)
-                .Replace(EmailMarker, newTopic.SubmitterEmail)
-                .Replace(ShortDescriptionMarker, newTopic.ShortDescription);
+                .Replace(TermMarker, newTerm.Term)
+                .Replace(NameMarker, newTerm.SubmitterName)
+                .Replace(EmailMarker, newTerm.SubmitterEmail)
+                .Replace(ShortDescriptionMarker, newTerm.ShortDescription);
 
             log?.LogInformationEx("Template replaced", LogVerbosity.Debug);
 
-            if (!newTopic.SubmitterTwitter.StartsWith('@'))
+            if (!newTerm.SubmitterTwitter.StartsWith('@'))
             {
-                newTopic.SubmitterTwitter = $"@{newTopic.SubmitterTwitter}";
+                newTerm.SubmitterTwitter = $"@{newTerm.SubmitterTwitter}";
             }
 
-            markdownTemplate = markdownTemplate.Replace(TwitterMarker, newTopic.SubmitterTwitter);
-            markdownTemplate = markdownTemplate.Replace(GitHubMarker, newTopic.SubmitterGithub);
+            markdownTemplate = markdownTemplate.Replace(TwitterMarker, newTerm.SubmitterTwitter);
+            markdownTemplate = markdownTemplate.Replace(GitHubMarker, newTerm.SubmitterGithub);
 
             log?.LogInformationEx("Done getting file template from GitHub and updating it", LogVerbosity.Verbose);
 
@@ -140,22 +140,22 @@ namespace MsGlossaryApp
             var newHeadResult = await helper.CommitFiles(
                 accountName,
                 repoName,
-                newTopic.SafeTopic,
+                newTerm.SafeTerm,
                 token,
-                string.Format(CommitMessage, newTopic.SafeTopic),
+                string.Format(CommitMessage, newTerm.SafeTerm),
                 new List<(string, string)>
                 {
-                    (string.Format(NewFileName, newTopic.SafeTopic), markdownTemplate)
+                    (string.Format(NewFileName, newTerm.SafeTerm), markdownTemplate)
                 },
                 newBranch,
                 log);
 
-            newTopic.Ref = newHeadResult.Ref;
-            newTopic.Url = string.Format(NewSynopsisUrl, accountName, repoName, newTopic.SafeTopic);
-            var jsonResult = JsonConvert.SerializeObject(newTopic);
+            newTerm.Ref = newHeadResult.Ref;
+            newTerm.Url = string.Format(NewSynopsisUrl, accountName, repoName, newTerm.SafeTerm);
+            var jsonResult = JsonConvert.SerializeObject(newTerm);
 
-            log?.LogInformationEx($"newTopic.Ref: {newTopic.Ref}", LogVerbosity.Debug);
-            log?.LogInformationEx($"newTopic.Url: {newTopic.Url}", LogVerbosity.Verbose);
+            log?.LogInformationEx($"newTerm.Ref: {newTerm.Ref}", LogVerbosity.Debug);
+            log?.LogInformationEx($"newTerm.Url: {newTerm.Url}", LogVerbosity.Verbose);
             log?.LogInformationEx("Out AddSynopsis", LogVerbosity.Normal);
 
             return new OkObjectResult(jsonResult);
