@@ -44,7 +44,7 @@
                             "method": "post",
                             "path": "/datasets/default/copyFile",
                             "queries": {
-                                "destination": "/backups/@{variables('BackupFolderName')}/topics/@{items('For_each_2')?['Name']}",
+                                "destination": "/backups/@{variables('BackupFolderName')}/terms/@{items('For_each_2')?['Name']}",
                                 "overwrite": true,
                                 "queryParametersSingleEncoded": true,
                                 "source": "@items('For_each_2')?['Path']"
@@ -95,7 +95,7 @@
             "HTTP": {
                 "inputs": {
                     "body": {
-                        "body": "Backup for settings, topics and captions was successfully created at @{variables('BackupFolderName')}",
+                        "body": "Backup for settings, terms and captions was successfully created at @{variables('BackupFolderName')}",
                         "channel": "MSGlossary",
                         "title": "Backup created"
                     },
@@ -115,7 +115,7 @@
             "HTTP_2": {
                 "inputs": {
                     "body": {
-                        "body": "Error when creating backup for settings, topics and captions at @{variables('BackupFolderName')}",
+                        "body": "Error when creating backup for settings, terms and captions at @{variables('BackupFolderName')}",
                         "channel": "MSGlossary",
                         "title": "Backup was NOT created"
                     },
@@ -178,13 +178,14 @@
                         }
                     },
                     "method": "get",
-                    "path": "/datasets/default/foldersV2/@{encodeURIComponent(encodeURIComponent('JTJmdG9waWNz'))}",
+                    "path": "/datasets/default/foldersV2/@{encodeURIComponent(encodeURIComponent('JTJmdGVybXM='))}",
                     "queries": {
                         "useFlatListing": true
                     }
                 },
                 "metadata": {
-                    "JTJmdG9waWNz": "/topics"
+                    "JTJmdG9waWNz": "/topics",
+                    "JTJmdGVybXM=": "/terms"
                 },
                 "runAfter": {
                     "For_each": [
