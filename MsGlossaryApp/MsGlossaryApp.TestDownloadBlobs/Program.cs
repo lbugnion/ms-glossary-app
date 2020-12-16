@@ -27,7 +27,17 @@ namespace MsGlossaryApp.TestDownloadBlobs
                 blobHelper.GetContainerFromName(
                     "output-staging"),
                 blobHelper.GetContainerFromName(
-                    "output-testing")
+                    "output-testing"),
+                blobHelper.GetContainerFromName(
+                    "settings"),
+                blobHelper.GetContainerFromName(
+                    "settings-staging"),
+                blobHelper.GetContainerFromName(
+                    "settings-testing"),
+                blobHelper.GetContainerFromName(
+                    "captions"),
+                blobHelper.GetContainerFromName(
+                    "terms")
             };
 
             Console.WriteLine("Ready, press any key except N to start");
@@ -40,6 +50,11 @@ namespace MsGlossaryApp.TestDownloadBlobs
 
                     var outputFolder = new DirectoryInfo(
                         Path.Combine(@"C:\Users\lbugnion\Desktop\blobs", container.Name));
+
+                    if (!outputFolder.Exists)
+                    {
+                        outputFolder.Create();
+                    }
 
                     do
                     {
