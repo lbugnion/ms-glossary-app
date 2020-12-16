@@ -117,79 +117,79 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="en.TopicAuthors" xml:space="preserve">
+  <data name="en.TermAuthors" xml:space="preserve">
     <value>Authors</value>
     <comment>Authors</comment>
   </data>
-  <data name="en.TopicCaptions" xml:space="preserve">
+  <data name="en.TermCaptions" xml:space="preserve">
     <value>There are captions for the following language(s):</value>
     <comment>There are captions for the following language(s):</comment>
   </data>
-  <data name="en.TopicCaptionsLearn" xml:space="preserve">
+  <data name="en.TermCaptionsLearn" xml:space="preserve">
     <value>Learn about [downloading and showing captions here]</value>
     <comment>Learn about [downloading and showing captions here]</comment>
   </data>
-  <data name="en.TopicCreatedBy" xml:space="preserve">
-    <value>This topic was created by</value>
-    <comment>This topic was created by</comment>
+  <data name="en.TermCreatedBy" xml:space="preserve">
+    <value>This page was created by</value>
+    <comment>This page was created by</comment>
   </data>
-  <data name="en.TopicDefinition" xml:space="preserve">
+  <data name="en.TermDefinition" xml:space="preserve">
     <value>Definition</value>
     <comment>Definition</comment>
   </data>
-  <data name="en.TopicDescription" xml:space="preserve">
+  <data name="en.TermDescription" xml:space="preserve">
     <value>Microsoft Glossary definition for {0}</value>
     <comment>Microsoft Glossary definition for {0}</comment>
   </data>
-  <data name="en.TopicDescriptionDisambiguation" xml:space="preserve">
+  <data name="en.TermDescriptionDisambiguation" xml:space="preserve">
     <value>Microsoft Glossary disambiguation for {0}</value>
     <comment>Microsoft Glossary disambiguation for {0}</comment>
   </data>
-  <data name="en.TopicDifferentContexts" xml:space="preserve">
+  <data name="en.TermDifferentContexts" xml:space="preserve">
     <value>`{0}` can be used in different contexts</value>
     <comment>`{0}` can be used in different contexts</comment>
   </data>
-  <data name="en.TopicDisambiguation" xml:space="preserve">
+  <data name="en.TermDisambiguation" xml:space="preserve">
     <value>disambiguation</value>
     <comment>disambiguation</comment>
   </data>
-  <data name="en.TopicDownload" xml:space="preserve">
+  <data name="en.TermDownload" xml:space="preserve">
     <value>Download</value>
     <comment>Download</comment>
   </data>
-  <data name="en.TopicDownloadHere" xml:space="preserve">
+  <data name="en.TermDownloadHere" xml:space="preserve">
     <value>You can download this video here</value>
     <comment>You can download this video here</comment>
   </data>
-  <data name="en.TopicIn" xml:space="preserve">
+  <data name="en.TermIn" xml:space="preserve">
     <value>- In {0}, {1}</value>
     <comment>- In {0}, {1}</comment>
   </data>
-  <data name="en.TopicLanguages" xml:space="preserve">
+  <data name="en.TermLanguages" xml:space="preserve">
     <value>Languages</value>
     <comment>Languages</comment>
   </data>
-  <data name="en.TopicLinks" xml:space="preserve">
+  <data name="en.TermLinks" xml:space="preserve">
     <value>Links</value>
     <comment>Links</comment>
   </data>
-  <data name="en.TopicNonProductSpecific" xml:space="preserve">
+  <data name="en.TermNonProductSpecific" xml:space="preserve">
     <value>non-product-specific</value>
     <comment>non-product-specific</comment>
   </data>
-  <data name="en.TopicRandomTopic" xml:space="preserve">
-    <value>Random topic for today</value>
-    <comment>Random topic for today</comment>
+  <data name="en.TermRandomTerm" xml:space="preserve">
+    <value>Random term for today</value>
+    <comment>Random term for today</comment>
   </data>
-  <data name="en.TopicRedirectedFrom" xml:space="preserve">
+  <data name="en.TermRedirectedFrom" xml:space="preserve">
     <value>redirected from {0}</value>
     <comment>redirected from {0}</comment>
   </data>
-  <data name="en.TopicTocTitle" xml:space="preserve">
+  <data name="en.TermTocTitle" xml:space="preserve">
     <value>Microsoft Glossary</value>
     <comment>Microsoft Glossary</comment>
   </data>
-  <data name="en.TopicTranscript" xml:space="preserve">
+  <data name="en.TermTranscript" xml:space="preserve">
     <value>Transcript</value>
     <comment>Transcript</comment>
   </data>

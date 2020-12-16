@@ -36,48 +36,48 @@ namespace MsGlossaryApp
                 log);
 
             // Function input comes from the request content.
-            string instanceId = await starter.StartNewAsync("UpdateDocs", null);
+            string instanceId = await starter.StartNewAsync(nameof(UpdateDocsRunOrchestrator), null);
 
             log.LogInformationEx($"Started orchestration in UpdateDocs with ID = '{instanceId}'.", LogVerbosity.Normal);
 
             return starter.CreateCheckStatusResponse(req, instanceId);
         }
 
-        [FunctionName("UpdateDocs")]
-        public static async Task RunOrchestrator(
+        [FunctionName(nameof(UpdateDocsRunOrchestrator))]
+        public static async Task UpdateDocsRunOrchestrator(
             [OrchestrationTrigger]
             IDurableOrchestrationContext context)
         {
-            var allTopicsUrls = await context.CallActivityAsync<List<string>>(
-                nameof(UpdateDocsGetAllTopics),
+            var allTermsUrls = await context.CallActivityAsync<List<string>>(
+                nameof(UpdateDocsGetAllTerms),
                 null);
 
-            var allTopicsTasks = new List<Task<TermInformation>>();
+            var allTermsTasks = new List<Task<TermInformation>>();
 
-            foreach (var topicUrl in allTopicsUrls)
+            foreach (var termUrl in allTermsUrls)
             {
-                //var topicUrl = allTopicsUrls.First();
+                //var termUrl = allTermsUrls.First();
 
-                allTopicsTasks.Add(context.CallActivityAsync<TermInformation>(
-                    nameof(UpdateDocsParseTopic),
-                    new Uri(topicUrl)));
+                allTermsTasks.Add(context.CallActivityAsync<TermInformation>(
+                    nameof(UpdateDocsParseTerm),
+                    new Uri(termUrl)));
             }
 
-            var allTopics = await Task.WhenAll(allTopicsTasks);
+            var allTerms = await Task.WhenAll(allTermsTasks);
 
             await context.CallActivityAsync<TermInformation>(
-                nameof(UpdateDocsSaveTopicsToSettings),
-                allTopics);
+                nameof(UpdateDocsSaveTermsToSettings),
+                allTerms);
 
             var allKeywordsTasks = new List<Task<IList<KeywordInformation>>>();
 
-            foreach (var topic in allTopics)
+            foreach (var term in allTerms)
             {
-                //var topic = allTopics.First();
+                //var term = allTerms.First();
 
                 allKeywordsTasks.Add(context.CallActivityAsync<IList<KeywordInformation>>(
                     nameof(UpdateDocsSortKeywords),
-                    (allTopics, topic)));
+                    (allTerms, term)));
             }
 
             var allKeywords = (await Task.WhenAll(allKeywordsTasks))
@@ -89,13 +89,13 @@ namespace MsGlossaryApp
 
             var replaceKeywordsTasks = new List<Task<TermInformation>>();
 
-            foreach (var topic in allTopics)
+            foreach (var term in allTerms)
             {
-                // var topic = allTopics.First(t => t.TopicName == "aad");
+                // var term = allTerms.First(t => t.TermName == "aad");
 
                 var keywordsToReplace = allKeywords
                     .Where(k =>
-                        k.TopicName != topic.TopicName
+                        k.TermName != term.TermName
                         && !k.MustDisambiguate)
                     .ToList();
 
@@ -103,23 +103,23 @@ namespace MsGlossaryApp
                 {
                     replaceKeywordsTasks.Add(context.CallActivityAsync<TermInformation>(
                         nameof(UpdateDocsReplaceKeywords),
-                        (keywordsToReplace, topic)));
+                        (keywordsToReplace, term)));
                 }
             }
 
-            allTopics = await Task.WhenAll(replaceKeywordsTasks);
+            allTerms = await Task.WhenAll(replaceKeywordsTasks);
 
             var filesCreationTasks = new List<Task<GlossaryFileInfo>>();
 
             foreach (var keyword in allKeywords.Where(k => !k.IsDisambiguation))
             {
                 //var keyword = allKeywords.First(k => k.Keyword.MakeSafeFileName() == "node-js"
-                //    && k.TopicName == "app-service");
+                //    && k.TermName == "app-service");
 
-                var currentTopic = allTopics
-                    .Single(testc => testc.TopicName == keyword.TopicName);
+                var currentTerm = allTerms
+                    .Single(testc => testc.TermName == keyword.TermName);
 
-                keyword.Topic = currentTopic;
+                keyword.Term = currentTerm;
 
                 filesCreationTasks.Add(context.CallActivityAsync<GlossaryFileInfo>(
                     nameof(UpdateDocsMakeMarkdown),
@@ -139,7 +139,7 @@ namespace MsGlossaryApp
                 foreach (var e in errors)
                 {
                     await NotificationService.Notify(
-                        "ERROR when updating topics",
+                        "ERROR when updating terms",
                         e,
                         null);
                 }
@@ -161,10 +161,10 @@ namespace MsGlossaryApp
 
                 foreach (var keyword in group)
                 {
-                    var currentTopic = allTopics
-                        .Single(testc => testc.TopicName == keyword.TopicName);
+                    var currentTerm = allTerms
+                        .Single(testc => testc.TermName == keyword.TermName);
 
-                    keyword.Topic = currentTopic;
+                    keyword.Term = currentTerm;
                 }
 
                 disambiguationTasks.Add(context.CallActivityAsync<GlossaryFileInfo>(
@@ -388,8 +388,8 @@ namespace MsGlossaryApp
             return savingLocation;
         }
 
-        [FunctionName(nameof(UpdateDocsGetAllTopics))]
-        public static async Task<List<string>> UpdateDocsGetAllTopics(
+        [FunctionName(nameof(UpdateDocsGetAllTerms))]
+        public static async Task<List<string>> UpdateDocsGetAllTerms(
             [ActivityTrigger]
             ILogger log)
         {
@@ -399,26 +399,26 @@ namespace MsGlossaryApp
 
             var blobClient = account.CreateCloudBlobClient();
             var blobHelper = new BlobHelper(blobClient, log);
-            var topicsContainer = blobHelper.GetContainerFromVariable(
-                Constants.TopicsContainerVariableName);
+            var termsContainer = blobHelper.GetContainerFromVariable(
+                Constants.TermsContainerVariableName);
 
             BlobContinuationToken continuationToken = null;
-            var topics = new List<string>();
+            var terms = new List<string>();
 
             do
             {
-                var response = await topicsContainer.ListBlobsSegmentedAsync(continuationToken);
+                var response = await termsContainer.ListBlobsSegmentedAsync(continuationToken);
                 continuationToken = response.ContinuationToken;
 
                 foreach (CloudBlockBlob blob in response.Results)
                 {
                     log?.LogInformationEx($"Found: {blob.Name}", LogVerbosity.Debug);
-                    topics.Add(blob.Uri.ToString());
+                    terms.Add(blob.Uri.ToString());
                 }
             }
             while (continuationToken != null);
 
-            return topics;
+            return terms;
         }
 
         [FunctionName(nameof(UpdateDocsMakeDisambiguation))]
@@ -441,53 +441,53 @@ namespace MsGlossaryApp
             return file;
         }
 
-        [FunctionName(nameof(UpdateDocsParseTopic))]
-        public static async Task<TermInformation> UpdateDocsParseTopic(
+        [FunctionName(nameof(UpdateDocsParseTerm))]
+        public static async Task<TermInformation> UpdateDocsParseTerm(
             [ActivityTrigger]
-            Uri topicUri,
+            Uri termUri,
             ILogger log)
         {
-            TermInformation topic = null;
+            TermInformation term = null;
 
             try
             {
-                topic = await TermMaker.CreateTopic(topicUri, log);
+                term = await TermMaker.CreateTerm(termUri, log);
             }
             catch (Exception ex)
             {
-                log?.LogError($"Error with topic {topicUri}: {ex.Message}");
+                log?.LogError($"Error with term {termUri}: {ex.Message}");
             }
 
-            return topic;
+            return term;
         }
 
         [FunctionName(nameof(UpdateDocsReplaceKeywords))]
         public static async Task<TermInformation> UpdateDocsReplaceKeywords(
             [ActivityTrigger]
-            (List<KeywordInformation> keywordsToReplace, TermInformation currentTopic) input,
+            (List<KeywordInformation> keywordsToReplace, TermInformation currentTerm) input,
             ILogger log)
         {
             var newTranscript = await KeywordReplacer.Replace(
-                input.currentTopic.Transcript,
+                input.currentTerm.Transcript,
                 input.keywordsToReplace,
                 log);
 
-            if (newTranscript != input.currentTopic.Transcript)
+            if (newTranscript != input.currentTerm.Transcript)
             {
-                input.currentTopic.Transcript = newTranscript;
-                input.currentTopic.MustSave = true;
+                input.currentTerm.Transcript = newTranscript;
+                input.currentTerm.MustSave = true;
             }
 
-            return input.currentTopic;
+            return input.currentTerm;
         }
 
-        [FunctionName(nameof(UpdateDocsSaveTopicsToSettings))]
-        public static async Task UpdateDocsSaveTopicsToSettings(
+        [FunctionName(nameof(UpdateDocsSaveTermsToSettings))]
+        public static async Task UpdateDocsSaveTermsToSettings(
             [ActivityTrigger]
-            IList<TermInformation> topics,
+            IList<TermInformation> terms,
             ILogger log)
         {
-            log?.LogInformationEx("In UpdateDocsSaveTopicsToSettings", LogVerbosity.Normal);
+            log?.LogInformationEx("In UpdateDocsSaveTermsToSettings", LogVerbosity.Normal);
 
             var account = CloudStorageAccount.Parse(
                 Environment.GetEnvironmentVariable(
@@ -498,15 +498,15 @@ namespace MsGlossaryApp
             var settingsContainer = blobHelper.GetContainerFromVariable(
                 Constants.SettingsContainerVariableName);
 
-            var blob = settingsContainer.GetBlockBlobReference(Constants.TopicsSettingsFileName);
+            var blob = settingsContainer.GetBlockBlobReference(Constants.TermsSettingsFileName);
 
-            var topicsNames = topics.Select(t => t.TopicName).ToList();
+            var termsNames = terms.Select(t => t.TermName).ToList();
 
-            var json = JsonConvert.SerializeObject(topicsNames);
+            var json = JsonConvert.SerializeObject(termsNames);
             log?.LogInformationEx($"json: {json}", LogVerbosity.Debug);
 
             await blob.UploadTextAsync(json);
-            log?.LogInformationEx("Out UpdateDocsSaveTopicsToSettings", LogVerbosity.Normal);
+            log?.LogInformationEx("Out UpdateDocsSaveTermsToSettings", LogVerbosity.Normal);
         }
 
         [FunctionName(nameof(UpdateDocsSortDisambiguations))]
@@ -521,10 +521,10 @@ namespace MsGlossaryApp
         [FunctionName(nameof(UpdateDocsSortKeywords))]
         public static async Task<IList<KeywordInformation>> UpdateDocsSortKeywords(
             [ActivityTrigger]
-            (IList<TermInformation> allTopics, TermInformation currentTopic) input,
+            (IList<TermInformation> allTerms, TermInformation currentTerm) input,
             ILogger log)
         {
-            return await TermMaker.SortKeywords(input.allTopics, input.currentTopic, log);
+            return await TermMaker.SortKeywords(input.allTerms, input.currentTerm, log);
         }
 
         [FunctionName(nameof(UpdateDocsUpdateTableOfContents))]

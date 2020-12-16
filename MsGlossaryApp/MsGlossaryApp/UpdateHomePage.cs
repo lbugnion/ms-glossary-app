@@ -17,14 +17,14 @@ namespace MsGlossaryApp
     {
         private const string CommitMessage = "Updated the home page";
         private const string HomePageFilePath = "https://raw.githubusercontent.com/{0}/{1}/{2}/glossary/index.md";
-        private const string IncludeLineMask = "[!INCLUDE [{0}:](./topic/{1}/index.md)]";
+        private const string IncludeLineMask = "[!INCLUDE [{0}:](./term/{1}/index.md)]";
 
         [FunctionName("UpdateHomePage")]
         public static async Task Run(
-            [TimerTrigger("0 0 6 * * *")]
-            TimerInfo myTimer,
-            //[HttpTrigger(Microsoft.Azure.WebJobs.Extensions.Http.AuthorizationLevel.Function, "get", Route = null)]
-            //Microsoft.AspNetCore.Http.HttpRequest req,
+            //[TimerTrigger("0 0 6 * * *")]
+            //TimerInfo myTimer,
+            [HttpTrigger(Microsoft.Azure.WebJobs.Extensions.Http.AuthorizationLevel.Function, "get", Route = null)]
+            Microsoft.AspNetCore.Http.HttpRequest req,
             ILogger log)
         {
             log.LogInformationEx($"In UpdateHomePage", LogVerbosity.Normal);
@@ -73,38 +73,38 @@ namespace MsGlossaryApp
                 var newContent = newContentBuilder.ToString()
                     .Trim();
 
-                // Get the list of topics
+                // Get the list of terms
 
                 var blobStoreName = Environment.GetEnvironmentVariable(Constants.BlobStoreNameVariableName);
                 var settingsContainerName = Environment.GetEnvironmentVariable(Constants.SettingsContainerVariableName);
-                var topicsUrl = string.Format(Constants.ListOfTopicsUrlMask, blobStoreName, settingsContainerName, Constants.TopicsSettingsFileName);
+                var termsUrl = string.Format(Constants.ListOfTermsUrlMask, blobStoreName, settingsContainerName, Constants.TermsSettingsFileName);
 
                 log.LogInformationEx($"blobStoreName: {blobStoreName}", LogVerbosity.Debug);
                 log.LogInformationEx($"settingsContainerName: {settingsContainerName}", LogVerbosity.Debug);
-                log.LogInformationEx($"topicsUrl: {topicsUrl}", LogVerbosity.Debug);
+                log.LogInformationEx($"termsUrl: {termsUrl}", LogVerbosity.Debug);
 
-                var topicsJson = await client.GetStringAsync(topicsUrl);
+                var termsJson = await client.GetStringAsync(termsUrl);
 
-                log.LogInformationEx("Topics JSON loaded", LogVerbosity.Verbose);
+                log.LogInformationEx("Terms JSON loaded", LogVerbosity.Verbose);
 
                 // TODO Remove checking for test and another-test when these are removed from the repos.
-                var topics = JsonConvert.DeserializeObject<List<string>>(topicsJson)
+                var terms = JsonConvert.DeserializeObject<List<string>>(termsJson)
                     .Where(s => s != "test"
                         && s != "another-test")
                     .ToList();
 
-                log.LogInformationEx($"{topics.Count} topics found", LogVerbosity.Debug);
+                log.LogInformationEx($"{terms.Count} terms found", LogVerbosity.Debug);
 
                 var random = new Random();
-                var index = random.Next(0, topics.Count - 1);
-                var randomTopic = topics[index];
+                var index = random.Next(0, terms.Count - 1);
+                var randomTerm = terms[index];
 
-                log?.LogInformationEx($"New random topic: {randomTopic}", LogVerbosity.Verbose);
+                log?.LogInformationEx($"New random term: {randomTerm}", LogVerbosity.Verbose);
 
                 var include = string.Format(
                     IncludeLineMask, 
-                    TextHelper.GetText("TopicRandomTopic"),
-                    randomTopic);
+                    TextHelper.GetText("TermRandomTerm"),
+                    randomTerm);
 
                 log?.LogInformationEx($"include: {include}", LogVerbosity.Debug);
 
@@ -116,7 +116,7 @@ namespace MsGlossaryApp
                     + Environment.NewLine;
 
                 var token = Environment.GetEnvironmentVariable(Constants.GitHubTokenVariableName);
-                log?.LogInformationEx($"GitHub topic: {token}", LogVerbosity.Debug);
+                log?.LogInformationEx($"GitHub token: {token}", LogVerbosity.Debug);
 
                 var helper = new GitHubHelper(client);
 
@@ -143,11 +143,11 @@ namespace MsGlossaryApp
                     return;
                 }
 
-                log?.LogInformationEx("Topic commited to Github", LogVerbosity.Verbose);
+                log?.LogInformationEx("Term commited to Github", LogVerbosity.Verbose);
 
                 await NotificationService.Notify(
                     "Updated homepage",
-                    $"The glossary homepage was updated with topic {randomTopic}",
+                    $"The glossary homepage was updated with term {randomTerm}",
                     log);
 
                 log?.LogInformationEx("Done updating homepage", LogVerbosity.Verbose);
