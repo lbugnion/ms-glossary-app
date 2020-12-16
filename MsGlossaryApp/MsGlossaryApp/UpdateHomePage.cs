@@ -21,10 +21,10 @@ namespace MsGlossaryApp
 
         [FunctionName("UpdateHomePage")]
         public static async Task Run(
-            //[TimerTrigger("0 0 6 * * *")]
-            //TimerInfo myTimer,
-            [HttpTrigger(Microsoft.Azure.WebJobs.Extensions.Http.AuthorizationLevel.Function, "get", Route = null)]
-            Microsoft.AspNetCore.Http.HttpRequest req,
+            [TimerTrigger("0 0 6 * * *")]
+            TimerInfo myTimer,
+            //[HttpTrigger(Microsoft.Azure.WebJobs.Extensions.Http.AuthorizationLevel.Function, "get", Route = null)]
+            //Microsoft.AspNetCore.Http.HttpRequest req,
             ILogger log)
         {
             log.LogInformationEx($"In UpdateHomePage", LogVerbosity.Normal);
@@ -102,7 +102,7 @@ namespace MsGlossaryApp
                 log?.LogInformationEx($"New random term: {randomTerm}", LogVerbosity.Verbose);
 
                 var include = string.Format(
-                    IncludeLineMask, 
+                    IncludeLineMask,
                     TextHelper.GetText("TermRandomTerm"),
                     randomTerm);
 

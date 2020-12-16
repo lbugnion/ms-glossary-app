@@ -19,6 +19,28 @@ namespace MsGlossaryApp
     {
         private const string CommitMessage = "New files committed by the pipeline";
 
+        private static SavingLocations GetSavingLocation()
+        {
+            SavingLocations savingLocation = SavingLocations.GitHub;
+
+            var savingLocationString = Environment.GetEnvironmentVariable(
+                Constants.SavingLocationVariableName);
+
+            if (!string.IsNullOrEmpty(savingLocationString))
+            {
+                var success = Enum.TryParse(
+                    savingLocationString,
+                    out savingLocation);
+
+                if (!success)
+                {
+                    savingLocation = SavingLocations.GitHub;
+                }
+            }
+
+            return savingLocation;
+        }
+
         [FunctionName("UpdateDocs_HttpStart")]
         public static async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(
@@ -41,6 +63,205 @@ namespace MsGlossaryApp
             log.LogInformationEx($"Started orchestration in UpdateDocs with ID = '{instanceId}'.", LogVerbosity.Normal);
 
             return starter.CreateCheckStatusResponse(req, instanceId);
+        }
+
+        [FunctionName(nameof(UpdateDocsCommitFiles))]
+        public static async Task<string> UpdateDocsCommitFiles(
+            [ActivityTrigger]
+            IList<GlossaryFileInfo> files,
+            ILogger log)
+        {
+            log?.LogInformationEx("In UpdateDocsCommitFiles", LogVerbosity.Normal);
+            //return null;
+
+            var savingLocation = GetSavingLocation();
+
+            var filesToCommit = files
+                .Where(f => f.MustSave)
+                .ToList();
+
+            if (savingLocation == SavingLocations.GitHub
+                && filesToCommit.Count == 0)
+            {
+                return "No changes detected in the files to commit";
+            }
+
+            string errorMessage = null;
+
+            if ((savingLocation == SavingLocations.GitHub
+                    || savingLocation == SavingLocations.Both)
+                && filesToCommit.Count > 0)
+            {
+                log?.LogInformationEx("Committing to GitHub", LogVerbosity.Verbose);
+
+                var accountName = Environment.GetEnvironmentVariable(
+                    Constants.DocsGlossaryGitHubAccountVariableName);
+                var repoName = Environment.GetEnvironmentVariable(
+                    Constants.DocsGlossaryGitHubRepoVariableName);
+                var branchName = Environment.GetEnvironmentVariable(
+                    Constants.DocsGlossaryGitHubMainBranchNameVariableName);
+                var token = Environment.GetEnvironmentVariable(
+                    Constants.GitHubTokenVariableName);
+
+                log?.LogInformationEx($"accountName: {accountName}", LogVerbosity.Debug);
+                log?.LogInformationEx($"repoName: {repoName}", LogVerbosity.Debug);
+                log?.LogInformationEx($"branchName: {branchName}", LogVerbosity.Debug);
+                log?.LogInformationEx($"token: {token}", LogVerbosity.Debug);
+
+                // Commit only files who have changed
+                var commitContent = filesToCommit
+                    .Select(f => (f.Path, f.Content))
+                    .ToList();
+
+                var helper = new GitHubHelper();
+
+                var result = await helper.CommitFiles(
+                    accountName,
+                    repoName,
+                    branchName,
+                    token,
+                    CommitMessage,
+                    commitContent,
+                    log: log);
+
+                errorMessage = result.ErrorMessage;
+                log?.LogInformationEx("Done committing to GitHub", LogVerbosity.Verbose);
+            }
+
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                log?.LogError($"Error when committing files: {errorMessage}");
+                return errorMessage;
+            }
+
+            if ((savingLocation == SavingLocations.Storage
+                    || savingLocation == SavingLocations.Both)
+                && files.Count > 0)
+            {
+                log?.LogInformationEx("Saving to storage", LogVerbosity.Verbose);
+
+                try
+                {
+                    var account = CloudStorageAccount.Parse(
+                        Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
+
+                    var client = account.CreateCloudBlobClient();
+                    var helper = new BlobHelper(client, log);
+                    var targetContainer = helper.GetContainerFromVariable(Constants.OutputContainerVariableName);
+
+                    // Always save all files
+                    foreach (var file in files)
+                    {
+                        var name = file.Path.Replace("/", "_");
+                        var targetBlob = targetContainer.GetBlockBlobReference(name);
+                        await targetBlob.UploadTextAsync(file.Content);
+                        log?.LogInformationEx($"Uploaded {name} to storage", LogVerbosity.Debug);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log?.LogError($"Error when committing files: {ex.Message}");
+                    return ex.Message;
+                }
+
+                log?.LogInformationEx("Done saving to storage", LogVerbosity.Verbose);
+            }
+
+            log?.LogInformationEx("Out UpdateDocsCommitFiles", LogVerbosity.Normal);
+            return null;
+        }
+
+        [FunctionName(nameof(UpdateDocsGetAllTerms))]
+        public static async Task<List<string>> UpdateDocsGetAllTerms(
+            [ActivityTrigger]
+            ILogger log)
+        {
+            var account = CloudStorageAccount.Parse(
+                Environment.GetEnvironmentVariable(
+                    Constants.AzureWebJobsStorageVariableName));
+
+            var blobClient = account.CreateCloudBlobClient();
+            var blobHelper = new BlobHelper(blobClient, log);
+            var termsContainer = blobHelper.GetContainerFromVariable(
+                Constants.TermsContainerVariableName);
+
+            BlobContinuationToken continuationToken = null;
+            var terms = new List<string>();
+
+            do
+            {
+                var response = await termsContainer.ListBlobsSegmentedAsync(continuationToken);
+                continuationToken = response.ContinuationToken;
+
+                foreach (CloudBlockBlob blob in response.Results)
+                {
+                    log?.LogInformationEx($"Found: {blob.Name}", LogVerbosity.Debug);
+                    terms.Add(blob.Uri.ToString());
+                }
+            }
+            while (continuationToken != null);
+
+            return terms;
+        }
+
+        [FunctionName(nameof(UpdateDocsMakeDisambiguation))]
+        public static async Task<GlossaryFileInfo> UpdateDocsMakeDisambiguation(
+            [ActivityTrigger]
+            IList<KeywordInformation> keywords,
+            ILogger log)
+        {
+            var file = await TermMaker.CreateDisambiguationFile(keywords, log);
+            return file;
+        }
+
+        [FunctionName(nameof(UpdateDocsMakeMarkdown))]
+        public static async Task<GlossaryFileInfo> UpdateDocsMakeMarkdown(
+            [ActivityTrigger]
+            KeywordInformation keyword,
+            ILogger log)
+        {
+            var file = await TermMaker.CreateKeywordFile(keyword, log);
+            return file;
+        }
+
+        [FunctionName(nameof(UpdateDocsParseTerm))]
+        public static async Task<TermInformation> UpdateDocsParseTerm(
+            [ActivityTrigger]
+            Uri termUri,
+            ILogger log)
+        {
+            TermInformation term = null;
+
+            try
+            {
+                term = await TermMaker.CreateTerm(termUri, log);
+            }
+            catch (Exception ex)
+            {
+                log?.LogError($"Error with term {termUri}: {ex.Message}");
+            }
+
+            return term;
+        }
+
+        [FunctionName(nameof(UpdateDocsReplaceKeywords))]
+        public static async Task<TermInformation> UpdateDocsReplaceKeywords(
+            [ActivityTrigger]
+            (List<KeywordInformation> keywordsToReplace, TermInformation currentTerm) input,
+            ILogger log)
+        {
+            var newTranscript = await KeywordReplacer.Replace(
+                input.currentTerm.Transcript,
+                input.keywordsToReplace,
+                log);
+
+            if (newTranscript != input.currentTerm.Transcript)
+            {
+                input.currentTerm.Transcript = newTranscript;
+                input.currentTerm.MustSave = true;
+            }
+
+            return input.currentTerm;
         }
 
         [FunctionName(nameof(UpdateDocsRunOrchestrator))]
@@ -258,227 +479,6 @@ namespace MsGlossaryApp
                 "New files saved",
                 message,
                 null);
-        }
-
-        [FunctionName(nameof(UpdateDocsCommitFiles))]
-        public static async Task<string> UpdateDocsCommitFiles(
-            [ActivityTrigger]
-            IList<GlossaryFileInfo> files,
-            ILogger log)
-        {
-            log?.LogInformationEx("In UpdateDocsCommitFiles", LogVerbosity.Normal);
-            //return null;
-
-            var savingLocation = GetSavingLocation();
-
-            var filesToCommit = files
-                .Where(f => f.MustSave)
-                .ToList();
-
-            if (savingLocation == SavingLocations.GitHub
-                && filesToCommit.Count == 0)
-            {
-                return "No changes detected in the files to commit";
-            }
-
-            string errorMessage = null;
-
-            if ((savingLocation == SavingLocations.GitHub
-                    || savingLocation == SavingLocations.Both)
-                && filesToCommit.Count > 0)
-            {
-                log?.LogInformationEx("Committing to GitHub", LogVerbosity.Verbose);
-
-                var accountName = Environment.GetEnvironmentVariable(
-                    Constants.DocsGlossaryGitHubAccountVariableName);
-                var repoName = Environment.GetEnvironmentVariable(
-                    Constants.DocsGlossaryGitHubRepoVariableName);
-                var branchName = Environment.GetEnvironmentVariable(
-                    Constants.DocsGlossaryGitHubMainBranchNameVariableName);
-                var token = Environment.GetEnvironmentVariable(
-                    Constants.GitHubTokenVariableName);
-
-                log?.LogInformationEx($"accountName: {accountName}", LogVerbosity.Debug);
-                log?.LogInformationEx($"repoName: {repoName}", LogVerbosity.Debug);
-                log?.LogInformationEx($"branchName: {branchName}", LogVerbosity.Debug);
-                log?.LogInformationEx($"token: {token}", LogVerbosity.Debug);
-
-                // Commit only files who have changed
-                var commitContent = filesToCommit
-                    .Select(f => (f.Path, f.Content))
-                    .ToList();
-
-                var helper = new GitHubHelper();
-
-                var result = await helper.CommitFiles(
-                    accountName,
-                    repoName,
-                    branchName,
-                    token,
-                    CommitMessage,
-                    commitContent,
-                    log: log);
-
-                errorMessage = result.ErrorMessage;
-                log?.LogInformationEx("Done committing to GitHub", LogVerbosity.Verbose);
-            }
-
-            if (!string.IsNullOrEmpty(errorMessage))
-            {
-                log?.LogError($"Error when committing files: {errorMessage}");
-                return errorMessage;
-            }
-
-            if ((savingLocation == SavingLocations.Storage
-                    || savingLocation == SavingLocations.Both)
-                && files.Count > 0)
-            {
-                log?.LogInformationEx("Saving to storage", LogVerbosity.Verbose);
-
-                try
-                {
-                    var account = CloudStorageAccount.Parse(
-                        Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
-
-                    var client = account.CreateCloudBlobClient();
-                    var helper = new BlobHelper(client, log);
-                    var targetContainer = helper.GetContainerFromVariable(Constants.OutputContainerVariableName);
-
-                    // Always save all files
-                    foreach (var file in files)
-                    {
-                        var name = file.Path.Replace("/", "_");
-                        var targetBlob = targetContainer.GetBlockBlobReference(name);
-                        await targetBlob.UploadTextAsync(file.Content);
-                        log?.LogInformationEx($"Uploaded {name} to storage", LogVerbosity.Debug);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log?.LogError($"Error when committing files: {ex.Message}");
-                    return ex.Message;
-                }
-
-                log?.LogInformationEx("Done saving to storage", LogVerbosity.Verbose);
-            }
-
-            log?.LogInformationEx("Out UpdateDocsCommitFiles", LogVerbosity.Normal);
-            return null;
-        }
-
-        private static SavingLocations GetSavingLocation()
-        {
-            SavingLocations savingLocation = SavingLocations.GitHub;
-
-            var savingLocationString = Environment.GetEnvironmentVariable(
-                Constants.SavingLocationVariableName);
-
-            if (!string.IsNullOrEmpty(savingLocationString))
-            {
-                var success = Enum.TryParse(
-                    savingLocationString,
-                    out savingLocation);
-
-                if (!success)
-                {
-                    savingLocation = SavingLocations.GitHub;
-                }
-            }
-
-            return savingLocation;
-        }
-
-        [FunctionName(nameof(UpdateDocsGetAllTerms))]
-        public static async Task<List<string>> UpdateDocsGetAllTerms(
-            [ActivityTrigger]
-            ILogger log)
-        {
-            var account = CloudStorageAccount.Parse(
-                Environment.GetEnvironmentVariable(
-                    Constants.AzureWebJobsStorageVariableName));
-
-            var blobClient = account.CreateCloudBlobClient();
-            var blobHelper = new BlobHelper(blobClient, log);
-            var termsContainer = blobHelper.GetContainerFromVariable(
-                Constants.TermsContainerVariableName);
-
-            BlobContinuationToken continuationToken = null;
-            var terms = new List<string>();
-
-            do
-            {
-                var response = await termsContainer.ListBlobsSegmentedAsync(continuationToken);
-                continuationToken = response.ContinuationToken;
-
-                foreach (CloudBlockBlob blob in response.Results)
-                {
-                    log?.LogInformationEx($"Found: {blob.Name}", LogVerbosity.Debug);
-                    terms.Add(blob.Uri.ToString());
-                }
-            }
-            while (continuationToken != null);
-
-            return terms;
-        }
-
-        [FunctionName(nameof(UpdateDocsMakeDisambiguation))]
-        public static async Task<GlossaryFileInfo> UpdateDocsMakeDisambiguation(
-            [ActivityTrigger]
-            IList<KeywordInformation> keywords,
-            ILogger log)
-        {
-            var file = await TermMaker.CreateDisambiguationFile(keywords, log);
-            return file;
-        }
-
-        [FunctionName(nameof(UpdateDocsMakeMarkdown))]
-        public static async Task<GlossaryFileInfo> UpdateDocsMakeMarkdown(
-            [ActivityTrigger]
-            KeywordInformation keyword,
-            ILogger log)
-        {
-            var file = await TermMaker.CreateKeywordFile(keyword, log);
-            return file;
-        }
-
-        [FunctionName(nameof(UpdateDocsParseTerm))]
-        public static async Task<TermInformation> UpdateDocsParseTerm(
-            [ActivityTrigger]
-            Uri termUri,
-            ILogger log)
-        {
-            TermInformation term = null;
-
-            try
-            {
-                term = await TermMaker.CreateTerm(termUri, log);
-            }
-            catch (Exception ex)
-            {
-                log?.LogError($"Error with term {termUri}: {ex.Message}");
-            }
-
-            return term;
-        }
-
-        [FunctionName(nameof(UpdateDocsReplaceKeywords))]
-        public static async Task<TermInformation> UpdateDocsReplaceKeywords(
-            [ActivityTrigger]
-            (List<KeywordInformation> keywordsToReplace, TermInformation currentTerm) input,
-            ILogger log)
-        {
-            var newTranscript = await KeywordReplacer.Replace(
-                input.currentTerm.Transcript,
-                input.keywordsToReplace,
-                log);
-
-            if (newTranscript != input.currentTerm.Transcript)
-            {
-                input.currentTerm.Transcript = newTranscript;
-                input.currentTerm.MustSave = true;
-            }
-
-            return input.currentTerm;
         }
 
         [FunctionName(nameof(UpdateDocsSaveTermsToSettings))]

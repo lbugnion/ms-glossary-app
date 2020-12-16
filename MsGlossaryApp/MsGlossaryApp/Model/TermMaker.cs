@@ -153,42 +153,6 @@ namespace MsGlossaryApp.Model
             return result;
         }
 
-        private static string MakeTitleLink(
-            KeywordInformation keyword,
-            ILogger log = null)
-        {
-            log?.LogInformationEx("In MakeTitleLink", LogVerbosity.Verbose);
-            if (keyword.IsMainKeyword)
-            {
-                return $"[{keyword.Term.Title}](/glossary/term/{keyword.Term.TermName})";
-            }
-            else
-            {
-                return $"[{keyword.Term.Title}](/glossary/term/{keyword.Term.TermName}/{keyword.Keyword.MakeSafeFileName()})";
-            }
-        }
-
-        private static string MakeTocLink(
-                    KeywordInformation keyword,
-            ILogger log = null)
-        {
-            log?.LogInformationEx("In MakeTocLink", LogVerbosity.Verbose);
-
-            if (keyword.IsMainKeyword)
-            {
-                if (keyword.IsDisambiguation)
-                {
-                    return $"term/{keyword.Keyword.MakeSafeFileName()}/disambiguation";
-                }
-
-                return $"term/{keyword.Term.TermName}";
-            }
-            else
-            {
-                return $"term/{keyword.Term.TermName}/{keyword.Keyword.MakeSafeFileName()}";
-            }
-        }
-
         private static string MakeTermText(
             KeywordInformation keyword,
             ILogger log)
@@ -362,6 +326,42 @@ namespace MsGlossaryApp.Model
             builder.AppendLine();
             log?.LogInformationEx("Out MakeTermTextWithoutVideo", LogVerbosity.Verbose);
             return builder.ToString();
+        }
+
+        private static string MakeTitleLink(
+                            KeywordInformation keyword,
+            ILogger log = null)
+        {
+            log?.LogInformationEx("In MakeTitleLink", LogVerbosity.Verbose);
+            if (keyword.IsMainKeyword)
+            {
+                return $"[{keyword.Term.Title}](/glossary/term/{keyword.Term.TermName})";
+            }
+            else
+            {
+                return $"[{keyword.Term.Title}](/glossary/term/{keyword.Term.TermName}/{keyword.Keyword.MakeSafeFileName()})";
+            }
+        }
+
+        private static string MakeTocLink(
+                    KeywordInformation keyword,
+            ILogger log = null)
+        {
+            log?.LogInformationEx("In MakeTocLink", LogVerbosity.Verbose);
+
+            if (keyword.IsMainKeyword)
+            {
+                if (keyword.IsDisambiguation)
+                {
+                    return $"term/{keyword.Keyword.MakeSafeFileName()}/disambiguation";
+                }
+
+                return $"term/{keyword.Term.TermName}";
+            }
+            else
+            {
+                return $"term/{keyword.Term.TermName}/{keyword.Keyword.MakeSafeFileName()}";
+            }
         }
 
         public static Task<GlossaryFileInfo> CreateDisambiguationFile(

@@ -21,9 +21,9 @@ namespace MsGlossaryApp.Model
 
         public DateTime RecordingDate { get; set; }
 
-        public string Title { get; set; }
-
         public string TermName { get; set; }
+
+        public string Title { get; set; }
 
         public string Transcript { get; set; }
 
