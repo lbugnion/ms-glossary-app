@@ -2,7 +2,7 @@
 
 namespace MsGlossaryApp.Model
 {
-    public class NewTermInfo
+    public class TermInfo
     {
         [JsonProperty("ref")]
         public string Ref
