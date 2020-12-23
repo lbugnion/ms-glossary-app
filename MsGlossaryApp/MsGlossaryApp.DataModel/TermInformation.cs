@@ -3,17 +3,17 @@ using System.Collections.Generic;
 
 namespace MsGlossaryApp.DataModel
 {
-    public class TermInformation
+    public class Term
     {
-        public IList<AuthorInformation> Authors { get; set; }
+        public IList<Author> Authors { get; set; }
 
         public string Blurb { get; set; }
 
-        public IList<LanguageInfo> Captions { get; set; }
+        public IList<Language> Captions { get; set; }
 
         public IList<string> Keywords { get; set; }
 
-        public LanguageInfo Language { get; set; }
+        public Language Language { get; set; }
 
         public Dictionary<string, IList<string>> Links { get; set; }
 

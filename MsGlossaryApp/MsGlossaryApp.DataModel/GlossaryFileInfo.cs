@@ -1,6 +1,6 @@
 ﻿namespace MsGlossaryApp.DataModel
 {
-    public class GlossaryFileInfo
+    public class GlossaryFile
     {
         public string Content
         {

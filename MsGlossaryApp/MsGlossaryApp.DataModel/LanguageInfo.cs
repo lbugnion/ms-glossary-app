@@ -1,14 +1,14 @@
 ﻿namespace MsGlossaryApp.DataModel
 {
-    public class LanguageInfo
+    public class Language
     {
         public string Code { get; set; }
 
-        public string Language { get; set; }
+        public string LanguageName { get; set; }
 
         public override string ToString()
         {
-            return $"{Code} / {Language}";
+            return $"{Code} / {LanguageName}";
         }
     }
 }

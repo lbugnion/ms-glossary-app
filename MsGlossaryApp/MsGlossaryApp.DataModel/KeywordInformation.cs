@@ -1,6 +1,6 @@
 ﻿namespace MsGlossaryApp.DataModel
 {
-    public class KeywordInformation
+    public class Keyword
     {
         public bool IsDisambiguation
         {
@@ -14,7 +14,7 @@
             set;
         }
 
-        public string Keyword
+        public string KeywordName
         {
             get;
             set;
@@ -26,7 +26,7 @@
             set;
         }
 
-        public TermInformation Term
+        public Term Term
         {
             get;
             set;
@@ -40,7 +40,7 @@
 
         public override string ToString()
         {
-            return $"{Keyword} - {TermName}";
+            return $"{KeywordName} - {TermName}";
         }
     }
 }

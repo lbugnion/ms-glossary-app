@@ -18,7 +18,7 @@ namespace MsGlossaryApp.Model
 
         public static Task<string> Replace(
             string markdown,
-            List<KeywordInformation> keywords,
+            List<Keyword> keywords,
             ILogger log = null)
         {
             var tcs = new TaskCompletionSource<string>();
@@ -38,7 +38,7 @@ namespace MsGlossaryApp.Model
                 do
                 {
                     indexOfKeyword = markdown.IndexOf(
-                        k.Keyword,
+                        k.KeywordName,
                         previousIndexOfKeyword + 1,
                         StringComparison.InvariantCultureIgnoreCase);
 
@@ -49,8 +49,8 @@ namespace MsGlossaryApp.Model
                         continue;
                     }
 
-                    if (indexOfKeyword + k.Keyword.Length < markdown.Length
-                        && !SingleWordCharacter.Contains(markdown[indexOfKeyword + k.Keyword.Length]))
+                    if (indexOfKeyword + k.KeywordName.Length < markdown.Length
+                        && !SingleWordCharacter.Contains(markdown[indexOfKeyword + k.KeywordName.Length]))
                     {
                         previousIndexOfKeyword = indexOfKeyword;
                         continue;
@@ -60,24 +60,24 @@ namespace MsGlossaryApp.Model
                         && indexOfKeyword > indexOfTranscript)
                     {
                         // Preserve casing
-                        var oldKeyword = markdown.Substring(indexOfKeyword, k.Keyword.Length);
+                        var oldKeyword = markdown.Substring(indexOfKeyword, k.KeywordName.Length);
                         log?.LogInformationEx($"oldKeyword: {oldKeyword}", LogVerbosity.Debug);
 
                         string newUrlAlone = null;
 
                         if (k.IsDisambiguation)
                         {
-                            newUrlAlone = string.Format(DisambiguationLinkTemplate, k.Keyword.MakeSafeFileName());
+                            newUrlAlone = string.Format(DisambiguationLinkTemplate, k.KeywordName.MakeSafeFileName());
                         }
                         else
                         {
-                            if (k.TermName == k.Keyword.MakeSafeFileName())
+                            if (k.TermName == k.KeywordName.MakeSafeFileName())
                             {
                                 newUrlAlone = string.Format(TermLinkTemplate, k.TermName);
                             }
                             else
                             {
-                                newUrlAlone = string.Format(SubtermLinkTemplate, k.TermName, k.Keyword.MakeSafeFileName());
+                                newUrlAlone = string.Format(SubtermLinkTemplate, k.TermName, k.KeywordName.MakeSafeFileName());
                             }
                         }
 

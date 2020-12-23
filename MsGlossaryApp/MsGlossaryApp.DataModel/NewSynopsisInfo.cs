@@ -2,7 +2,7 @@
 
 namespace MsGlossaryApp.DataModel
 {
-    public class NewSynopsisInfo
+    public class NewSynopsis
     {
         [JsonProperty("ref")]
         public string Ref

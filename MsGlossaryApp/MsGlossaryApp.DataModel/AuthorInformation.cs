@@ -1,6 +1,6 @@
 ﻿namespace MsGlossaryApp.DataModel
 {
-    public class AuthorInformation
+    public class Author
     {
         public string Email
         {
@@ -26,7 +26,7 @@
             set;
         }
 
-        public AuthorInformation(string name, string email, string github, string twitter)
+        public Author(string name, string email, string github, string twitter)
         {
             Name = name;
             Email = email;
