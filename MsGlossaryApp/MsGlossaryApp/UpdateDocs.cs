@@ -317,7 +317,7 @@ namespace MsGlossaryApp
 
                 var keywordsToReplace = allKeywords
                     .Where(k =>
-                        k.TermName != term.TermName
+                        k.TermName != term.SafeFileName
                         && !k.MustDisambiguate)
                     .ToList();
 
@@ -339,7 +339,7 @@ namespace MsGlossaryApp
                 //    && k.TermName == "app-service");
 
                 var currentTerm = allTerms
-                    .Single(testc => testc.TermName == keyword.TermName);
+                    .Single(testc => testc.SafeFileName == keyword.TermName);
 
                 keyword.Term = currentTerm;
 
@@ -384,7 +384,7 @@ namespace MsGlossaryApp
                 foreach (var keyword in group)
                 {
                     var currentTerm = allTerms
-                        .Single(testc => testc.TermName == keyword.TermName);
+                        .Single(testc => testc.SafeFileName == keyword.TermName);
 
                     keyword.Term = currentTerm;
                 }
@@ -501,7 +501,7 @@ namespace MsGlossaryApp
 
             var blob = settingsContainer.GetBlockBlobReference(Constants.TermsSettingsFileName);
 
-            var termsNames = terms.Select(t => t.TermName).ToList();
+            var termsNames = terms.Select(t => t.SafeFileName).ToList();
 
             var json = JsonConvert.SerializeObject(termsNames);
             log?.LogInformationEx($"json: {json}", LogVerbosity.Debug);
