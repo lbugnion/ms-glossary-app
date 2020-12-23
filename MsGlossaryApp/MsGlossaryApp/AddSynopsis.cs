@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
 using MsGlossaryApp.Model.GitHub;
 using Newtonsoft.Json;
@@ -54,7 +55,7 @@ namespace MsGlossaryApp
             log?.LogInformationEx($"token: {token}", LogVerbosity.Debug);
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var newTerm = JsonConvert.DeserializeObject<TermInfo>(requestBody);
+            var newTerm = JsonConvert.DeserializeObject<NewTermInfo>(requestBody);
 
             log?.LogInformationEx("Received new term", LogVerbosity.Verbose);
             log?.LogInformationEx($"newTerm.SubmitterName: {newTerm.SubmitterName}", LogVerbosity.Debug);

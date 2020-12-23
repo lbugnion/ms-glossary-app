@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MsGlossaryApp.Model
+namespace MsGlossaryApp.DataModel
 {
     public class TermInformation
     {
@@ -17,7 +17,7 @@ namespace MsGlossaryApp.Model
 
         public Dictionary<string, IList<string>> Links { get; set; }
 
-        public bool MustSave { get; internal set; }
+        public bool MustSave { get; set; }
 
         public DateTime RecordingDate { get; set; }
 

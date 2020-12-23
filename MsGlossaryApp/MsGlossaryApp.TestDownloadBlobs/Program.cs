@@ -1,10 +1,10 @@
 ﻿using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace MsGlossaryApp.TestDownloadBlobs

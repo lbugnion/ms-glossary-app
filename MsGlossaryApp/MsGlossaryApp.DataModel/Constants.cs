@@ -1,4 +1,4 @@
-﻿namespace MsGlossaryApp.Model
+﻿namespace MsGlossaryApp.DataModel
 {
     public static class Constants
     {

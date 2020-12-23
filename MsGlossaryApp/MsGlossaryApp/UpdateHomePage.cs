@@ -1,5 +1,6 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
 using MsGlossaryApp.Model.GitHub;
 using Newtonsoft.Json;

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using MsGlossaryApp.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Text;

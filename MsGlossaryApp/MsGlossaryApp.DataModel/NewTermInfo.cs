@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace MsGlossaryApp.Model
+namespace MsGlossaryApp.DataModel
 {
-    public class TermInfo
+    public class NewTermInfo
     {
         [JsonProperty("ref")]
         public string Ref

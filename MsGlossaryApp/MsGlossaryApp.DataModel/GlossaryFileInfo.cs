@@ -1,4 +1,4 @@
-﻿namespace MsGlossaryApp.Model
+﻿namespace MsGlossaryApp.DataModel
 {
     public class GlossaryFileInfo
     {
