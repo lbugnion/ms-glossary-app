@@ -11,8 +11,8 @@ namespace MsGlossaryApp.DataModel
             set;
         }
 
-        [JsonProperty("safeterm")]
-        public string SafeTerm
+        [JsonIgnore]
+        public string SafeFileName
         {
             get;
             set;

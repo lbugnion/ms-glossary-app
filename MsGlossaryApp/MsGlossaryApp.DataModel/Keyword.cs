@@ -32,7 +32,7 @@
             set;
         }
 
-        public string TermName
+        public string TermSafeFileName
         {
             get;
             set;
@@ -40,7 +40,7 @@
 
         public override string ToString()
         {
-            return $"{KeywordName} - {TermName}";
+            return $"{KeywordName} - {TermSafeFileName}";
         }
     }
 }

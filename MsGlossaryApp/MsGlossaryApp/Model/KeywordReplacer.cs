@@ -71,13 +71,13 @@ namespace MsGlossaryApp.Model
                         }
                         else
                         {
-                            if (k.TermName == k.KeywordName.MakeSafeFileName())
+                            if (k.TermSafeFileName == k.KeywordName.MakeSafeFileName())
                             {
-                                newUrlAlone = string.Format(TermLinkTemplate, k.TermName);
+                                newUrlAlone = string.Format(TermLinkTemplate, k.TermSafeFileName);
                             }
                             else
                             {
-                                newUrlAlone = string.Format(SubtermLinkTemplate, k.TermName, k.KeywordName.MakeSafeFileName());
+                                newUrlAlone = string.Format(SubtermLinkTemplate, k.TermSafeFileName, k.KeywordName.MakeSafeFileName());
                             }
                         }
 

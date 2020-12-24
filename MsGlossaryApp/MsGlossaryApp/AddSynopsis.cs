@@ -78,8 +78,8 @@ namespace MsGlossaryApp
 
             // Get the main head
 
-            newTerm.SafeTerm = newTerm.Term.MakeSafeFileName();
-            log?.LogInformationEx($"Safe term: {newTerm.SafeTerm}", LogVerbosity.Verbose);
+            newTerm.SafeFileName = newTerm.Term.MakeSafeFileName();
+            log?.LogInformationEx($"Safe term: {newTerm.SafeFileName}", LogVerbosity.Verbose);
 
             var helper = new GitHubHelper(client);
 
@@ -102,7 +102,7 @@ namespace MsGlossaryApp
                 repoName,
                 token,
                 mainHead,
-                newTerm.SafeTerm,
+                newTerm.SafeFileName,
                 log);
 
             if (!string.IsNullOrEmpty(newBranch.ErrorMessage))
@@ -141,18 +141,18 @@ namespace MsGlossaryApp
             var newHeadResult = await helper.CommitFiles(
                 accountName,
                 repoName,
-                newTerm.SafeTerm,
+                newTerm.SafeFileName,
                 token,
-                string.Format(CommitMessage, newTerm.SafeTerm),
+                string.Format(CommitMessage, newTerm.SafeFileName),
                 new List<(string, string)>
                 {
-                    (string.Format(NewFileName, newTerm.SafeTerm), markdownTemplate)
+                    (string.Format(NewFileName, newTerm.SafeFileName), markdownTemplate)
                 },
                 newBranch,
                 log);
 
             newTerm.Ref = newHeadResult.Ref;
-            newTerm.Url = string.Format(NewSynopsisUrl, accountName, repoName, newTerm.SafeTerm);
+            newTerm.Url = string.Format(NewSynopsisUrl, accountName, repoName, newTerm.SafeFileName);
             var jsonResult = JsonConvert.SerializeObject(newTerm);
 
             log?.LogInformationEx($"newTerm.Ref: {newTerm.Ref}", LogVerbosity.Debug);

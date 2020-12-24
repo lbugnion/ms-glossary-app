@@ -235,11 +235,30 @@ namespace MsGlossaryApp
 
             try
             {
-                term = await TermMaker.CreateTerm(termUri, log);
+                var termBlob = new CloudBlockBlob(termUri);
+                string markdown = await termBlob.DownloadTextAsync();
+                term = TermMaker.ParseTerm(termUri, markdown, log);
+
+                if (!term.CheckIsComplete())
+                {
+                    await NotificationService.Notify(
+                        "Incomplete term",
+                        $"The term {term.SafeFileName} was queued for parsing but is incomplete",
+                        log);
+
+                    log?.LogError($"Incomplete term {term.SafeFileName}");
+                    return null;
+                }
             }
             catch (Exception ex)
             {
+                await NotificationService.Notify(
+                    "Faulty term",
+                    $"The term {termUri} was queued for parsing but is incomplete",
+                    log);
+
                 log?.LogError($"Error with term {termUri}: {ex.Message}");
+                return null;
             }
 
             return term;
@@ -285,8 +304,9 @@ namespace MsGlossaryApp
                     new Uri(termUrl)));
             }
 
-            var allTerms = await Task.WhenAll(allTermsTasks);
-
+            var allTerms = (await Task.WhenAll(allTermsTasks))
+                .Where(t => t != null);
+    
             await context.CallActivityAsync<Term>(
                 nameof(UpdateDocsSaveTermsToSettings),
                 allTerms);
@@ -317,7 +337,7 @@ namespace MsGlossaryApp
 
                 var keywordsToReplace = allKeywords
                     .Where(k =>
-                        k.TermName != term.SafeFileName
+                        k.TermSafeFileName != term.SafeFileName
                         && !k.MustDisambiguate)
                     .ToList();
 
@@ -339,7 +359,7 @@ namespace MsGlossaryApp
                 //    && k.TermName == "app-service");
 
                 var currentTerm = allTerms
-                    .Single(testc => testc.SafeFileName == keyword.TermName);
+                    .Single(t => t.SafeFileName == keyword.TermSafeFileName);
 
                 keyword.Term = currentTerm;
 
@@ -384,7 +404,7 @@ namespace MsGlossaryApp
                 foreach (var keyword in group)
                 {
                     var currentTerm = allTerms
-                        .Single(testc => testc.SafeFileName == keyword.TermName);
+                        .Single(testc => testc.SafeFileName == keyword.TermSafeFileName);
 
                     keyword.Term = currentTerm;
                 }

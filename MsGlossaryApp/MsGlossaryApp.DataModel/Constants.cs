@@ -23,10 +23,10 @@
         public const string TermsContainerVariableName = "TermsContainer";
         public const string TermsSettingsFileName = "terms.en.json";
 
-        public static class Input
+        public static class TermMarkdownMarkers
         {
             public const string AuthorNameMarker = "> Author name: ";
-            public const string BlurbMarker = "> Blurb: ";
+            public const string ShortDescriptionMarker = "> Short description: ";
             public const string CaptionsMarker = "> Captions: ";
             public const string EmailMarker = "> Email: ";
             public const string GitHubMarker = "> GitHub: ";
@@ -37,6 +37,23 @@
             public const string TranscriptMarker = "## Transcript";
             public const string TwitterMarker = "> Twitter: ";
             public const string YouTubeMarker = "> YouTube: ";
+        }
+
+        public static class SynopsisMarkdownMarkers
+        {
+            //public const string AuthorNameMarker = "> Author name: ";
+            //public const string ShortDescriptionMarker = "> Short description: ";
+            //public const string CaptionsMarker = "> Captions: ";
+            //public const string EmailMarker = "> Email: ";
+            //public const string GitHubMarker = "> GitHub: ";
+            //public const string KeywordsMarker = "> Keywords: ";
+            //public const string LanguageMarker = "> Language: ";
+            public const string DocsLinksMarker = "## Links to docs";
+            public const string LearnLinksMarker = "## Links to Learn";
+            //public const string RecordingDateMarker = "> Recording date: ";
+            public const string TranscriptMarker = "## Script";
+            //public const string TwitterMarker = "> Twitter: ";
+            //public const string YouTubeMarker = "> YouTube: ";
         }
     }
 }

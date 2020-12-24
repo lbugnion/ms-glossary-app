@@ -119,7 +119,7 @@ namespace MsGlossaryApp.Model
         }
 
         private static IList<Language> MakeLanguages(
-                            string captions,
+            string captions,
             ILogger log = null)
         {
             log?.LogInformationEx("In MakeLanguages", LogVerbosity.Verbose);
@@ -507,30 +507,27 @@ namespace MsGlossaryApp.Model
             return tcs.Task;
         }
 
-        public static async Task<Term> CreateTerm(
+        public static Term ParseTerm(
             Uri uri,
+            string markdown,
             ILogger log)
         {
             log?.LogInformationEx("In CreateTerm", LogVerbosity.Verbose);
 
             var term = new Term
             {
-                Uri = uri
+                Uri = uri,
+                Stage = Term.TermStage.Ready
             };
 
-            var termBlob = new CloudBlockBlob(uri);
-            term.SafeFileName = Path.GetFileNameWithoutExtension(termBlob.Name);
-            term.SafeFileName = Path.GetFileNameWithoutExtension(term.SafeFileName);
+            log?.LogInformationEx($"Term: {term.Uri}", LogVerbosity.Verbose);
 
-            log?.LogInformationEx($"Term: {term.SafeFileName}", LogVerbosity.Verbose);
-
-            string oldMarkdown = await termBlob.DownloadTextAsync();
-            var markdownReader = new StringReader(oldMarkdown);
+            var markdownReader = new StringReader(markdown);
 
             string youTubeCode = null;
             string keywordsLine = null;
-            string termTitle = null;
-            string blurb = null;
+            string title = null;
+            string shortDescription = null;
             string captions = null;
             string language = null;
             string authorName = null;
@@ -547,13 +544,13 @@ namespace MsGlossaryApp.Model
 
             while ((line = markdownReader.ReadLine()) != null)
             {
-                if (line.StartsWith(Constants.Input.TranscriptMarker))
+                if (line.StartsWith(Constants.TermMarkdownMarkers.TranscriptMarker))
                 {
                     isLinks = false;
                     isTranscript = true;
                     continue;
                 }
-                else if (line.StartsWith(Constants.Input.LinksMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.LinksMarker))
                 {
                     isLinks = true;
                     isTranscript = false;
@@ -581,69 +578,69 @@ namespace MsGlossaryApp.Model
                 }
                 else if (line.StartsWith(Constants.H1))
                 {
-                    termTitle = line
+                    title = line
                         .Substring(Constants.H1.Length)
                         .Trim();
                 }
-                else if (line.StartsWith(Constants.Input.YouTubeMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.YouTubeMarker))
                 {
-                    youTubeCode = line.Substring(Constants.Input.YouTubeMarker.Length).Trim();
+                    youTubeCode = line.Substring(Constants.TermMarkdownMarkers.YouTubeMarker.Length).Trim();
                     log?.LogInformationEx($"youTubeCode: {youTubeCode}", LogVerbosity.Debug);
                 }
-                else if (line.StartsWith(Constants.Input.KeywordsMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.KeywordsMarker))
                 {
-                    keywordsLine = line.Substring(Constants.Input.KeywordsMarker.Length).Trim();
+                    keywordsLine = line.Substring(Constants.TermMarkdownMarkers.KeywordsMarker.Length).Trim();
                     log?.LogInformationEx($"keywordsLine: {keywordsLine}", LogVerbosity.Debug);
                 }
-                else if (line.StartsWith(Constants.Input.BlurbMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.ShortDescriptionMarker))
                 {
-                    blurb = line.Substring(Constants.Input.BlurbMarker.Length).Trim();
-                    log?.LogInformationEx($"blurb: {blurb}", LogVerbosity.Debug);
+                    shortDescription = line.Substring(Constants.TermMarkdownMarkers.ShortDescriptionMarker.Length).Trim();
+                    log?.LogInformationEx($"blurb: {shortDescription}", LogVerbosity.Debug);
                 }
-                else if (line.StartsWith(Constants.Input.CaptionsMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.CaptionsMarker))
                 {
-                    captions = line.Substring(Constants.Input.CaptionsMarker.Length).Trim();
+                    captions = line.Substring(Constants.TermMarkdownMarkers.CaptionsMarker.Length).Trim();
                     log?.LogInformationEx($"captions: {captions}", LogVerbosity.Debug);
                 }
-                else if (line.StartsWith(Constants.Input.LanguageMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.LanguageMarker))
                 {
-                    language = line.Substring(Constants.Input.LanguageMarker.Length).Trim();
+                    language = line.Substring(Constants.TermMarkdownMarkers.LanguageMarker.Length).Trim();
                     log?.LogInformationEx($"language: {language}", LogVerbosity.Debug);
                 }
-                else if (line.StartsWith(Constants.Input.AuthorNameMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.AuthorNameMarker))
                 {
-                    authorName = line.Substring(Constants.Input.AuthorNameMarker.Length).Trim();
+                    authorName = line.Substring(Constants.TermMarkdownMarkers.AuthorNameMarker.Length).Trim();
                     log?.LogInformationEx($"authorName: {authorName}", LogVerbosity.Debug);
                 }
-                else if (line.StartsWith(Constants.Input.EmailMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.EmailMarker))
                 {
-                    email = line.Substring(Constants.Input.EmailMarker.Length).Trim();
+                    email = line.Substring(Constants.TermMarkdownMarkers.EmailMarker.Length).Trim();
                     log?.LogInformationEx($"email: {email}", LogVerbosity.Debug);
                 }
-                else if (line.StartsWith(Constants.Input.GitHubMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.GitHubMarker))
                 {
-                    github = line.Substring(Constants.Input.GitHubMarker.Length).Trim();
+                    github = line.Substring(Constants.TermMarkdownMarkers.GitHubMarker.Length).Trim();
                     log?.LogInformationEx($"github: {github}", LogVerbosity.Debug);
                 }
-                else if (line.StartsWith(Constants.Input.TwitterMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.TwitterMarker))
                 {
-                    twitter = line.Substring(Constants.Input.TwitterMarker.Length).Trim();
+                    twitter = line.Substring(Constants.TermMarkdownMarkers.TwitterMarker.Length).Trim();
                     log?.LogInformationEx($"twitter: {twitter}", LogVerbosity.Debug);
                 }
-                else if (line.StartsWith(Constants.Input.RecordingDateMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.RecordingDateMarker))
                 {
-                    var dateString = line.Substring(Constants.Input.RecordingDateMarker.Length).Trim();
+                    var dateString = line.Substring(Constants.TermMarkdownMarkers.RecordingDateMarker.Length).Trim();
                     log?.LogInformationEx($"dateString: {dateString}", LogVerbosity.Debug);
                     recordingDate = DateTime.ParseExact(dateString, "yyyyMMdd", CultureInfo.InvariantCulture);
                 }
             }
 
-            term.Title = termTitle;
+            term.Title = title;
             term.Transcript = transcript.ToString().Trim();
             term.Links = links;
             term.RecordingDate = recordingDate;
             term.YouTubeCode = youTubeCode;
-            term.ShortDescription = blurb;
+            term.ShortDescription = shortDescription;
             term.Authors = MakeAuthors(authorName, email, github, twitter, log);
             term.Captions = MakeLanguages(captions, log);
             term.Language = MakeLanguages(language, log).First();
@@ -686,7 +683,7 @@ namespace MsGlossaryApp.Model
                         Title = first.KeywordName,
                         SafeFileName = "disambiguation"
                     },
-                    TermName = "disambiguation",
+                    TermSafeFileName = "disambiguation",
                     IsDisambiguation = true
                 });
             }
@@ -712,7 +709,7 @@ namespace MsGlossaryApp.Model
                 var newKeyword = new Keyword
                 {
                     KeywordName = keyword,
-                    TermName = currentTerm.SafeFileName
+                    TermSafeFileName = currentTerm.SafeFileName
                 };
 
                 var sameKeywords = allTerms
@@ -738,7 +735,7 @@ namespace MsGlossaryApp.Model
                 {
                     IsMainKeyword = true,
                     KeywordName = currentTerm.Title,
-                    TermName = currentTerm.SafeFileName
+                    TermSafeFileName = currentTerm.SafeFileName
                 };
 
                 result.Add(mainKeyword);

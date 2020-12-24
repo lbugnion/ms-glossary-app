@@ -25,6 +25,17 @@
             get;
             set;
         }
+        
+        public bool IsComplete
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(Email)
+                    && !string.IsNullOrEmpty(GitHub)
+                    && !string.IsNullOrEmpty(Name)
+                    && !string.IsNullOrEmpty(Twitter);
+            }
+        }
 
         public Author(string name, string email, string github, string twitter)
         {
