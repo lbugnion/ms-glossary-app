@@ -306,7 +306,7 @@ namespace MsGlossaryApp
 
             var allTerms = (await Task.WhenAll(allTermsTasks))
                 .Where(t => t != null);
-    
+
             await context.CallActivityAsync<Term>(
                 nameof(UpdateDocsSaveTermsToSettings),
                 allTerms);

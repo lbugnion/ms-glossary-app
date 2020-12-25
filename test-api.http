@@ -7,7 +7,7 @@ POST http://localhost:7071/api/add-new
     "submittername": "Laurent Bugnion",
     "submittertwitter": "@LBugnion",
     "submittergithub": "LBugnion",
-    "term":"My new term"
+    "term":"test-topic-11"
 }
 
 ### Add New Synopsis Staging
@@ -20,7 +20,7 @@ x-functions-key: OTQgPYaBCra07bwwQT4TtoTa6hP26oWm1jHoCJg2UiJjV8RRWoOMIw==
     "submittername": "Laurent Bugnion",
     "submittertwitter": "@LBugnion",
     "submittergithub": "LBugnion",
-    "term":"test-topic-09"
+    "term":"test-topic-11"
 }
 
 ### Update Homepage local
@@ -36,3 +36,11 @@ http://localhost:7071/api/update-docs
 ### Update Docs Staging
 https://msglossary-app-staging.azurewebsites.net/api/update-docs
 x-functions-key: Xq9pl6xS6uI1RVuxKaN0e2HG6ts0AKgqAbniQQXKUCaHxDEAdtC1Fw==
+
+### Get synopsis for edit
+http://localhost:7071/api/synopsis
+
+{
+    "submitteremail": "lbugnion2@microsoft.com",
+    "term":"test-topic-11"
+}

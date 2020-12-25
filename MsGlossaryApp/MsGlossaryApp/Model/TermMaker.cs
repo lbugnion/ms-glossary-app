@@ -91,12 +91,9 @@ namespace MsGlossaryApp.Model
                 .AppendLine("ms.topic: glossary")
                 .AppendLine("---")
                 .AppendLine()
-                .Append(Constants.H1)
-                .Append(MakeDisambiguationTitleLink(lastKeyword, log))
-                .AppendLine($" ({TextHelper.GetText("TermDisambiguation")})")
+                .AppendLine($"{MakeDisambiguationTitleLink(lastKeyword, log)} ({TextHelper.GetText("TermDisambiguation")})".MakeH1())
                 .AppendLine()
-                .Append(Constants.H2)
-                .AppendLine(string.Format(TextHelper.GetText("TermDifferentContexts"), lastKeyword.KeywordName))
+                .AppendLine(string.Format(TextHelper.GetText("TermDifferentContexts"), lastKeyword.KeywordName).MakeH2())
                 .AppendLine();
 
             foreach (var keyword in keywords.OrderBy(k => k.Term.Title))
@@ -115,7 +112,7 @@ namespace MsGlossaryApp.Model
             ILogger log = null)
         {
             log?.LogInformationEx("In MakeDisambiguationTitleLink", LogVerbosity.Verbose);
-            return $"[{keyword.KeywordName}](/glossary/term/{keyword.KeywordName.MakeSafeFileName()}/disambiguation)";
+            return keyword.KeywordName.MakeLink($"/glossary/term/{keyword.KeywordName.MakeSafeFileName()}/disambiguation");
         }
 
         private static IList<Language> MakeLanguages(
@@ -181,24 +178,22 @@ namespace MsGlossaryApp.Model
                 .AppendLine("ms.topic: glossary")
                 .AppendLine("---")
                 .AppendLine()
-                .Append(Constants.H1)
-                .Append(MakeTitleLink(keyword, log))
-                .AppendLine(redirect)
+                .AppendLine($"{MakeTitleLink(keyword, log)}{redirect}".MakeH1())
                 .AppendLine()
-                .AppendLine($"> {term.ShortDescription}")
+                .AppendLine(term.ShortDescription.MakeNote())
                 .AppendLine()
-                .AppendLine($"> [!VIDEO https://www.youtube.com/embed/{term.YouTubeCode}]")
+                .AppendLine(term.YouTubeCode.MakeYouTubeVideo().MakeNote())
                 .AppendLine()
-                .AppendLine($"{Constants.H2}{TextHelper.GetText("TermDownload")}")
+                .AppendLine(TextHelper.GetText("TermDownload").MakeH2())
                 .AppendLine()
-                .AppendLine($"[{TextHelper.GetText("TermDownloadHere")}](https://msglossarystore.blob.core.windows.net/videos/{term.SafeFileName}.{term.Language.Code}.mp4).")
+                .AppendLine(TextHelper.GetText("TermDownloadHere").MakeLink($"https://msglossarystore.blob.core.windows.net/videos/{term.SafeFileName}.{term.Language.Code}.mp4"))
                 .AppendLine();
 
             if (term.Captions != null
                 && term.Captions.Count > 0)
             {
                 builder
-                .AppendLine($"{Constants.H2}{TextHelper.GetText("TermLanguages")}")
+                .AppendLine(TextHelper.GetText("TermLanguages").MakeH2())
                 .AppendLine()
                 .AppendLine(TextHelper.GetText("TermCaptions"))
                 .AppendLine();
@@ -209,17 +204,17 @@ namespace MsGlossaryApp.Model
                 }
 
                 builder.AppendLine()
-                    .AppendLine($"> {TextHelper.GetText("TermCaptionsLearn")}(/glossary/captions).")
+                    .AppendLine($"{TextHelper.GetText("TermCaptionsLearn")}(/glossary/captions).".MakeNote())
                     .AppendLine();
             }
 
             builder
-                .AppendLine($"{Constants.H2}{TextHelper.GetText("TermLinks")}");
+                .AppendLine(TextHelper.GetText("TermLinks").MakeH2());
 
             foreach (var linkSection in term.Links)
             {
                 builder.AppendLine()
-                    .AppendLine($"{Constants.H3}{linkSection.Key}")
+                    .AppendLine(linkSection.Key.MakeH3())
                     .AppendLine();
 
                 foreach (var link in linkSection.Value)
@@ -229,7 +224,7 @@ namespace MsGlossaryApp.Model
             }
 
             builder.AppendLine()
-                .AppendLine($"{Constants.H2}{TextHelper.GetText("TermTranscript")}")
+                .AppendLine(TextHelper.GetText("TermTranscript").MakeH2())
                 .AppendLine()
                 .AppendLine(term.Transcript)
                 .AppendLine();
@@ -238,13 +233,15 @@ namespace MsGlossaryApp.Model
                 && term.Authors.Count > 0)
             {
                 builder
-                    .AppendLine($"{Constants.H2}{TextHelper.GetText("TermAuthors")}")
+                    .AppendLine(TextHelper.GetText("TermAuthors").MakeH2())
                     .AppendLine()
                     .Append($"{TextHelper.GetText("TermCreatedBy")} ");
 
                 foreach (var author in term.Authors)
                 {
-                    builder.Append($"[{author.Name}](http://twitter.com/{author.Twitter}), ");
+                    builder
+                        .Append(author.Name.MakeLink($"http://twitter.com/{author.Twitter}"))
+                        .Append(", ");
                 }
 
                 builder.Remove(builder.Length - 2, 2);
@@ -282,24 +279,22 @@ namespace MsGlossaryApp.Model
                 .AppendLine($"ms.topic: glossary")
                 .AppendLine("---")
                 .AppendLine()
-                .Append(Constants.H1)
-                .Append(MakeTitleLink(keyword, log))
-                .AppendLine(redirect)
+                .AppendLine($"{MakeTitleLink(keyword, log)}{redirect}".MakeH1())
                 .AppendLine()
-                .AppendLine($"> {term.ShortDescription}")
+                .AppendLine(term.ShortDescription.MakeNote())
                 .AppendLine()
-                .AppendLine($"{Constants.H2}{TextHelper.GetText("TermDefinition")}")
+                .AppendLine(TextHelper.GetText("TermDefinition").MakeH2())
                 .AppendLine()
                 .AppendLine(term.Transcript)
                 .AppendLine();
 
             builder
-                .AppendLine($"{Constants.H2}{TextHelper.GetText("TermLinks")}");
+                .AppendLine(TextHelper.GetText("TermLinks").MakeH2());
 
             foreach (var linkSection in term.Links)
             {
                 builder.AppendLine()
-                    .AppendLine($"{Constants.H3}{linkSection.Key}")
+                    .AppendLine(linkSection.Key.MakeH3())
                     .AppendLine();
 
                 foreach (var link in linkSection.Value)
@@ -312,13 +307,15 @@ namespace MsGlossaryApp.Model
                 && term.Authors.Count > 0)
             {
                 builder.AppendLine()
-                    .AppendLine($"{Constants.H2}{TextHelper.GetText("TermAuthors")}")
+                    .AppendLine(TextHelper.GetText("TermAuthors").MakeH2())
                     .AppendLine()
                     .Append($"{TextHelper.GetText("TermCreatedBy")} ");
 
                 foreach (var author in term.Authors)
                 {
-                    builder.Append($"[{author.Name}](http://twitter.com/{author.Twitter}), ");
+                    builder
+                        .Append(author.Name.MakeLink($"http://twitter.com/{author.Twitter}"))
+                        .Append(", ");
                 }
 
                 builder.Remove(builder.Length - 2, 2);
@@ -330,17 +327,17 @@ namespace MsGlossaryApp.Model
         }
 
         private static string MakeTitleLink(
-                            Keyword keyword,
+            Keyword keyword,
             ILogger log = null)
         {
             log?.LogInformationEx("In MakeTitleLink", LogVerbosity.Verbose);
             if (keyword.IsMainKeyword)
             {
-                return $"[{keyword.Term.Title}](/glossary/term/{keyword.Term.SafeFileName})";
+                return keyword.Term.Title.MakeLink($"/glossary/term/{keyword.Term.SafeFileName}");
             }
             else
             {
-                return $"[{keyword.Term.Title}](/glossary/term/{keyword.Term.SafeFileName}/{keyword.KeywordName.MakeSafeFileName()})";
+                return keyword.Term.Title.MakeLink($"/glossary/term/{keyword.Term.SafeFileName}/{keyword.KeywordName.MakeSafeFileName()}");
             }
         }
 
@@ -512,7 +509,7 @@ namespace MsGlossaryApp.Model
             string markdown,
             ILogger log)
         {
-            log?.LogInformationEx("In CreateTerm", LogVerbosity.Verbose);
+            log?.LogInformationEx("In ParseTerm", LogVerbosity.Verbose);
 
             var term = new Term
             {
@@ -567,20 +564,18 @@ namespace MsGlossaryApp.Model
                         continue;
                     }
 
-                    if (line.StartsWith(Constants.H3))
+                    if (line.IsH3())
                     {
                         currentLinksSection = new List<string>();
-                        links.Add(line.Substring(Constants.H3.Length).Trim(), currentLinksSection);
+                        links.Add(line.ParseH3(), currentLinksSection);
                         continue;
                     }
 
                     currentLinksSection.Add(line);
                 }
-                else if (line.StartsWith(Constants.H1))
+                else if (line.IsH1())
                 {
-                    title = line
-                        .Substring(Constants.H1.Length)
-                        .Trim();
+                    title = line.ParseH1();
                 }
                 else if (line.StartsWith(Constants.TermMarkdownMarkers.YouTubeMarker))
                 {
@@ -636,6 +631,7 @@ namespace MsGlossaryApp.Model
             }
 
             term.Title = title;
+            term.SafeFileName = term.Title.MakeSafeFileName();
             term.Transcript = transcript.ToString().Trim();
             term.Links = links;
             term.RecordingDate = recordingDate;

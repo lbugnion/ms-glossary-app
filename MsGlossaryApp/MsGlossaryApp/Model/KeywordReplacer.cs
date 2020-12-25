@@ -10,7 +10,6 @@ namespace MsGlossaryApp.Model
     public class KeywordReplacer
     {
         public const string DisambiguationLinkTemplate = "/glossary/term/{0}/disambiguation";
-        public const string KeywordLinkTemplate = "[{0}]({1})";
         public const string SingleWordCharacter = " [](){}*!&-_+=|/':;.,<>?\"";
         public const string SubtermLinkTemplate = "/glossary/term/{0}/{1}";
         public const string TermLinkTemplate = "/glossary/term/{0}";
@@ -83,7 +82,7 @@ namespace MsGlossaryApp.Model
 
                         log?.LogInformationEx($"newUrlAlone: {newUrlAlone}", LogVerbosity.Debug);
 
-                        var newUrl = string.Format(KeywordLinkTemplate, oldKeyword, newUrlAlone);
+                        var newUrl = oldKeyword.MakeLink(newUrlAlone);
                         log?.LogInformationEx($"newUrl: {newUrl}", LogVerbosity.Debug);
 
                         var foundOpening = false;

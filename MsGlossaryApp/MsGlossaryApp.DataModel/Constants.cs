@@ -8,9 +8,6 @@
         public const string DocsGlossaryGitHubMainBranchNameVariableName = "DocsGlossaryGitHubMainBranchName";
         public const string DocsGlossaryGitHubRepoVariableName = "DocsGlossaryGitHubRepo";
         public const string GitHubTokenVariableName = "GitHubToken";
-        public const string H1 = "# ";
-        public const string H2 = "## ";
-        public const string H3 = "### ";
         public const string ListOfTermsUrlMask = "https://{0}.blob.core.windows.net/{1}/{2}";
         public const string MsGlossaryGitHubAccountVariableName = "MsGlossaryGitHubAccount";
         public const string MsGlossaryGitHubMainBranchName = "MsGlossaryGitHubMainBranchName";
@@ -26,7 +23,7 @@
         public static class TermMarkdownMarkers
         {
             public const string AuthorNameMarker = "> Author name: ";
-            public const string ShortDescriptionMarker = "> Short description: ";
+            public const string ShortDescriptionMarker = "> Blurb: ";
             public const string CaptionsMarker = "> Captions: ";
             public const string EmailMarker = "> Email: ";
             public const string GitHubMarker = "> GitHub: ";
@@ -48,8 +45,8 @@
             //public const string GitHubMarker = "> GitHub: ";
             //public const string KeywordsMarker = "> Keywords: ";
             //public const string LanguageMarker = "> Language: ";
-            public const string DocsLinksMarker = "## Links to docs";
-            public const string LearnLinksMarker = "## Links to Learn";
+            public const string LinksToDocsMarker = "## Links to docs";
+            public const string LinksToLearnMarker = "## Links to Learn";
             //public const string RecordingDateMarker = "> Recording date: ";
             public const string TranscriptMarker = "## Script";
             //public const string TwitterMarker = "> Twitter: ";

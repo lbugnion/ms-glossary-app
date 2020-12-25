@@ -64,8 +64,9 @@ namespace MsGlossaryApp.DataModel
                 }
             }
 
-            if (Captions == null
-                || Captions.Count == 0)
+            if (!string.IsNullOrEmpty(YouTubeCode)
+                && (Captions == null
+                    || Captions.Count == 0))
             {
                 return false;
             }
@@ -81,8 +82,7 @@ namespace MsGlossaryApp.DataModel
                 && !string.IsNullOrEmpty(ShortDescription)
                 && !string.IsNullOrEmpty(Title)
                 && !string.IsNullOrEmpty(Transcript)
-                && Uri != null
-                && !string.IsNullOrEmpty(YouTubeCode);
+                && Uri != null;
         }
     }
 }
