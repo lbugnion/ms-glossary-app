@@ -13,7 +13,7 @@ namespace MsGlossaryApp.DataModel
 
         public Language Language { get; set; }
 
-        public Dictionary<string, IList<string>> Links { get; set; }
+        public Dictionary<string, IList<Link>> Links { get; set; }
 
         public bool MustSave { get; set; }
 

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.Storage.Blob;
 using MsGlossaryApp.DataModel;
 using System;
 using System.Collections.Generic;
@@ -16,7 +15,7 @@ namespace MsGlossaryApp.Model
     {
         private const string GitHubRawPathTemplate = "https://raw.githubusercontent.com/{0}/{1}/{2}/{3}";
 
-        private static IList<Author> MakeAuthors(
+        public static IList<Author> MakeAuthors(
             string authorName,
             string email,
             string github,
@@ -219,7 +218,7 @@ namespace MsGlossaryApp.Model
 
                 foreach (var link in linkSection.Value)
                 {
-                    builder.AppendLine(link);
+                    builder.AppendLine(link.ToMarkdown());
                 }
             }
 
@@ -299,7 +298,7 @@ namespace MsGlossaryApp.Model
 
                 foreach (var link in linkSection.Value)
                 {
-                    builder.AppendLine(link);
+                    builder.AppendLine(link.ToMarkdown());
                 }
             }
 
@@ -535,8 +534,8 @@ namespace MsGlossaryApp.Model
             var isTranscript = false;
             var isLinks = false;
             var transcript = new StringBuilder();
-            var links = new Dictionary<string, IList<string>>();
-            IList<string> currentLinksSection = null;
+            var links = new Dictionary<string, IList<Link>>();
+            IList<Link> currentLinksSection = null;
             string line;
 
             while ((line = markdownReader.ReadLine()) != null)
@@ -566,12 +565,12 @@ namespace MsGlossaryApp.Model
 
                     if (line.IsH3())
                     {
-                        currentLinksSection = new List<string>();
+                        currentLinksSection = new List<Link>();
                         links.Add(line.ParseH3(), currentLinksSection);
                         continue;
                     }
 
-                    currentLinksSection.Add(line);
+                    currentLinksSection.Add(line.ParseLink());
                 }
                 else if (line.IsH1())
                 {
@@ -640,15 +639,20 @@ namespace MsGlossaryApp.Model
             term.Authors = MakeAuthors(authorName, email, github, twitter, log);
             term.Captions = MakeLanguages(captions, log);
             term.Language = MakeLanguages(language, log).First();
-            term.Keywords = keywordsLine.Split(new char[]
-            {
-                ','
-            }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(k => k.Trim())
-                .ToList();
+            term.Keywords = MakeKeywords(keywordsLine);
 
             log?.LogInformationEx("Out CreateTerm", LogVerbosity.Verbose);
             return term;
+        }
+
+        public static IList<string> MakeKeywords(string keywordsLine)
+        {
+            return keywordsLine.Split(new char[]
+            {
+                Constants.Separator
+            }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(k => k.Trim())
+                .ToList();
         }
 
         public static Task<IList<Keyword>> SortDisambiguations(

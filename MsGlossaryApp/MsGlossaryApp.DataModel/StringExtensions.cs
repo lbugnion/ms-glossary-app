@@ -35,6 +35,8 @@ namespace MsGlossaryApp.DataModel
                 StringSplitOptions.RemoveEmptyEntries
             );
 
+
+
             if (!parts[0].StartsWith(LinkTextOpener)
                 || !parts[1].EndsWith(LinkUrlCloser))
             {

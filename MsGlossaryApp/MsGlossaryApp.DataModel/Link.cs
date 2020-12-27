@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MsGlossaryApp.DataModel
+﻿namespace MsGlossaryApp.DataModel
 {
     public class Link
     {
@@ -16,6 +12,17 @@ namespace MsGlossaryApp.DataModel
         {
             get;
             set;
+        }
+
+        public string Note
+        {
+            get;
+            set;
+        }
+
+        public string ToMarkdown()
+        {
+            return Text.MakeLink(Url);
         }
     }
 }

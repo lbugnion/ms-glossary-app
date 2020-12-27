@@ -41,6 +41,6 @@ x-functions-key: Xq9pl6xS6uI1RVuxKaN0e2HG6ts0AKgqAbniQQXKUCaHxDEAdtC1Fw==
 http://localhost:7071/api/synopsis
 
 {
-    "submitteremail": "lbugnion2@microsoft.com",
+    "submitteremail": "lbugnion@microsoft.com",
     "term":"test-topic-11"
 }

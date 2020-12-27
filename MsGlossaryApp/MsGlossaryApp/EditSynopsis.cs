@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using MsGlossaryApp.DataModel;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using MsGlossaryApp.Model;
 
 namespace MsGlossaryApp
@@ -92,13 +91,15 @@ namespace MsGlossaryApp
 
             var isAuthorValid = false;
 
-            foreach (var author in synopsis.Authors)
+            if (synopsis.Authors != null)
             {
-                if (author.Name.ToLower() == synopsisRequest.SubmitterName.ToLower()
-                    && author.Email.ToLower() == synopsisRequest.SubmitterEmail)
+                foreach (var author in synopsis.Authors)
                 {
-                    isAuthorValid = true;
-                    break;
+                    if (author.Email.ToLower() == synopsisRequest.SubmitterEmail)
+                    {
+                        isAuthorValid = true;
+                        break;
+                    }
                 }
             }
 
@@ -110,7 +111,7 @@ namespace MsGlossaryApp
                     log);
 
                 return new BadRequestObjectResult(
-                    $"Sorry but the author {synopsisRequest.SubmitterName} is not the original author");
+                    $"Sorry but the author {synopsisRequest.SubmitterEmail} is not the original author");
             }
 
             var json = JsonConvert.SerializeObject(synopsis);
