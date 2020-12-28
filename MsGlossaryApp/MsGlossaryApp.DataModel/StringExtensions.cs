@@ -35,21 +35,34 @@ namespace MsGlossaryApp.DataModel
                 StringSplitOptions.RemoveEmptyEntries
             );
 
+            string url = null, note = null;
 
+            var indexOfEndOfUrl = parts[1].IndexOf(") ");
+
+            if (indexOfEndOfUrl > -1)
+            {
+                url = parts[1].Substring(0, indexOfEndOfUrl + 1).Trim();
+                note = parts[1].Substring(indexOfEndOfUrl + 1).Trim();
+            }
+            else
+            {
+                url = parts[1];
+            }
 
             if (!parts[0].StartsWith(LinkTextOpener)
-                || !parts[1].EndsWith(LinkUrlCloser))
+                || !url.EndsWith(LinkUrlCloser))
             {
                 return null;
             }
 
             parts[0] = parts[0].Substring(LinkTextOpener.Length).Trim();
-            parts[1] = parts[1].Substring(0, parts[1].Length - LinkTextOpener.Length).Trim();
+            url = url.Substring(0, url.Length - LinkUrlCloser.Length).Trim();
 
             return new Link
             {
                 Text = parts[0],
-                Url = parts[1]
+                Url = url,
+                Note = note
             };
         }
 
