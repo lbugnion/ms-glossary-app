@@ -13,11 +13,11 @@ using MsGlossaryApp.Model;
 
 namespace MsGlossaryApp
 {
-    public static class EditSynopsis
+    public static class GetSynopsis
     {
         private const string GitHubSynopsisUrlTemplate = "https://raw.githubusercontent.com/{0}/{1}/{2}/synopsis/{2}.md";
 
-        [FunctionName("EditSynopsis")]
+        [FunctionName(nameof(GetSynopsis))]
         public static async Task<IActionResult> RunGet(
             [HttpTrigger(
                 AuthorizationLevel.Function, 
