@@ -38,9 +38,53 @@ https://msglossary-app-staging.azurewebsites.net/api/update-docs
 x-functions-key: Xq9pl6xS6uI1RVuxKaN0e2HG6ts0AKgqAbniQQXKUCaHxDEAdtC1Fw==
 
 ### Get synopsis for edit
-http://localhost:7071/api/synopsis
+GET http://localhost:7071/api/synopsis
 
 {
     "submitteremail": "lbugnion@microsoft.com",
     "term":"test-topic-11"
+}
+
+### Save synopsis
+POST http://localhost:7071/api/synopsis
+
+{
+  "Authors": [
+    {
+      "Email": "lbugnion@microsoft.com",
+      "GitHub": "LBugnion",
+      "Name": "Laurent Bugnion",
+      "Twitter": "LBugnion",
+      "IsComplete": true
+    }
+  ],
+  "Captions": null,
+  "Keywords": [
+    "AAD",
+    "Active Directory",
+    "Authentication",
+    "Identity"
+  ],
+  "Language": null,
+  "Links": {
+    "Links to docs": [
+      {
+        "Text": "An introduction to Azure Functions",
+        "Url": "https://docs.microsoft.com/azure/azure-functions/functions-overview",
+        "Note": null
+      }
+    ],
+    "Links to Learn": [
+    ],
+    "Other Links (optional)": []
+  },
+  "MustSave": false,
+  "RecordingDate": "0001-01-01T00:00:00",
+  "SafeFileName": "test-topic-11",
+  "ShortDescription": "This is a test again",
+  "Stage": 0,
+  "Title": "test-topic-11",
+  "Transcript": "> A transcript of what you are planning to say on camera, including demos etc.\r\n\r\n> [See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started.md#script)\r\n\r\nToday's word of the day is: WORD.\r\nToday's words of the day are: EXPRESSION.\r\nToday's word of the day is an abbreviation: ABBREVIATION.\r\n\r\nHello and welcome to Microsoft Azure Words of the Day, the show that teaches you the Azure vocabulary!\r\n\r\n> For abbreviations, also mention the full expression in the intro and show phonetics too.",
+  "Uri": "https://raw.githubusercontent.com/lbugnion/tests-auto-commit/test-topic-11/synopsis/test-topic-11.md",
+  "YouTubeCode": null
 }
