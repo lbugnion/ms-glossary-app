@@ -4,13 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MsGlossaryApp.Model
 {
     public class SynopsisMaker
     {
-        private static IList<string> _currentLinksSection;
-
         public static Term ParseSynopsis(
             Uri uri, 
             string markdown, 
@@ -21,19 +20,14 @@ namespace MsGlossaryApp.Model
 
             var markdownReader = new StringReader(markdown);
 
-            string title = null;
             string authorNames = null;
             string emails = null;
             string twitters = null;
             string githubs = null;
-            string shortDescription = null;
-            string phonetics = null;
-            var personalNotes = new List<string>();
-            IList<string> keywords = null;
-            var demos = new List<string>();
-            var links = new Dictionary<string, IList<Link>>();
             IList<Link> currentLinksSection = null;
+            IList<string> currentInstructionsSection = null;
             var transcript = new StringBuilder();
+            var shortDescription = new StringBuilder();
 
             var isSubmittedBy = false;
             var isShortDescription = false;
@@ -43,6 +37,25 @@ namespace MsGlossaryApp.Model
             var isDemos = false;
             var isLinks = false;
             var isTranscript = false;
+            var transcriptStarted = false;
+
+            var synopsis = new Term
+            {
+                AuthorsInstructions = new List<string>(),
+                Demos = new List<string>(),
+                DemosInstructions = new List<string>(),
+                KeywordsInstructions = new List<string>(),
+                Links = new Dictionary<string, IList<Link>>(),
+                LinksInstructions = new Dictionary<string, IList<string>>(),
+                PersonalNotes = new List<string>(),
+                PersonalNotesInstructions = new List<string>(),
+                PhoneticsInstructions = new List<string>(),
+                ShortDescriptionInstructions = new List<string>(),
+                Stage = Term.TermStage.Synopsis,
+                TitleInstructions = new List<string>(),
+                TranscriptInstructions = new List<string>(),
+                Uri = uri
+            };
 
             string line;
 
@@ -51,17 +64,22 @@ namespace MsGlossaryApp.Model
                 line = line.Trim();
 
                 if (!isTranscript
-                    && line.IsNote()
-                        || (!isTranscript && string.IsNullOrEmpty(line)))
+                    && string.IsNullOrEmpty(line))
                 {
-                    // Ignore the notes, we will make sure to preserve them when 
-                    // we save the Synopsis back to GitHub
+                    continue;
+                }
+
+                if (line.IsNote()
+                    && currentInstructionsSection != null)
+                {
+                    currentInstructionsSection.Add(line.ParseNote());
                     continue;
                 }
 
                 if (line.StartsWith(Constants.SynopsisMarkdownMarkers.TitleMarker))
                 {
-                    title = line.Substring(Constants.SynopsisMarkdownMarkers.TitleMarker.Length);
+                    synopsis.Title = line.Substring(Constants.SynopsisMarkdownMarkers.TitleMarker.Length);
+                    currentInstructionsSection = synopsis.TitleInstructions;
                 }
                 else if (line == Constants.SynopsisMarkdownMarkers.SubmittedByMarker)
                 {
@@ -73,6 +91,7 @@ namespace MsGlossaryApp.Model
                     isDemos = false;
                     isLinks = false;
                     isTranscript = false;
+                    currentInstructionsSection = synopsis.AuthorsInstructions;
                 }
                 else if (line == Constants.SynopsisMarkdownMarkers.ShortDescriptionMarker)
                 {
@@ -84,6 +103,7 @@ namespace MsGlossaryApp.Model
                     isDemos = false;
                     isLinks = false;
                     isTranscript = false;
+                    currentInstructionsSection = synopsis.ShortDescriptionInstructions;
                 }
                 else if (line == Constants.SynopsisMarkdownMarkers.PhoneticsMarker)
                 {
@@ -95,6 +115,7 @@ namespace MsGlossaryApp.Model
                     isDemos = false;
                     isLinks = false;
                     isTranscript = false;
+                    currentInstructionsSection = synopsis.PhoneticsInstructions;
                 }
                 else if (line == Constants.SynopsisMarkdownMarkers.PersonalNotesMarker)
                 {
@@ -106,6 +127,7 @@ namespace MsGlossaryApp.Model
                     isDemos = false;
                     isLinks = false;
                     isTranscript = false;
+                    currentInstructionsSection = synopsis.PersonalNotesInstructions;
                 }
                 else if (line == Constants.SynopsisMarkdownMarkers.KeywordsMarker)
                 {
@@ -117,6 +139,7 @@ namespace MsGlossaryApp.Model
                     isDemos = false;
                     isLinks = false;
                     isTranscript = false;
+                    currentInstructionsSection = synopsis.KeywordsInstructions;
                 }
                 else if (line == Constants.SynopsisMarkdownMarkers.DemosMarker)
                 {
@@ -128,6 +151,7 @@ namespace MsGlossaryApp.Model
                     isDemos = true;
                     isLinks = false;
                     isTranscript = false;
+                    currentInstructionsSection = synopsis.DemosInstructions;
                 }
                 else if (line == Constants.SynopsisMarkdownMarkers.LinksToDocsMarker
                     || line == Constants.SynopsisMarkdownMarkers.LinksToLearnMarker
@@ -145,12 +169,18 @@ namespace MsGlossaryApp.Model
 
                     line = line.ParseH2();
 
-                    if (!links.ContainsKey(line))
+                    if (!synopsis.Links.ContainsKey(line))
                     {
-                        links.Add(line, new List<Link>());
+                        synopsis.Links.Add(line, new List<Link>());
                     }
 
-                    currentLinksSection = links[line];
+                    if (!synopsis.LinksInstructions.ContainsKey(line))
+                    {
+                        synopsis.LinksInstructions.Add(line, new List<string>());
+                    }
+
+                    currentLinksSection = synopsis.Links[line];
+                    currentInstructionsSection = synopsis.LinksInstructions[line];
                 }
                 else if (line == Constants.SynopsisMarkdownMarkers.TranscriptMarker)
                 {
@@ -162,6 +192,7 @@ namespace MsGlossaryApp.Model
                     isDemos = false;
                     isLinks = false;
                     isTranscript = true;
+                    currentInstructionsSection = null;
                 }
                 else if (isSubmittedBy)
                 {
@@ -186,23 +217,25 @@ namespace MsGlossaryApp.Model
                 }
                 else if (isShortDescription)
                 {
-                    shortDescription = line;
+                    shortDescription
+                        .Append(line)
+                        .Append(" ");
                 }
                 else if (isPhonetics)
                 {
-                    phonetics = line;
+                    synopsis.Phonetics = line;
                 }
                 else if (isPersonalNotes)
                 {
-                    personalNotes.Add(line.ParseListItem());
+                    synopsis.PersonalNotes.Add(line.ParseListItem());
                 }
                 else if (isKeywords)
                 {
-                    keywords = TermMaker.MakeKeywords(line);
+                    synopsis.Keywords = TermMaker.MakeKeywords(line);
                 }
                 else if (isDemos)
                 {
-                    demos.Add(line.ParseListItem());
+                    synopsis.Demos.Add(line.ParseListItem());
                 }
                 else if (isLinks)
                 {
@@ -210,30 +243,54 @@ namespace MsGlossaryApp.Model
                 }
                 else if (isTranscript)
                 {
+                    if (!transcriptStarted
+                        && string.IsNullOrEmpty(line))
+                    {
+                        continue;
+                    }
+
+                    if (!line.IsNote())
+                    {
+                        transcriptStarted = true;
+                    }
+
+                    if (line.IsNote()
+                        && !transcriptStarted)
+                    {
+                        synopsis.TranscriptInstructions.Add(line.ParseNote());
+                    }
+
                     transcript.AppendLine(line);
                 }
             }
 
-            IList<Author> authors = TermMaker.MakeAuthors(
+            synopsis.Authors = TermMaker.MakeAuthors(
                 authorNames,
                 emails,
                 githubs,
                 twitters);
 
-            var synopsis = new Term
-            {
-                Uri = uri,
-                Stage = Term.TermStage.Synopsis,
-                Authors = authors,
-                Keywords = keywords,
-                Links = links,
-                SafeFileName = title?.MakeSafeFileName(),
-                ShortDescription = shortDescription,
-                Title = title,
-                Transcript = transcript.ToString().Trim()
-            };
+            synopsis.ShortDescription = shortDescription.ToString().Trim();
+            synopsis.SafeFileName = synopsis.Title.MakeSafeFileName();
 
             return synopsis;
+        }
+
+        private const string SaveToGitHubPathMask = "glossary/synopsis/{0}.md";
+
+        public async static Task<GlossaryFile> PrepareNewSynopsis(Term synopsis, string oldMarkdown)
+        {
+            if (synopsis.Stage != Term.TermStage.Synopsis)
+            {
+                throw new InvalidOperationException($"Invalid stage for {synopsis.SafeFileName}");
+            }
+
+            var file = new GlossaryFile
+            {
+                Path = string.Format(SaveToGitHubPathMask, synopsis.SafeFileName)
+            };
+
+            return null;
         }
     }
 }

@@ -15,8 +15,6 @@ namespace MsGlossaryApp
 {
     public static class GetSynopsis
     {
-        private const string GitHubSynopsisUrlTemplate = "https://raw.githubusercontent.com/{0}/{1}/{2}/synopsis/{2}.md";
-
         [FunctionName(nameof(GetSynopsis))]
         public static async Task<IActionResult> RunGet(
             [HttpTrigger(
@@ -51,7 +49,7 @@ namespace MsGlossaryApp
                 Constants.DocsGlossaryGitHubRepoVariableName);
 
             var synopsisUrl = string.Format(
-                GitHubSynopsisUrlTemplate, 
+                Constants.GitHubSynopsisUrlTemplate, 
                 accountName,
                 repoName,
                 synopsisRequest.SafeFileName);

@@ -19,6 +19,7 @@
         public const string SettingsContainerVariableName = "SettingsContainer";
         public const string TermsContainerVariableName = "TermsContainer";
         public const string TermsSettingsFileName = "terms.en.json";
+        public const string GitHubSynopsisUrlTemplate = "https://raw.githubusercontent.com/{0}/{1}/{2}/synopsis/{2}.md";
 
         public static class TermMarkdownMarkers
         {
