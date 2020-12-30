@@ -52,7 +52,7 @@ namespace MsGlossaryApp
                 client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
                 var oldMarkdown = await client.GetStringAsync(synopsisUrl);
 
-                var newFile = await SynopsisMaker.PrepareNewSynopsis(synopsis, oldMarkdown);
+                var newFile = SynopsisMaker.PrepareNewSynopsis(synopsis, oldMarkdown, log);
 
                 if (newFile.MustSave)
                 {

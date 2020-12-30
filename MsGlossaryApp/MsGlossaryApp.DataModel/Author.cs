@@ -1,6 +1,8 @@
-﻿namespace MsGlossaryApp.DataModel
+﻿using System;
+
+namespace MsGlossaryApp.DataModel
 {
-    public class Author
+    public class Author : IEqual
     {
         public string Email
         {
@@ -43,6 +45,21 @@
             Email = email;
             GitHub = github;
             Twitter = twitter;
+        }
+
+        public bool IsEqualTo(IEqual other)
+        {
+            var author = other as Author;
+
+            if (author == null)
+            {
+                return false;
+            }
+
+            return author.Name == Name
+                && author.Email == Email
+                && author.GitHub == GitHub
+                && author.Twitter == Twitter;
         }
     }
 }

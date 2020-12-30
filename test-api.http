@@ -49,6 +49,10 @@ GET http://localhost:7071/api/synopsis
 POST http://localhost:7071/api/synopsis
 
 {
+  "AuthorsInstructions": [
+    "Enter a comma-separated list of author names, email, Twitter handle and GitHub username.",
+    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#submitted-by)"
+  ],
   "Authors": [
     {
       "Email": "lbugnion@microsoft.com",
@@ -59,6 +63,19 @@ POST http://localhost:7071/api/synopsis
     }
   ],
   "Captions": null,
+  "PersonalNotesInstructions": [
+    "A bullet points list of notes you can use to keep track of things.",
+    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#personal-notes)"
+  ],
+  "PersonalNotes": [
+    "Note 1",
+    "Note 2"
+  ],
+  "KeywordsInstructions": [
+    "List of keywords or keyphrases, comma separated.",
+    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#keywords-or-key-expressions)",
+    "For example"
+  ],
   "Keywords": [
     "AAD",
     "Active Directory",
@@ -66,6 +83,20 @@ POST http://localhost:7071/api/synopsis
     "Identity"
   ],
   "Language": null,
+  "LinksInstructions": {
+    "Links to docs": [
+      "As part of the preparation, prepare a list of links to the documentation that you will use to prepare the content. These links will be included in the website too.",
+      "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#links-to-docs)"
+    ],
+    "Links to Learn": [
+      "As part of the preparation, prepare a list of links to the documentation that you will use to prepare the content. These links will be included in the website too.",
+      "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#links-to-learn)",
+      "For example:"
+    ],
+    "Other Links (optional)": [
+      "These can be other links to Microsoft properties or to other sites."
+    ]
+  },
   "Links": {
     "Links to docs": [
       {
@@ -75,16 +106,52 @@ POST http://localhost:7071/api/synopsis
       }
     ],
     "Links to Learn": [
+      {
+        "Text": "Create serverless applications",
+        "Url": "https://docs.microsoft.com/learn/paths/create-serverless-applications",
+        "Note": "(*learning path*)"
+      },
+      {
+        "Text": "Refactor Node.js and Express APIs to Serverless APIs with Azure Functions",
+        "Url": "https://docs.microsoft.com/learn/modules/shift-nodejs-express-apis-serverless",
+        "Note": "(*module*)"
+      }
     ],
     "Other Links (optional)": []
   },
   "MustSave": false,
   "RecordingDate": "0001-01-01T00:00:00",
-  "SafeFileName": "test-topic-11",
+  "SafeFileName": "test-topic-15",
+  "ShortDescriptionInstructions": [
+    "Please keep to about 25 words maximum.",
+    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#short-description)"
+  ],
   "ShortDescription": "This is a test again",
   "Stage": 0,
-  "Title": "test-topic-11",
-  "Transcript": "> A transcript of what you are planning to say on camera, including demos etc.\r\n\r\n> [See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started.md#script)\r\n\r\nToday's word of the day is: WORD.\r\nToday's words of the day are: EXPRESSION.\r\nToday's word of the day is an abbreviation: ABBREVIATION.\r\n\r\nHello and welcome to Microsoft Azure Words of the Day, the show that teaches you the Azure vocabulary!\r\n\r\n> For abbreviations, also mention the full expression in the intro and show phonetics too.",
-  "Uri": "https://raw.githubusercontent.com/lbugnion/tests-auto-commit/test-topic-11/synopsis/test-topic-11.md",
-  "YouTubeCode": null
+  "TitleInstructions": [
+    "This is a template to help you create a synopsis. [You can see an example here](https://aka.ms/glossary/sample/synopsis).",
+    "Go to [the instructions to get started with a new term!](https://github.com/lbugnion/ms-glossary/blob/master/instructions/getting-started.md)"
+  ],
+  "Title": "test-topic-15",
+  "TranscriptInstructions": [
+    "A transcript of what you are planning to say on camera, including demos etc.",
+    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#script)",
+    "When writing your script, and even though we are not working on the video yet, [keep in mind the general structure of the social videos](./getting-started-video.md)."
+  ],
+  "Transcript": null,
+  "Uri": "https://raw.githubusercontent.com/lbugnion/tests-auto-commit/test-topic-15/synopsis/test-topic-15.md",
+  "YouTubeCode": null,
+  "PhoneticsInstructions": [
+    "[https://tophonetics.com](https://tophonetics.com/)",
+    "Add the phonetics of the word or the expression.",
+    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#phonetics)"
+  ],
+  "Phonetics": "wɜrd",
+  "Demos": [
+    "Short description of the demo."
+  ],
+  "DemosInstructions": [
+    "Quick list of the demos you want to show.",
+    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#demos)"
+  ]
 }

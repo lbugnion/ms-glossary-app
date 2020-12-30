@@ -278,17 +278,31 @@ namespace MsGlossaryApp.Model
 
         private const string SaveToGitHubPathMask = "glossary/synopsis/{0}.md";
 
-        public async static Task<GlossaryFile> PrepareNewSynopsis(Term synopsis, string oldMarkdown)
+        public static GlossaryFile PrepareNewSynopsis(
+            Term synopsis, 
+            string oldMarkdown,
+            ILogger log)
         {
             if (synopsis.Stage != Term.TermStage.Synopsis)
             {
                 throw new InvalidOperationException($"Invalid stage for {synopsis.SafeFileName}");
             }
 
+            var oldSynopsis = ParseSynopsis(
+                synopsis.Uri,
+                oldMarkdown,
+                log);
+
             var file = new GlossaryFile
             {
                 Path = string.Format(SaveToGitHubPathMask, synopsis.SafeFileName)
             };
+
+            if (oldSynopsis.IsEqualTo(synopsis))
+            {
+                file.MustSave = false;
+                return file;
+            }
 
             return null;
         }
