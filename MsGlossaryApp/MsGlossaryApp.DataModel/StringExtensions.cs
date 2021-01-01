@@ -87,7 +87,7 @@ namespace MsGlossaryApp.DataModel
 
         private static string Make(string line, string marker)
         {
-            return $"{marker} {line.Trim()}";
+            return $"{marker.Trim()} {line.Trim()}";
         }
 
         public static string MakeListItem(this string line)

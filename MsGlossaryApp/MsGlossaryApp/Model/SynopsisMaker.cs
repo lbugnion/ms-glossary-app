@@ -259,8 +259,10 @@ namespace MsGlossaryApp.Model
                     {
                         synopsis.TranscriptInstructions.Add(line.ParseNote());
                     }
-
-                    transcript.AppendLine(line);
+                    else
+                    {
+                        transcript.AppendLine(line);
+                    }
                 }
             }
 
@@ -272,6 +274,7 @@ namespace MsGlossaryApp.Model
 
             synopsis.ShortDescription = shortDescription.ToString().Trim();
             synopsis.SafeFileName = synopsis.Title.MakeSafeFileName();
+            synopsis.Transcript = transcript.ToString();
 
             return synopsis;
         }
@@ -304,7 +307,230 @@ namespace MsGlossaryApp.Model
                 return file;
             }
 
-            return null;
+            file.MustSave = true;
+            file.Content = MakeSynopsisText(synopsis, log);
+
+            return file;
         }
+
+        private static string MakeSynopsisText(
+            Term synopsis,
+            ILogger log)
+        {
+            log?.LogInformationEx("In MakeSynopsisText", LogVerbosity.Verbose);
+
+            var builder = new StringBuilder()
+                .Append(Constants.SynopsisMarkdownMarkers.TitleMarker)
+                .AppendLine(synopsis.Title)
+                .AppendLine();
+
+            if (synopsis.TitleInstructions != null)
+            {
+                foreach (var instruction in synopsis.TitleInstructions)
+                {
+                    builder
+                        .AppendLine(instruction.MakeNote())
+                        .AppendLine();
+                }
+            }
+
+            builder
+                .AppendLine(Constants.SynopsisMarkdownMarkers.SubmittedByMarker)
+                .AppendLine();
+
+            if (synopsis.AuthorsInstructions != null)
+            {
+                foreach (var instruction in synopsis.AuthorsInstructions)
+                {
+                    builder
+                        .AppendLine(instruction.MakeNote())
+                        .AppendLine();
+                }
+            }
+
+            var names = new StringBuilder().Append(Constants.SynopsisMarkdownMarkers.NameMarker);
+            var emails = new StringBuilder().Append(Constants.SynopsisMarkdownMarkers.EmailMarker);
+            var githubs = new StringBuilder().Append(Constants.SynopsisMarkdownMarkers.GitHubMarker);
+            var twitters = new StringBuilder().Append(Constants.SynopsisMarkdownMarkers.TwitterMarker);
+
+            if (synopsis.Authors != null)
+            {
+                foreach (var author in synopsis.Authors)
+                {
+                    names.Append(author.Name).Append(", ");
+                    emails.Append(author.Email).Append(", ");
+                    twitters.Append(author.Twitter).Append(", ");
+                    githubs.Append(author.GitHub).Append(", ");
+                }
+            }
+
+            builder
+                .AppendLine(names.ToString().Substring(0, names.Length - 2))
+                .AppendLine()
+                .AppendLine(emails.ToString().Substring(0, emails   .Length - 2))
+                .AppendLine()
+                .AppendLine(twitters.ToString().Substring(0, twitters.Length - 2))
+                .AppendLine()
+                .AppendLine(githubs.ToString().Substring(0, githubs.Length - 2))
+                .AppendLine()
+                .AppendLine(Constants.SynopsisMarkdownMarkers.ShortDescriptionMarker)
+                .AppendLine();
+
+            if (synopsis.ShortDescriptionInstructions != null)
+            {
+                foreach (var instruction in synopsis.ShortDescriptionInstructions)
+                {
+                    builder
+                        .AppendLine(instruction.MakeNote())
+                        .AppendLine();
+                }
+            }
+
+            builder
+                .AppendLine(synopsis.ShortDescription)
+                .AppendLine()
+                .AppendLine(Constants.SynopsisMarkdownMarkers.PhoneticsMarker)
+                .AppendLine();
+
+            if (synopsis.PhoneticsInstructions != null)
+            {
+                foreach (var instruction in synopsis.PhoneticsInstructions)
+                {
+                    builder
+                        .AppendLine(instruction.MakeNote())
+                        .AppendLine();
+                }
+            }
+
+            builder
+                .AppendLine(synopsis.Phonetics)
+                .AppendLine()
+                .AppendLine(Constants.SynopsisMarkdownMarkers.PersonalNotesMarker)
+                .AppendLine();
+
+            if (synopsis.PersonalNotesInstructions != null)
+            {
+                foreach (var instruction in synopsis.PersonalNotesInstructions)
+                {
+                    builder
+                        .AppendLine(instruction.MakeNote())
+                        .AppendLine();
+                }
+            }
+
+            if (synopsis.PersonalNotes != null)
+            {
+                foreach (var note in synopsis.PersonalNotes)
+                {
+                    builder
+                        .AppendLine(note.MakeListItem());
+                }
+            }
+
+            builder
+                .AppendLine()
+                .AppendLine(Constants.SynopsisMarkdownMarkers.KeywordsMarker)
+                .AppendLine();
+
+            if (synopsis.KeywordsInstructions != null)
+            {
+                foreach (var instruction in synopsis.KeywordsInstructions)
+                {
+                    builder
+                        .AppendLine(instruction.MakeNote())
+                        .AppendLine();
+                }
+            }
+
+            if (synopsis.Keywords != null)
+            {
+                builder
+                    .AppendLine(TermMaker.MakeKeywordsLine(synopsis.Keywords))
+                    .AppendLine();
+            }
+
+            builder
+                .AppendLine(Constants.SynopsisMarkdownMarkers.DemosMarker)
+                .AppendLine();
+
+            if (synopsis.DemosInstructions != null)
+            {
+                foreach (var instruction in synopsis.DemosInstructions)
+                {
+                    builder
+                        .AppendLine(instruction.MakeNote())
+                        .AppendLine();
+                }
+            }
+
+            if (synopsis.Demos != null)
+            {
+                foreach (var demo in synopsis.Demos)
+                {
+                    builder
+                        .AppendLine(demo.MakeListItem());
+                }
+            }
+
+            builder.AppendLine();
+
+            if (synopsis.Links != null)
+            {
+                foreach (var key in synopsis.Links.Keys)
+                {
+                    builder
+                        .AppendLine(key.MakeH2())
+                        .AppendLine();
+
+                    if (synopsis.LinksInstructions != null
+                        && synopsis.LinksInstructions.ContainsKey(key)
+                        && synopsis.LinksInstructions[key] != null)
+                    {
+                        foreach (var instruction in synopsis.LinksInstructions[key])
+                        {
+                            builder
+                                .AppendLine(instruction.MakeNote())
+                                .AppendLine();
+                        }
+                    }
+
+                    if (synopsis.Links[key] != null
+                        && synopsis.Links[key].Count > 0)
+                    {
+                        foreach (var link in synopsis.Links[key])
+                        {
+                            builder
+                                .AppendLine(link.ToMarkdown().MakeListItem());
+                        }
+
+                        builder.AppendLine();
+                    }
+                }
+
+                builder
+                    .AppendLine(Constants.SynopsisMarkdownMarkers.TranscriptMarker)
+                    .AppendLine();
+
+                if (synopsis.TranscriptInstructions != null)
+                {
+                    foreach (var instruction in synopsis.TranscriptInstructions)
+                    {
+                        builder
+                            .AppendLine(instruction.MakeNote())
+                            .AppendLine();
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(synopsis.Transcript))
+                {
+                    builder.AppendLine(synopsis.Transcript);
+                }
+            }
+
+
+            log?.LogInformationEx("Out MakeSynopsisText", LogVerbosity.Verbose);
+            return builder.ToString();
+        }
+
     }
 }

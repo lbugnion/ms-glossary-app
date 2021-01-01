@@ -645,6 +645,16 @@ namespace MsGlossaryApp.Model
             return term;
         }
 
+        public static string MakeKeywordsLine(IList<string> keywords)
+        {
+            if (keywords == null)
+            {
+                return null;
+            }
+
+            return string.Join(", ", keywords);
+        }
+
         public static IList<string> MakeKeywords(string keywordsLine)
         {
             return keywordsLine.Split(new char[]

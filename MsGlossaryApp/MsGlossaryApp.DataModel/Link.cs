@@ -36,7 +36,14 @@
 
         public string ToMarkdown()
         {
-            return Text.MakeLink(Url);
+            var markdown = Text.MakeLink(Url);
+
+            if (!string.IsNullOrEmpty(Note))
+            {
+                markdown += " " + Note;
+            }
+
+            return markdown;
         }
     }
 }

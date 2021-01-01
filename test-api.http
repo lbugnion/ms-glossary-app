@@ -55,7 +55,7 @@ POST http://localhost:7071/api/synopsis
   ],
   "Authors": [
     {
-      "Email": "lbugnion@microsoft.com",
+      "Email": "lbugnion2@microsoft.com",
       "GitHub": "LBugnion",
       "Name": "Laurent Bugnion",
       "Twitter": "LBugnion",
@@ -138,7 +138,7 @@ POST http://localhost:7071/api/synopsis
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#script)",
     "When writing your script, and even though we are not working on the video yet, [keep in mind the general structure of the social videos](./getting-started-video.md)."
   ],
-  "Transcript": null,
+  "Transcript": "Today's word of the day is: WORD.\r\nToday's words of the day are: EXPRESSION.\r\nToday's word of the day is an abbreviation: ABBREVIATION.\r\n\r\nHello and welcome to Microsoft Azure Words of the Day, the show that teaches you the Azure vocabulary!\r\n\r\n> For abbreviations, also mention the full expression in the intro and show phonetics too.\r\n",
   "Uri": "https://raw.githubusercontent.com/lbugnion/tests-auto-commit/test-topic-15/synopsis/test-topic-15.md",
   "YouTubeCode": null,
   "PhoneticsInstructions": [
