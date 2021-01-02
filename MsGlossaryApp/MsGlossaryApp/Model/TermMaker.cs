@@ -570,7 +570,7 @@ namespace MsGlossaryApp.Model
                         continue;
                     }
 
-                    currentLinksSection.Add(line.ParseLink());
+                    currentLinksSection.Add(line.ParseListItem().ParseLink());
                 }
                 else if (line.IsH1())
                 {
