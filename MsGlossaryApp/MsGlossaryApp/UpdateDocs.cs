@@ -20,28 +20,6 @@ namespace MsGlossaryApp
     {
         private const string CommitMessage = "New files committed by the pipeline";
 
-        private static SavingLocations GetSavingLocation()
-        {
-            SavingLocations savingLocation = SavingLocations.GitHub;
-
-            var savingLocationString = Environment.GetEnvironmentVariable(
-                Constants.SavingLocationVariableName);
-
-            if (!string.IsNullOrEmpty(savingLocationString))
-            {
-                var success = Enum.TryParse(
-                    savingLocationString,
-                    out savingLocation);
-
-                if (!success)
-                {
-                    savingLocation = SavingLocations.GitHub;
-                }
-            }
-
-            return savingLocation;
-        }
-
         [FunctionName("UpdateDocs_HttpStart")]
         public static async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(
@@ -75,101 +53,7 @@ namespace MsGlossaryApp
             log?.LogInformationEx("In UpdateDocsCommitFiles", LogVerbosity.Normal);
             //return null;
 
-            var savingLocation = GetSavingLocation();
-
-            var filesToCommit = files
-                .Where(f => f.MustSave)
-                .ToList();
-
-            if (savingLocation == SavingLocations.GitHub
-                && filesToCommit.Count == 0)
-            {
-                return "No changes detected in the files to commit";
-            }
-
-            string errorMessage = null;
-
-            if ((savingLocation == SavingLocations.GitHub
-                    || savingLocation == SavingLocations.Both)
-                && filesToCommit.Count > 0)
-            {
-                log?.LogInformationEx("Committing to GitHub", LogVerbosity.Verbose);
-
-                var accountName = Environment.GetEnvironmentVariable(
-                    Constants.DocsGlossaryGitHubAccountVariableName);
-                var repoName = Environment.GetEnvironmentVariable(
-                    Constants.DocsGlossaryGitHubRepoVariableName);
-                var branchName = Environment.GetEnvironmentVariable(
-                    Constants.DocsGlossaryGitHubMainBranchNameVariableName);
-                var token = Environment.GetEnvironmentVariable(
-                    Constants.GitHubTokenVariableName);
-
-                log?.LogInformationEx($"accountName: {accountName}", LogVerbosity.Debug);
-                log?.LogInformationEx($"repoName: {repoName}", LogVerbosity.Debug);
-                log?.LogInformationEx($"branchName: {branchName}", LogVerbosity.Debug);
-                log?.LogInformationEx($"token: {token}", LogVerbosity.Debug);
-
-                // Commit only files who have changed
-                var commitContent = filesToCommit
-                    .Select(f => (f.Path, f.Content))
-                    .ToList();
-
-                var helper = new GitHubHelper();
-
-                var result = await helper.CommitFiles(
-                    accountName,
-                    repoName,
-                    branchName,
-                    token,
-                    CommitMessage,
-                    commitContent,
-                    log: log);
-
-                errorMessage = result.ErrorMessage;
-                log?.LogInformationEx("Done committing to GitHub", LogVerbosity.Verbose);
-            }
-
-            if (!string.IsNullOrEmpty(errorMessage))
-            {
-                log?.LogError($"Error when committing files: {errorMessage}");
-                return errorMessage;
-            }
-
-            if ((savingLocation == SavingLocations.Storage
-                    || savingLocation == SavingLocations.Both)
-                && files.Count > 0)
-            {
-                log?.LogInformationEx("Saving to storage", LogVerbosity.Verbose);
-
-                try
-                {
-                    var account = CloudStorageAccount.Parse(
-                        Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
-
-                    var client = account.CreateCloudBlobClient();
-                    var helper = new BlobHelper(client, log);
-                    var targetContainer = helper.GetContainerFromVariable(Constants.OutputContainerVariableName);
-
-                    // Always save all files
-                    foreach (var file in files)
-                    {
-                        var name = file.Path.Replace("/", "_");
-                        var targetBlob = targetContainer.GetBlockBlobReference(name);
-                        await targetBlob.UploadTextAsync(file.Content);
-                        log?.LogInformationEx($"Uploaded {name} to storage", LogVerbosity.Debug);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log?.LogError($"Error when committing files: {ex.Message}");
-                    return ex.Message;
-                }
-
-                log?.LogInformationEx("Done saving to storage", LogVerbosity.Verbose);
-            }
-
-            log?.LogInformationEx("Out UpdateDocsCommitFiles", LogVerbosity.Normal);
-            return null;
+            return await FileSaver.SaveFiles(files, CommitMessage, log);
         }
 
         [FunctionName(nameof(UpdateDocsGetAllTerms))]
@@ -355,8 +239,8 @@ namespace MsGlossaryApp
 
             foreach (var keyword in allKeywords.Where(k => !k.IsDisambiguation))
             {
-                //var keyword = allKeywords.First(k => k.Keyword.MakeSafeFileName() == "node-js"
-                //    && k.TermName == "app-service");
+                //var keyword = allKeywords.First(k => k.KeywordName.MakeSafeFileName() == "node-js"
+                //    && k.TermSafeFileName == "app-service");
 
                 var currentTerm = allTerms
                     .Single(t => t.SafeFileName == keyword.TermSafeFileName);
@@ -481,7 +365,7 @@ namespace MsGlossaryApp
             }
 
             var message = "New files committed";
-            var savingLocation = GetSavingLocation();
+            var savingLocation = FileSaver.GetSavingLocation();
 
             switch (savingLocation)
             {
