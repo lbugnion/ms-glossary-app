@@ -15,60 +15,6 @@ namespace MsGlossaryApp.Model
     {
         private const string GitHubRawPathTemplate = "https://raw.githubusercontent.com/{0}/{1}/{2}/{3}";
 
-        public static IList<Author> MakeAuthors(
-            string authorName,
-            string email,
-            string github,
-            string twitter,
-            ILogger log = null)
-        {
-            log?.LogInformationEx("In MakeAuthors", LogVerbosity.Verbose);
-
-            var authorNames = authorName.Split(new char[]
-            {
-                Constants.Separator
-            });
-
-            var emails = email.Split(new char[]
-            {
-                Constants.Separator
-            });
-
-            var githubs = github.Split(new char[]
-            {
-                Constants.Separator
-            });
-
-            var twitters = twitter.Split(new char[]
-            {
-                Constants.Separator
-            });
-
-            if (authorNames.Length != emails.Length
-                || authorNames.Length != githubs.Length
-                || authorNames.Length != twitters.Length)
-            {
-                log?.LogError("Invalid author, email github or twitter lists");
-                throw new InvalidOperationException("Invalid author, email github or twitter lists");
-            }
-
-            var result = new List<Author>();
-
-            for (var index = 0; index < authorNames.Length; index++)
-            {
-                var author = new Author(
-                    authorNames[index].Trim(),
-                    emails[index].Trim(),
-                    githubs[index].Trim(),
-                    twitters[index].Trim());
-
-                result.Add(author);
-            }
-
-            log?.LogInformationEx("Out MakeAuthors", LogVerbosity.Verbose);
-            return result;
-        }
-
         private static string MakeDisambiguationText(
             IList<Keyword> keywords,
             ILogger log = null)
@@ -503,8 +449,82 @@ namespace MsGlossaryApp.Model
             return tcs.Task;
         }
 
+        public static IList<Author> MakeAuthors(
+                                                                                            string authorName,
+            string email,
+            string github,
+            string twitter,
+            ILogger log = null)
+        {
+            log?.LogInformationEx("In MakeAuthors", LogVerbosity.Verbose);
+
+            var authorNames = authorName.Split(new char[]
+            {
+                Constants.Separator
+            });
+
+            var emails = email.Split(new char[]
+            {
+                Constants.Separator
+            });
+
+            var githubs = github.Split(new char[]
+            {
+                Constants.Separator
+            });
+
+            var twitters = twitter.Split(new char[]
+            {
+                Constants.Separator
+            });
+
+            if (authorNames.Length != emails.Length
+                || authorNames.Length != githubs.Length
+                || authorNames.Length != twitters.Length)
+            {
+                log?.LogError("Invalid author, email github or twitter lists");
+                throw new InvalidOperationException("Invalid author, email github or twitter lists");
+            }
+
+            var result = new List<Author>();
+
+            for (var index = 0; index < authorNames.Length; index++)
+            {
+                var author = new Author(
+                    authorNames[index].Trim(),
+                    emails[index].Trim(),
+                    githubs[index].Trim(),
+                    twitters[index].Trim());
+
+                result.Add(author);
+            }
+
+            log?.LogInformationEx("Out MakeAuthors", LogVerbosity.Verbose);
+            return result;
+        }
+
+        public static IList<string> MakeKeywords(string keywordsLine)
+        {
+            return keywordsLine.Split(new char[]
+            {
+                Constants.Separator
+            }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(k => k.Trim())
+                .ToList();
+        }
+
+        public static string MakeKeywordsLine(IList<string> keywords)
+        {
+            if (keywords == null)
+            {
+                return null;
+            }
+
+            return string.Join(", ", keywords);
+        }
+
         public static Term ParseTerm(
-            Uri uri,
+                            Uri uri,
             string markdown,
             ILogger log)
         {
@@ -643,26 +663,6 @@ namespace MsGlossaryApp.Model
 
             log?.LogInformationEx("Out CreateTerm", LogVerbosity.Verbose);
             return term;
-        }
-
-        public static string MakeKeywordsLine(IList<string> keywords)
-        {
-            if (keywords == null)
-            {
-                return null;
-            }
-
-            return string.Join(", ", keywords);
-        }
-
-        public static IList<string> MakeKeywords(string keywordsLine)
-        {
-            return keywordsLine.Split(new char[]
-            {
-                Constants.Separator
-            }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(k => k.Trim())
-                .ToList();
         }
 
         public static Task<IList<Keyword>> SortDisambiguations(

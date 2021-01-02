@@ -1,15 +1,15 @@
-using System.IO;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
+using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace MsGlossaryApp
 {
@@ -18,9 +18,9 @@ namespace MsGlossaryApp
         [FunctionName("SaveSynopsis")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Function, 
-                "post", 
-                Route = "synopsis")] 
+                AuthorizationLevel.Function,
+                "post",
+                Route = "synopsis")]
             HttpRequest req,
             ILogger log)
         {

@@ -6,35 +6,43 @@ namespace MsGlossaryApp.DataModel
 {
     public class Term
     {
-        public IList<string> AuthorsInstructions { get; set; }
-
         public IList<Author> Authors { get; set; }
+
+        public IList<string> AuthorsInstructions { get; set; }
 
         public IList<Language> Captions { get; set; }
 
-        public IList<string> PersonalNotesInstructions { get; set; }
+        public IList<string> Demos { get; set; }
 
-        public IList<string> PersonalNotes { get; set; }
-
-        public IList<string> KeywordsInstructions { get; set; }
+        public IList<string> DemosInstructions { get; set; }
 
         public IList<string> Keywords { get; set; }
 
-        public Language Language { get; set; }
+        public IList<string> KeywordsInstructions { get; set; }
 
-        public Dictionary<string, IList<string>> LinksInstructions { get; set; }
+        public Language Language { get; set; }
 
         public Dictionary<string, IList<Link>> Links { get; set; }
 
+        public Dictionary<string, IList<string>> LinksInstructions { get; set; }
+
         public bool MustSave { get; set; }
+
+        public IList<string> PersonalNotes { get; set; }
+
+        public IList<string> PersonalNotesInstructions { get; set; }
+
+        public string Phonetics { get; set; }
+
+        public IList<string> PhoneticsInstructions { get; set; }
 
         public DateTime RecordingDate { get; set; }
 
         public string SafeFileName { get; set; }
 
-        public IList<string> ShortDescriptionInstructions { get; set; }
-
         public string ShortDescription { get; set; }
+
+        public IList<string> ShortDescriptionInstructions { get; set; }
 
         public TermStage Stage
         {
@@ -42,35 +50,80 @@ namespace MsGlossaryApp.DataModel
             set;
         }
 
-        public IList<string> TitleInstructions { get; set; }
-
         public string Title { get; set; }
 
-        public IList<string> TranscriptInstructions { get; set; }
+        public IList<string> TitleInstructions { get; set; }
 
         public string Transcript { get; set; }
+
+        public IList<string> TranscriptInstructions { get; set; }
 
         public Uri Uri { get; set; }
 
         public string YouTubeCode { get; set; }
 
-        public IList<string> PhoneticsInstructions { get; set; }
-
-        public string Phonetics { get; set; }
-
-        public IList<string> Demos { get; set; }
-
-        public IList<string> DemosInstructions { get; set; }
-
-        public override string ToString()
+        private bool IsListEqualTo(IList<IEqual> list1, IList<IEqual> list2)
         {
-            return Title;
+            if ((list1 == null
+                && list2 != null)
+                || (list1 != null
+                    && list2 == null))
+            {
+                return false;
+            }
+
+            if (list1 == null
+                && list2 == null)
+            {
+                return true;
+            }
+
+            if (list1.Count != list2.Count)
+            {
+                return false;
+            }
+
+            for (var index = 0; index < list2.Count; index++)
+            {
+                if (!list1[index].IsEqualTo(list2[index]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
-        public enum TermStage
+        private bool IsStringsListEqualTo(IList<string> list1, IList<string> list2)
         {
-            Synopsis,
-            Ready
+            if ((list1 == null
+                && list2 != null)
+                || (list1 != null
+                    && list2 == null))
+            {
+                return false;
+            }
+
+            if (list1 == null
+                && list2 == null)
+            {
+                return true;
+            }
+
+            if (list1.Count != list2.Count)
+            {
+                return false;
+            }
+
+            for (var index = 0; index < list2.Count; index++)
+            {
+                if (list1[index] != list2[index])
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public bool CheckIsComplete()
@@ -113,7 +166,7 @@ namespace MsGlossaryApp.DataModel
         public bool IsEqualTo(Term term)
         {
             if (!IsListEqualTo(
-                term.Authors.Select(a => (IEqual)a).ToList(), 
+                term.Authors.Select(a => (IEqual)a).ToList(),
                 Authors.Select(a => (IEqual)a).ToList()))
             {
                 return false;
@@ -305,68 +358,15 @@ namespace MsGlossaryApp.DataModel
             return true;
         }
 
-        private bool IsStringsListEqualTo(IList<string> list1, IList<string> list2)
+        public override string ToString()
         {
-            if ((list1 == null
-                && list2 != null)
-                || (list1 != null
-                    && list2 == null))
-            {
-                return false;
-            }
-
-            if (list1 == null
-                && list2 == null)
-            {
-                return true;
-            }
-
-            if (list1.Count != list2.Count)
-            {
-                return false;
-            }
-
-            for (var index = 0; index < list2.Count; index++)
-            {
-                if (list1[index] != list2[index])
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return Title;
         }
 
-        private bool IsListEqualTo(IList<IEqual> list1, IList<IEqual> list2)
+        public enum TermStage
         {
-            if ((list1 == null
-                && list2 != null)
-                || (list1 != null
-                    && list2 == null))
-            {
-                return false;
-            }
-
-            if (list1 == null
-                && list2 == null)
-            {
-                return true;
-            }
-
-            if (list1.Count != list2.Count)
-            {
-                return false;
-            }
-
-            for (var index = 0; index < list2.Count; index++)
-            {
-                if (!list1[index].IsEqualTo(list2[index]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            Synopsis,
+            Ready
         }
     }
 }

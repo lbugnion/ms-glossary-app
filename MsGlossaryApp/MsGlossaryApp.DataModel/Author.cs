@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MsGlossaryApp.DataModel
+﻿namespace MsGlossaryApp.DataModel
 {
     public class Author : IEqual
     {
@@ -16,6 +14,17 @@ namespace MsGlossaryApp.DataModel
             set;
         }
 
+        public bool IsComplete
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(Email)
+                    && !string.IsNullOrEmpty(GitHub)
+                    && !string.IsNullOrEmpty(Name)
+                    && !string.IsNullOrEmpty(Twitter);
+            }
+        }
+
         public string Name
         {
             get;
@@ -26,17 +35,6 @@ namespace MsGlossaryApp.DataModel
         {
             get;
             set;
-        }
-        
-        public bool IsComplete
-        {
-            get
-            {
-                return !string.IsNullOrEmpty(Email)
-                    && !string.IsNullOrEmpty(GitHub)
-                    && !string.IsNullOrEmpty(Name)
-                    && !string.IsNullOrEmpty(Twitter);
-            }
         }
 
         public Author(string name, string email, string github, string twitter)

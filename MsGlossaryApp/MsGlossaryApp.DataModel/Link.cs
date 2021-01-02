@@ -2,6 +2,12 @@
 {
     public class Link : IEqual
     {
+        public string Note
+        {
+            get;
+            set;
+        }
+
         public string Text
         {
             get;
@@ -9,12 +15,6 @@
         }
 
         public string Url
-        {
-            get;
-            set;
-        }
-
-        public string Note
         {
             get;
             set;

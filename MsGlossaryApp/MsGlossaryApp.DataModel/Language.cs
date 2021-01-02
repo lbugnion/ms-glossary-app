@@ -4,8 +4,6 @@
     {
         public string Code { get; set; }
 
-        public string LanguageName { get; set; }
-        
         public bool IsComplete
         {
             get
@@ -15,10 +13,7 @@
             }
         }
 
-        public override string ToString()
-        {
-            return $"{Code} / {LanguageName}";
-        }
+        public string LanguageName { get; set; }
 
         public bool IsEqualTo(IEqual other)
         {
@@ -31,6 +26,11 @@
 
             return language.Code == Code
                 && language.LanguageName == LanguageName;
+        }
+
+        public override string ToString()
+        {
+            return $"{Code} / {LanguageName}";
         }
     }
 }
