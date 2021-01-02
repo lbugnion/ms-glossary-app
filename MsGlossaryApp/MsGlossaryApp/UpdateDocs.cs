@@ -52,7 +52,10 @@ namespace MsGlossaryApp
             log?.LogInformationEx("In UpdateDocsCommitFiles", LogVerbosity.Normal);
             //return null;
 
-            return await FileSaver.SaveFiles(files, CommitMessage, log);
+            return await FileSaver.SaveFiles(
+                files, 
+                CommitMessage, 
+                log: log);
         }
 
         [FunctionName(nameof(UpdateDocsGetAllTerms))]

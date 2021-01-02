@@ -33,10 +33,27 @@ namespace MsGlossaryApp.Model
             return savingLocation;
         }
 
+        public static async Task<string> SaveFile(
+            GlossaryFile file,
+            string commitMessage,
+            string branchName = null,
+            ILogger log = null)
+        {
+            return await SaveFiles(
+                new List<GlossaryFile>
+                {
+                    file
+                },
+                commitMessage,
+                branchName,
+                log);
+        }
+
         public static async Task<string> SaveFiles(
             IList<GlossaryFile> files,
             string commitMessage,
-            ILogger log)
+            string branchName = null,
+            ILogger log = null)
         {
             var savingLocation = GetSavingLocation();
 
@@ -62,8 +79,13 @@ namespace MsGlossaryApp.Model
                     Constants.DocsGlossaryGitHubAccountVariableName);
                 var repoName = Environment.GetEnvironmentVariable(
                     Constants.DocsGlossaryGitHubRepoVariableName);
-                var branchName = Environment.GetEnvironmentVariable(
-                    Constants.DocsGlossaryGitHubMainBranchNameVariableName);
+                
+                if (string.IsNullOrEmpty(branchName))
+                {
+                    branchName = Environment.GetEnvironmentVariable(
+                        Constants.DocsGlossaryGitHubMainBranchNameVariableName);
+                }
+
                 var token = Environment.GetEnvironmentVariable(
                     Constants.GitHubTokenVariableName);
 

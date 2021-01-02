@@ -57,6 +57,22 @@ namespace MsGlossaryApp
                 if (newFile.MustSave)
                 {
                     // Save file to GitHub
+                    var result = await FileSaver.SaveFile(
+                        newFile,
+                        $"Saved changes to {newFile.Path}",
+                        synopsis.SafeFileName,
+                        log);
+
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        var message = $"Save request for {synopsis.SafeFileName} received, but file wasn't saved: {result}";
+                        await NotificationService.Notify(
+                            "Synopsis NOT saved to GitHub",
+                            message,
+                            log);
+
+                        return new OkObjectResult(message);
+                    }
                 }
                 else
                 {
@@ -88,10 +104,29 @@ namespace MsGlossaryApp
                 return new OkObjectResult(errorMessage);
             }
 
-            var successMessage = $"Synopsis {synopsis.SafeFileName} was saved to GitHub in branch";
+            var location = FileSaver.GetSavingLocation();
+
+            var successMessage = $"Synopsis {synopsis.SafeFileName} was saved";
+
+            if (location == SavingLocations.Both
+                || location == SavingLocations.GitHub)
+            {
+                successMessage += " to GitHub in branch";
+
+                if (location == SavingLocations.Both)
+                {
+                    successMessage += " and";
+                }
+            }
+
+            if (location == SavingLocations.Both
+                || location == SavingLocations.Storage)
+            {
+                successMessage += " in storage";
+            }
 
             await NotificationService.Notify(
-                "Synopsis saved to GitHub",
+                "Synopsis saved",
                 successMessage,
                 log);
 
