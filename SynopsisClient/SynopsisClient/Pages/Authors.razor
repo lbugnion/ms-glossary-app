@@ -4,7 +4,7 @@
 
 <h1>Authors</h1>
 
-@if (synopsis == null)
+@if (_synopsis == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -20,7 +20,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var author in synopsis.Authors)
+            @foreach (var author in _synopsis.Authors)
             {
                 <tr>
                     <td><input @bind="author.Name" /></td>
@@ -35,11 +35,11 @@ else
 }
 
 @code {
-    private Term synopsis;
+    private Term _synopsis;
 
     protected override async Task OnInitializedAsync()
     {
-        synopsis = await Handler.GetSynopsis();
+        _synopsis = await Handler.GetSynopsis();
     }
 
     private void ToggleEdit(Author author)
@@ -49,6 +49,15 @@ else
 
     private void Delete(Author author)
     {
-        Console.WriteLine("Deleting " + author.Name);
+        // TODO Add confirmation dialog
+
+        try
+        {
+            _synopsis.Authors.Remove(author);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 }

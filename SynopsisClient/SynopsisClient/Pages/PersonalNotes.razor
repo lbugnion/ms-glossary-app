@@ -16,7 +16,7 @@ else
             {
                 <tr>
                     <td><input @bind="note.Content" /></td>
-                    <td><button @onclick="(e => Show(note))">Edit</button></td>
+                    <td><button @onclick="(e => Delete(note))">Delete</button></td>
                 </tr>
             }
         </tbody>
@@ -40,9 +40,11 @@ else
         }
     }
 
-    private void Show(NoteWrapper note)
+    private void Delete(NoteWrapper note)
     {
-        Console.WriteLine("Showing " + note.Content);
+        // TODO Add confirmation dialog
+        note.DeleteInSynopsis();
+        _notes.Remove(note);
     }
 
     public class NoteWrapper
@@ -82,6 +84,15 @@ else
         {
             _synopsis = synopsis;
             _content = note;
+        }
+
+        public void DeleteInSynopsis()
+        {
+            var index = _synopsis.PersonalNotes.IndexOf(_content);
+            if (index > -1)
+            {
+                _synopsis.PersonalNotes.RemoveAt(index);
+            }
         }
     }
 }
