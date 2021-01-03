@@ -23,10 +23,11 @@ else
             @foreach (var author in synopsis.Authors)
             {
                 <tr>
-                    <td>@author.Name</td>
-                    <td>@author.Email</td>
-                    <td>@author.GitHub</td>
-                    <td>@author.Twitter</td>
+                    <td><input @bind="author.Name" /></td>
+                    <td><input @bind="author.Email" /></td>
+                    <td><input @bind="author.GitHub" /></td>
+                    <td><input @bind="author.Twitter" /></td>
+                    <td><button @onclick="@(e => Delete(author))">Delete</button></td>
                 </tr>
             }
         </tbody>
@@ -39,5 +40,15 @@ else
     protected override async Task OnInitializedAsync()
     {
         synopsis = await Handler.GetSynopsis();
+    }
+
+    private void ToggleEdit(Author author)
+    {
+        Console.WriteLine(author.Email);
+    }
+
+    private void Delete(Author author)
+    {
+        Console.WriteLine("Deleting " + author.Name);
     }
 }

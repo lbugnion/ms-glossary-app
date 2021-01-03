@@ -4,7 +4,7 @@
 
 <h1>Personal notes</h1>
 
-@if (synopsis == null)
+@if (_notes == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -12,10 +12,11 @@ else
 {
     <table class="table">
         <tbody>
-            @foreach (var note in synopsis.PersonalNotes)
+            @foreach (var note in _notes)
             {
                 <tr>
-                    <td>@note</td>
+                    <td><input @bind="note.Content" /></td>
+                    <td><button @onclick="(e => Show(note))">Edit</button></td>
                 </tr>
             }
         </tbody>
@@ -23,10 +24,64 @@ else
 }
 
 @code {
-    private Term synopsis;
+    private List<NoteWrapper> _notes;
 
     protected override async Task OnInitializedAsync()
     {
-        synopsis = await Handler.GetSynopsis();
+        var synopsis = await Handler.GetSynopsis();
+        _notes = new List<NoteWrapper>();
+
+        if (synopsis.PersonalNotes != null)
+        {
+            foreach (var note in synopsis.PersonalNotes)
+            {
+                _notes.Add(new NoteWrapper(synopsis, note));
+            }
+        }
+    }
+
+    private void Show(NoteWrapper note)
+    {
+        Console.WriteLine("Showing " + note.Content);
+    }
+
+    public class NoteWrapper
+    {
+        private Term _synopsis;
+
+        private string _content;
+
+        public string Content
+        {
+            get
+            {
+                return _content;
+            }
+
+            set
+            {
+                if (_content != value)
+                {
+                    var index = _synopsis.PersonalNotes.IndexOf(_content);
+                    if (index > -1)
+                    {
+                        _synopsis.PersonalNotes[index] = value;
+
+                        foreach (var note in _synopsis.PersonalNotes)
+                        {
+                            Console.WriteLine(note);
+                        }
+                    }
+
+                    _content = value;
+                }
+            }
+        }
+
+        public NoteWrapper(Term synopsis, string note)
+        {
+            _synopsis = synopsis;
+            _content = note;
+        }
     }
 }
