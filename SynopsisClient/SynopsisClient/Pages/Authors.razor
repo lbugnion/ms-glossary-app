@@ -1,10 +1,8 @@
 @using MsGlossaryApp.DataModel;
 @page "/authors"
-@inject HttpClient Http
+@inject SynopsisClient.Model.SynopsisHandler Handler
 
 <h1>Authors</h1>
-
-<p>Edit the synopsis' authors.</p>
 
 @if (synopsis == null)
 {
@@ -40,6 +38,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        synopsis = await Http.GetFromJsonAsync<Term>("sample-data/test-topic-15.json");
+        synopsis = await Handler.GetSynopsis();
     }
 }

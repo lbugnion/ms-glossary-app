@@ -1,0 +1,32 @@
+﻿@using MsGlossaryApp.DataModel;
+@page "/personal-notes"
+@inject SynopsisClient.Model.SynopsisHandler Handler
+
+<h1>Personal notes</h1>
+
+@if (synopsis == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <tbody>
+            @foreach (var note in synopsis.PersonalNotes)
+            {
+                <tr>
+                    <td>@note</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Term synopsis;
+
+    protected override async Task OnInitializedAsync()
+    {
+        synopsis = await Handler.GetSynopsis();
+    }
+}
