@@ -45,6 +45,11 @@
             Twitter = twitter;
         }
 
+        public Author()
+        {
+
+        }
+
         public bool IsEqualTo(IEqual other)
         {
             var author = other as Author;

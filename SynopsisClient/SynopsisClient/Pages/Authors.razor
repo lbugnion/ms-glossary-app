@@ -1,0 +1,45 @@
+@using MsGlossaryApp.DataModel;
+@page "/authors"
+@inject HttpClient Http
+
+<h1>Authors</h1>
+
+<p>Edit the synopsis' authors.</p>
+
+@if (synopsis == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>GitHub</th>
+                <th>Twitter</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var author in synopsis.Authors)
+            {
+                <tr>
+                    <td>@author.Name</td>
+                    <td>@author.Email</td>
+                    <td>@author.GitHub</td>
+                    <td>@author.Twitter</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Term synopsis;
+
+    protected override async Task OnInitializedAsync()
+    {
+        synopsis = await Http.GetFromJsonAsync<Term>("sample-data/test-topic-15.json");
+    }
+}
