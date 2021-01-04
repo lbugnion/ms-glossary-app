@@ -10,54 +10,34 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>GitHub</th>
-                <th>Twitter</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var author in _synopsis.Authors)
-            {
-                <tr>
-                    <td><input @bind="author.Name" /></td>
-                    <td><input @bind="author.Email" /></td>
-                    <td><input @bind="author.GitHub" /></td>
-                    <td><input @bind="author.Twitter" /></td>
-                    <td><button @onclick="@(e => Delete(author))">Delete</button></td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-@code {
-    private Term _synopsis;
-
-    protected override async Task OnInitializedAsync()
+    if (_synopsis.Authors != null)
     {
-        _synopsis = await Handler.GetSynopsis();
-    }
+        <EditForm EditContext="@_editContext">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-    private void ToggleEdit(Author author)
-    {
-        Console.WriteLine(author.Email);
-    }
-
-    private void Delete(Author author)
-    {
-        // TODO Add confirmation dialog
-
-        try
-        {
-            _synopsis.Authors.Remove(author);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>GitHub</th>
+                        <th>Twitter</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var author in _synopsis.Authors)
+                    {
+                        <tr>
+                            <td><InputText @bind-Value="author.Name" id="name" /></td>
+                            <td><InputText @bind-Value="author.Email" id="email" /></td>
+                            <td><InputText @bind-Value="author.GitHub" id="github" /></td>
+                            <td><InputText @bind-Value="author.Twitter" id="twitter" /></td>
+                            <td><button @onclick="@(e => Delete(author))">Delete</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </EditForm>
     }
 }
