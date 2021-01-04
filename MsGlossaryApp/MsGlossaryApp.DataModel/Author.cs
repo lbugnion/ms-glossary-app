@@ -1,13 +1,18 @@
-﻿namespace MsGlossaryApp.DataModel
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MsGlossaryApp.DataModel
 {
     public class Author : IEqual
     {
+        [Required]
+        [EmailAddress]
         public string Email
         {
             get;
             set;
         }
 
+        [Required]
         public string GitHub
         {
             get;
@@ -25,12 +30,14 @@
             }
         }
 
+        [Required]
         public string Name
         {
             get;
             set;
         }
 
+        [Required]
         public string Twitter
         {
             get;

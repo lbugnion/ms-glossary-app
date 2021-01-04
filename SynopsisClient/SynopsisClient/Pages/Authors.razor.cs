@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using MsGlossaryApp.DataModel;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SynopsisClient.Pages
@@ -15,13 +16,27 @@ namespace SynopsisClient.Pages
             Console.WriteLine("In OnInitializedAsync");
             _synopsis = await Handler.GetSynopsis(false);
             _editContext = new EditContext(_synopsis);
-            _editContext.OnFieldChanged += EditContextOnFieldChanged;
+            _editContext.OnValidationStateChanged += EditContextOnValidationStateChanged;
         }
 
-        private async void EditContextOnFieldChanged(object sender, FieldChangedEventArgs args)
+        private async Task CheckSaveSynopsis()
         {
-            Console.WriteLine("Field has changed: " + args.FieldIdentifier.FieldName);
-            await Handler.SaveSynopsisLocally(_synopsis);
+            Console.WriteLine("CheckSaveSynopsis");
+
+            if (_editContext.IsModified()
+                && _editContext.GetValidationMessages().Count() == 0)
+            {
+                Console.WriteLine("Must save");
+                await Handler.SaveSynopsisLocally(_synopsis);
+                _editContext.MarkAsUnmodified();
+            }
+        }
+
+        private async void EditContextOnValidationStateChanged(
+            object sender, 
+            ValidationStateChangedEventArgs args)
+        {
+            await CheckSaveSynopsis();
         }
 
         private void Delete(Author author)
