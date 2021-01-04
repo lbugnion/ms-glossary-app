@@ -14,7 +14,7 @@ namespace SynopsisClient.Model
 
         private ILocalStorageService _localStorage;
 
-        private static Term Synopsis
+        private static Synopsis Synopsis
         {
             get;
             set;
@@ -25,7 +25,7 @@ namespace SynopsisClient.Model
             _localStorage = localStorage;
         }
 
-        public async Task<Term> GetSynopsis(bool forceRefresh)
+        public async Task<Synopsis> GetSynopsis(bool forceRefresh)
         {
             if (Synopsis == null
                 || forceRefresh)
@@ -33,7 +33,7 @@ namespace SynopsisClient.Model
                 if (!forceRefresh)
                 {
                     Console.WriteLine("Loading synopsis from local storage");
-                    Synopsis = await _localStorage.GetItemAsync<Term>(Key);
+                    Synopsis = await _localStorage.GetItemAsync<Synopsis>(Key);
 
                     if (Synopsis == null)
                     {
@@ -49,7 +49,7 @@ namespace SynopsisClient.Model
                 {
                     Console.WriteLine("Loading synopsis from network");
                     var client = new HttpClient();
-                    Synopsis = await client.GetFromJsonAsync<Term>("https://localhost:44395/sample-data/test-topic-15.json");
+                    Synopsis = await client.GetFromJsonAsync<Synopsis>("https://localhost:44395/sample-data/test-topic-15.json");
 
 
                     if (Synopsis == null)
@@ -66,7 +66,7 @@ namespace SynopsisClient.Model
             return Synopsis;
         }
 
-        public async Task SaveSynopsisLocally(Term synopsis)
+        public async Task SaveSynopsisLocally(Synopsis synopsis)
         {
             Console.WriteLine("Saving synopsis");
             await _localStorage.SetItemAsync(Key, synopsis);

@@ -126,7 +126,6 @@ POST http://localhost:7071/api/synopsis
     "Please keep to about 25 words maximum.",
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#short-description)"
   ],
-  "ShortDescription": "This is a test again",
   "Stage": 0,
   "TitleInstructions": [
     "This is a template to help you create a synopsis. [You can see an example here](https://aka.ms/glossary/sample/synopsis).",
@@ -153,5 +152,37 @@ POST http://localhost:7071/api/synopsis
   "DemosInstructions": [
     "Quick list of the demos you want to show.",
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#demos)"
+  ]
+}
+
+### TEMPO Valid
+
+POST http://localhost:7071/api/Function1
+
+{
+  "Name" : "Hello",
+  "Inner" : {
+    "InnerName" : "InnerName"
+  },
+  "InnerList" : [
+    {
+      "InnerName" : "InnerList1Name"
+    }
+  ]
+}
+
+### TEMPO Invalid
+
+POST http://localhost:7071/api/Function1
+
+{
+  "Name" : "Hello",
+  "Inner" : {
+    "InnerName" : "InnerName"
+  },
+  "InnerList" : [
+    {
+      "InnerName" : "InnerList1Name"
+    }
   ]
 }

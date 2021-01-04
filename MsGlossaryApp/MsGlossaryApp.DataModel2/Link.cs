@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-
-namespace MsGlossaryApp.DataModel
+﻿namespace MsGlossaryApp.DataModel
 {
-    public class Link
+    public class Link : IEqual
     {
         public string Note
         {
@@ -12,32 +8,30 @@ namespace MsGlossaryApp.DataModel
             set;
         }
 
-        [Required]
         public string Text
         {
             get;
             set;
         }
 
-        [Required]
-        [Url]
         public string Url
         {
             get;
             set;
         }
 
-        public override bool Equals(object obj)
+        public bool IsEqualTo(IEqual other)
         {
-            return obj is Link link &&
-                   Note == link.Note &&
-                   Text == link.Text &&
-                   Url == link.Url;
-        }
+            var link = other as Link;
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Note, Text, Url);
+            if (link == null)
+            {
+                return false;
+            }
+
+            return link.Text == Text
+                && link.Url == Url
+                && link.Note == Note;
         }
 
         public string ToMarkdown()

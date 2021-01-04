@@ -80,7 +80,7 @@ namespace MsGlossaryApp
                 return new BadRequestObjectResult("Invalid request");
             }
 
-            Term synopsis = SynopsisMaker.ParseSynopsis(
+            var synopsis = SynopsisMaker.ParseSynopsis(
                 new Uri(synopsisUrl),
                 markdown,
                 log);

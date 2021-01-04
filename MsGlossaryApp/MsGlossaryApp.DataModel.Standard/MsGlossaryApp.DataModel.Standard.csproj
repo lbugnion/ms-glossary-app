@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\MsGlossaryApp.DataModel\Author.cs" Link="Author.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\Constants.cs" Link="Constants.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\GlossaryFile.cs" Link="GlossaryFile.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\Keyword.cs" Link="Keyword.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\Language.cs" Link="Language.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\Link.cs" Link="Link.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\NewSynopsis.cs" Link="NewSynopsis.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\SavingLocations.cs" Link="SavingLocations.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\StringExtensions.cs" Link="StringExtensions.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\Synopsis.cs" Link="Synopsis.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\Term.cs" Link="Term.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\TermBase.cs" Link="TermBase.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+  </ItemGroup>
+
+</Project>

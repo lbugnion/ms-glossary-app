@@ -9,6 +9,7 @@ using MsGlossaryApp.Model;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -125,7 +126,10 @@ namespace MsGlossaryApp
                 string markdown = await termBlob.DownloadTextAsync();
                 term = TermMaker.ParseTerm(termUri, markdown, log);
 
-                if (!term.CheckIsComplete())
+                var results = new List<ValidationResult>();
+                var isValid = term.TryValidate(results);
+
+                if (!isValid)
                 {
                     await NotificationService.Notify(
                         "Incomplete term",
@@ -133,6 +137,12 @@ namespace MsGlossaryApp
                         log);
 
                     log?.LogError($"Incomplete term {term.SafeFileName}");
+
+                    foreach (var result in results)
+                    {
+                        log?.LogError(result.ErrorMessage);
+                    }
+
                     return null;
                 }
             }

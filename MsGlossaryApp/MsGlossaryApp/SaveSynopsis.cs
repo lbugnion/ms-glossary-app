@@ -1,3 +1,4 @@
+using Dynamitey.DynamicObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -7,6 +8,8 @@ using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -28,8 +31,31 @@ namespace MsGlossaryApp
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
-            var synopsis = JsonConvert.DeserializeObject<Term>(requestBody);
-            synopsis.Stage = Term.TermStage.Synopsis;
+            var synopsis = JsonConvert.DeserializeObject<Synopsis>(requestBody);
+
+            // Perform validation
+
+
+            //if (!isValid)
+            //{
+            //    // TODO return messages
+            //}
+
+            //foreach (var author in synopsis.Authors)
+            //{
+            //    validationContext = new ValidationContext(author);
+
+            //    isValid = Validator.TryValidateObject(
+            //        author,
+            //        validationContext,
+            //        results,
+            //        true);
+
+            //    if (!isValid)
+            //    {
+            //        // TODO return messages
+            //    }
+            //}
 
             // Get the markdown file
 

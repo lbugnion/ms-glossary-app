@@ -54,7 +54,7 @@ namespace MsGlossaryApp.DataModel
 
             return text.StartsWith(LinkTextOpener)
                 && text.Contains(LinkSeparator)
-                && text.Contains(LinkUrlCloser);
+                && text.EndsWith(LinkUrlCloser);
         }
 
         public static bool IsListItem(this string line)

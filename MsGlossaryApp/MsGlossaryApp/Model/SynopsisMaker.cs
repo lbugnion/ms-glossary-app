@@ -12,7 +12,7 @@ namespace MsGlossaryApp.Model
         private const string SaveToGitHubPathMask = "glossary/synopsis/{0}.md";
 
         private static string MakeSynopsisText(
-            Term synopsis,
+            Synopsis synopsis,
             ILogger log)
         {
             log?.LogInformationEx("In MakeSynopsisText", LogVerbosity.Verbose);
@@ -229,8 +229,8 @@ namespace MsGlossaryApp.Model
             return builder.ToString();
         }
 
-        public static Term ParseSynopsis(
-                            Uri uri,
+        public static Synopsis ParseSynopsis(
+            Uri uri,
             string markdown,
             ILogger log)
         {
@@ -258,7 +258,7 @@ namespace MsGlossaryApp.Model
             var isTranscript = false;
             var transcriptStarted = false;
 
-            var synopsis = new Term
+            var synopsis = new Synopsis
             {
                 AuthorsInstructions = new List<string>(),
                 Demos = new List<string>(),
@@ -270,7 +270,6 @@ namespace MsGlossaryApp.Model
                 PersonalNotesInstructions = new List<string>(),
                 PhoneticsInstructions = new List<string>(),
                 ShortDescriptionInstructions = new List<string>(),
-                Stage = Term.TermStage.Synopsis,
                 TitleInstructions = new List<string>(),
                 TranscriptInstructions = new List<string>(),
                 Uri = uri
@@ -499,15 +498,10 @@ namespace MsGlossaryApp.Model
         }
 
         public static GlossaryFile PrepareNewSynopsis(
-            Term synopsis,
+            Synopsis synopsis,
             string oldMarkdown,
             ILogger log)
         {
-            if (synopsis.Stage != Term.TermStage.Synopsis)
-            {
-                throw new InvalidOperationException($"Invalid stage for {synopsis.SafeFileName}");
-            }
-
             var oldSynopsis = ParseSynopsis(
                 synopsis.Uri,
                 oldMarkdown,
@@ -518,7 +512,7 @@ namespace MsGlossaryApp.Model
                 Path = string.Format(SaveToGitHubPathMask, synopsis.SafeFileName)
             };
 
-            if (oldSynopsis.IsEqualTo(synopsis))
+            if (oldSynopsis.Equals(synopsis))
             {
                 file.MustSave = false;
                 return file;

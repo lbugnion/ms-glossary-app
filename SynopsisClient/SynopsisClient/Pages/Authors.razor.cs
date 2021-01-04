@@ -8,7 +8,7 @@ namespace SynopsisClient.Pages
 {
     public partial class Authors
     {
-        private Term _synopsis;
+        private Synopsis _synopsis;
         private EditContext _editContext;
 
         protected override async Task OnInitializedAsync()

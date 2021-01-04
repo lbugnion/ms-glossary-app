@@ -524,7 +524,7 @@ namespace MsGlossaryApp.Model
         }
 
         public static Term ParseTerm(
-                            Uri uri,
+            Uri uri,
             string markdown,
             ILogger log)
         {
@@ -533,7 +533,6 @@ namespace MsGlossaryApp.Model
             var term = new Term
             {
                 Uri = uri,
-                Stage = Term.TermStage.Ready
             };
 
             log?.LogInformationEx($"Term: {term.Uri}", LogVerbosity.Verbose);

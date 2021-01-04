@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace MsGlossaryApp.DataModel
+﻿namespace MsGlossaryApp.DataModel
 {
     public class Keyword
     {
@@ -16,7 +14,6 @@ namespace MsGlossaryApp.DataModel
             set;
         }
 
-        [Required]
         public string KeywordName
         {
             get;
@@ -29,14 +26,12 @@ namespace MsGlossaryApp.DataModel
             set;
         }
 
-        [Required]
         public Term Term
         {
             get;
             set;
         }
 
-        [Required]
         public string TermSafeFileName
         {
             get;

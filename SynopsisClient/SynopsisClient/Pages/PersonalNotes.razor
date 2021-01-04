@@ -15,7 +15,7 @@ else
             @foreach (var note in _notes)
             {
                 <tr>
-                    <td><input @bind="note.Content" /></td>
+                    <td><InputText @bind-Value="note.Content" /></td>
                     <td><button @onclick="(e => Delete(note))">Delete</button></td>
                 </tr>
             }
@@ -28,7 +28,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var synopsis = await Handler.GetSynopsis();
+        var synopsis = await Handler.GetSynopsis(false);
         _notes = new List<NoteWrapper>();
 
         if (synopsis.PersonalNotes != null)
@@ -49,7 +49,7 @@ else
 
     public class NoteWrapper
     {
-        private Term _synopsis;
+        private Synopsis _synopsis;
 
         private string _content;
 
@@ -80,7 +80,7 @@ else
             }
         }
 
-        public NoteWrapper(Term synopsis, string note)
+        public NoteWrapper(Synopsis synopsis, string note)
         {
             _synopsis = synopsis;
             _content = note;

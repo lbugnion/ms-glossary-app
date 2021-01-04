@@ -1,9 +1,8 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MsGlossaryApp.DataModel
 {
-    public class Author
+    public class Author : IEqual
     {
         [Required]
         [EmailAddress]
@@ -18,6 +17,17 @@ namespace MsGlossaryApp.DataModel
         {
             get;
             set;
+        }
+
+        public bool IsComplete
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(Email)
+                    && !string.IsNullOrEmpty(GitHub)
+                    && !string.IsNullOrEmpty(Name)
+                    && !string.IsNullOrEmpty(Twitter);
+            }
         }
 
         [Required]
@@ -44,20 +54,22 @@ namespace MsGlossaryApp.DataModel
 
         public Author()
         {
+
         }
 
-        public override int GetHashCode()
+        public bool IsEqualTo(IEqual other)
         {
-            return HashCode.Combine(Email, GitHub, Name, Twitter);
-        }
+            var author = other as Author;
 
-        public override bool Equals(object obj)
-        {
-            return obj is Author author &&
-                   Email == author.Email &&
-                   GitHub == author.GitHub &&
-                   Name == author.Name &&
-                   Twitter == author.Twitter;
+            if (author == null)
+            {
+                return false;
+            }
+
+            return author.Name == Name
+                && author.Email == Email
+                && author.GitHub == GitHub
+                && author.Twitter == Twitter;
         }
     }
 }

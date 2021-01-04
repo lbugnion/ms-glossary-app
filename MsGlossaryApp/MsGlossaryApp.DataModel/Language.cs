@@ -1,31 +1,26 @@
-﻿namespace MsGlossaryApp.DataModel
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace MsGlossaryApp.DataModel
 {
-    public class Language : IEqual
+    public class Language
     {
+        [Required]
         public string Code { get; set; }
 
-        public bool IsComplete
-        {
-            get
-            {
-                return !string.IsNullOrEmpty(Code)
-                    && !string.IsNullOrEmpty(LanguageName);
-            }
-        }
-
+        [Required]
         public string LanguageName { get; set; }
 
-        public bool IsEqualTo(IEqual other)
+        public override bool Equals(object obj)
         {
-            var language = other as Language;
+            return obj is Language language &&
+                   Code == language.Code &&
+                   LanguageName == language.LanguageName;
+        }
 
-            if (language == null)
-            {
-                return false;
-            }
-
-            return language.Code == Code
-                && language.LanguageName == LanguageName;
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Code, LanguageName);
         }
 
         public override string ToString()
