@@ -49,6 +49,19 @@ namespace SynopsisClient.Model
             CannotSave = true;
         }
 
+        public void DeleteNote(Note note)
+        {
+            Console.WriteLine("SynopsisHandler.DeleteNote");
+
+            if (Synopsis.PersonalNotes.Contains(note))
+            {
+                Synopsis.PersonalNotes.Remove(note);
+                _isModified = true;
+                CannotSave = false; // No validation here
+                Console.WriteLine($"SynopsisHandler.DeleteNote deleted");
+            }
+        }
+
         public async Task ReloadFromCloud()
         {
             Console.WriteLine("SynopsisHandler.ReloadFromCloud");
@@ -109,7 +122,15 @@ namespace SynopsisClient.Model
                 || forceRefreshLocal))
             {
                 Console.WriteLine("Loading synopsis from local storage");
-                Synopsis = await _localStorage.GetItemAsync<Synopsis>(Key);
+
+                try
+                {
+                    Synopsis = await _localStorage.GetItemAsync<Synopsis>(Key);
+                }
+                catch
+                {
+                    Synopsis = null;
+                }
 
                 if (Synopsis == null)
                 {

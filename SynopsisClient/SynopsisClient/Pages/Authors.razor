@@ -9,8 +9,6 @@
 }
 else
 {
-    if (Handler.Synopsis.Authors != null)
-    {
 <EditForm EditContext="@Handler.CurrentEditContext">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -65,5 +63,4 @@ else
         <button @onclick="ReloadFromCloud">Reload from cloud</button>
     </div>
 </EditForm>
-    }
 }

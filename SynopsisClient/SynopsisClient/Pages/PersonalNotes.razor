@@ -1,98 +1,55 @@
-﻿@using MsGlossaryApp.DataModel;
-@page "/personal-notes"
+﻿@page "/personal-notes"
 @inject SynopsisClient.Model.SynopsisHandler Handler
 
 <h1>Personal notes</h1>
 
-@if (_notes == null)
+@if (Handler.Synopsis == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <table class="table">
-        <tbody>
-            @foreach (var note in _notes)
-            {
-                <tr>
-                    <td><InputText @bind-Value="note.Content" /></td>
-                    <td><button @onclick="(e => Delete(note))">Delete</button></td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-@code {
-    private List<NoteWrapper> _notes;
+        <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                              ShowDialog="_showConfirmDeleteNoteDialog"
+                                              OkText="Yes"
+                                              CancelText="No"
+                                              OnOkCancelClicked="DeleteNoteConfirmationOkCancelClicked">
+            Deleting a note cannot be cancelled locally.
+            <br />
+            <em>Note:</em> You can always reload from the cloud by pressing the "Reload from cloud" button
+        </SynopsisClient.Dialogs.ConfirmDialog>
 
-    protected override async Task OnInitializedAsync()
-    {
-        //var synopsis = await Handler.GetSynopsis(false);
-        //_notes = new List<NoteWrapper>();
+        <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                              ShowDialog="_showConfirmReloadFromCloudDialog"
+                                              OkText="Yes"
+                                              CancelText="No"
+                                              OnOkCancelClicked="ReloadFromCloudConfirmationOkCancelClicked">
+            <strong style="color:red ">Caution:</strong> If you click yes, you will lose all your local changes.
+        </SynopsisClient.Dialogs.ConfirmDialog>
 
-        //if (synopsis.PersonalNotes != null)
-        //{
-        //    foreach (var note in synopsis.PersonalNotes)
-        //    {
-        //        _notes.Add(new NoteWrapper(synopsis, note));
-        //    }
-        //}
-    }
-
-    private void Delete(NoteWrapper note)
-    {
-        // TODO Add confirmation dialog
-        note.DeleteInSynopsis();
-        _notes.Remove(note);
-    }
-
-    public class NoteWrapper
-    {
-        private Synopsis _synopsis;
-
-        private string _content;
-
-        public string Content
-        {
-            get
-            {
-                return _content;
-            }
-
-            set
-            {
-                if (_content != value)
+        <table class="table">
+            <tbody>
+                @foreach (var note in Handler.Synopsis.PersonalNotes)
                 {
-                    var index = _synopsis.PersonalNotes.IndexOf(_content);
-                    if (index > -1)
-                    {
-                        _synopsis.PersonalNotes[index] = value;
-
-                        foreach (var note in _synopsis.PersonalNotes)
-                        {
-                            Console.WriteLine(note);
-                        }
-                    }
-
-                    _content = value;
+                    <tr>
+                        <td><InputText @bind-Value="note.Content" /></td>
+                        <td><button @onclick="(e => Delete(note))">Delete</button></td>
+                    </tr>
                 }
-            }
-        }
+            </tbody>
+        </table>
 
-        public NoteWrapper(Synopsis synopsis, string note)
-        {
-            _synopsis = synopsis;
-            _content = note;
-        }
+        @*<div class="bottom-buttons">
+                <button @onclick="AddAuthor">Add an author</button>
+            </div>*@
 
-        public void DeleteInSynopsis()
-        {
-            var index = _synopsis.PersonalNotes.IndexOf(_content);
-            if (index > -1)
-            {
-                _synopsis.PersonalNotes.RemoveAt(index);
-            }
-        }
-    }
+        <div class="bottom-buttons">
+            <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
+            <button @onclick="ReloadFromCloud">Reload from cloud</button>
+        </div>
+    </EditForm>
 }

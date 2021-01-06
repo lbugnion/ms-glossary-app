@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -8,10 +9,18 @@ namespace MsGlossaryApp.DataModel
 {
     public class TermBase
     {
+        public TermBase()
+        {
+            Authors = new List<Author>();
+            Keywords = new List<string>();
+            Links = new Dictionary<string, IList<Link>>();
+        }
+
         [Required]
         [MinLength(1, ErrorMessage = "There must be at least one author")]
         public IList<Author> Authors { get; set; }
 
+        [Required]
         public IList<string> Keywords { get; set; }
 
         [Required]
@@ -37,6 +46,7 @@ namespace MsGlossaryApp.DataModel
 
         [Required]
         [Url]
+        [JsonIgnore]
         public string Url
         {
             get
@@ -47,20 +57,6 @@ namespace MsGlossaryApp.DataModel
 
         protected bool IsListEqualTo(IList<object> list1, IList<object> list2)
         {
-            if ((list1 == null
-                && list2 != null)
-                || (list1 != null
-                    && list2 == null))
-            {
-                return false;
-            }
-
-            if (list1 == null
-                && list2 == null)
-            {
-                return true;
-            }
-
             if (list1.Count != list2.Count)
             {
                 return false;
@@ -79,20 +75,6 @@ namespace MsGlossaryApp.DataModel
 
         protected bool IsStringsListEqualTo(IList<string> list1, IList<string> list2)
         {
-            if ((list1 == null
-                && list2 != null)
-                || (list1 != null
-                    && list2 == null))
-            {
-                return false;
-            }
-
-            if (list1 == null
-                && list2 == null)
-            {
-                return true;
-            }
-
             if (list1.Count != list2.Count)
             {
                 return false;
@@ -129,58 +111,47 @@ namespace MsGlossaryApp.DataModel
                 return false;
             }
 
-            if ((term.Links == null
-                && Links != null)
-                || (term.Links != null
-                    && Links == null))
+            if (term.Links.Count != Links.Count)
             {
                 return false;
             }
 
-            if (Links != null)
+            for (var index = 0; index < term.Links.Keys.Count; index++)
             {
-                if (term.Links.Count != Links.Count)
+                var key1 = term.Links.Keys.ElementAt(index);
+                var key2 = Links.Keys.ElementAt(index);
+
+                if (key1 != key2)
                 {
                     return false;
                 }
 
-                for (var index = 0; index < term.Links.Keys.Count; index++)
-                {
-                    var key1 = term.Links.Keys.ElementAt(index);
-                    var key2 = Links.Keys.ElementAt(index);
-
-                    if (key1 != key2)
-                    {
-                        return false;
-                    }
-
-                    if (!IsListEqualTo(
-                        term.Links[key1].Select(a => (object)a).ToList(),
-                        Links[key2].Select(a => (object)a).ToList()))
-                    {
-                        return false;
-                    }
-                }
-
-                if (term.ShortDescription != ShortDescription)
+                if (!IsListEqualTo(
+                    term.Links[key1].Select(a => (object)a).ToList(),
+                    Links[key2].Select(a => (object)a).ToList()))
                 {
                     return false;
                 }
+            }
 
-                if (term.Title != Title)
-                {
-                    return false;
-                }
+            if (term.ShortDescription != ShortDescription)
+            {
+                return false;
+            }
 
-                if (term.Transcript != Transcript)
-                {
-                    return false;
-                }
+            if (term.Title != Title)
+            {
+                return false;
+            }
 
-                if (term.Uri != Uri)
-                {
-                    return false;
-                }
+            if (term.Transcript != Transcript)
+            {
+                return false;
+            }
+
+            if (term.Uri != Uri)
+            {
+                return false;
             }
 
             return true;

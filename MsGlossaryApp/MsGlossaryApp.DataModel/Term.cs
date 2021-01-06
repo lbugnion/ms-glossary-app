@@ -7,6 +7,7 @@ namespace MsGlossaryApp.DataModel
 {
     public class Term : TermBase
     {
+        [Required]
         public IList<Language> Captions { get; set; }
 
         [Required]
@@ -15,7 +16,13 @@ namespace MsGlossaryApp.DataModel
         [Required]
         public DateTime RecordingDate { get; set; }
 
+        [Required]
         public string YouTubeCode { get; set; }
+
+        public Term()
+        {
+            Captions = new List<Language>();
+        }
 
         public override bool Equals(object obj)
         {
@@ -31,27 +38,14 @@ namespace MsGlossaryApp.DataModel
                 return false;
             }
 
-            if ((term.Captions == null
-                && Captions != null)
-                || (term.Captions != null
-                    && Captions == null))
+            if (!IsListEqualTo(
+                term.Captions.Select(a => (object)a).ToList(),
+                Captions.Select(a => (object)a).ToList()))
             {
                 return false;
             }
 
-            if (Captions != null)
-            {
-                if (!IsListEqualTo(
-                    term.Captions.Select(a => (object)a).ToList(),
-                    Captions.Select(a => (object)a).ToList()))
-                {
-                    return false;
-                }
-            }
-
-            if (term.Language != null
-                && Language != null
-                && !term.Language.Equals(Language))
+            if (!term.Language.Equals(Language))
             {
                 return false;
             }

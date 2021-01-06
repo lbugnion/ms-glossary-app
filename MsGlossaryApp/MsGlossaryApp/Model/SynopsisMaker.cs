@@ -121,7 +121,7 @@ namespace MsGlossaryApp.Model
                 foreach (var note in synopsis.PersonalNotes)
                 {
                     builder
-                        .AppendLine(note.MakeListItem());
+                        .AppendLine(note.Content.MakeListItem());
                 }
             }
 
@@ -266,7 +266,7 @@ namespace MsGlossaryApp.Model
                 KeywordsInstructions = new List<string>(),
                 Links = new Dictionary<string, IList<Link>>(),
                 LinksInstructions = new Dictionary<string, IList<string>>(),
-                PersonalNotes = new List<string>(),
+                PersonalNotes = new List<Note>(),
                 PersonalNotesInstructions = new List<string>(),
                 PhoneticsInstructions = new List<string>(),
                 ShortDescriptionInstructions = new List<string>(),
@@ -445,7 +445,7 @@ namespace MsGlossaryApp.Model
                 }
                 else if (isPersonalNotes)
                 {
-                    synopsis.PersonalNotes.Add(line.ParseListItem());
+                    synopsis.PersonalNotes.Add(new Note(line.ParseListItem()));
                 }
                 else if (isKeywords)
                 {

@@ -12,6 +12,7 @@
     <Compile Include="..\MsGlossaryApp.DataModel\Language.cs" Link="Language.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\Link.cs" Link="Link.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\NewSynopsis.cs" Link="NewSynopsis.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\Note.cs" Link="Note.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\SavingLocations.cs" Link="SavingLocations.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\StringExtensions.cs" Link="StringExtensions.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\Synopsis.cs" Link="Synopsis.cs" />

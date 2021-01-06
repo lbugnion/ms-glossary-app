@@ -17,7 +17,7 @@ namespace MsGlossaryApp.DataModel
 
         public Dictionary<string, IList<string>> LinksInstructions { get; set; }
 
-        public IList<string> PersonalNotes { get; set; }
+        public IList<Note> PersonalNotes { get; set; }
 
         public IList<string> PersonalNotesInstructions { get; set; }
 
@@ -65,41 +65,32 @@ namespace MsGlossaryApp.DataModel
                 return false;
             }
 
-            if ((synopsis.LinksInstructions == null
-                && LinksInstructions != null)
-                || (synopsis.LinksInstructions != null
-                    && LinksInstructions == null))
+            if (synopsis.LinksInstructions.Count != LinksInstructions.Count)
             {
                 return false;
             }
 
-            if (LinksInstructions != null)
+            for (var index = 0; index < synopsis.LinksInstructions.Keys.Count; index++)
             {
-                if (synopsis.LinksInstructions.Count != LinksInstructions.Count)
+                var key1 = synopsis.LinksInstructions.Keys.ElementAt(index);
+                var key2 = LinksInstructions.Keys.ElementAt(index);
+
+                if (key1 != key2)
                 {
                     return false;
                 }
 
-                for (var index = 0; index < synopsis.LinksInstructions.Keys.Count; index++)
+                if (!IsStringsListEqualTo(
+                    synopsis.LinksInstructions[key1],
+                    LinksInstructions[key2]))
                 {
-                    var key1 = synopsis.LinksInstructions.Keys.ElementAt(index);
-                    var key2 = LinksInstructions.Keys.ElementAt(index);
-
-                    if (key1 != key2)
-                    {
-                        return false;
-                    }
-
-                    if (!IsStringsListEqualTo(
-                        synopsis.LinksInstructions[key1],
-                        LinksInstructions[key2]))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 
-            if (!IsStringsListEqualTo(synopsis.PersonalNotes, PersonalNotes))
+            if (!IsListEqualTo(
+                synopsis.PersonalNotes.Select(n => (object)n).ToList(), 
+                PersonalNotes.Select(n => (object)n).ToList()))
             {
                 return false;
             }
@@ -162,6 +153,21 @@ namespace MsGlossaryApp.DataModel
             hash.Add(TitleInstructions);
             hash.Add(TranscriptInstructions);
             return hash.ToHashCode();
+        }
+
+        public Synopsis()
+        {
+            AuthorsInstructions = new List<string>();
+            Demos = new List<string>();
+            DemosInstructions = new List<string>();
+            KeywordsInstructions = new List<string>();
+            LinksInstructions = new Dictionary<string, IList<string>>();
+            PersonalNotes = new List<Note>();
+            PersonalNotesInstructions = new List<string>();
+            PhoneticsInstructions = new List<string>();
+            ShortDescriptionInstructions = new List<string>();
+            TitleInstructions = new List<string>();
+            TranscriptInstructions = new List<string>();
         }
     }
 }
