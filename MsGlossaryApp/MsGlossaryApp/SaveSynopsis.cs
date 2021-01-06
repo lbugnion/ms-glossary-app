@@ -35,6 +35,7 @@ namespace MsGlossaryApp
 
             // Perform validation
 
+            // TODO CONTINUE
 
             //if (!isValid)
             //{

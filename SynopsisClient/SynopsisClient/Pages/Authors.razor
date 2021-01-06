@@ -11,32 +11,36 @@ else
 {
     if (_synopsis.Authors != null)
     {
-        <EditForm EditContext="@_editContext">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
+<EditForm EditContext="@_editContext">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>GitHub</th>
-                        <th>Twitter</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var author in _synopsis.Authors)
-                    {
-                        <tr>
-                            <td><InputText @bind-Value="author.Name" id="name" /></td>
-                            <td><InputText @bind-Value="author.Email" id="email" /></td>
-                            <td><InputText @bind-Value="author.GitHub" id="github" /></td>
-                            <td><InputText @bind-Value="author.Twitter" id="twitter" /></td>
-                            <td><button @onclick="@(e => Delete(author))">Delete</button></td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </EditForm>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>GitHub</th>
+                <th>Twitter</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var author in _synopsis.Authors)
+            {
+                <tr>
+                    <td><InputText @bind-Value="author.Name" id="name" /></td>
+                    <td><InputText @bind-Value="author.Email" id="email" /></td>
+                    <td><InputText @bind-Value="author.GitHub" id="github" /></td>
+                    <td><InputText @bind-Value="author.Twitter" id="twitter" /></td>
+                    <td><button @onclick="@(e => Delete(author))">Delete</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <br />
+
+    <button id="SaveButton" disabled="@_cannotSave" @onclick="CheckSaveSynopsis">Save local</button>
+</EditForm>
     }
 }
