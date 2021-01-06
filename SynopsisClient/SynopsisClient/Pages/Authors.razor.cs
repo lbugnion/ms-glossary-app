@@ -1,104 +1,60 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
-using MsGlossaryApp.DataModel;
-using SynopsisClient.Shared;
+﻿using MsGlossaryApp.DataModel;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace SynopsisClient.Pages
 {
     public partial class Authors
     {
-        private Synopsis _synopsis;
-        private EditContext _editContext;
-        private bool _cannotSave;
-        private bool _cannotCommit;
-        private bool _cannotSubmit;
+        public bool _showConfirmDeleteAuthorDialog;
+        public bool _showNoAuthorsWarning;
 
         protected override async Task OnInitializedAsync()
         {
-            Console.WriteLine("In OnInitializedAsync");
+            Console.WriteLine("Authors.OnInitializedAsync");
+            await Handler.InitializePage();
 
-            _synopsis = await Handler.GetSynopsis(false);
-            _cannotSave = true;
-            _cannotCommit = false;
-            _cannotSubmit = false;
-            _editContext = new EditContext(_synopsis);
-            _editContext.OnValidationStateChanged += EditContextOnValidationStateChanged;
-            _editContext.OnFieldChanged += EditContextOnFieldChanged;
-        }
-
-        private void EditContextOnFieldChanged(object sender, FieldChangedEventArgs e)
-        {
-            Console.WriteLine("EditContextOnFieldChanged");
-            _cannotSave = false;
-        }
-
-        private void EditContextOnValidationStateChanged(
-            object sender, 
-            ValidationStateChangedEventArgs e)
-        {
-            Console.WriteLine("EditContextOnValidationStateChanged");
-
-            if (_editContext.GetValidationMessages().Count() == 0)
+            if (Handler.Synopsis.Authors.Count == 0)
             {
-                Console.WriteLine("can save");
-                _cannotSave = false;
-            }
-            else
-            {
-                Console.WriteLine("cannot save");
-                _cannotSave = true;
+                _showNoAuthorsWarning = true;
             }
         }
-
-        private async Task CheckSaveSynopsis()
-        {
-            Console.WriteLine("CheckSaveSynopsis");
-
-            if (_editContext.IsModified()
-                && !_cannotSave)
-            {
-                Console.WriteLine("Must save");
-                await Handler.SaveSynopsisLocally(_synopsis);
-                _editContext.MarkAsUnmodified();
-                _cannotSave = true;
-            }
-        }
-
-        //private async Task CheckCommitSynopsis()
-        //{
-        //    Console.WriteLine("CheckCommitSynopsis");
-
-        //    if (_canSave)
-        //    {
-        //        Console.WriteLine("Must Commit");
-        //        // TODO Commit
-        //    }
-        //}
-
-        //private async Task CheckSubmitSynopsis()
-        //{
-        //    Console.WriteLine("CheckSubmitSynopsis");
-
-        //    if (_canSave)
-        //    {
-        //        Console.WriteLine("Must Submit");
-        //        // TODO Submit
-        //    }
-        //}
 
         private void Delete(Author author)
         {
-            // TODO Add confirmation dialog
+            SelectedAuthor = author;
+            _showConfirmDeleteAuthorDialog = true;
+        }
 
-            try
+        public Author SelectedAuthor
+        { 
+            get; 
+            private set; 
+        }
+
+        public async Task SaveAuthorConfirmationOkCancelClicked(bool confirm)
+        {
+            _showConfirmDeleteAuthorDialog = false;
+
+            if (!confirm)
             {
-                _synopsis.Authors.Remove(author);
+                return;
             }
-            catch (Exception ex)
+
+            Console.WriteLine("ExecuteDeleteAuthor");
+
+            Handler.Synopsis.Authors.Remove(SelectedAuthor);
+            Handler.TriggerValidation();
+
+            if (Handler.Synopsis.Authors.Count == 0)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("No remaining authors");
+                _showNoAuthorsWarning = true;
+            }
+            else
+            {
+                Console.WriteLine("More remaining authors");
+                // TODO Save?
             }
         }
     }

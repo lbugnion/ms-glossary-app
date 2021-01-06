@@ -28,16 +28,16 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var synopsis = await Handler.GetSynopsis(false);
-        _notes = new List<NoteWrapper>();
+        //var synopsis = await Handler.GetSynopsis(false);
+        //_notes = new List<NoteWrapper>();
 
-        if (synopsis.PersonalNotes != null)
-        {
-            foreach (var note in synopsis.PersonalNotes)
-            {
-                _notes.Add(new NoteWrapper(synopsis, note));
-            }
-        }
+        //if (synopsis.PersonalNotes != null)
+        //{
+        //    foreach (var note in synopsis.PersonalNotes)
+        //    {
+        //        _notes.Add(new NoteWrapper(synopsis, note));
+        //    }
+        //}
     }
 
     private void Delete(NoteWrapper note)

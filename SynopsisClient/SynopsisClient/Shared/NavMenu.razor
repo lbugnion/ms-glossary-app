@@ -1,4 +1,7 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@inject SynopsisClient.Model.SynopsisHandler Handler;
+@inject NavigationManager Nav;
+
+<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">Synopsis Editor</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -8,17 +11,17 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+            <NavLink class="nav-link" @onclick="NavigateHome" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="authors">
+            <NavLink class="nav-link" @onclick="NavigateAuthors">
                 <span class="oi oi-arrow-right" aria-hidden="true"></span> Authors
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="personal-notes">
+            <NavLink class="nav-link" @onclick="NavigatePersonalNotes">
                 <span class="oi oi-arrow-right" aria-hidden="true"></span> Personal notes
             </NavLink>
         </li>
@@ -33,5 +36,33 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void CheckNavigateTo(string uri)
+    {
+        if (Handler.CurrentEditContext != null
+            && Handler.CurrentEditContext.IsModified())
+        {
+            // TODO Ask for confirmation
+            Console.WriteLine("Edit Context is modified --> No nav");
+            return;
+        }
+
+        Nav.NavigateTo(uri);
+    }
+
+    private void NavigateAuthors()
+    {
+        CheckNavigateTo("/authors");
+    }
+
+    private void NavigatePersonalNotes()
+    {
+        CheckNavigateTo("/personal-notes");
+    }
+
+    private void NavigateHome()
+    {
+        CheckNavigateTo("/");
     }
 }

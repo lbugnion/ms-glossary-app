@@ -3,17 +3,27 @@
 
 <h1>Authors</h1>
 
-@if (_synopsis == null)
+@if (Handler.Synopsis == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    if (_synopsis.Authors != null)
+    if (Handler.Synopsis.Authors != null)
     {
-<EditForm EditContext="@_editContext">
+<EditForm EditContext="@Handler.CurrentEditContext">
     <DataAnnotationsValidator />
     <ValidationSummary />
+
+    <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                          ShowDialog="_showConfirmDeleteAuthorDialog"
+                                          OkText="Yes"
+                                          CancelText="No"
+                                          OnOkCancelClicked="SaveAuthorConfirmationOkCancelClicked">
+        Deleting an author cannot be cancelled locally.
+        <br />
+        <em>Note:</em> You can always reload from the cloud by pressing the "Force Reload" button
+    </SynopsisClient.Dialogs.ConfirmDialog>
 
     <table class="table">
         <thead>
@@ -25,7 +35,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var author in _synopsis.Authors)
+            @foreach (var author in Handler.Synopsis.Authors)
             {
                 <tr>
                     <td><InputText @bind-Value="author.Name" id="name" /></td>
@@ -40,7 +50,7 @@ else
 
     <br />
 
-    <button id="SaveButton" disabled="@_cannotSave" @onclick="CheckSaveSynopsis">Save local</button>
+    <button id="SaveButton" disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
 </EditForm>
     }
 }
