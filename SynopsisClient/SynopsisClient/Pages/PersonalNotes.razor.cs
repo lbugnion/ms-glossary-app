@@ -8,7 +8,6 @@ namespace SynopsisClient.Pages
     public partial class PersonalNotes
     {
         private bool _showConfirmDeleteNoteDialog;
-        private bool _showConfirmReloadFromCloudDialog;
 
         protected override async Task OnInitializedAsync()
         {
@@ -43,22 +42,6 @@ namespace SynopsisClient.Pages
 
             Handler.DeleteNote(SelectedNote);
             SelectedNote = null;
-        }
-
-        private void ReloadFromCloud()
-        {
-            Console.WriteLine("In ReloadFromCloud");
-            _showConfirmReloadFromCloudDialog = true;
-        }
-
-        private async Task ReloadFromCloudConfirmationOkCancelClicked(bool confirm)
-        {
-            _showConfirmReloadFromCloudDialog = false;
-
-            if (confirm)
-            {
-                await Handler.ReloadFromCloud();
-            }
         }
     }
 }

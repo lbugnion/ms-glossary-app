@@ -7,7 +7,6 @@ namespace SynopsisClient.Pages
     public partial class Authors
     {
         private bool _showConfirmDeleteAuthorDialog;
-        private bool _showConfirmReloadFromCloudDialog;
 
         protected override async Task OnInitializedAsync()
         {
@@ -43,22 +42,6 @@ namespace SynopsisClient.Pages
             Handler.DeleteAuthor(SelectedAuthor);
             Handler.TriggerValidation();
             SelectedAuthor = null;
-        }
-
-        private void ReloadFromCloud()
-        {
-            Console.WriteLine("In ReloadFromCloud");
-            _showConfirmReloadFromCloudDialog = true;
-        }
-
-        private async Task ReloadFromCloudConfirmationOkCancelClicked(bool confirm)
-        {
-            _showConfirmReloadFromCloudDialog = false;
-
-            if (confirm)
-            {
-                await Handler.ReloadFromCloud();
-            }
         }
     }
 }

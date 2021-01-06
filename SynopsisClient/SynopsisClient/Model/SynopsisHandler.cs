@@ -36,7 +36,11 @@ namespace SynopsisClient.Model
             Console.WriteLine("SynopsisHandler.InitializePage");
 
             Synopsis = await GetSynopsis(true, false);
-            
+            SetContext(Synopsis);            
+        }
+
+        private void SetContext(Synopsis synopsis)
+        {
             if (CurrentEditContext != null)
             {
                 CurrentEditContext.OnFieldChanged -= CurrentEditContextOnFieldChanged;
@@ -62,12 +66,12 @@ namespace SynopsisClient.Model
             }
         }
 
-        public async Task ReloadFromCloud()
+        private async Task ExecuteReloadFromCloud()
         {
             Console.WriteLine("SynopsisHandler.ReloadFromCloud");
             Synopsis = await GetSynopsis(false, true);
+            SetContext(Synopsis);
             await _localStorage.SetItemAsync(Key, Synopsis);
-            CannotSave = true;
             Console.WriteLine($"{Synopsis.Authors.Count} authors found");
         }
 
@@ -189,5 +193,28 @@ namespace SynopsisClient.Model
                 Console.WriteLine($"SynopsisHandler.DeleteAuthor deleted");
             }
         }
+
+        public bool ShowConfirmReloadFromCloudDialog
+        {
+            get;
+            private set;
+        }
+
+        public void ReloadFromCloud()
+        {
+            Console.WriteLine("In ReloadFromCloud");
+            ShowConfirmReloadFromCloudDialog = true;
+        }
+
+        public async Task ReloadFromCloudConfirmationOkCancelClicked(bool confirm)
+        {
+            ShowConfirmReloadFromCloudDialog = false;
+
+            if (confirm)
+            {
+                await ExecuteReloadFromCloud();
+            }
+        }
+
     }
 }
