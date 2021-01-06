@@ -8,10 +8,10 @@ namespace SynopsisClient.Pages
     {
         private bool _showConfirmDeleteAuthorDialog;
 
-        protected override async Task OnInitializedAsync()
+        public Author SelectedAuthor
         {
-            Console.WriteLine("Authors.OnInitializedAsync");
-            await Handler.InitializePage();
+            get;
+            private set;
         }
 
         private void Delete(Author author)
@@ -19,12 +19,6 @@ namespace SynopsisClient.Pages
             Console.WriteLine("In Delete");
             SelectedAuthor = author;
             _showConfirmDeleteAuthorDialog = true;
-        }
-
-        public Author SelectedAuthor
-        { 
-            get; 
-            private set; 
         }
 
         private void DeleteAuthorConfirmationOkCancelClicked(bool confirm)
@@ -42,6 +36,12 @@ namespace SynopsisClient.Pages
             Handler.DeleteAuthor(SelectedAuthor);
             Handler.TriggerValidation();
             SelectedAuthor = null;
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            Console.WriteLine("Authors.OnInitializedAsync");
+            await Handler.InitializePage();
         }
     }
 }

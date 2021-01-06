@@ -13,9 +13,10 @@ namespace SynopsisClient.Model
     {
         private const string Key = "Current-Synopsis";
 
+        private bool _isModified;
         private ILocalStorageService _localStorage;
 
-        public Synopsis Synopsis
+        public bool CannotSave
         {
             get;
             private set;
@@ -27,66 +28,33 @@ namespace SynopsisClient.Model
             set;
         }
 
-        public async Task InitializePage()
+        public bool ShowConfirmReloadFromCloudDialog
         {
-            //await _localStorage.SetItemAsync<Synopsis>(Key, null);
-
-            // Reset changes every time that the page changes
-
-            Console.WriteLine("SynopsisHandler.InitializePage");
-
-            Synopsis = await GetSynopsis(true, false);
-            SetContext(Synopsis);            
+            get;
+            private set;
         }
 
-        private void SetContext(Synopsis synopsis)
+        public Synopsis Synopsis
         {
-            if (CurrentEditContext != null)
-            {
-                CurrentEditContext.OnFieldChanged -= CurrentEditContextOnFieldChanged;
-                CurrentEditContext.OnValidationStateChanged -= CurrentEditContextOnValidationStateChanged;
-            }
-
-            CurrentEditContext = new EditContext(Synopsis);
-            CurrentEditContext.OnFieldChanged += CurrentEditContextOnFieldChanged;
-            CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
-            CannotSave = true;
+            get;
+            private set;
         }
 
-        public void DeleteNote(Note note)
+        public SynopsisHandler(ILocalStorageService localStorage)
         {
-            Console.WriteLine("SynopsisHandler.DeleteNote");
-
-            if (Synopsis.PersonalNotes.Contains(note))
-            {
-                Synopsis.PersonalNotes.Remove(note);
-                _isModified = true;
-                CannotSave = false; // No validation here
-                Console.WriteLine($"SynopsisHandler.DeleteNote deleted");
-            }
+            _localStorage = localStorage;
         }
 
-        private async Task ExecuteReloadFromCloud()
+        private void CurrentEditContextOnFieldChanged(
+            object sender,
+            FieldChangedEventArgs e)
         {
-            Console.WriteLine("SynopsisHandler.ReloadFromCloud");
-            Synopsis = await GetSynopsis(false, true);
-            SetContext(Synopsis);
-            await _localStorage.SetItemAsync(Key, Synopsis);
-            Console.WriteLine($"{Synopsis.Authors.Count} authors found");
-        }
-
-        public void TriggerValidation()
-        {
-            if (CurrentEditContext != null)
-            {
-                Console.WriteLine("Triggering Validation");
-                var isValid = CurrentEditContext.Validate();
-                Console.WriteLine("TriggerValidation: " + isValid);
-            }
+            Console.WriteLine("CurrentEditContextOnFieldChanged");
+            CannotSave = false;
         }
 
         private void CurrentEditContextOnValidationStateChanged(
-            object sender, 
+            object sender,
             ValidationStateChangedEventArgs e)
         {
             Console.WriteLine("CurrentEditContextOnValidationStateChanged");
@@ -104,21 +72,17 @@ namespace SynopsisClient.Model
             }
         }
 
-        private void CurrentEditContextOnFieldChanged(
-            object sender, 
-            FieldChangedEventArgs e)
+        private async Task ExecuteReloadFromCloud()
         {
-            Console.WriteLine("CurrentEditContextOnFieldChanged");
-            CannotSave = false;
-        }
-
-        public SynopsisHandler(ILocalStorageService localStorage)
-        {
-            _localStorage = localStorage;
+            Console.WriteLine("SynopsisHandler.ReloadFromCloud");
+            Synopsis = await GetSynopsis(false, true);
+            SetContext(Synopsis);
+            await _localStorage.SetItemAsync(Key, Synopsis);
+            Console.WriteLine($"{Synopsis.Authors.Count} authors found");
         }
 
         private async Task<Synopsis> GetSynopsis(
-            bool forceRefreshLocal, 
+            bool forceRefreshLocal,
             bool forcefreshOnline)
         {
             if (!forcefreshOnline
@@ -157,13 +121,19 @@ namespace SynopsisClient.Model
             return Synopsis;
         }
 
-        public bool CannotSave
+        private void SetContext(Synopsis synopsis)
         {
-            get;
-            private set;
-        }
+            if (CurrentEditContext != null)
+            {
+                CurrentEditContext.OnFieldChanged -= CurrentEditContextOnFieldChanged;
+                CurrentEditContext.OnValidationStateChanged -= CurrentEditContextOnValidationStateChanged;
+            }
 
-        private bool _isModified;
+            CurrentEditContext = new EditContext(Synopsis);
+            CurrentEditContext.OnFieldChanged += CurrentEditContextOnFieldChanged;
+            CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
+            CannotSave = true;
+        }
 
         public async Task CheckSaveSynopsis()
         {
@@ -194,10 +164,29 @@ namespace SynopsisClient.Model
             }
         }
 
-        public bool ShowConfirmReloadFromCloudDialog
+        public void DeleteNote(Note note)
         {
-            get;
-            private set;
+            Console.WriteLine("SynopsisHandler.DeleteNote");
+
+            if (Synopsis.PersonalNotes.Contains(note))
+            {
+                Synopsis.PersonalNotes.Remove(note);
+                _isModified = true;
+                CannotSave = false; // No validation here
+                Console.WriteLine($"SynopsisHandler.DeleteNote deleted");
+            }
+        }
+
+        public async Task InitializePage()
+        {
+            //await _localStorage.SetItemAsync<Synopsis>(Key, null);
+
+            // Reset changes every time that the page changes
+
+            Console.WriteLine("SynopsisHandler.InitializePage");
+
+            Synopsis = await GetSynopsis(true, false);
+            SetContext(Synopsis);
         }
 
         public void ReloadFromCloud()
@@ -216,5 +205,14 @@ namespace SynopsisClient.Model
             }
         }
 
+        public void TriggerValidation()
+        {
+            if (CurrentEditContext != null)
+            {
+                Console.WriteLine("Triggering Validation");
+                var isValid = CurrentEditContext.Validate();
+                Console.WriteLine("TriggerValidation: " + isValid);
+            }
+        }
     }
 }

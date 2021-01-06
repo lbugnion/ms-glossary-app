@@ -8,11 +8,6 @@ namespace SynopsisClient.Shared
 
         private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-        private void ToggleNavMenu()
-        {
-            collapseNavMenu = !collapseNavMenu;
-        }
-
         private void CheckNavigateTo(string uri)
         {
             if (Handler.CurrentEditContext != null
@@ -31,14 +26,19 @@ namespace SynopsisClient.Shared
             CheckNavigateTo("/authors");
         }
 
+        private void NavigateHome()
+        {
+            CheckNavigateTo("/");
+        }
+
         private void NavigatePersonalNotes()
         {
             CheckNavigateTo("/personal-notes");
         }
 
-        private void NavigateHome()
+        private void ToggleNavMenu()
         {
-            CheckNavigateTo("/");
+            collapseNavMenu = !collapseNavMenu;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using MsGlossaryApp.DataModel;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SynopsisClient.Pages
@@ -9,10 +8,10 @@ namespace SynopsisClient.Pages
     {
         private bool _showConfirmDeleteNoteDialog;
 
-        protected override async Task OnInitializedAsync()
+        public Note SelectedNote
         {
-            Console.WriteLine("Authors.OnInitializedAsync");
-            await Handler.InitializePage();
+            get;
+            private set;
         }
 
         private void Delete(Note note)
@@ -20,12 +19,6 @@ namespace SynopsisClient.Pages
             Console.WriteLine("In Delete");
             SelectedNote = note;
             _showConfirmDeleteNoteDialog = true;
-        }
-
-        public Note SelectedNote
-        {
-            get;
-            private set;
         }
 
         private void DeleteNoteConfirmationOkCancelClicked(bool confirm)
@@ -42,6 +35,12 @@ namespace SynopsisClient.Pages
 
             Handler.DeleteNote(SelectedNote);
             SelectedNote = null;
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            Console.WriteLine("Authors.OnInitializedAsync");
+            await Handler.InitializePage();
         }
     }
 }
