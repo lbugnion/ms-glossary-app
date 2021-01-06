@@ -19,10 +19,18 @@ else
                                           ShowDialog="_showConfirmDeleteAuthorDialog"
                                           OkText="Yes"
                                           CancelText="No"
-                                          OnOkCancelClicked="SaveAuthorConfirmationOkCancelClicked">
+                                          OnOkCancelClicked="DeleteAuthorConfirmationOkCancelClicked">
         Deleting an author cannot be cancelled locally.
         <br />
-        <em>Note:</em> You can always reload from the cloud by pressing the "Force Reload" button
+        <em>Note:</em> You can always reload from the cloud by pressing the "Reload from cloud" button
+    </SynopsisClient.Dialogs.ConfirmDialog>
+
+    <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                          ShowDialog="_showConfirmReloadFromCloudDialog"
+                                          OkText="Yes"
+                                          CancelText="No"
+                                          OnOkCancelClicked="ReloadFromCloudConfirmationOkCancelClicked">
+        <strong style="color:red ">Caution:</strong> If you click yes, you will lose all your local changes.
     </SynopsisClient.Dialogs.ConfirmDialog>
 
     <table class="table">
@@ -48,9 +56,14 @@ else
         </tbody>
     </table>
 
-    <br />
+    @*<div class="bottom-buttons">
+        <button @onclick="AddAuthor">Add an author</button>
+    </div>*@
 
-    <button id="SaveButton" disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
+    <div class="bottom-buttons">
+        <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
+        <button @onclick="ReloadFromCloud">Reload from cloud</button>
+    </div>
 </EditForm>
     }
 }

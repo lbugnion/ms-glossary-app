@@ -6,22 +6,18 @@ namespace SynopsisClient.Pages
 {
     public partial class Authors
     {
-        public bool _showConfirmDeleteAuthorDialog;
-        public bool _showNoAuthorsWarning;
+        private bool _showConfirmDeleteAuthorDialog;
+        private bool _showConfirmReloadFromCloudDialog;
 
         protected override async Task OnInitializedAsync()
         {
             Console.WriteLine("Authors.OnInitializedAsync");
             await Handler.InitializePage();
-
-            if (Handler.Synopsis.Authors.Count == 0)
-            {
-                _showNoAuthorsWarning = true;
-            }
         }
 
         private void Delete(Author author)
         {
+            Console.WriteLine("In Delete");
             SelectedAuthor = author;
             _showConfirmDeleteAuthorDialog = true;
         }
@@ -32,29 +28,36 @@ namespace SynopsisClient.Pages
             private set; 
         }
 
-        public async Task SaveAuthorConfirmationOkCancelClicked(bool confirm)
+        private void DeleteAuthorConfirmationOkCancelClicked(bool confirm)
         {
             _showConfirmDeleteAuthorDialog = false;
 
-            if (!confirm)
+            if (!confirm
+                || SelectedAuthor == null)
             {
                 return;
             }
 
-            Console.WriteLine("ExecuteDeleteAuthor");
+            Console.WriteLine("Execute DeleteAuthor");
 
-            Handler.Synopsis.Authors.Remove(SelectedAuthor);
+            Handler.DeleteAuthor(SelectedAuthor);
             Handler.TriggerValidation();
+            SelectedAuthor = null;
+        }
 
-            if (Handler.Synopsis.Authors.Count == 0)
+        private void ReloadFromCloud()
+        {
+            Console.WriteLine("In ReloadFromCloud");
+            _showConfirmReloadFromCloudDialog = true;
+        }
+
+        private async Task ReloadFromCloudConfirmationOkCancelClicked(bool confirm)
+        {
+            _showConfirmReloadFromCloudDialog = false;
+
+            if (confirm)
             {
-                Console.WriteLine("No remaining authors");
-                _showNoAuthorsWarning = true;
-            }
-            else
-            {
-                Console.WriteLine("More remaining authors");
-                // TODO Save?
+                await Handler.ReloadFromCloud();
             }
         }
     }

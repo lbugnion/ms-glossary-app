@@ -43,17 +43,26 @@ namespace SynopsisClient.Model
                 CurrentEditContext.OnValidationStateChanged -= CurrentEditContextOnValidationStateChanged;
             }
 
-
             CurrentEditContext = new EditContext(Synopsis);
             CurrentEditContext.OnFieldChanged += CurrentEditContextOnFieldChanged;
             CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
             CannotSave = true;
         }
 
+        public async Task ReloadFromCloud()
+        {
+            Console.WriteLine("SynopsisHandler.ReloadFromCloud");
+            Synopsis = await GetSynopsis(false, true);
+            await _localStorage.SetItemAsync(Key, Synopsis);
+            CannotSave = true;
+            Console.WriteLine($"{Synopsis.Authors.Count} authors found");
+        }
+
         public void TriggerValidation()
         {
             if (CurrentEditContext != null)
             {
+                Console.WriteLine("Triggering Validation");
                 var isValid = CurrentEditContext.Validate();
                 Console.WriteLine("TriggerValidation: " + isValid);
             }
@@ -65,7 +74,8 @@ namespace SynopsisClient.Model
         {
             Console.WriteLine("CurrentEditContextOnValidationStateChanged");
 
-            if (CurrentEditContext.GetValidationMessages().Count() == 0)
+            if ((CurrentEditContext.IsModified() || _isModified)
+                && CurrentEditContext.GetValidationMessages().Count() == 0)
             {
                 Console.WriteLine("can save");
                 CannotSave = false;
@@ -116,8 +126,7 @@ namespace SynopsisClient.Model
             {
                 Console.WriteLine("Loading synopsis from network");
                 var client = new HttpClient();
-                Synopsis = await client.GetFromJsonAsync<Synopsis>("https://localhost:44395/sample-data/test-topic-15.json");
-                await _localStorage.SetItemAsync<Synopsis>(Key, Synopsis);
+                Synopsis = await client.GetFromJsonAsync<Synopsis>("https://localhost:44395/sample-data/test-topic-15.json?ticks=" + DateTime.Now.Ticks);
             }
 
             return Synopsis;
@@ -129,19 +138,35 @@ namespace SynopsisClient.Model
             private set;
         }
 
+        private bool _isModified;
+
         public async Task CheckSaveSynopsis()
         {
             Console.WriteLine("CheckSaveSynopsis");
+            Console.WriteLine($"CurrentEditContext.IsModified: {CurrentEditContext.IsModified()}");
+            Console.WriteLine($"_isModified: {_isModified}");
 
-            if (CurrentEditContext.IsModified()
+            if ((_isModified || CurrentEditContext.IsModified())
                 && !CannotSave)
             {
                 Console.WriteLine("Must save");
                 await _localStorage.SetItemAsync(Key, Synopsis);
                 CurrentEditContext.MarkAsUnmodified();
                 CannotSave = true;
+                _isModified = false;
             }
         }
 
+        public void DeleteAuthor(Author author)
+        {
+            Console.WriteLine("SynopsisHandler.DeleteAuthor");
+
+            if (Synopsis.Authors.Contains(author))
+            {
+                Synopsis.Authors.Remove(author);
+                _isModified = true;
+                Console.WriteLine($"SynopsisHandler.DeleteAuthor deleted");
+            }
+        }
     }
 }
