@@ -3,19 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
 
 namespace MsGlossaryApp.DataModel
 {
     public class TermBase
     {
-        public TermBase()
-        {
-            Authors = new List<Author>();
-            Keywords = new List<string>();
-            Links = new Dictionary<string, IList<Link>>();
-        }
-
         [Required]
         [MinLength(1, ErrorMessage = "There must be at least one author")]
         public IList<Author> Authors { get; set; }
@@ -55,6 +47,13 @@ namespace MsGlossaryApp.DataModel
             {
                 return Uri?.ToString();
             }
+        }
+
+        public TermBase()
+        {
+            Authors = new List<Author>();
+            Keywords = new List<string>();
+            Links = new Dictionary<string, IList<Link>>();
         }
 
         protected bool IsListEqualTo(IList<object> list1, IList<object> list2)
@@ -159,14 +158,14 @@ namespace MsGlossaryApp.DataModel
             return true;
         }
 
-        public override string ToString()
-        {
-            return Title;
-        }
-
         public override int GetHashCode()
         {
             return HashCode.Combine(Authors, Keywords, Links, SafeFileName, ShortDescription, Title, Transcript, Uri);
+        }
+
+        public override string ToString()
+        {
+            return Title;
         }
     }
 }

@@ -50,11 +50,6 @@ namespace MsGlossaryApp.DataModel
             Twitter = "TwitterName";
         }
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Email, GitHub, Name, Twitter);
-        }
-
         public override bool Equals(object obj)
         {
             return obj is Author author &&
@@ -62,6 +57,11 @@ namespace MsGlossaryApp.DataModel
                    GitHub == author.GitHub &&
                    Name == author.Name &&
                    Twitter == author.Twitter;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Email, GitHub, Name, Twitter);
         }
     }
 }

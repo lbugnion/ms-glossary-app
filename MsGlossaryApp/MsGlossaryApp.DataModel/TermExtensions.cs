@@ -127,9 +127,6 @@ namespace MsGlossaryApp.DataModel
                 // TODO CONTINUE
             }
 
-
-
-
             return isValid;
         }
     }

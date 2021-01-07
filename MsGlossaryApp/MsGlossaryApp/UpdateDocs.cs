@@ -54,8 +54,8 @@ namespace MsGlossaryApp
             //return null;
 
             return await FileSaver.SaveFiles(
-                files, 
-                CommitMessage, 
+                files,
+                CommitMessage,
                 log: log);
         }
 

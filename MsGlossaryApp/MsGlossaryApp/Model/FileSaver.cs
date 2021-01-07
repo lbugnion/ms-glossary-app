@@ -79,7 +79,7 @@ namespace MsGlossaryApp.Model
                     Constants.DocsGlossaryGitHubAccountVariableName);
                 var repoName = Environment.GetEnvironmentVariable(
                     Constants.DocsGlossaryGitHubRepoVariableName);
-                
+
                 if (string.IsNullOrEmpty(branchName))
                 {
                     branchName = Environment.GetEnvironmentVariable(

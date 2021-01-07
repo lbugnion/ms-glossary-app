@@ -1,4 +1,3 @@
-using Dynamitey.DynamicObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -8,8 +7,6 @@ using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;

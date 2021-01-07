@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace MsGlossaryApp.DataModel
 {
@@ -30,6 +29,21 @@ namespace MsGlossaryApp.DataModel
         public IList<string> TitleInstructions { get; set; }
 
         public IList<string> TranscriptInstructions { get; set; }
+
+        public Synopsis()
+        {
+            AuthorsInstructions = new List<string>();
+            Demos = new List<string>();
+            DemosInstructions = new List<string>();
+            KeywordsInstructions = new List<string>();
+            LinksInstructions = new Dictionary<string, IList<string>>();
+            PersonalNotes = new List<Note>();
+            PersonalNotesInstructions = new List<string>();
+            PhoneticsInstructions = new List<string>();
+            ShortDescriptionInstructions = new List<string>();
+            TitleInstructions = new List<string>();
+            TranscriptInstructions = new List<string>();
+        }
 
         public override bool Equals(object obj)
         {
@@ -89,7 +103,7 @@ namespace MsGlossaryApp.DataModel
             }
 
             if (!IsListEqualTo(
-                synopsis.PersonalNotes.Select(n => (object)n).ToList(), 
+                synopsis.PersonalNotes.Select(n => (object)n).ToList(),
                 PersonalNotes.Select(n => (object)n).ToList()))
             {
                 return false;
@@ -153,21 +167,6 @@ namespace MsGlossaryApp.DataModel
             hash.Add(TitleInstructions);
             hash.Add(TranscriptInstructions);
             return hash.ToHashCode();
-        }
-
-        public Synopsis()
-        {
-            AuthorsInstructions = new List<string>();
-            Demos = new List<string>();
-            DemosInstructions = new List<string>();
-            KeywordsInstructions = new List<string>();
-            LinksInstructions = new Dictionary<string, IList<string>>();
-            PersonalNotes = new List<Note>();
-            PersonalNotesInstructions = new List<string>();
-            PhoneticsInstructions = new List<string>();
-            ShortDescriptionInstructions = new List<string>();
-            TitleInstructions = new List<string>();
-            TranscriptInstructions = new List<string>();
         }
     }
 }
