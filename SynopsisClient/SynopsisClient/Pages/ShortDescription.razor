@@ -24,10 +24,6 @@ else
         <InputTextArea @bind-Value="Handler.Synopsis.ShortDescription"
                        class="large-input-text"/>
 
-        @*<div class="bottom-buttons">
-                <button @onclick="AddAuthor">Add an author</button>
-            </div>*@
-
         <div class="bottom-buttons">
             <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
             <button @onclick="Handler.ReloadFromCloud">Reload from cloud</button>

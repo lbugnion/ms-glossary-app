@@ -12,13 +12,11 @@ namespace SynopsisClient.Model
 {
     public class SynopsisHandler
     {
+        public event EventHandler WasSaved;
+
         private const string Key = "Current-Synopsis";
 
-        public bool IsModified
-        {
-            get;
-            private set;
-        }
+        private ListHandlerBase _listHandler;
 
         private ILocalStorageService _localStorage;
 
@@ -34,7 +32,7 @@ namespace SynopsisClient.Model
             set;
         }
 
-        public bool ShowConfirmReloadFromCloudDialog
+        public bool IsModified
         {
             get;
             private set;
@@ -46,11 +44,10 @@ namespace SynopsisClient.Model
             private set;
         }
 
-        private ListHandlerBase _listHandler;
-
-        public void DeletItemConfirmationOkCancelClicked(bool confirm)
+        public bool ShowConfirmReloadFromCloudDialog
         {
-            _listHandler?.DeleteItemConfirmationOkCancelClicked(confirm);
+            get;
+            private set;
         }
 
         public Synopsis Synopsis
@@ -157,7 +154,11 @@ namespace SynopsisClient.Model
             CannotSave = true;
         }
 
-        public event EventHandler WasSaved;
+        public void AddItem()
+        {
+            Console.WriteLine("SynopsisHandler.AddItem");
+            _listHandler?.AddItem();
+        }
 
         public async Task CheckSaveSynopsis()
         {
@@ -192,10 +193,9 @@ namespace SynopsisClient.Model
             _listHandler?.StartDelete(item);
         }
 
-        public void AddItem()
+        public void DeletItemConfirmationOkCancelClicked(bool confirm)
         {
-            Console.WriteLine("SynopsisHandler.AddItem");
-            _listHandler?.AddItem();
+            _listHandler?.DeleteItemConfirmationOkCancelClicked(confirm);
         }
 
         public async Task InitializePage()
@@ -237,34 +237,9 @@ namespace SynopsisClient.Model
             }
         }
 
-        private abstract class ListHandlerBase
-        {
-            protected SynopsisHandler _parent;
-
-            public ListHandlerBase(SynopsisHandler parent)
-            {
-                Console.WriteLine("ListHandlerBase.ctor");
-                _parent = parent;
-            }
-
-            public abstract void StartDelete<T2>(T2 item)
-                where T2 : class;
-
-            public abstract void AddItem();
-
-            public abstract void DeleteItemConfirmationOkCancelClicked(bool confirm);
-        }
-
         private class ListHandler<T> : ListHandlerBase
             where T : class, new()
         {
-            public ListHandler(SynopsisHandler parent, IList<T> items)
-                : base(parent)
-            {
-                Console.WriteLine("ListHandler.ctor");
-                Items = items;
-            }
-
             public IList<T> Items
             {
                 get;
@@ -277,21 +252,25 @@ namespace SynopsisClient.Model
                 set;
             }
 
-            public override void StartDelete<T2>(T2 item)
-                where T2 : class
+            public ListHandler(SynopsisHandler parent, IList<T> items)
+                                        : base(parent)
             {
-                Console.WriteLine("ListHandler.StartDelete");
+                Console.WriteLine("ListHandler.ctor");
+                Items = items;
+            }
 
-                var casted = item as T;
-
-                if (casted != null
-                    && Items != null
-                    && Items.Contains(casted))
+            public override void AddItem()
+            {
+                if (Items == null)
                 {
-                    Console.WriteLine("must show delete dialog");
-                    _parent.ShowConfirmDeleteItemDialog = true;
-                    SelectedItem = casted;
+                    return;
                 }
+
+                var newItem = new T();
+                Items.Add(newItem);
+                SelectedItem = newItem;
+                _parent.TriggerValidation();
+                _parent.IsModified = true;
             }
 
             public override void DeleteItemConfirmationOkCancelClicked(bool confirm)
@@ -320,19 +299,40 @@ namespace SynopsisClient.Model
                 SelectedItem = default(T);
             }
 
-            public override void AddItem()
+            public override void StartDelete<T2>(T2 item)
+                                        where T2 : class
             {
-                if (Items == null)
-                {
-                    return;
-                }
+                Console.WriteLine("ListHandler.StartDelete");
 
-                var newItem = new T();
-                Items.Add(newItem);
-                SelectedItem = newItem;
-                _parent.TriggerValidation();
-                _parent.IsModified = true;
+                var casted = item as T;
+
+                if (casted != null
+                    && Items != null
+                    && Items.Contains(casted))
+                {
+                    Console.WriteLine("must show delete dialog");
+                    _parent.ShowConfirmDeleteItemDialog = true;
+                    SelectedItem = casted;
+                }
             }
+        }
+
+        private abstract class ListHandlerBase
+        {
+            protected SynopsisHandler _parent;
+
+            public ListHandlerBase(SynopsisHandler parent)
+            {
+                Console.WriteLine("ListHandlerBase.ctor");
+                _parent = parent;
+            }
+
+            public abstract void AddItem();
+
+            public abstract void DeleteItemConfirmationOkCancelClicked(bool confirm);
+
+            public abstract void StartDelete<T2>(T2 item)
+                                        where T2 : class;
         }
     }
 }

@@ -24,11 +24,6 @@ namespace SynopsisClient.Shared
             Nav.NavigateTo(uri);
         }
 
-        protected override void OnInitialized()
-        {
-            Handler.WasSaved += HandlerWasSaved;
-        }
-
         private void HandlerWasSaved(object sender, EventArgs e)
         {
             Console.WriteLine("HandlerWasSaved");
@@ -54,6 +49,11 @@ namespace SynopsisClient.Shared
         private void ToggleNavMenu()
         {
             _collapseNavMenu = !_collapseNavMenu;
+        }
+
+        protected override void OnInitialized()
+        {
+            Handler.WasSaved += HandlerWasSaved;
         }
 
         public void Dispose()

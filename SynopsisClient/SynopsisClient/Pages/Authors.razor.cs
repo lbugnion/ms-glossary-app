@@ -1,5 +1,4 @@
-﻿using MsGlossaryApp.DataModel;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace SynopsisClient.Pages
