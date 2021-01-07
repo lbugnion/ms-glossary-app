@@ -185,3 +185,8 @@ app {
 .bottom-buttons{
 
 }
+
+.large-input-text{
+    width: 500px;
+    height: 100px;
+}

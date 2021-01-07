@@ -33,6 +33,8 @@ namespace MsGlossaryApp.DataModel
         public string SafeFileName { get; set; }
 
         [Required]
+        [MinLength(60, ErrorMessage = "The short description is too short, aim for 15-20 words")]
+        [MaxLength(200, ErrorMessage = "The short description is too long, aim for 15-20 words")]
         public string ShortDescription { get; set; }
 
         [Required]

@@ -1,0 +1,36 @@
+﻿@page "/short-description"
+@inject SynopsisClient.Model.SynopsisHandler Handler
+
+<h1>Short description</h1>
+
+@if (Handler.Synopsis == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <ConfirmDialog Title="Are you sure?"
+                       ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
+                       OkText="Yes"
+                       CancelText="No"
+                       OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
+            <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
+        </ConfirmDialog>
+
+        <InputTextArea @bind-Value="Handler.Synopsis.ShortDescription"
+                       class="large-input-text"/>
+
+        @*<div class="bottom-buttons">
+                <button @onclick="AddAuthor">Add an author</button>
+            </div>*@
+
+        <div class="bottom-buttons">
+            <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
+            <button @onclick="Handler.ReloadFromCloud">Reload from cloud</button>
+        </div>
+    </EditForm>
+}

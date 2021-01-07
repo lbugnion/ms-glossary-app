@@ -59,5 +59,10 @@ namespace SynopsisClient.Shared
         {
             Handler.WasSaved -= HandlerWasSaved;
         }
+
+        public void NavigateDescription()
+        {
+            CheckNavigateTo("/short-description");
+        }
     }
 }

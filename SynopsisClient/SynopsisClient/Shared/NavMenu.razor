@@ -16,6 +16,11 @@
             </NavLink>
         </li>
         <li class="nav-item px-3">
+            <NavLink class="nav-link" @onclick="NavigateDescription">
+                <span class="oi oi-arrow-right" aria-hidden="true"></span> Description
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
             <NavLink class="nav-link" @onclick="NavigateAuthors">
                 <span class="oi oi-arrow-right" aria-hidden="true"></span> Authors
             </NavLink>
@@ -29,7 +34,7 @@
 
     @if (_showNavWarning)
     {
-        <div style="font-weight: bold; color: white">
+        <div style="font-weight: bold; color: white; margin: 10px;">
             You cannot navigate now, please save or fix the Synopsis first.
         </div>
     }
