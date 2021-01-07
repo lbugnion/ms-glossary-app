@@ -43,9 +43,9 @@ else
         </tbody>
     </table>
 
-    @*<div class="bottom-buttons">
-            <button @onclick="AddAuthor">Add an author</button>
-        </div>*@
+    <div class="bottom-buttons" style="margin-bottom: 10px;">
+        <button @onclick="Handler.AddItem">Add a note</button>
+    </div>
 
     <div class="bottom-buttons">
         <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>

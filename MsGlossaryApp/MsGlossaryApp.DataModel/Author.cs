@@ -44,6 +44,10 @@ namespace MsGlossaryApp.DataModel
 
         public Author()
         {
+            Name = "Enter a name";
+            Email = "user@domain.com";
+            GitHub = "GitHubName";
+            Twitter = "TwitterName";
         }
 
         public override int GetHashCode()

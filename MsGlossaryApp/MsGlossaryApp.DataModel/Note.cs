@@ -9,7 +9,7 @@
 
         public Note()
         {
-            Content = string.Empty;
+            Content = "Enter a note";
         }
 
         public string Content

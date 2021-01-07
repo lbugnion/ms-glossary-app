@@ -14,7 +14,12 @@ namespace SynopsisClient.Model
     {
         private const string Key = "Current-Synopsis";
 
-        private bool _isModified;
+        public bool IsModified
+        {
+            get;
+            private set;
+        }
+
         private ILocalStorageService _localStorage;
 
         public bool CannotSave
@@ -72,8 +77,11 @@ namespace SynopsisClient.Model
             ValidationStateChangedEventArgs e)
         {
             Console.WriteLine("CurrentEditContextOnValidationStateChanged");
+            Console.WriteLine($"CurrentEditContext.IsModified(): {CurrentEditContext.IsModified()}");
+            Console.WriteLine($"_isModified: {IsModified}");
+            Console.WriteLine($"CurrentEditContext.GetValidationMessages().Count(): {CurrentEditContext.GetValidationMessages().Count()}");
 
-            if ((CurrentEditContext.IsModified() || _isModified)
+            if ((CurrentEditContext.IsModified() || IsModified)
                 && CurrentEditContext.GetValidationMessages().Count() == 0)
             {
                 Console.WriteLine("can save");
@@ -155,23 +163,23 @@ namespace SynopsisClient.Model
         {
             Console.WriteLine("CheckSaveSynopsis");
             Console.WriteLine($"CurrentEditContext.IsModified: {CurrentEditContext.IsModified()}");
-            Console.WriteLine($"_isModified: {_isModified}");
+            Console.WriteLine($"_isModified: {IsModified}");
 
-            if ((_isModified || CurrentEditContext.IsModified())
+            if ((IsModified || CurrentEditContext.IsModified())
                 && !CannotSave)
             {
                 Console.WriteLine("Must save");
                 await _localStorage.SetItemAsync(Key, Synopsis);
                 CurrentEditContext.MarkAsUnmodified();
                 CannotSave = true;
-                _isModified = false;
+                IsModified = false;
                 WasSaved?.Invoke(this, EventArgs.Empty);
                 Console.WriteLine("Saved and invoked event");
             }
         }
 
         public void DefineList<T>(IList<T> items)
-            where T : class
+            where T : class, new()
         {
             Console.WriteLine("SynopsisHandler.DefineList");
             _listHandler = new ListHandler<T>(this, items);
@@ -182,6 +190,12 @@ namespace SynopsisClient.Model
         {
             Console.WriteLine("SynopsisHandler.Delete");
             _listHandler?.StartDelete(item);
+        }
+
+        public void AddItem()
+        {
+            Console.WriteLine("SynopsisHandler.AddItem");
+            _listHandler?.AddItem();
         }
 
         public async Task InitializePage()
@@ -236,11 +250,13 @@ namespace SynopsisClient.Model
             public abstract void StartDelete<T2>(T2 item)
                 where T2 : class;
 
+            public abstract void AddItem();
+
             public abstract void DeleteItemConfirmationOkCancelClicked(bool confirm);
         }
 
         private class ListHandler<T> : ListHandlerBase
-            where T : class
+            where T : class, new()
         {
             public ListHandler(SynopsisHandler parent, IList<T> items)
                 : base(parent)
@@ -296,12 +312,26 @@ namespace SynopsisClient.Model
                     && Items.Contains(SelectedItem))
                 {
                     Items.Remove(SelectedItem);
-                    _parent._isModified = true;
+                    _parent.IsModified = true;
                     Console.WriteLine("item removed");
                 }
 
                 _parent.TriggerValidation();
                 SelectedItem = default(T);
+            }
+
+            public override void AddItem()
+            {
+                if (Items == null)
+                {
+                    return;
+                }
+
+                var newItem = new T();
+                Items.Add(newItem);
+                SelectedItem = newItem;
+                _parent.TriggerValidation();
+                _parent.IsModified = true;
             }
         }
     }

@@ -11,8 +11,9 @@ namespace SynopsisClient.Shared
 
         private void CheckNavigateTo(string uri)
         {
-            if (Handler.CurrentEditContext != null
+            if ((Handler.CurrentEditContext != null
                 && Handler.CurrentEditContext.IsModified())
+                || Handler.IsModified)
             {
                 _showNavWarning = true;
                 Console.WriteLine("Edit Context is modified --> No nav");
