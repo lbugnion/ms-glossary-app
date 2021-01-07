@@ -9,47 +9,47 @@
 }
 else
 {
-    <EditForm EditContext="@Handler.CurrentEditContext">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+<EditForm EditContext="@Handler.CurrentEditContext">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
-        <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
-                                              ShowDialog="_showConfirmDeleteNoteDialog"
-                                              OkText="Yes"
-                                              CancelText="No"
-                                              OnOkCancelClicked="DeleteNoteConfirmationOkCancelClicked">
-            Deleting a note cannot be cancelled locally.
-            <br />
-            <em>Note:</em> You can always reload from the cloud by pressing the "Reload from cloud" button
-        </SynopsisClient.Dialogs.ConfirmDialog>
+    <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                          ShowDialog="Handler.ShowConfirmDeleteItemDialog"
+                                          OkText="Yes"
+                                          CancelText="No"
+                                          OnOkCancelClicked="Handler.DeletItemConfirmationOkCancelClicked">
+        Deleting a note cannot be cancelled locally.
+        <br />
+        <em>Note:</em> You can always reload from the cloud by pressing the "Reload from cloud" button
+    </SynopsisClient.Dialogs.ConfirmDialog>
 
-        <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
-                                              ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
-                                              OkText="Yes"
-                                              CancelText="No"
-                                              OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
-            <strong style="color:red ">Caution:</strong> If you click yes, you will lose all your local changes.
-        </SynopsisClient.Dialogs.ConfirmDialog>
+    <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                          ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
+                                          OkText="Yes"
+                                          CancelText="No"
+                                          OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
+        <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
+    </SynopsisClient.Dialogs.ConfirmDialog>
 
-        <table class="table">
-            <tbody>
-                @foreach (var note in Handler.Synopsis.PersonalNotes)
-                {
-                    <tr>
-                        <td><InputText @bind-Value="note.Content" /></td>
-                        <td><button @onclick="(e => Delete(note))">Delete</button></td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <table class="table">
+        <tbody>
+            @foreach (var note in Handler.Synopsis.PersonalNotes)
+            {
+                <tr>
+                    <td><InputText @bind-Value="note.Content" /></td>
+                    <td><button @onclick="(e => Handler.Delete(note))">Delete</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-        @*<div class="bottom-buttons">
-                <button @onclick="AddAuthor">Add an author</button>
-            </div>*@
+    @*<div class="bottom-buttons">
+            <button @onclick="AddAuthor">Add an author</button>
+        </div>*@
 
-        <div class="bottom-buttons">
-            <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
-            <button @onclick="Handler.ReloadFromCloud">Reload from cloud</button>
-        </div>
-    </EditForm>
+    <div class="bottom-buttons">
+        <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
+        <button @onclick="Handler.ReloadFromCloud">Reload from cloud</button>
+    </div>
+</EditForm>
 }

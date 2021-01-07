@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Forms;
 using MsGlossaryApp.DataModel;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -32,6 +33,19 @@ namespace SynopsisClient.Model
         {
             get;
             private set;
+        }
+
+        public bool ShowConfirmDeleteItemDialog
+        {
+            get;
+            private set;
+        }
+
+        private ListHandlerBase _listHandler;
+
+        public void DeletItemConfirmationOkCancelClicked(bool confirm)
+        {
+            _listHandler?.DeleteItemConfirmationOkCancelClicked(confirm);
         }
 
         public Synopsis Synopsis
@@ -76,7 +90,7 @@ namespace SynopsisClient.Model
         {
             Console.WriteLine("SynopsisHandler.ReloadFromCloud");
             Synopsis = await GetSynopsis(false, true);
-            SetContext(Synopsis);
+            SetContext();
             await _localStorage.SetItemAsync(Key, Synopsis);
             Console.WriteLine($"{Synopsis.Authors.Count} authors found");
         }
@@ -121,7 +135,7 @@ namespace SynopsisClient.Model
             return Synopsis;
         }
 
-        private void SetContext(Synopsis synopsis)
+        private void SetContext()
         {
             if (CurrentEditContext != null)
             {
@@ -134,6 +148,8 @@ namespace SynopsisClient.Model
             CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
             CannotSave = true;
         }
+
+        public event EventHandler WasSaved;
 
         public async Task CheckSaveSynopsis()
         {
@@ -149,32 +165,23 @@ namespace SynopsisClient.Model
                 CurrentEditContext.MarkAsUnmodified();
                 CannotSave = true;
                 _isModified = false;
+                WasSaved?.Invoke(this, EventArgs.Empty);
+                Console.WriteLine("Saved and invoked event");
             }
         }
 
-        public void DeleteAuthor(Author author)
+        public void DefineList<T>(IList<T> items)
+            where T : class
         {
-            Console.WriteLine("SynopsisHandler.DeleteAuthor");
-
-            if (Synopsis.Authors.Contains(author))
-            {
-                Synopsis.Authors.Remove(author);
-                _isModified = true;
-                Console.WriteLine($"SynopsisHandler.DeleteAuthor deleted");
-            }
+            Console.WriteLine("SynopsisHandler.DefineList");
+            _listHandler = new ListHandler<T>(this, items);
         }
 
-        public void DeleteNote(Note note)
+        public void Delete<T>(T item)
+            where T : class
         {
-            Console.WriteLine("SynopsisHandler.DeleteNote");
-
-            if (Synopsis.PersonalNotes.Contains(note))
-            {
-                Synopsis.PersonalNotes.Remove(note);
-                _isModified = true;
-                CannotSave = false; // No validation here
-                Console.WriteLine($"SynopsisHandler.DeleteNote deleted");
-            }
+            Console.WriteLine("SynopsisHandler.Delete");
+            _listHandler?.StartDelete(item);
         }
 
         public async Task InitializePage()
@@ -186,7 +193,7 @@ namespace SynopsisClient.Model
             Console.WriteLine("SynopsisHandler.InitializePage");
 
             Synopsis = await GetSynopsis(true, false);
-            SetContext(Synopsis);
+            SetContext();
         }
 
         public void ReloadFromCloud()
@@ -207,11 +214,94 @@ namespace SynopsisClient.Model
 
         public void TriggerValidation()
         {
+            Console.WriteLine("Triggering Validation");
+
             if (CurrentEditContext != null)
             {
-                Console.WriteLine("Triggering Validation");
                 var isValid = CurrentEditContext.Validate();
                 Console.WriteLine("TriggerValidation: " + isValid);
+            }
+        }
+
+        private abstract class ListHandlerBase
+        {
+            protected SynopsisHandler _parent;
+
+            public ListHandlerBase(SynopsisHandler parent)
+            {
+                Console.WriteLine("ListHandlerBase.ctor");
+                _parent = parent;
+            }
+
+            public abstract void StartDelete<T2>(T2 item)
+                where T2 : class;
+
+            public abstract void DeleteItemConfirmationOkCancelClicked(bool confirm);
+        }
+
+        private class ListHandler<T> : ListHandlerBase
+            where T : class
+        {
+            public ListHandler(SynopsisHandler parent, IList<T> items)
+                : base(parent)
+            {
+                Console.WriteLine("ListHandler.ctor");
+                Items = items;
+            }
+
+            public IList<T> Items
+            {
+                get;
+                set;
+            }
+
+            public T SelectedItem
+            {
+                get;
+                set;
+            }
+
+            public override void StartDelete<T2>(T2 item)
+                where T2 : class
+            {
+                Console.WriteLine("ListHandler.StartDelete");
+
+                var casted = item as T;
+
+                if (casted != null
+                    && Items != null
+                    && Items.Contains(casted))
+                {
+                    Console.WriteLine("must show delete dialog");
+                    _parent.ShowConfirmDeleteItemDialog = true;
+                    SelectedItem = casted;
+                }
+            }
+
+            public override void DeleteItemConfirmationOkCancelClicked(bool confirm)
+            {
+                Console.WriteLine("ListHandler.DeleteItemConfirmationOkCancelClicked");
+                _parent.ShowConfirmDeleteItemDialog = false;
+
+                if (!confirm
+                    || SelectedItem == null)
+                {
+                    Console.WriteLine("deletion cancelled");
+                    return;
+                }
+
+                Console.WriteLine("Execute deletion");
+
+                if (Items != null
+                    && Items.Contains(SelectedItem))
+                {
+                    Items.Remove(SelectedItem);
+                    _parent._isModified = true;
+                    Console.WriteLine("item removed");
+                }
+
+                _parent.TriggerValidation();
+                SelectedItem = default(T);
             }
         }
     }

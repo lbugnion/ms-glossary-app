@@ -13,23 +13,23 @@ else
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
-                                          ShowDialog="_showConfirmDeleteAuthorDialog"
-                                          OkText="Yes"
-                                          CancelText="No"
-                                          OnOkCancelClicked="DeleteAuthorConfirmationOkCancelClicked">
+    <ConfirmDialog Title="Are you sure?"
+                   ShowDialog="Handler.ShowConfirmDeleteItemDialog"
+                   OkText="Yes"
+                   CancelText="No"
+                   OnOkCancelClicked="Handler.DeletItemConfirmationOkCancelClicked">
         Deleting an author cannot be cancelled locally.
         <br />
         <em>Note:</em> You can always reload from the cloud by pressing the "Reload from cloud" button
-    </SynopsisClient.Dialogs.ConfirmDialog>
+    </ConfirmDialog>
 
-    <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
-                                          ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
-                                          OkText="Yes"
-                                          CancelText="No"
-                                          OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
-        <strong style="color:red ">Caution:</strong> If you click yes, you will lose all your local changes.
-    </SynopsisClient.Dialogs.ConfirmDialog>
+    <ConfirmDialog Title="Are you sure?"
+                   ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
+                   OkText="Yes"
+                   CancelText="No"
+                   OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
+        <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
+    </ConfirmDialog>
 
     <table class="table">
         <thead>
@@ -48,7 +48,7 @@ else
                     <td><InputText @bind-Value="author.Email" id="email" /></td>
                     <td><InputText @bind-Value="author.GitHub" id="github" /></td>
                     <td><InputText @bind-Value="author.Twitter" id="twitter" /></td>
-                    <td><button @onclick="@(e => Delete(author))">Delete</button></td>
+                    <td><button @onclick="@(e => Handler.Delete(author))">Delete</button></td>
                 </tr>
             }
         </tbody>

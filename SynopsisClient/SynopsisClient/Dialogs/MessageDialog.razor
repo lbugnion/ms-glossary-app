@@ -1,0 +1,53 @@
+﻿@if (ShowDialog)
+{
+    <div class="card" style="width:22rem">
+        <div class="card-body">
+            <h3 class="card-title">@Title</h3>
+            <p class="card-text">@ChildContent</p>
+            <button @onclick="OnOk">@OkText</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string OkText
+    {
+        get;
+        set;
+    }
+
+    [Parameter]
+    public RenderFragment ChildContent
+    {
+        get;
+        set;
+    }
+
+    [Parameter]
+    public string Title
+    {
+        get;
+        set;
+    }
+
+    [Parameter]
+    public bool ShowDialog
+    {
+        get;
+        set;
+    }
+
+    [Parameter]
+    public EventCallback OnOkClicked
+    {
+        get;
+        set;
+    }
+
+    private async Task OnOk()
+    {
+        await OnOkClicked.InvokeAsync(null);
+        ShowDialog = false;
+    }
+}

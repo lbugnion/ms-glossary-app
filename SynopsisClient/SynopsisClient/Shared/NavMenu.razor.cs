@@ -2,23 +2,37 @@
 
 namespace SynopsisClient.Shared
 {
-    public partial class NavMenu
+    public partial class NavMenu : IDisposable
     {
-        private bool collapseNavMenu = true;
+        private bool _collapseNavMenu = true;
+        private bool _showNavWarning = false;
 
-        private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+        private string NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
 
         private void CheckNavigateTo(string uri)
         {
             if (Handler.CurrentEditContext != null
                 && Handler.CurrentEditContext.IsModified())
             {
-                // TODO Ask for confirmation
+                _showNavWarning = true;
                 Console.WriteLine("Edit Context is modified --> No nav");
                 return;
             }
 
+            _showNavWarning = false;
             Nav.NavigateTo(uri);
+        }
+
+        protected override void OnInitialized()
+        {
+            Handler.WasSaved += HandlerWasSaved;
+        }
+
+        private void HandlerWasSaved(object sender, EventArgs e)
+        {
+            Console.WriteLine("HandlerWasSaved");
+            _showNavWarning = false;
+            StateHasChanged();
         }
 
         private void NavigateAuthors()
@@ -38,7 +52,12 @@ namespace SynopsisClient.Shared
 
         private void ToggleNavMenu()
         {
-            collapseNavMenu = !collapseNavMenu;
+            _collapseNavMenu = !_collapseNavMenu;
+        }
+
+        public void Dispose()
+        {
+            Handler.WasSaved -= HandlerWasSaved;
         }
     }
 }
