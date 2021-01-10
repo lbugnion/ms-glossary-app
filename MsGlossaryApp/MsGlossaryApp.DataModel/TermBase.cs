@@ -13,7 +13,7 @@ namespace MsGlossaryApp.DataModel
         public IList<Author> Authors { get; set; }
 
         [Required]
-        public IList<string> Keywords { get; set; }
+        public IList<ContentEntry> Keywords { get; set; }
 
         [Required]
         [MinLength(2, ErrorMessage = "You need to define links for Docs and Learn at least")]
@@ -52,7 +52,7 @@ namespace MsGlossaryApp.DataModel
         public TermBase()
         {
             Authors = new List<Author>();
-            Keywords = new List<string>();
+            Keywords = new List<ContentEntry>();
             Links = new Dictionary<string, IList<Link>>();
         }
 
@@ -107,7 +107,8 @@ namespace MsGlossaryApp.DataModel
                 return false;
             }
 
-            if (!IsStringsListEqualTo(term.Keywords, Keywords))
+            if (!IsListEqualTo(term.Keywords.Select(k => (object)k).ToList(), 
+                Keywords.Select(k => (object)k).ToList()))
             {
                 return false;
             }

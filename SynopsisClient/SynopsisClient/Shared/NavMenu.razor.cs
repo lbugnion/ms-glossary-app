@@ -32,6 +32,16 @@ namespace SynopsisClient.Shared
             StateHasChanged();
         }
 
+        private void NavigateTitle()
+        {
+            CheckNavigateTo("/title");
+        }
+
+        private void NavigateKeywords()
+        {
+            CheckNavigateTo("/keywords");
+        }
+
         private void NavigateAuthors()
         {
             CheckNavigateTo("/authors");
@@ -70,6 +80,11 @@ namespace SynopsisClient.Shared
         public void NavigatePhonetics()
         {
             CheckNavigateTo("/phonetics");
+        }
+
+        public void NavigateDemos()
+        {
+            CheckNavigateTo("/demos");
         }
     }
 }

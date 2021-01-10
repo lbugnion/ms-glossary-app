@@ -4,12 +4,15 @@
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#submitted-by)"
   ],
   "Demos": [
-    "Short description of the demo."
+    {
+      "Content": "Short description of the demo."
+    }
   ],
   "DemosInstructions": [
     "Quick list of the demos you want to show.",
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#demos)"
   ],
+  "FileName": "test-topic-15",
   "KeywordsInstructions": [
     "List of keywords or keyphrases, comma separated.",
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#keywords-or-key-expressions)",
@@ -75,10 +78,18 @@
     }
   ],
   "Keywords": [
-    "AAD",
-    "Active Directory",
-    "Authentication",
-    "Identity"
+    {
+      "Content": "AAD"
+    },
+    {
+      "Content": "Active Directory"
+    },
+    {
+      "Content": "Authentication"
+    },
+    {
+      "Content": "Identity"
+    }
   ],
   "Links": {
     "Links to docs": [
@@ -104,7 +115,7 @@
   },
   "MustSave": false,
   "SafeFileName": "test-topic-15",
-  "ShortDescription": "This is a test again",
+  "ShortDescription": "an abbreviation meaning Azure Active Directory, a service used to manage identity, authentication and authorization on Microsoft Azure.",
   "Title": "test-topic-15",
   "Transcript": "Today's word of the day is: WORD.\r\nToday's words of the day are: EXPRESSION.\r\nToday's word of the day is an abbreviation: ABBREVIATION.\r\n\r\nHello and welcome to Microsoft Azure Words of the Day, the show that teaches you the Azure vocabulary!\r\n\r\n> For abbreviations, also mention the full expression in the intro and show phonetics too.\r\n",
   "Uri": "https://raw.githubusercontent.com/lbugnion/tests-auto-commit/test-topic-15/synopsis/test-topic-15.md"

@@ -166,7 +166,7 @@ namespace MsGlossaryApp.Model
                 foreach (var demo in synopsis.Demos)
                 {
                     builder
-                        .AppendLine(demo.MakeListItem());
+                        .AppendLine(demo.Content.MakeListItem());
                 }
             }
 
@@ -261,12 +261,12 @@ namespace MsGlossaryApp.Model
             var synopsis = new Synopsis
             {
                 AuthorsInstructions = new List<string>(),
-                Demos = new List<string>(),
+                Demos = new List<ContentEntry>(),
                 DemosInstructions = new List<string>(),
                 KeywordsInstructions = new List<string>(),
                 Links = new Dictionary<string, IList<Link>>(),
                 LinksInstructions = new Dictionary<string, IList<string>>(),
-                PersonalNotes = new List<Note>(),
+                PersonalNotes = new List<ContentEntry>(),
                 PersonalNotesInstructions = new List<string>(),
                 PhoneticsInstructions = new List<string>(),
                 ShortDescriptionInstructions = new List<string>(),
@@ -445,7 +445,7 @@ namespace MsGlossaryApp.Model
                 }
                 else if (isPersonalNotes)
                 {
-                    synopsis.PersonalNotes.Add(new Note(line.ParseListItem()));
+                    synopsis.PersonalNotes.Add(new ContentEntry(line.ParseListItem()));
                 }
                 else if (isKeywords)
                 {
@@ -453,7 +453,7 @@ namespace MsGlossaryApp.Model
                 }
                 else if (isDemos)
                 {
-                    synopsis.Demos.Add(line.ParseListItem());
+                    synopsis.Demos.Add(new ContentEntry(line.ParseListItem()));
                 }
                 else if (isLinks)
                 {

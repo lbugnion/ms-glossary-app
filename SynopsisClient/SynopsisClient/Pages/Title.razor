@@ -1,0 +1,42 @@
+﻿@page "/title"
+@inject SynopsisClient.Model.SynopsisHandler Handler
+
+<h1>Title</h1>
+
+@if (Handler.Synopsis == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="intro">
+
+        <p>You can change the title of this Glossary term here.</p>
+
+        <strong>Note that changing the title does NOT affect the URL of this synopsis.</strong>
+
+        <p><a href="https://github.com/lbugnion/ms-glossary/blob/master/instructions/getting-started.md">Go to the instructions to get started with a new term!</a></p>
+
+    </div>
+
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <ConfirmDialog Title="Are you sure?"
+                       ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
+                       OkText="Yes"
+                       CancelText="No"
+                       OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
+            <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
+        </ConfirmDialog>
+
+        <InputText @bind-Value="Handler.Synopsis.Title"
+                   style="margin-bottom: 10px;" />
+
+        <div class="bottom-buttons">
+            <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
+            <button @onclick="Handler.ReloadFromCloud">Reload from cloud</button>
+        </div>
+    </EditForm>
+}

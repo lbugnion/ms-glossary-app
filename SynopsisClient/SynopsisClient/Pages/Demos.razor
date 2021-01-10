@@ -1,0 +1,55 @@
+﻿@page "/demos"
+@inject SynopsisClient.Model.SynopsisHandler Handler
+
+<h1>Demos</h1>
+
+@if (Handler.Synopsis == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+<EditForm EditContext="@Handler.CurrentEditContext">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                          ShowDialog="Handler.ShowConfirmDeleteItemDialog"
+                                          OkText="Yes"
+                                          CancelText="No"
+                                          OnOkCancelClicked="Handler.DeletItemConfirmationOkCancelClicked">
+        Deleting a demo cannot be cancelled locally.
+        <br />
+        <em>Note:</em> You can always reload from the cloud by pressing the "Reload from cloud" button
+    </SynopsisClient.Dialogs.ConfirmDialog>
+
+    <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                          ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
+                                          OkText="Yes"
+                                          CancelText="No"
+                                          OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
+        <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
+    </SynopsisClient.Dialogs.ConfirmDialog>
+
+    <table class="table">
+        <tbody>
+            @foreach (var demo in Handler.Synopsis.Demos)
+            {
+                <tr>
+                    <td><InputText @bind-Value="demo.Content" style="wid" /></td>
+                    <td><button @onclick="(e => Handler.Delete(demo))">Delete</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="bottom-buttons" style="margin-bottom: 10px;">
+        <button @onclick="Handler.AddItem">Add a demo</button>
+    </div>
+
+    <div class="bottom-buttons">
+        <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
+        <button @onclick="Handler.ReloadFromCloud">Reload from cloud</button>
+    </div>
+</EditForm>
+}

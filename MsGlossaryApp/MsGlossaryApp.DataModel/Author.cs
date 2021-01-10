@@ -52,11 +52,11 @@ namespace MsGlossaryApp.DataModel
 
         public override bool Equals(object obj)
         {
-            return obj is Author author &&
-                   Email == author.Email &&
-                   GitHub == author.GitHub &&
-                   Name == author.Name &&
-                   Twitter == author.Twitter;
+            return obj is Author author 
+                && Email == author.Email 
+                && GitHub == author.GitHub 
+                && Name == author.Name 
+                && Twitter == author.Twitter;
         }
 
         public override int GetHashCode()

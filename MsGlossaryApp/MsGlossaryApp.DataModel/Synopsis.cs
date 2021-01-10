@@ -10,7 +10,7 @@ namespace MsGlossaryApp.DataModel
         public IList<string> AuthorsInstructions { get; set; }
 
         [Required]
-        public IList<string> Demos { get; set; }
+        public IList<ContentEntry> Demos { get; set; }
 
         public IList<string> DemosInstructions { get; set; }
 
@@ -19,7 +19,7 @@ namespace MsGlossaryApp.DataModel
         public Dictionary<string, IList<string>> LinksInstructions { get; set; }
 
         [Required]
-        public IList<Note> PersonalNotes { get; set; }
+        public IList<ContentEntry> PersonalNotes { get; set; }
 
         public IList<string> PersonalNotesInstructions { get; set; }
 
@@ -37,11 +37,11 @@ namespace MsGlossaryApp.DataModel
         public Synopsis()
         {
             AuthorsInstructions = new List<string>();
-            Demos = new List<string>();
+            Demos = new List<ContentEntry>();
             DemosInstructions = new List<string>();
             KeywordsInstructions = new List<string>();
             LinksInstructions = new Dictionary<string, IList<string>>();
-            PersonalNotes = new List<Note>();
+            PersonalNotes = new List<ContentEntry>();
             PersonalNotesInstructions = new List<string>();
             PhoneticsInstructions = new List<string>();
             ShortDescriptionInstructions = new List<string>();
@@ -68,7 +68,9 @@ namespace MsGlossaryApp.DataModel
                 return false;
             }
 
-            if (!IsStringsListEqualTo(synopsis.Demos, Demos))
+            if (!IsListEqualTo(
+                synopsis.Demos.Select(d => (object)d).ToList(), 
+                Demos.Select(d => (object)d).ToList()))
             {
                 return false;
             }

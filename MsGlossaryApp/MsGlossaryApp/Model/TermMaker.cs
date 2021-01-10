@@ -503,24 +503,24 @@ namespace MsGlossaryApp.Model
             return result;
         }
 
-        public static IList<string> MakeKeywords(string keywordsLine)
+        public static IList<ContentEntry> MakeKeywords(string keywordsLine)
         {
             return keywordsLine.Split(new char[]
             {
                 Constants.Separator
             }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(k => k.Trim())
+                .Select(k => new ContentEntry(k.Trim()))
                 .ToList();
         }
 
-        public static string MakeKeywordsLine(IList<string> keywords)
+        public static string MakeKeywordsLine(IList<ContentEntry> keywords)
         {
             if (keywords == null)
             {
                 return null;
             }
 
-            return string.Join(", ", keywords);
+            return string.Join(", ", keywords.Select(k => k.Content));
         }
 
         public static Term ParseTerm(
@@ -717,13 +717,13 @@ namespace MsGlossaryApp.Model
             {
                 var newKeyword = new Keyword
                 {
-                    KeywordName = keyword,
+                    KeywordName = keyword.Content,
                     TermSafeFileName = currentTerm.FileName
                 };
 
                 var sameKeywords = allTerms
                     .SelectMany(t => t.Keywords)
-                    .Where(k => k.ToLower() == keyword.ToLower());
+                    .Where(k => k.Content.ToLower() == keyword.Content.ToLower());
 
                 if (sameKeywords.Count() > 1)
                 {

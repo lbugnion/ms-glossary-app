@@ -28,10 +28,10 @@ namespace MsGlossaryApp.DataModel
 
         public override bool Equals(object obj)
         {
-            return obj is Link link &&
-                   Note == link.Note &&
-                   Text == link.Text &&
-                   Url == link.Url;
+            return obj is Link link 
+                && Note == link.Note 
+                && Text == link.Text 
+                && Url == link.Url;
         }
 
         public override int GetHashCode()
