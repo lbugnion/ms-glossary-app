@@ -3,13 +3,12 @@ using System.Threading.Tasks;
 
 namespace SynopsisClient.Pages
 {
-    public partial class PersonalNotes
+    public partial class Phonetics
     {
         protected override async Task OnInitializedAsync()
         {
-            Console.WriteLine("PersonalNotes.OnInitializedAsync");
+            Console.WriteLine("Phonetics.OnInitializedAsync");
             await Handler.InitializePage();
-            Handler.DefineList(Handler.Synopsis.PersonalNotes);
         }
     }
 }

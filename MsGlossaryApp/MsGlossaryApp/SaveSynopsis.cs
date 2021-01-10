@@ -66,7 +66,7 @@ namespace MsGlossaryApp
                 Constants.GitHubSynopsisUrlTemplate,
                 accountName,
                 repoName,
-                synopsis.SafeFileName);
+                synopsis.FileName);
 
             Exception error = null;
 
@@ -84,12 +84,12 @@ namespace MsGlossaryApp
                     var result = await FileSaver.SaveFile(
                         newFile,
                         $"Saved changes to {newFile.Path}",
-                        synopsis.SafeFileName,
+                        synopsis.FileName,
                         log);
 
                     if (!string.IsNullOrEmpty(result))
                     {
-                        var message = $"Save request for {synopsis.SafeFileName} received, but file wasn't saved: {result}";
+                        var message = $"Save request for {synopsis.FileName} received, but file wasn't saved: {result}";
                         await NotificationService.Notify(
                             "Synopsis NOT saved to GitHub",
                             message,
@@ -100,7 +100,7 @@ namespace MsGlossaryApp
                 }
                 else
                 {
-                    var result = $"Save request for {synopsis.SafeFileName} received, but file hasn't changed";
+                    var result = $"Save request for {synopsis.FileName} received, but file hasn't changed";
                     await NotificationService.Notify(
                         "Synopsis NOT saved to GitHub",
                         result,
@@ -116,21 +116,21 @@ namespace MsGlossaryApp
 
             if (error != null)
             {
-                var errorMessage = $"{synopsis.SafeFileName} was NOT saved to GitHub: {error.Message}";
+                var errorMessage = $"{synopsis.FileName} was NOT saved to GitHub: {error.Message}";
 
                 await NotificationService.Notify(
                     "Synopsis NOT saved to GitHub",
                     errorMessage,
                     log);
 
-                log.LogError(error, $"Error saving synopsis {synopsis.SafeFileName} to GitHub");
+                log.LogError(error, $"Error saving synopsis {synopsis.FileName} to GitHub");
 
                 return new OkObjectResult(errorMessage);
             }
 
             var location = FileSaver.GetSavingLocation();
 
-            var successMessage = $"Synopsis {synopsis.SafeFileName} was saved";
+            var successMessage = $"Synopsis {synopsis.FileName} was saved";
 
             if (location == SavingLocations.Both
                 || location == SavingLocations.GitHub)

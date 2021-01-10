@@ -33,13 +33,11 @@ namespace MsGlossaryApp
 
             var synopsisRequest = JsonConvert.DeserializeObject<NewSynopsis>(requestBody);
 
-            if (string.IsNullOrEmpty(synopsisRequest.Term)
+            if (string.IsNullOrEmpty(synopsisRequest.FileName)
                 || string.IsNullOrEmpty(synopsisRequest.SubmitterEmail))
             {
                 return new BadRequestObjectResult("Incomplete request");
             }
-
-            synopsisRequest.SafeFileName = synopsisRequest.Term.MakeSafeFileName();
 
             // Get the markdown file
 
@@ -52,7 +50,7 @@ namespace MsGlossaryApp
                 Constants.GitHubSynopsisUrlTemplate,
                 accountName,
                 repoName,
-                synopsisRequest.SafeFileName);
+                synopsisRequest.FileName);
 
             string markdown = null;
             string error = null;

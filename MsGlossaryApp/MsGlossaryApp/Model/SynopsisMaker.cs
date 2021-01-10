@@ -491,7 +491,7 @@ namespace MsGlossaryApp.Model
                 twitters);
 
             synopsis.ShortDescription = shortDescription.ToString().Trim();
-            synopsis.SafeFileName = synopsis.Title.MakeSafeFileName();
+            synopsis.FileName = Path.GetFileNameWithoutExtension(uri.LocalPath);
             synopsis.Transcript = transcript.ToString();
 
             return synopsis;
@@ -509,7 +509,7 @@ namespace MsGlossaryApp.Model
 
             var file = new GlossaryFile
             {
-                Path = string.Format(SaveToGitHubPathMask, synopsis.SafeFileName)
+                Path = string.Format(SaveToGitHubPathMask, synopsis.FileName)
             };
 
             if (oldSynopsis.Equals(synopsis))

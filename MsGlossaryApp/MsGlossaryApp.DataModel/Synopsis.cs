@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace MsGlossaryApp.DataModel
@@ -8,6 +9,7 @@ namespace MsGlossaryApp.DataModel
     {
         public IList<string> AuthorsInstructions { get; set; }
 
+        [Required]
         public IList<string> Demos { get; set; }
 
         public IList<string> DemosInstructions { get; set; }
@@ -16,10 +18,12 @@ namespace MsGlossaryApp.DataModel
 
         public Dictionary<string, IList<string>> LinksInstructions { get; set; }
 
+        [Required]
         public IList<Note> PersonalNotes { get; set; }
 
         public IList<string> PersonalNotesInstructions { get; set; }
 
+        [Required]
         public string Phonetics { get; set; }
 
         public IList<string> PhoneticsInstructions { get; set; }
@@ -149,7 +153,7 @@ namespace MsGlossaryApp.DataModel
             hash.Add(Authors);
             hash.Add(Keywords);
             hash.Add(Links);
-            hash.Add(SafeFileName);
+            hash.Add(FileName);
             hash.Add(ShortDescription);
             hash.Add(Title);
             hash.Add(Transcript);

@@ -131,7 +131,7 @@ namespace MsGlossaryApp.Model
                 .AppendLine()
                 .AppendLine(TextHelper.GetText("TermDownload").MakeH2())
                 .AppendLine()
-                .AppendLine(TextHelper.GetText("TermDownloadHere").MakeLink($"https://msglossarystore.blob.core.windows.net/videos/{term.SafeFileName}.{term.Language.Code}.mp4"))
+                .AppendLine(TextHelper.GetText("TermDownloadHere").MakeLink($"https://msglossarystore.blob.core.windows.net/videos/{term.FileName}.{term.Language.Code}.mp4"))
                 .AppendLine();
 
             if (term.Captions != null
@@ -145,7 +145,7 @@ namespace MsGlossaryApp.Model
 
                 foreach (var caption in keyword.Term.Captions)
                 {
-                    builder.AppendLine($"- [{caption.LanguageName}](https://msglossarystore.blob.core.windows.net/captions/{term.SafeFileName}.{term.Language.Code}.{caption.Code}.srt)");
+                    builder.AppendLine($"- [{caption.LanguageName}](https://msglossarystore.blob.core.windows.net/captions/{term.FileName}.{term.Language.Code}.{caption.Code}.srt)");
                 }
 
                 builder.AppendLine()
@@ -278,11 +278,11 @@ namespace MsGlossaryApp.Model
             log?.LogInformationEx("In MakeTitleLink", LogVerbosity.Verbose);
             if (keyword.IsMainKeyword)
             {
-                return keyword.Term.Title.MakeLink($"/glossary/term/{keyword.Term.SafeFileName}");
+                return keyword.Term.Title.MakeLink($"/glossary/term/{keyword.Term.FileName}");
             }
             else
             {
-                return keyword.Term.Title.MakeLink($"/glossary/term/{keyword.Term.SafeFileName}/{keyword.KeywordName.MakeSafeFileName()}");
+                return keyword.Term.Title.MakeLink($"/glossary/term/{keyword.Term.FileName}/{keyword.KeywordName.MakeSafeFileName()}");
             }
         }
 
@@ -299,11 +299,11 @@ namespace MsGlossaryApp.Model
                     return $"term/{keyword.KeywordName.MakeSafeFileName()}/disambiguation";
                 }
 
-                return $"term/{keyword.Term.SafeFileName}";
+                return $"term/{keyword.Term.FileName}";
             }
             else
             {
-                return $"term/{keyword.Term.SafeFileName}/{keyword.KeywordName.MakeSafeFileName()}";
+                return $"term/{keyword.Term.FileName}/{keyword.KeywordName.MakeSafeFileName()}";
             }
         }
 
@@ -352,11 +352,11 @@ namespace MsGlossaryApp.Model
 
                 if (keyword.IsMainKeyword)
                 {
-                    path = $"glossary/term/{keyword.Term.SafeFileName.MakeSafeFileName()}/index.md";
+                    path = $"glossary/term/{keyword.Term.FileName}/index.md";
                 }
                 else
                 {
-                    path = $"glossary/term/{keyword.Term.SafeFileName.MakeSafeFileName()}/{keyword.KeywordName.MakeSafeFileName()}.md";
+                    path = $"glossary/term/{keyword.Term.FileName}/{keyword.KeywordName.MakeSafeFileName()}.md";
                 }
 
                 string text = null;
@@ -649,7 +649,7 @@ namespace MsGlossaryApp.Model
             }
 
             term.Title = title;
-            term.SafeFileName = term.Title.MakeSafeFileName();
+            term.FileName = Path.GetFileNameWithoutExtension(uri.LocalPath);
             term.Transcript = transcript.ToString().Trim();
             term.Links = links;
             term.RecordingDate = recordingDate;
@@ -690,7 +690,7 @@ namespace MsGlossaryApp.Model
                     Term = new Term
                     {
                         Title = first.KeywordName,
-                        SafeFileName = "disambiguation"
+                        FileName = "disambiguation"
                     },
                     TermSafeFileName = "disambiguation",
                     IsDisambiguation = true
@@ -718,7 +718,7 @@ namespace MsGlossaryApp.Model
                 var newKeyword = new Keyword
                 {
                     KeywordName = keyword,
-                    TermSafeFileName = currentTerm.SafeFileName
+                    TermSafeFileName = currentTerm.FileName
                 };
 
                 var sameKeywords = allTerms
@@ -730,7 +730,7 @@ namespace MsGlossaryApp.Model
                     newKeyword.MustDisambiguate = true;
                 }
 
-                if (newKeyword.KeywordName.MakeSafeFileName().ToLower() == currentTerm.SafeFileName.ToLower())
+                if (newKeyword.KeywordName.MakeSafeFileName().ToLower() == currentTerm.FileName.ToLower())
                 {
                     newKeyword.IsMainKeyword = true;
                 }
@@ -744,7 +744,7 @@ namespace MsGlossaryApp.Model
                 {
                     IsMainKeyword = true,
                     KeywordName = currentTerm.Title,
-                    TermSafeFileName = currentTerm.SafeFileName
+                    TermSafeFileName = currentTerm.FileName
                 };
 
                 result.Add(mainKeyword);

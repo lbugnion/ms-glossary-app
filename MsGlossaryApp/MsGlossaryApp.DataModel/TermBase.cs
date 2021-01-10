@@ -22,7 +22,7 @@ namespace MsGlossaryApp.DataModel
         public bool MustSave { get; set; }
 
         [Required]
-        public string SafeFileName { get; set; }
+        public string FileName { get; set; }
 
         [Required]
         [MinLength(60, ErrorMessage = "The short description is too short, aim for 15-20 words")]
@@ -160,7 +160,7 @@ namespace MsGlossaryApp.DataModel
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Authors, Keywords, Links, SafeFileName, ShortDescription, Title, Transcript, Uri);
+            return HashCode.Combine(Authors, Keywords, Links, FileName, ShortDescription, Title, Transcript, Uri);
         }
 
         public override string ToString()

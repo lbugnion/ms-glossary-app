@@ -1,0 +1,41 @@
+﻿@page "/phonetics"
+@inject SynopsisClient.Model.SynopsisHandler Handler
+
+<h1>Phonetics</h1>
+
+@if (Handler.Synopsis == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="intro">
+    
+        <p>Add the phonetics of the word or the expression.</p>
+
+        <p>You can create a phonetics expression at <a href="https://tophonetics.com" target="_blank">https://tophonetics.com</a></p>
+
+        <p><a href="https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#phonetics" target="_blank">See the notes</a></p>
+    </div>
+
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <ConfirmDialog Title="Are you sure?"
+                       ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
+                       OkText="Yes"
+                       CancelText="No"
+                       OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
+            <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
+        </ConfirmDialog>
+
+        <InputText @bind-Value="Handler.Synopsis.Phonetics"
+                   style="margin-bottom: 10px;"/>
+
+        <div class="bottom-buttons">
+            <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
+            <button @onclick="Handler.ReloadFromCloud">Reload from cloud</button>
+        </div>
+    </EditForm>
+}

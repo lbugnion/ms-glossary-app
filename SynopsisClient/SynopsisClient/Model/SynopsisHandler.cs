@@ -32,6 +32,12 @@ namespace SynopsisClient.Model
             set;
         }
 
+        public void ResetDialogs()
+        {
+            ShowConfirmDeleteItemDialog = false;
+            ShowConfirmReloadFromCloudDialog = false;
+        }
+
         public bool IsModified
         {
             get;

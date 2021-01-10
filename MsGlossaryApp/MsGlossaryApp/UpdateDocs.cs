@@ -133,10 +133,10 @@ namespace MsGlossaryApp
                 {
                     await NotificationService.Notify(
                         "Incomplete term",
-                        $"The term {term.SafeFileName} was queued for parsing but is incomplete",
+                        $"The term {term.FileName} was queued for parsing but is incomplete",
                         log);
 
-                    log?.LogError($"Incomplete term {term.SafeFileName}");
+                    log?.LogError($"Incomplete term {term.FileName}");
 
                     foreach (var result in results)
                     {
@@ -233,7 +233,7 @@ namespace MsGlossaryApp
 
                 var keywordsToReplace = allKeywords
                     .Where(k =>
-                        k.TermSafeFileName != term.SafeFileName
+                        k.TermSafeFileName != term.FileName
                         && !k.MustDisambiguate)
                     .ToList();
 
@@ -255,7 +255,7 @@ namespace MsGlossaryApp
                 //    && k.TermSafeFileName == "app-service");
 
                 var currentTerm = allTerms
-                    .Single(t => t.SafeFileName == keyword.TermSafeFileName);
+                    .Single(t => t.FileName == keyword.TermSafeFileName);
 
                 keyword.Term = currentTerm;
 
@@ -300,7 +300,7 @@ namespace MsGlossaryApp
                 foreach (var keyword in group)
                 {
                     var currentTerm = allTerms
-                        .Single(testc => testc.SafeFileName == keyword.TermSafeFileName);
+                        .Single(testc => testc.FileName == keyword.TermSafeFileName);
 
                     keyword.Term = currentTerm;
                 }
@@ -417,7 +417,7 @@ namespace MsGlossaryApp
 
             var blob = settingsContainer.GetBlockBlobReference(Constants.TermsSettingsFileName);
 
-            var termsNames = terms.Select(t => t.SafeFileName).ToList();
+            var termsNames = terms.Select(t => t.FileName).ToList();
 
             var json = JsonConvert.SerializeObject(termsNames);
             log?.LogInformationEx($"json: {json}", LogVerbosity.Debug);

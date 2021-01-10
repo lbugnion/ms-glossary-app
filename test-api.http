@@ -42,7 +42,7 @@ GET http://localhost:7071/api/synopsis
 
 {
     "submitteremail": "lbugnion@microsoft.com",
-    "term":"test-topic-15"
+    "filename":"test-topic-15"
 }
 
 ### Save synopsis

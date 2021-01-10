@@ -21,6 +21,7 @@ namespace SynopsisClient.Shared
             }
 
             _showNavWarning = false;
+            Handler.ResetDialogs();
             Nav.NavigateTo(uri);
         }
 
@@ -64,6 +65,11 @@ namespace SynopsisClient.Shared
         public void NavigateDescription()
         {
             CheckNavigateTo("/short-description");
+        }
+
+        public void NavigatePhonetics()
+        {
+            CheckNavigateTo("/phonetics");
         }
     }
 }

@@ -7,7 +7,7 @@ namespace SynopsisClient.Pages
     {
         protected override async Task OnInitializedAsync()
         {
-            Console.WriteLine("Authors.OnInitializedAsync");
+            Console.WriteLine("ShortDescription.OnInitializedAsync");
             await Handler.InitializePage();
         }
     }

@@ -70,7 +70,7 @@ namespace MsGlossaryApp.DataModel
             hash.Add(Authors);
             hash.Add(Keywords);
             hash.Add(Links);
-            hash.Add(SafeFileName);
+            hash.Add(FileName);
             hash.Add(ShortDescription);
             hash.Add(Title);
             hash.Add(Transcript);
