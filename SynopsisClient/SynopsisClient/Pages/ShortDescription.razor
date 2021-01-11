@@ -1,7 +1,7 @@
 ﻿@page "/short-description"
 @inject SynopsisClient.Model.SynopsisHandler Handler
 
-<h1>Short description</h1>
+<h2>Short description</h2>
 
 @if (Handler.Synopsis == null)
 {
@@ -9,6 +9,25 @@
 }
 else
 {
+    <div class="intro">
+
+        <p>The short description will be used later in the social videos, in the title card</p>
+
+
+        <p>Please follow the rules:</p>
+
+        <ul style="font-weight: bold;">
+            <li>The Short Description is required!</li>
+            <li>Keep the Short Description between 60 and 200 characters</li>
+        </ul>
+
+        <p>For example:</p>
+
+        <img src="/images/ShortDescription.png"
+             title="Microsoft Glossary Social Video Title Card" />
+
+    </div>
+    
     <EditForm EditContext="@Handler.CurrentEditContext">
         <DataAnnotationsValidator />
         <ValidationSummary />
@@ -21,12 +40,21 @@ else
             <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
         </ConfirmDialog>
 
-        <InputTextArea @bind-Value="Handler.Synopsis.ShortDescription"
-                       class="large-input-text"/>
+        <div class="edit-area">
+            <InputTextArea @bind-Value="Handler.Synopsis.ShortDescription"
+                           class="medium-input-text" />
+        </div>
 
-        <div class="bottom-buttons">
-            <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
-            <button @onclick="Handler.ReloadFromCloud">Reload from cloud</button>
+        <div class="bottom-buttons-area">
+            <button disabled="@Handler.CannotSave"
+                    class="main-button"
+                    @onclick="Handler.CheckSaveSynopsis">
+                Save local
+            </button>
+            <button class="main-button"
+                    @onclick="Handler.ReloadFromCloud">
+                Reload from cloud
+            </button>
         </div>
     </EditForm>
 }

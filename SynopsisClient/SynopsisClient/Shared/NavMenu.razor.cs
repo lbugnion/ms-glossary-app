@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components.Web;
+using System;
 
 namespace SynopsisClient.Shared
 {
@@ -6,6 +7,12 @@ namespace SynopsisClient.Shared
     {
         private bool _collapseNavMenu = true;
         private bool _showNavWarning = false;
+
+#if DEBUG
+        private readonly bool _showDebug = true;
+#else
+        private readonly bool _showDebug = false;
+#endif
 
         private string NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
 
@@ -32,31 +39,6 @@ namespace SynopsisClient.Shared
             StateHasChanged();
         }
 
-        private void NavigateTitle()
-        {
-            CheckNavigateTo("/title");
-        }
-
-        private void NavigateKeywords()
-        {
-            CheckNavigateTo("/keywords");
-        }
-
-        private void NavigateAuthors()
-        {
-            CheckNavigateTo("/authors");
-        }
-
-        private void NavigateHome()
-        {
-            CheckNavigateTo("/");
-        }
-
-        private void NavigatePersonalNotes()
-        {
-            CheckNavigateTo("/personal-notes");
-        }
-
         private void ToggleNavMenu()
         {
             _collapseNavMenu = !_collapseNavMenu;
@@ -70,21 +52,6 @@ namespace SynopsisClient.Shared
         public void Dispose()
         {
             Handler.WasSaved -= HandlerWasSaved;
-        }
-
-        public void NavigateDescription()
-        {
-            CheckNavigateTo("/short-description");
-        }
-
-        public void NavigatePhonetics()
-        {
-            CheckNavigateTo("/phonetics");
-        }
-
-        public void NavigateDemos()
-        {
-            CheckNavigateTo("/demos");
         }
     }
 }

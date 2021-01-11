@@ -1,7 +1,7 @@
 ﻿@page "/phonetics"
 @inject SynopsisClient.Model.SynopsisHandler Handler
 
-<h1>Phonetics</h1>
+<h2>Phonetics</h2>
 
 @if (Handler.Synopsis == null)
 {
@@ -14,6 +14,8 @@ else
         <p>Add the phonetics of the word or the expression.</p>
 
         <p>You can create a phonetics expression at <a href="https://tophonetics.com" target="_blank">https://tophonetics.com</a></p>
+
+        <p><strong>Make sure to select "American" to ensure consistency.</strong></p>
 
         <p><a href="https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#phonetics" target="_blank">See the notes</a></p>
     </div>
@@ -30,12 +32,25 @@ else
             <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
         </ConfirmDialog>
 
-        <InputText @bind-Value="Handler.Synopsis.Phonetics"
-                   style="margin-bottom: 10px;"/>
+        <div class="edit-area">
+            <label title="Term's phonetics transcription">
+                <span class="form-label">Phonetics</span>
+                <br />
+                <InputText class="wide-input"
+                           @bind-Value="Handler.Synopsis.Phonetics" />
+            </label>
+        </div>
 
-        <div class="bottom-buttons">
-            <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
-            <button @onclick="Handler.ReloadFromCloud">Reload from cloud</button>
+        <div class="bottom-buttons-area">
+            <button disabled="@Handler.CannotSave"
+                    class="main-button"
+                    @onclick="Handler.CheckSaveSynopsis">
+                Save local
+            </button>
+            <button class="main-button"
+                    @onclick="Handler.ReloadFromCloud">
+                Reload from cloud
+            </button>
         </div>
     </EditForm>
 }

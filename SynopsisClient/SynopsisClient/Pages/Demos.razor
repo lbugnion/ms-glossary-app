@@ -9,47 +9,67 @@
 }
 else
 {
-<EditForm EditContext="@Handler.CurrentEditContext">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+    <div class="intro">
+        <p>We try to illustrate each term with some small "demos" (note the quote signs here...). By this we mean that the demos are not necessarily aimed at showing a technical solution, but rather to illustrate the point you are making. The demos should be short (a few seconds), for example a quick action in the Azure portal, a navigation through some items, some screenshots, etc.</p>
 
-    <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
-                                          ShowDialog="Handler.ShowConfirmDeleteItemDialog"
-                                          OkText="Yes"
-                                          CancelText="No"
-                                          OnOkCancelClicked="Handler.DeletItemConfirmationOkCancelClicked">
-        Deleting a demo cannot be cancelled locally.
-        <br />
-        <em>Note:</em> You can always reload from the cloud by pressing the "Reload from cloud" button
-    </SynopsisClient.Dialogs.ConfirmDialog>
+        <p>For "on camera" scenes, you can also add some logos in overlay to make things more interesting.</p>
 
-    <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
-                                          ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
-                                          OkText="Yes"
-                                          CancelText="No"
-                                          OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
-        <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
-    </SynopsisClient.Dialogs.ConfirmDialog>
+        <p><a href="https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#demos" target="_blank">See the notes and examples</a></p>
+    </div>
 
-    <table class="table">
-        <tbody>
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                              ShowDialog="Handler.ShowConfirmDeleteItemDialog"
+                                              OkText="Yes"
+                                              CancelText="No"
+                                              OnOkCancelClicked="Handler.DeletItemConfirmationOkCancelClicked">
+            Deleting a demo cannot be cancelled locally.
+            <br />
+            <em>Note:</em> You can always reload from the cloud by pressing the "Reload from cloud" button
+        </SynopsisClient.Dialogs.ConfirmDialog>
+
+        <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                              ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
+                                              OkText="Yes"
+                                              CancelText="No"
+                                              OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
+            <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
+        </SynopsisClient.Dialogs.ConfirmDialog>
+
+        <div class="edit-area">
             @foreach (var demo in Handler.Synopsis.Demos)
             {
-                <tr>
-                    <td><InputText @bind-Value="demo.Content" style="wid" /></td>
-                    <td><button @onclick="(e => Handler.Delete(demo))">Delete</button></td>
-                </tr>
+                <label title="Demo description">
+                    <span class="form-label">Description</span>
+                    <br />
+                    <InputText class="wide-input"
+                               @bind-Value="demo.Content" />
+                </label>
+                <button class="small-button"
+                        @onclick="(e => Handler.Delete(demo))">Delete</button>
             }
-        </tbody>
-    </table>
+        </div>
 
-    <div class="bottom-buttons" style="margin-bottom: 10px;">
-        <button @onclick="Handler.AddItem">Add a demo</button>
-    </div>
+        <div class="bottom-buttons-area">
+            <button class="main-button"
+                    @onclick="Handler.AddItem">
+                Add a demo
+            </button>
+        </div>
 
-    <div class="bottom-buttons">
-        <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
-        <button @onclick="Handler.ReloadFromCloud">Reload from cloud</button>
-    </div>
-</EditForm>
+        <div class="bottom-buttons-area">
+            <button disabled="@Handler.CannotSave"
+                    class="main-button"
+                    @onclick="Handler.CheckSaveSynopsis">
+                Save local
+            </button>
+            <button class="main-button"
+                    @onclick="Handler.ReloadFromCloud">
+                Reload from cloud
+            </button>
+        </div>
+    </EditForm>
 }

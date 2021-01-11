@@ -1,5 +1,5 @@
-﻿@inject SynopsisClient.Model.SynopsisHandler Handler;
-@inject NavigationManager Nav;
+﻿@inject SynopsisClient.Model.SynopsisHandler Handler
+@inject NavigationManager Nav
 
 <div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">Synopsis Editor</a>
@@ -11,45 +11,65 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
         <li class="nav-item px-3">
-            <NavLink class="nav-link" @onclick="NavigateHome" Match="NavLinkMatch.All">
+            <NavLink class="nav-link" 
+                     @onclick="@(e => CheckNavigateTo("/"))" 
+                     Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link" @onclick="NavigateTitle">
+            <NavLink class="nav-link" 
+                     @onclick="@(e => CheckNavigateTo("/title"))">
                 <span class="oi oi-arrow-right" aria-hidden="true"></span> Title
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link" @onclick="NavigateDescription">
-                <span class="oi oi-arrow-right" aria-hidden="true"></span> Description
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" @onclick="NavigateAuthors">
+            <NavLink class="nav-link"
+                     @onclick="@(e => CheckNavigateTo("/authors"))">
                 <span class="oi oi-arrow-right" aria-hidden="true"></span> Authors
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link" @onclick="NavigatePhonetics">
+            <NavLink class="nav-link" 
+                     @onclick="@(e => CheckNavigateTo("/short-description"))">
+                <span class="oi oi-arrow-right" aria-hidden="true"></span> Description
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" 
+                     @onclick="@(e => CheckNavigateTo("/phonetics"))">
                 <span class="oi oi-arrow-right" aria-hidden="true"></span> Phonetics
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link" @onclick="NavigatePersonalNotes">
+            <NavLink class="nav-link" 
+                     @onclick="@(e => CheckNavigateTo("/personal-notes"))">
                 <span class="oi oi-arrow-right" aria-hidden="true"></span> Notes
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link" @onclick="NavigateKeywords">
+            <NavLink class="nav-link" 
+                     @onclick="@(e => CheckNavigateTo("/keywords"))">
                 <span class="oi oi-arrow-right" aria-hidden="true"></span> Keywords
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link" @onclick="NavigateDemos">
+            <NavLink class="nav-link" 
+                     @onclick="@(e => CheckNavigateTo("/demos"))">
                 <span class="oi oi-arrow-right" aria-hidden="true"></span> Demos
             </NavLink>
         </li>
+
+        @if (_showDebug)
+        {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" 
+                         @onclick="@(e => CheckNavigateTo("/tests"))">
+                    <span class="oi oi-arrow-right" aria-hidden="true"></span> Tests
+                </NavLink>
+            </li>
+
+        }
     </ul>
 
     @if (_showNavWarning)

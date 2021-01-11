@@ -1,7 +1,7 @@
 ﻿@page "/personal-notes"
 @inject SynopsisClient.Model.SynopsisHandler Handler
 
-<h1>Personal notes</h1>
+<h2>Personal notes</h2>
 
 @if (Handler.Synopsis == null)
 {
@@ -9,47 +9,63 @@
 }
 else
 {
-<EditForm EditContext="@Handler.CurrentEditContext">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+    <div class="intro">
+        <p>This section is intended as a notepad where you can quickly jot down some ideas about the video. For example when doing some research online, this is a convenient place to create a bullet points list, and to consult it later when you create the script.</p>
 
-    <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
-                                          ShowDialog="Handler.ShowConfirmDeleteItemDialog"
-                                          OkText="Yes"
-                                          CancelText="No"
-                                          OnOkCancelClicked="Handler.DeletItemConfirmationOkCancelClicked">
-        Deleting a note cannot be cancelled locally.
-        <br />
-        <em>Note:</em> You can always reload from the cloud by pressing the "Reload from cloud" button
-    </SynopsisClient.Dialogs.ConfirmDialog>
+        <p><a href="https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#keywords-or-key-expressions" target="_blank">See the notes</a></p>
+    </div>
 
-    <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
-                                          ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
-                                          OkText="Yes"
-                                          CancelText="No"
-                                          OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
-        <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
-    </SynopsisClient.Dialogs.ConfirmDialog>
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-    <table class="table">
-        <tbody>
+        <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                              ShowDialog="Handler.ShowConfirmDeleteItemDialog"
+                                              OkText="Yes"
+                                              CancelText="No"
+                                              OnOkCancelClicked="Handler.DeletItemConfirmationOkCancelClicked">
+            Deleting a note cannot be cancelled locally.
+            <br />
+            <em>Note:</em> You can always reload from the cloud by pressing the "Reload from cloud" button
+        </SynopsisClient.Dialogs.ConfirmDialog>
+
+        <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                              ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
+                                              OkText="Yes"
+                                              CancelText="No"
+                                              OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
+            <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
+        </SynopsisClient.Dialogs.ConfirmDialog>
+
+        <div class="edit-area">
             @foreach (var note in Handler.Synopsis.PersonalNotes)
             {
-                <tr>
-                    <td><InputText @bind-Value="note.Content" /></td>
-                    <td><button @onclick="(e => Handler.Delete(note))">Delete</button></td>
-                </tr>
+                <label title="Personal note">
+                    <InputText class="wide-input"
+                               @bind-Value="note.Content" />
+                </label>
+
+                <button @onclick="(e => Handler.Delete(note))">Delete</button>
             }
-        </tbody>
-    </table>
+        </div>
 
-    <div class="bottom-buttons" style="margin-bottom: 10px;">
-        <button @onclick="Handler.AddItem">Add a note</button>
-    </div>
+        <div class="bottom-buttons-area">
+            <button class="main-button"
+                    @onclick="Handler.AddItem">
+                Add a note
+            </button>
+        </div>
 
-    <div class="bottom-buttons">
-        <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
-        <button @onclick="Handler.ReloadFromCloud">Reload from cloud</button>
-    </div>
-</EditForm>
+        <div class="bottom-buttons-area">
+            <button disabled="@Handler.CannotSave"
+                    class="main-button"
+                    @onclick="Handler.CheckSaveSynopsis">
+                Save local
+            </button>
+            <button class="main-button"
+                    @onclick="Handler.ReloadFromCloud">
+                Reload from cloud
+            </button>
+        </div>
+    </EditForm>
 }

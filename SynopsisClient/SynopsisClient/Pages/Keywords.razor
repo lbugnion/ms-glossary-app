@@ -1,7 +1,7 @@
 ﻿@page "/keywords"
 @inject SynopsisClient.Model.SynopsisHandler Handler
 
-<h1>Keywords</h1>
+<h2>Keywords</h2>
 
 @if (Handler.Synopsis == null)
 {
@@ -9,47 +9,69 @@
 }
 else
 {
-<EditForm EditContext="@Handler.CurrentEditContext">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+    <div class="intro">
+        <p>The list of keywords will be used to cross-reference items within the Glossary. They can be one word, a short expression, 2-3 words. They can also be abbreviations.</p>
 
-    <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
-                                          ShowDialog="Handler.ShowConfirmDeleteItemDialog"
-                                          OkText="Yes"
-                                          CancelText="No"
-                                          OnOkCancelClicked="Handler.DeletItemConfirmationOkCancelClicked">
-        Deleting a keywords cannot be cancelled locally.
-        <br />
-        <em>Note:</em> You can always reload from the cloud by pressing the "Reload from cloud" button
-    </SynopsisClient.Dialogs.ConfirmDialog>
+        <p>A given keyword or key expression can be used in multiple pages. In that case a disambiguation page will be created to help the user choose which page he wants to read.</p>
 
-    <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
-                                          ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
-                                          OkText="Yes"
-                                          CancelText="No"
-                                          OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
-        <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
-    </SynopsisClient.Dialogs.ConfirmDialog>
+        <p><a href="https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#keywords-or-key-expressions" target="_blank">See the notes and examples</a></p>
+    </div>
 
-    <table class="table">
-        <tbody>
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                              ShowDialog="Handler.ShowConfirmDeleteItemDialog"
+                                              OkText="Yes"
+                                              CancelText="No"
+                                              OnOkCancelClicked="Handler.DeletItemConfirmationOkCancelClicked">
+            Deleting a keywords cannot be cancelled locally.
+            <br />
+            <em>Note:</em> You can always reload from the cloud by pressing the "Reload from cloud" button
+        </SynopsisClient.Dialogs.ConfirmDialog>
+
+        <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                              ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
+                                              OkText="Yes"
+                                              CancelText="No"
+                                              OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
+            <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
+        </SynopsisClient.Dialogs.ConfirmDialog>
+
+        <div class="edit-area">
             @foreach (var keyword in Handler.Synopsis.Keywords)
             {
-                <tr>
-                    <td><InputText @bind-Value="keyword.Content" /></td>
-                    <td><button @onclick="(e => Handler.Delete(keyword))">Delete</button></td>
-                </tr>
+                <label title="Demo description">
+                    <span class="form-label">Keyword</span>
+                    <br />
+                    <InputText class="wide-input"
+                               @bind-Value="keyword.Content" />
+                </label>
+                <button class="small-button"
+                        @onclick="(e => Handler.Delete(keyword))">
+                    Delete
+                </button>
             }
-        </tbody>
-    </table>
+        </div>
 
-    <div class="bottom-buttons" style="margin-bottom: 10px;">
-        <button @onclick="Handler.AddItem">Add a keyword</button>
-    </div>
+        <div class="bottom-buttons-area">
+            <button class="main-button"
+                    @onclick="Handler.AddItem">
+                Add a keyword
+            </button>
+        </div>
 
-    <div class="bottom-buttons">
-        <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
-        <button @onclick="Handler.ReloadFromCloud">Reload from cloud</button>
-    </div>
-</EditForm>
+        <div class="bottom-buttons-area">
+            <button disabled="@Handler.CannotSave"
+                    class="main-button"
+                    @onclick="Handler.CheckSaveSynopsis">
+                Save local
+            </button>
+            <button class="main-button"
+                    @onclick="Handler.ReloadFromCloud">
+                Reload from cloud
+            </button>
+        </div>
+    </EditForm>
 }

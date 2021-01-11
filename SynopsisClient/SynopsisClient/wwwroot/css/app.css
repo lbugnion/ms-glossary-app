@@ -182,11 +182,15 @@ app {
     }
 }
 
-.bottom-buttons{
-
+.bottom-buttons-area {
+    margin-bottom: 10px;
 }
 
-.large-input-text{
+.main-button {
+    width: 200px;
+}
+
+.medium-input-text {
     width: 500px;
     height: 100px;
 }
@@ -205,4 +209,25 @@ app {
 
 .dialog button{
     width: 80px;
+}
+
+.form-label {
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.short-input {
+    width: 200px;
+}
+
+.wide-input {
+    width: 500px;
+}
+
+.small-button {
+    width: 100px;
+}
+
+.edit-area {
+    margin-bottom: 20px;
 }

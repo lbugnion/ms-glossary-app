@@ -1,7 +1,7 @@
 @page "/authors"
 @inject SynopsisClient.Model.SynopsisHandler Handler
 
-<h1>Authors</h1>
+<h2>Authors</h2>
 
 @if (Handler.Synopsis == null)
 {
@@ -9,58 +9,106 @@
 }
 else
 {
-<EditForm EditContext="@Handler.CurrentEditContext">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+    <div class="intro">
 
-    <ConfirmDialog Title="Are you sure?"
-                   ShowDialog="Handler.ShowConfirmDeleteItemDialog"
-                   OkText="Yes"
-                   CancelText="No"
-                   OnOkCancelClicked="Handler.DeletItemConfirmationOkCancelClicked">
-        Deleting an author cannot be cancelled locally.
-        <br />
-        <em>Note:</em> You can always reload from the cloud by pressing the "Reload from cloud" button
-    </ConfirmDialog>
+        <p>You have already entered your information when you submitted the form. You can also define additional authors.</p>
 
-    <ConfirmDialog Title="Are you sure?"
-                   ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
-                   OkText="Yes"
-                   CancelText="No"
-                   OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
-        <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
-    </ConfirmDialog>
+        <p>Please follow the rules:</p>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>GitHub</th>
-                <th>Twitter</th>
-            </tr>
-        </thead>
-        <tbody>
+        <ul style="font-weight: bold;">
+            <li>You need to define at least one author!</li>
+            <li>Each author must have every field filled.</li>
+        </ul>
+
+    </div>
+
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <ConfirmDialog Title="Are you sure?"
+                       ShowDialog="Handler.ShowConfirmDeleteItemDialog"
+                       OkText="Yes"
+                       CancelText="No"
+                       OnOkCancelClicked="Handler.DeletItemConfirmationOkCancelClicked">
+            Deleting an author cannot be cancelled locally.
+            <br />
+            <em>Note:</em> You can always reload from the cloud by pressing the "Reload from cloud" button
+        </ConfirmDialog>
+
+        <ConfirmDialog Title="Are you sure?"
+                       ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
+                       OkText="Yes"
+                       CancelText="No"
+                       OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
+            <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
+        </ConfirmDialog>
+
+        <div class="edit-area">
+
             @foreach (var author in Handler.Synopsis.Authors)
             {
-                <tr>
-                    <td><InputText @bind-Value="author.Name" id="name" /></td>
-                    <td><InputText @bind-Value="author.Email" id="email" /></td>
-                    <td><InputText @bind-Value="author.GitHub" id="github" /></td>
-                    <td><InputText @bind-Value="author.Twitter" id="twitter" /></td>
-                    <td><button @onclick="@(e => Handler.Delete(author))">Delete</button></td>
-                </tr>
+                <div>
+                    <span>
+                        <label title="Author's name">
+                            <span class="form-label">Author name</span>
+                            <br />
+                            <InputText class="short-input"
+                                       @bind-Value="author.Name" />
+                        </label>
+                    </span>
+                    <span>
+                        <label title="Author's Email address">
+                            <span class="form-label">Email</span>
+                            <br />
+                            <InputText class="short-input"
+                                       @bind-Value="author.Email" />
+                        </label>
+                    </span>
+                    <span>
+                        <label title="Author's GitHub username">
+                            <span class="form-label">GitHub</span>
+                            <br />
+                            <InputText class="short-input"
+                                       @bind-Value="author.GitHub" />
+                        </label>
+                    </span>
+                    <span>
+                        <label title="Author's Twitter username">
+                            <span class="form-label">Twitter</span>
+                            <br />
+                            <InputText class="short-input"
+                                       @bind-Value="author.Twitter" />
+                        </label>
+                    </span>
+                    <br />
+                    <button class="small-button"
+                            @onclick="(e => Handler.Delete(author))">
+                        Delete
+                    </button>
+                </div>
+
+                <hr />
             }
-        </tbody>
-    </table>
+        </div>
 
-    <div class="bottom-buttons" style="margin-bottom: 10px;">
-        <button @onclick="Handler.AddItem">Add an author</button>
-    </div>
+        <div class="bottom-buttons-area">
+            <button class="main-button"
+                    @onclick="Handler.AddItem">
+                Add an author
+            </button>
+        </div>
 
-    <div class="bottom-buttons">
-        <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
-        <button @onclick="Handler.ReloadFromCloud">Reload from cloud</button>
-    </div>
-</EditForm>
+        <div class="bottom-buttons-area">
+            <button disabled="@Handler.CannotSave"
+                    class="main-button"
+                    @onclick="Handler.CheckSaveSynopsis">
+                Save local
+            </button>
+            <button class="main-button"
+                    @onclick="Handler.ReloadFromCloud">
+                Reload from cloud
+            </button>
+        </div>
+    </EditForm>
 }

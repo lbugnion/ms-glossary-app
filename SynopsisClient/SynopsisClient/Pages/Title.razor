@@ -1,7 +1,7 @@
 ﻿@page "/title"
 @inject SynopsisClient.Model.SynopsisHandler Handler
 
-<h1>Title</h1>
+<h2>Title</h2>
 
 @if (Handler.Synopsis == null)
 {
@@ -14,8 +14,6 @@ else
         <p>You can change the title of this Glossary term here.</p>
 
         <strong>Note that changing the title does NOT affect the URL of this synopsis.</strong>
-
-        <p><a href="https://github.com/lbugnion/ms-glossary/blob/master/instructions/getting-started.md">Go to the instructions to get started with a new term!</a></p>
 
     </div>
 
@@ -31,12 +29,25 @@ else
             <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
         </ConfirmDialog>
 
-        <InputText @bind-Value="Handler.Synopsis.Title"
-                   style="margin-bottom: 10px;" />
+        <div class="edit-area">
+            <label title="Term's title">
+                <span class="form-label">Term title</span>
+                <br />
+                <InputText class="wide-input"
+                           @bind-Value="Handler.Synopsis.Title" />
+            </label>
+        </div>
 
-        <div class="bottom-buttons">
-            <button disabled="@Handler.CannotSave" @onclick="Handler.CheckSaveSynopsis">Save local</button>
-            <button @onclick="Handler.ReloadFromCloud">Reload from cloud</button>
+        <div class="bottom-buttons-area">
+            <button disabled="@Handler.CannotSave"
+                    class="main-button"
+                    @onclick="Handler.CheckSaveSynopsis">
+                Save local
+            </button>
+            <button class="main-button"
+                    @onclick="Handler.ReloadFromCloud">
+                Reload from cloud
+            </button>
         </div>
     </EditForm>
 }
