@@ -20,6 +20,7 @@ namespace SynopsisClient
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             });
             builder.Services.AddScoped<SynopsisHandler>();
+            builder.Services.AddScoped<UserManager>();
             builder.Services.AddBlazoredLocalStorage();
 
             await builder.Build().RunAsync();

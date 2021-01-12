@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 
 namespace SynopsisClient.Pages
 {
-    public partial class Demos
+    public partial class LinksToDocs
     {
         protected override async Task OnInitializedAsync()
         {
-            Console.WriteLine("PersonalNotes.OnInitializedAsync");
+            Console.WriteLine("LinksToDocs.OnInitializedAsync");
             await UserManager.CheckLogin();
 
             if (!UserManager.IsLoggedIn)
@@ -18,7 +18,7 @@ namespace SynopsisClient.Pages
             }
 
             await Handler.InitializePage();
-            Handler.DefineList(Handler.Synopsis.Demos);
+            Handler.DefineList(Handler.Synopsis.Links.LinksToDocs.Links);
         }
     }
 }

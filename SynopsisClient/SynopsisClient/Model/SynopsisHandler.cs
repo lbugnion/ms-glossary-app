@@ -261,7 +261,7 @@ namespace SynopsisClient.Model
             public ListHandler(SynopsisHandler parent, IList<T> items)
                                         : base(parent)
             {
-                Console.WriteLine("ListHandler.ctor");
+                Console.WriteLine($"ListHandler.ctor: {items.Count} items");
                 Items = items;
             }
 
