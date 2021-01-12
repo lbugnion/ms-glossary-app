@@ -7,31 +7,40 @@ namespace MsGlossaryApp.DataModel
 {
     public class Synopsis : TermBase
     {
+        [Required]
         public IList<string> AuthorsInstructions { get; set; }
 
         [Required]
         public IList<ContentEntry> Demos { get; set; }
 
+        [Required]
         public IList<string> DemosInstructions { get; set; }
 
+        [Required]
         public IList<string> KeywordsInstructions { get; set; }
 
+        [Required]
         public Dictionary<string, IList<string>> LinksInstructions { get; set; }
 
         [Required]
         public IList<ContentEntry> PersonalNotes { get; set; }
 
+        [Required]
         public IList<string> PersonalNotesInstructions { get; set; }
 
         [Required]
         public string Phonetics { get; set; }
 
+        [Required]
         public IList<string> PhoneticsInstructions { get; set; }
 
+        [Required]
         public IList<string> ShortDescriptionInstructions { get; set; }
 
+        [Required]
         public IList<string> TitleInstructions { get; set; }
 
+        [Required]
         public IList<string> TranscriptInstructions { get; set; }
 
         public Synopsis()

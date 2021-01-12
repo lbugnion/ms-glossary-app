@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace MsGlossaryApp.DataModel
@@ -26,11 +27,33 @@ namespace MsGlossaryApp.DataModel
             set;
         }
 
+        /// <summary>
+        /// Use this property for the Synopsis client.
+        /// </summary>
+        [JsonIgnore]
+        [Required]
+        [Url]
+        public string EditingUrl
+        {
+            get
+            {
+                return Url;
+            }
+            set
+            {
+                if (Url != value)
+                {
+                    Text = Constants.SynopsisMarkdownMarkers.LinkNoText;
+                    Url = value;
+                }
+            }
+        }
+
         public override bool Equals(object obj)
         {
-            return obj is Link link 
-                && Note == link.Note 
-                && Text == link.Text 
+            return obj is Link link
+                && Note == link.Note
+                && Text == link.Text
                 && Url == link.Url;
         }
 

@@ -166,12 +166,14 @@ namespace MsGlossaryApp.DataModel
             parts[0] = parts[0].Substring(LinkTextOpener.Length).Trim();
             url = url.Substring(0, url.Length - LinkUrlCloser.Length).Trim();
 
-            return new Link
+            var link = new Link
             {
-                Text = parts[0],
                 Url = url,
                 Note = note
             };
+
+            link.Text = parts[0]; // Assign last to avoid overwriting Text property
+            return link;
         }
 
         public static string ParseListItem(this string line)

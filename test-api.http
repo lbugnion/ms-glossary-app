@@ -7,7 +7,7 @@ POST http://localhost:7071/api/add-new
     "submittername": "Laurent Bugnion",
     "submittertwitter": "@LBugnion",
     "submittergithub": "LBugnion",
-    "term":"test-topic-15"
+    "term":"Test topic 17"
 }
 
 ### Add New Synopsis Staging
@@ -42,7 +42,7 @@ GET http://localhost:7071/api/synopsis
 
 {
     "submitteremail": "lbugnion@microsoft.com",
-    "filename":"test-topic-15"
+    "filename":"test-topic-17"
 }
 
 ### Save synopsis
@@ -54,7 +54,9 @@ POST http://localhost:7071/api/synopsis
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#submitted-by)"
   ],
   "Demos": [
-    "Short description of the demo."
+    {
+      "Content": "Short description of the demo."
+    }
   ],
   "DemosInstructions": [
     "Quick list of the demos you want to show.",
@@ -98,7 +100,7 @@ POST http://localhost:7071/api/synopsis
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#phonetics)"
   ],
   "ShortDescriptionInstructions": [
-    "Please keep to about 25 words maximum.",
+    "Please keep between 60 and 200 characters.",
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#short-description)"
   ],
   "TitleInstructions": [
@@ -108,7 +110,8 @@ POST http://localhost:7071/api/synopsis
   "TranscriptInstructions": [
     "A transcript of what you are planning to say on camera, including demos etc.",
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#script)",
-    "When writing your script, and even though we are not working on the video yet, [keep in mind the general structure of the social videos](./getting-started-video.md)."
+    "When writing your script, and even though we are not working on the video yet, [keep in mind the general structure of the social videos](./getting-started-video.md).",
+    "For abbreviations, also mention the full expression in the intro and show phonetics too."
   ],
   "Authors": [
     {
@@ -119,69 +122,57 @@ POST http://localhost:7071/api/synopsis
     }
   ],
   "Keywords": [
-    "AAD",
-    "Active Directory",
-    "Authentication",
-    "Identity"
+    {
+      "Content": "AAD"
+    },
+    {
+      "Content": "Active Directory"
+    },
+    {
+      "Content": "Authentication"
+    },
+    {
+      "Content": "Identity"
+    }
   ],
   "Links": {
-    "Links to docs": [
-      {
-        "Note": null,
-        "Text": "An introduction to Azure Functions",
-        "Url": "https://docs.microsoft.com/azure/azure-functions/functions-overview"
-      }
-    ],
-    "Links to Learn": [
-      {
-        "Note": "(*learning path*)",
-        "Text": "Create serverless applications",
-        "Url": "https://docs.microsoft.com/learn/paths/create-serverless-applications"
-      },
-      {
-        "Note": "(*module*)",
-        "Text": "Refactor Node.js and Express APIs to Serverless APIs with Azure Functions",
-        "Url": "https://docs.microsoft.com/learn/modules/shift-nodejs-express-apis-serverless"
-      }
-    ],
-    "Other Links (optional)": []
+    "LinksToDocs": {
+      "Links": [
+        {
+          "Note": null,
+          "Text": "An introduction to Azure Functions",
+          "Url": "https://docs.microsoft.com/azure/azure-functions/functions-overview"
+        }
+      ],
+      "SynopsisTitle": "Links to docs",
+      "TermTitle": "Documentation"
+    },
+    "LinksToLearn": {
+      "Links": [
+        {
+          "Note": "(*learning path*)",
+          "Text": "Create serverless applications",
+          "Url": "https://docs.microsoft.com/learn/paths/create-serverless-applications"
+        },
+        {
+          "Note": "(*module*)",
+          "Text": "Refactor Node.js and Express APIs to Serverless APIs with Azure Functions",
+          "Url": "https://docs.microsoft.com/learn/modules/shift-nodejs-express-apis-serverless"
+        }
+      ],
+      "SynopsisTitle": "Links to Learn",
+      "TermTitle": "Microsoft Learn"
+    },
+    "LinksToOthers": {
+      "Links": [],
+      "SynopsisTitle": "Other Links (optional)",
+      "TermTitle": "Other links"
+    }
   },
   "MustSave": false,
-  "SafeFileName": "test-topic-15",
+  "FileName": "test-topic-17",
   "ShortDescription": "This is a test again",
-  "Title": "test-topic-15",
-  "Transcript": "Today's word of the day is: WORD.\r\nToday's words of the day are: EXPRESSION.\r\nToday's word of the day is an abbreviation: ABBREVIATION.\r\n\r\nHello and welcome to Microsoft Azure Words of the Day, the show that teaches you the Azure vocabulary!\r\n\r\n> For abbreviations, also mention the full expression in the intro and show phonetics too.\r\n",
-  "Uri": "https://raw.githubusercontent.com/lbugnion/tests-auto-commit/test-topic-15/synopsis/test-topic-15.md"
-}
-
-### TEMPO Valid
-
-POST http://localhost:7071/api/Function1
-
-{
-  "Name" : "Hello",
-  "Inner" : {
-    "InnerName" : "InnerName"
-  },
-  "InnerList" : [
-    {
-      "InnerName" : "InnerList1Name"
-    }
-  ]
-}
-
-### TEMPO Invalid
-
-POST http://localhost:7071/api/Function1
-
-{
-  "Name" : "Hello",
-  "Inner" : {
-    "InnerName" : "InnerName"
-  },
-  "InnerList" : [
-    {
-      "InnerName" : "InnerList1Name"
-    }
-  ]
+  "Title": "Test topic 17",
+  "Transcript": "Today's word of the day is: WORD.\r\nToday's words of the day are: EXPRESSION.\r\nToday's word of the day is an abbreviation: ABBREVIATION.\r\n\r\n> Enter production notes like this. This is to help you while filming or while editing the video.\r\n\r\nHello and welcome to Microsoft Azure Words of the Day, the show that teaches you the Azure vocabulary!\r\n",
+  "Uri": "https://raw.githubusercontent.com/lbugnion/tests-auto-commit/test-topic-17/synopsis/test-topic-17.md"
 }

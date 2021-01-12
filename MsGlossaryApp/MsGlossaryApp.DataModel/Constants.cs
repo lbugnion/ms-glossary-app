@@ -29,6 +29,7 @@
             public const string KeywordsMarker = "## Keywords";
             public const string LinksToDocsMarker = "## Links to docs";
             public const string LinksToLearnMarker = "## Links to Learn";
+            public const string LinksToOthersMarker = "## Other Links (optional)";
             public const string NameMarker = "Name: ";
             public const string PersonalNotesMarker = "## Personal notes";
             public const string PhoneticsMarker = "## Phonetics";
@@ -37,6 +38,7 @@
             public const string TitleMarker = "# Microsoft Glossary Synopsis: ";
             public const string TranscriptMarker = "## Script";
             public const string TwitterMarker = "Twitter: ";
+            public const string LinkNoText = "NO_LINK_TITLE";
         }
 
         public static class TermMarkdownMarkers
@@ -48,6 +50,9 @@
             public const string KeywordsMarker = "> Keywords: ";
             public const string LanguageMarker = "> Language: ";
             public const string LinksMarker = "## Links";
+            public const string LinksToDocsMarker = "### Documentation";
+            public const string LinksToLearnMarker = "### Microsoft Learn";
+            public const string LinksToOthersMarker = "### Other links";
             public const string RecordingDateMarker = "> Recording date: ";
             public const string ShortDescriptionMarker = "> Blurb: ";
             public const string TranscriptMarker = "## Transcript";

@@ -16,8 +16,7 @@ namespace MsGlossaryApp.DataModel
         public IList<ContentEntry> Keywords { get; set; }
 
         [Required]
-        [MinLength(2, ErrorMessage = "You need to define links for Docs and Learn at least")]
-        public Dictionary<string, IList<Link>> Links { get; set; }
+        public LinksSection Links { get; set; }
 
         public bool MustSave { get; set; }
 
@@ -33,6 +32,7 @@ namespace MsGlossaryApp.DataModel
         public string Title { get; set; }
 
         [Required]
+        [MinLength(1, ErrorMessage = "You need to define a script")]
         public string Transcript { get; set; }
 
         [Required]
@@ -53,7 +53,7 @@ namespace MsGlossaryApp.DataModel
         {
             Authors = new List<Author>();
             Keywords = new List<ContentEntry>();
-            Links = new Dictionary<string, IList<Link>>();
+            Links = new LinksSection();
         }
 
         protected bool IsListEqualTo(IList<object> list1, IList<object> list2)
@@ -113,27 +113,9 @@ namespace MsGlossaryApp.DataModel
                 return false;
             }
 
-            if (term.Links.Count != Links.Count)
+            if (!term.Links.Equals(Links))
             {
                 return false;
-            }
-
-            for (var index = 0; index < term.Links.Keys.Count; index++)
-            {
-                var key1 = term.Links.Keys.ElementAt(index);
-                var key2 = Links.Keys.ElementAt(index);
-
-                if (key1 != key2)
-                {
-                    return false;
-                }
-
-                if (!IsListEqualTo(
-                    term.Links[key1].Select(a => (object)a).ToList(),
-                    Links[key2].Select(a => (object)a).ToList()))
-                {
-                    return false;
-                }
             }
 
             if (term.ShortDescription != ShortDescription)

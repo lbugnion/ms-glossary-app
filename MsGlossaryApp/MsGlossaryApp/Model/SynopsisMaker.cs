@@ -15,6 +15,8 @@ namespace MsGlossaryApp.Model
             Synopsis synopsis,
             ILogger log)
         {
+            // TODO Validate the Synopsis, throw exception if it is invalid
+
             log?.LogInformationEx("In MakeSynopsisText", LogVerbosity.Verbose);
 
             var builder = new StringBuilder()
@@ -22,28 +24,22 @@ namespace MsGlossaryApp.Model
                 .AppendLine(synopsis.Title)
                 .AppendLine();
 
-            if (synopsis.TitleInstructions != null)
+            foreach (var instruction in synopsis.TitleInstructions)
             {
-                foreach (var instruction in synopsis.TitleInstructions)
-                {
-                    builder
-                        .AppendLine(instruction.MakeNote())
-                        .AppendLine();
-                }
+                builder
+                    .AppendLine(instruction.MakeNote())
+                    .AppendLine();
             }
 
             builder
                 .AppendLine(Constants.SynopsisMarkdownMarkers.SubmittedByMarker)
                 .AppendLine();
 
-            if (synopsis.AuthorsInstructions != null)
+            foreach (var instruction in synopsis.AuthorsInstructions)
             {
-                foreach (var instruction in synopsis.AuthorsInstructions)
-                {
-                    builder
-                        .AppendLine(instruction.MakeNote())
-                        .AppendLine();
-                }
+                builder
+                    .AppendLine(instruction.MakeNote())
+                    .AppendLine();
             }
 
             var names = new StringBuilder().Append(Constants.SynopsisMarkdownMarkers.NameMarker);
@@ -51,15 +47,12 @@ namespace MsGlossaryApp.Model
             var githubs = new StringBuilder().Append(Constants.SynopsisMarkdownMarkers.GitHubMarker);
             var twitters = new StringBuilder().Append(Constants.SynopsisMarkdownMarkers.TwitterMarker);
 
-            if (synopsis.Authors != null)
+            foreach (var author in synopsis.Authors)
             {
-                foreach (var author in synopsis.Authors)
-                {
-                    names.Append(author.Name).Append(", ");
-                    emails.Append(author.Email).Append(", ");
-                    twitters.Append(author.Twitter).Append(", ");
-                    githubs.Append(author.GitHub).Append(", ");
-                }
+                names.Append(author.Name).Append(", ");
+                emails.Append(author.Email).Append(", ");
+                twitters.Append(author.Twitter).Append(", ");
+                githubs.Append(author.GitHub).Append(", ");
             }
 
             builder
@@ -74,14 +67,11 @@ namespace MsGlossaryApp.Model
                 .AppendLine(Constants.SynopsisMarkdownMarkers.ShortDescriptionMarker)
                 .AppendLine();
 
-            if (synopsis.ShortDescriptionInstructions != null)
+            foreach (var instruction in synopsis.ShortDescriptionInstructions)
             {
-                foreach (var instruction in synopsis.ShortDescriptionInstructions)
-                {
-                    builder
-                        .AppendLine(instruction.MakeNote())
-                        .AppendLine();
-                }
+                builder
+                    .AppendLine(instruction.MakeNote())
+                    .AppendLine();
             }
 
             builder
@@ -90,14 +80,11 @@ namespace MsGlossaryApp.Model
                 .AppendLine(Constants.SynopsisMarkdownMarkers.PhoneticsMarker)
                 .AppendLine();
 
-            if (synopsis.PhoneticsInstructions != null)
+            foreach (var instruction in synopsis.PhoneticsInstructions)
             {
-                foreach (var instruction in synopsis.PhoneticsInstructions)
-                {
-                    builder
-                        .AppendLine(instruction.MakeNote())
-                        .AppendLine();
-                }
+                builder
+                    .AppendLine(instruction.MakeNote())
+                    .AppendLine();
             }
 
             builder
@@ -106,23 +93,17 @@ namespace MsGlossaryApp.Model
                 .AppendLine(Constants.SynopsisMarkdownMarkers.PersonalNotesMarker)
                 .AppendLine();
 
-            if (synopsis.PersonalNotesInstructions != null)
+            foreach (var instruction in synopsis.PersonalNotesInstructions)
             {
-                foreach (var instruction in synopsis.PersonalNotesInstructions)
-                {
-                    builder
-                        .AppendLine(instruction.MakeNote())
-                        .AppendLine();
-                }
+                builder
+                    .AppendLine(instruction.MakeNote())
+                    .AppendLine();
             }
 
-            if (synopsis.PersonalNotes != null)
+            foreach (var note in synopsis.PersonalNotes)
             {
-                foreach (var note in synopsis.PersonalNotes)
-                {
-                    builder
-                        .AppendLine(note.Content.MakeListItem());
-                }
+                builder
+                    .AppendLine(note.Content.MakeListItem());
             }
 
             builder
@@ -130,17 +111,14 @@ namespace MsGlossaryApp.Model
                 .AppendLine(Constants.SynopsisMarkdownMarkers.KeywordsMarker)
                 .AppendLine();
 
-            if (synopsis.KeywordsInstructions != null)
+            foreach (var instruction in synopsis.KeywordsInstructions)
             {
-                foreach (var instruction in synopsis.KeywordsInstructions)
-                {
-                    builder
-                        .AppendLine(instruction.MakeNote())
-                        .AppendLine();
-                }
+                builder
+                    .AppendLine(instruction.MakeNote())
+                    .AppendLine();
             }
 
-            if (synopsis.Keywords != null)
+            if (synopsis.Keywords.Count > 0)
             {
                 builder
                     .AppendLine(TermMaker.MakeKeywordsLine(synopsis.Keywords))
@@ -151,67 +129,38 @@ namespace MsGlossaryApp.Model
                 .AppendLine(Constants.SynopsisMarkdownMarkers.DemosMarker)
                 .AppendLine();
 
-            if (synopsis.DemosInstructions != null)
+            foreach (var instruction in synopsis.DemosInstructions)
             {
-                foreach (var instruction in synopsis.DemosInstructions)
-                {
-                    builder
-                        .AppendLine(instruction.MakeNote())
-                        .AppendLine();
-                }
+                builder
+                    .AppendLine(instruction.MakeNote())
+                    .AppendLine();
             }
 
-            if (synopsis.Demos != null)
+            foreach (var demo in synopsis.Demos)
             {
-                foreach (var demo in synopsis.Demos)
-                {
-                    builder
-                        .AppendLine(demo.Content.MakeListItem());
-                }
+                builder
+                    .AppendLine(demo.Content.MakeListItem());
             }
 
             builder.AppendLine();
 
-            if (synopsis.Links != null)
+            CreateLinksSection(builder, synopsis.Links.LinksToDocs);
+            CreateLinksSection(builder, synopsis.Links.LinksToDocs);
+            CreateLinksSection(builder, synopsis.Links.LinksToDocs);
+
+            void CreateLinksSection(
+                StringBuilder builder,
+                LinksCollectionBase collection)
             {
-                foreach (var key in synopsis.Links.Keys)
-                {
-                    builder
-                        .AppendLine(key.MakeH2())
-                        .AppendLine();
-
-                    if (synopsis.LinksInstructions != null
-                        && synopsis.LinksInstructions.ContainsKey(key)
-                        && synopsis.LinksInstructions[key] != null)
-                    {
-                        foreach (var instruction in synopsis.LinksInstructions[key])
-                        {
-                            builder
-                                .AppendLine(instruction.MakeNote())
-                                .AppendLine();
-                        }
-                    }
-
-                    if (synopsis.Links[key] != null
-                        && synopsis.Links[key].Count > 0)
-                    {
-                        foreach (var link in synopsis.Links[key])
-                        {
-                            builder
-                                .AppendLine(link.ToMarkdown().MakeListItem());
-                        }
-
-                        builder.AppendLine();
-                    }
-                }
-
                 builder
-                    .AppendLine(Constants.SynopsisMarkdownMarkers.TranscriptMarker)
+                    .AppendLine(collection.SynopsisTitle.MakeH2())
                     .AppendLine();
 
-                if (synopsis.TranscriptInstructions != null)
+                if (synopsis.LinksInstructions != null
+                    && synopsis.LinksInstructions.ContainsKey(collection.SynopsisTitle)
+                    && synopsis.LinksInstructions[collection.SynopsisTitle] != null)
                 {
-                    foreach (var instruction in synopsis.TranscriptInstructions)
+                    foreach (var instruction in synopsis.LinksInstructions[collection.SynopsisTitle])
                     {
                         builder
                             .AppendLine(instruction.MakeNote())
@@ -219,11 +168,27 @@ namespace MsGlossaryApp.Model
                     }
                 }
 
-                if (!string.IsNullOrEmpty(synopsis.Transcript))
+                foreach (var link in collection.Links)
                 {
-                    builder.AppendLine(synopsis.Transcript);
+                    builder
+                        .AppendLine(link.ToMarkdown().MakeListItem());
                 }
+
+                builder.AppendLine();
             }
+
+            builder
+                .AppendLine(Constants.SynopsisMarkdownMarkers.TranscriptMarker)
+                .AppendLine();
+
+            foreach (var instruction in synopsis.TranscriptInstructions)
+            {
+                builder
+                    .AppendLine(instruction.MakeNote())
+                    .AppendLine();
+            }
+
+            builder.AppendLine(synopsis.Transcript);
 
             log?.LogInformationEx("Out MakeSynopsisText", LogVerbosity.Verbose);
             return builder.ToString();
@@ -234,6 +199,8 @@ namespace MsGlossaryApp.Model
             string markdown,
             ILogger log)
         {
+            // TODO Once the Synopsis client is published, remove the instructions from the template and force only Synopsis client to be used
+
             log?.LogInformationEx("In ParseSynopsis", LogVerbosity.Verbose);
             log?.LogInformationEx($"Synopsis: {uri}", LogVerbosity.Verbose);
 
@@ -247,31 +214,18 @@ namespace MsGlossaryApp.Model
             IList<string> currentInstructionsSection = null;
             var transcript = new StringBuilder();
             var shortDescription = new StringBuilder();
-
-            var isSubmittedBy = false;
-            var isShortDescription = false;
-            var isPhonetics = false;
-            var isPersonalNotes = false;
-            var isKeywords = false;
-            var isDemos = false;
-            var isLinks = false;
-            var isTranscript = false;
+            bool isSubmittedBy = false,
+                 isShortDescription = false,
+                 isPhonetics = false,
+                 isPersonalNotes = false,
+                 isKeywords = false,
+                 isDemos = false,
+                 isLinks = false,
+                 isTranscript = false;
             var transcriptStarted = false;
 
             var synopsis = new Synopsis
             {
-                AuthorsInstructions = new List<string>(),
-                Demos = new List<ContentEntry>(),
-                DemosInstructions = new List<string>(),
-                KeywordsInstructions = new List<string>(),
-                Links = new Dictionary<string, IList<Link>>(),
-                LinksInstructions = new Dictionary<string, IList<string>>(),
-                PersonalNotes = new List<ContentEntry>(),
-                PersonalNotesInstructions = new List<string>(),
-                PhoneticsInstructions = new List<string>(),
-                ShortDescriptionInstructions = new List<string>(),
-                TitleInstructions = new List<string>(),
-                TranscriptInstructions = new List<string>(),
                 Uri = uri
             };
 
@@ -298,121 +252,137 @@ namespace MsGlossaryApp.Model
                 {
                     synopsis.Title = line.Substring(Constants.SynopsisMarkdownMarkers.TitleMarker.Length);
                     currentInstructionsSection = synopsis.TitleInstructions;
+                    continue;
                 }
-                else if (line == Constants.SynopsisMarkdownMarkers.SubmittedByMarker)
-                {
-                    isSubmittedBy = true;
-                    isShortDescription = false;
-                    isPhonetics = false;
-                    isPersonalNotes = false;
-                    isKeywords = false;
-                    isDemos = false;
-                    isLinks = false;
-                    isTranscript = false;
-                    currentInstructionsSection = synopsis.AuthorsInstructions;
-                }
-                else if (line == Constants.SynopsisMarkdownMarkers.ShortDescriptionMarker)
-                {
-                    isSubmittedBy = false;
-                    isShortDescription = true;
-                    isPhonetics = false;
-                    isPersonalNotes = false;
-                    isKeywords = false;
-                    isDemos = false;
-                    isLinks = false;
-                    isTranscript = false;
-                    currentInstructionsSection = synopsis.ShortDescriptionInstructions;
-                }
-                else if (line == Constants.SynopsisMarkdownMarkers.PhoneticsMarker)
-                {
-                    isSubmittedBy = false;
-                    isShortDescription = false;
-                    isPhonetics = true;
-                    isPersonalNotes = false;
-                    isKeywords = false;
-                    isDemos = false;
-                    isLinks = false;
-                    isTranscript = false;
-                    currentInstructionsSection = synopsis.PhoneticsInstructions;
-                }
-                else if (line == Constants.SynopsisMarkdownMarkers.PersonalNotesMarker)
-                {
-                    isSubmittedBy = false;
-                    isShortDescription = false;
-                    isPhonetics = false;
-                    isPersonalNotes = true;
-                    isKeywords = false;
-                    isDemos = false;
-                    isLinks = false;
-                    isTranscript = false;
-                    currentInstructionsSection = synopsis.PersonalNotesInstructions;
-                }
-                else if (line == Constants.SynopsisMarkdownMarkers.KeywordsMarker)
-                {
-                    isSubmittedBy = false;
-                    isShortDescription = false;
-                    isPhonetics = false;
-                    isPersonalNotes = false;
-                    isKeywords = true;
-                    isDemos = false;
-                    isLinks = false;
-                    isTranscript = false;
-                    currentInstructionsSection = synopsis.KeywordsInstructions;
-                }
-                else if (line == Constants.SynopsisMarkdownMarkers.DemosMarker)
-                {
-                    isSubmittedBy = false;
-                    isShortDescription = false;
-                    isPhonetics = false;
-                    isPersonalNotes = false;
-                    isKeywords = false;
-                    isDemos = true;
-                    isLinks = false;
-                    isTranscript = false;
-                    currentInstructionsSection = synopsis.DemosInstructions;
-                }
-                else if (line == Constants.SynopsisMarkdownMarkers.LinksToDocsMarker
-                    || line == Constants.SynopsisMarkdownMarkers.LinksToLearnMarker
-                    || (line.IsH2()
-                        && line.ToLower().Contains("links")))
-                {
-                    isSubmittedBy = false;
-                    isShortDescription = false;
-                    isPhonetics = false;
-                    isPersonalNotes = false;
-                    isKeywords = false;
-                    isDemos = false;
-                    isLinks = true;
-                    isTranscript = false;
 
-                    line = line.ParseH2();
+                switch (line)
+                {
+                    case Constants.SynopsisMarkdownMarkers.SubmittedByMarker:
+                        currentInstructionsSection = synopsis.AuthorsInstructions;
+                        isSubmittedBy = true;
+                        isShortDescription = false;
+                        isPhonetics = false;
+                        isPersonalNotes = false;
+                        isKeywords = false;
+                        isDemos = false;
+                        isLinks = false;
+                        isTranscript = false;
+                        continue;
 
-                    if (!synopsis.Links.ContainsKey(line))
+                    case Constants.SynopsisMarkdownMarkers.ShortDescriptionMarker:
+                        currentInstructionsSection = synopsis.ShortDescriptionInstructions;
+                        isSubmittedBy = false;
+                        isShortDescription = true;
+                        isPhonetics = false;
+                        isPersonalNotes = false;
+                        isKeywords = false;
+                        isDemos = false;
+                        isLinks = false;
+                        isTranscript = false;
+                        continue;
+
+                    case Constants.SynopsisMarkdownMarkers.PhoneticsMarker:
+                        currentInstructionsSection = synopsis.PhoneticsInstructions;
+                        isSubmittedBy = false;
+                        isShortDescription = false;
+                        isPhonetics = true;
+                        isPersonalNotes = false;
+                        isKeywords = false;
+                        isDemos = false;
+                        isLinks = false;
+                        isTranscript = false;
+                        continue;
+
+                    case Constants.SynopsisMarkdownMarkers.PersonalNotesMarker:
+                        currentInstructionsSection = synopsis.PersonalNotesInstructions;
+                        isSubmittedBy = false;
+                        isShortDescription = false;
+                        isPhonetics = false;
+                        isPersonalNotes = true;
+                        isKeywords = false;
+                        isDemos = false;
+                        isLinks = false;
+                        isTranscript = false;
+                        continue;
+
+                    case Constants.SynopsisMarkdownMarkers.KeywordsMarker:
+                        currentInstructionsSection = synopsis.KeywordsInstructions;
+                        isSubmittedBy = false;
+                        isShortDescription = false;
+                        isPhonetics = false;
+                        isPersonalNotes = false;
+                        isKeywords = true;
+                        isDemos = false;
+                        isLinks = false;
+                        isTranscript = false;
+                        continue;
+
+                    case Constants.SynopsisMarkdownMarkers.DemosMarker:
+                        currentInstructionsSection = synopsis.DemosInstructions;
+                        isSubmittedBy = false;
+                        isShortDescription = false;
+                        isPhonetics = false;
+                        isPersonalNotes = false;
+                        isKeywords = false;
+                        isDemos = true;
+                        isLinks = false;
+                        isTranscript = false;
+                        continue;
+
+                    case Constants.SynopsisMarkdownMarkers.LinksToDocsMarker:
+                    case Constants.SynopsisMarkdownMarkers.LinksToLearnMarker:
+                    case Constants.SynopsisMarkdownMarkers.LinksToOthersMarker:
+                        currentInstructionsSection = GetLinkInstructionSection(line);
+                        isSubmittedBy = false;
+                        isShortDescription = false;
+                        isPhonetics = false;
+                        isPersonalNotes = false;
+                        isKeywords = false;
+                        isDemos = false;
+                        isLinks = true;
+                        isTranscript = false;
+
+                        switch (line)
+                        {
+                            case Constants.SynopsisMarkdownMarkers.LinksToDocsMarker:
+                                currentLinksSection = synopsis.Links.LinksToDocs.Links;
+                                break;
+                            case Constants.SynopsisMarkdownMarkers.LinksToLearnMarker:
+                                currentLinksSection = synopsis.Links.LinksToLearn.Links;
+                                break;
+                            case Constants.SynopsisMarkdownMarkers.LinksToOthersMarker:
+                                currentLinksSection = synopsis.Links.LinksToOthers.Links;
+                                break;
+                        }
+
+                        continue;
+
+                    case Constants.SynopsisMarkdownMarkers.TranscriptMarker:
+                        currentInstructionsSection = null;
+                        isSubmittedBy = false;
+                        isShortDescription = false;
+                        isPhonetics = false;
+                        isPersonalNotes = false;
+                        isKeywords = false;
+                        isDemos = false;
+                        isLinks = false;
+                        isTranscript = true;
+                        continue;
+                }
+
+                IList<string> GetLinkInstructionSection(string line)
+                {
+                    var key = line.ParseH2();
+
+                    if (!synopsis.LinksInstructions.ContainsKey(key))
                     {
-                        synopsis.Links.Add(line, new List<Link>());
+                        synopsis.LinksInstructions.Add(key, new List<string>());
                     }
 
-                    if (!synopsis.LinksInstructions.ContainsKey(line))
-                    {
-                        synopsis.LinksInstructions.Add(line, new List<string>());
-                    }
+                    return synopsis.LinksInstructions[key];
+                }
 
-                    currentLinksSection = synopsis.Links[line];
-                    currentInstructionsSection = synopsis.LinksInstructions[line];
-                }
-                else if (line == Constants.SynopsisMarkdownMarkers.TranscriptMarker)
-                {
-                    isSubmittedBy = false;
-                    isShortDescription = false;
-                    isPhonetics = false;
-                    isPersonalNotes = false;
-                    isKeywords = false;
-                    isDemos = false;
-                    isLinks = false;
-                    isTranscript = true;
-                    currentInstructionsSection = null;
-                }
-                else if (isSubmittedBy)
+                if (isSubmittedBy)
                 {
                     if (line.StartsWith(Constants.SynopsisMarkdownMarkers.NameMarker))
                     {

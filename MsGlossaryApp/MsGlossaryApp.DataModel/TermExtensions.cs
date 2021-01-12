@@ -65,18 +65,38 @@ namespace MsGlossaryApp.DataModel
 
             if (isValid)
             {
-                foreach (var linksList in term.Links)
+                foreach (var link in term.Links.LinksToDocs.Links)
                 {
-                    foreach (var link in linksList.Value)
-                    {
-                        context = new ValidationContext(link);
-                        isValid = Validator.TryValidateObject(link, context, results, true);
+                    context = new ValidationContext(link);
+                    isValid = Validator.TryValidateObject(link, context, results, true);
 
-                        if (!isValid)
-                        {
-                            break;
-                        }
+                    if (!isValid)
+                    {
+                        break;
                     }
+                }
+            }
+
+            if (isValid)
+            {
+                foreach (var link in term.Links.LinksToLearn.Links)
+                {
+                    context = new ValidationContext(link);
+                    isValid = Validator.TryValidateObject(link, context, results, true);
+
+                    if (!isValid)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (isValid)
+            {
+                foreach (var link in term.Links.LinksToOthers.Links)
+                {
+                    context = new ValidationContext(link);
+                    isValid = Validator.TryValidateObject(link, context, results, true);
 
                     if (!isValid)
                     {
@@ -98,28 +118,6 @@ namespace MsGlossaryApp.DataModel
             {
                 var context = new ValidationContext(synopsis);
                 isValid = Validator.TryValidateObject(synopsis, context, results, true);
-            }
-
-            if (isValid)
-            {
-                // We know that the Links collection has at least 2 lists
-                // and all links are valid. Let's just check the keys.
-
-                if (!synopsis.Links.ContainsKey(Constants.SynopsisMarkdownMarkers.LinksToDocsMarker))
-                {
-                    results.Add(new ValidationResult(
-                        $"Key not found in links: {Constants.SynopsisMarkdownMarkers.LinksToLearnMarker}"));
-
-                    return false;
-                }
-
-                if (!synopsis.Links.ContainsKey(Constants.SynopsisMarkdownMarkers.LinksToLearnMarker))
-                {
-                    results.Add(new ValidationResult(
-                        $"Key not found in links: {Constants.SynopsisMarkdownMarkers.LinksToLearnMarker}"));
-
-                    return false;
-                }
             }
 
             if (isValid)
