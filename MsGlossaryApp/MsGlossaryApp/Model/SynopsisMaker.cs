@@ -150,17 +150,17 @@ namespace MsGlossaryApp.Model
 
             void CreateLinksSection(
                 StringBuilder builder,
-                LinksCollectionBase collection)
+                LinksCollectionBase collectionBase)
             {
                 builder
-                    .AppendLine(collection.SynopsisTitle.MakeH2())
+                    .AppendLine(collectionBase.SynopsisTitle.MakeH2())
                     .AppendLine();
 
                 if (synopsis.LinksInstructions != null
-                    && synopsis.LinksInstructions.ContainsKey(collection.SynopsisTitle)
-                    && synopsis.LinksInstructions[collection.SynopsisTitle] != null)
+                    && synopsis.LinksInstructions.ContainsKey(collectionBase.SynopsisTitle)
+                    && synopsis.LinksInstructions[collectionBase.SynopsisTitle] != null)
                 {
-                    foreach (var instruction in synopsis.LinksInstructions[collection.SynopsisTitle])
+                    foreach (var instruction in synopsis.LinksInstructions[collectionBase.SynopsisTitle])
                     {
                         builder
                             .AppendLine(instruction.MakeNote())
@@ -168,7 +168,19 @@ namespace MsGlossaryApp.Model
                     }
                 }
 
-                foreach (var link in collection.Links)
+                IList<Link> links = null;
+
+                if (collectionBase is LinksCollection collection)
+                {
+                    links = collection.Links;
+                }
+
+                if (collectionBase is LinksCollectionOptional collectionOptional)
+                {
+                    links = collectionOptional.Links;
+                }
+
+                foreach (var link in links)
                 {
                     builder
                         .AppendLine(link.ToMarkdown().MakeListItem());

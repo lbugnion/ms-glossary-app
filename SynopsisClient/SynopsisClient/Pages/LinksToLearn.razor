@@ -1,0 +1,82 @@
+﻿@page "/links-learn"
+@inject SynopsisClient.Model.SynopsisHandler Handler
+@inject SynopsisClient.Model.UserManager UserManager
+@inject NavigationManager Nav
+
+<h2>Links to Microsoft Learn</h2>
+
+@if (Handler.Synopsis == null
+   || Handler.IsReloading)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="intro">
+        <p>One of the goals of this project is to drive traffic to the Microsoft documentation (<a href="http://docs.microsoft.com">docs.microsoft.com</a> and <a href="http://learn.microsoft.com">Microsoft Learn</a> pages. For each term, you should provide a list of Documentation links.</p>
+
+        <p>Each link will be instrumented with information allowing us to track the clicks. You don't have to worry about that however. In the synopsis document, simply list the links.</p>
+
+        <p><strong>You need to define at least one link to Microsoft Learn</strong></p>
+    </div>
+
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                              ShowDialog="Handler.ShowConfirmDeleteItemDialog"
+                                              OkText="Yes"
+                                              CancelText="No"
+                                              OnOkCancelClicked="Handler.DeletItemConfirmationOkCancelClicked">
+            <em>Note:</em> You can cancel your local changes by reloading the page <strong>BEFORE</strong> saving.
+            <br />
+            You can also reload the unchanged synopsis from the cloud.
+        </SynopsisClient.Dialogs.ConfirmDialog>
+
+        <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
+                                              ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
+                                              OkText="Yes"
+                                              CancelText="No"
+                                              OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
+            <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
+        </SynopsisClient.Dialogs.ConfirmDialog>
+
+        <div class="edit-area">
+            @foreach (var link in Handler.Synopsis.Links.LinksToLearn.Links)
+            {
+                <div>
+                    <label title="Link">
+                        <span class="form-label">Link</span>
+                        <br />
+                        <InputText class="wide-input"
+                                   @bind-Value="link.EditingUrl" />
+                    </label>
+                    <button class="small-button"
+                            @onclick="(e => Handler.Delete(link))">
+                        Delete
+                    </button>
+                </div>
+            }
+        </div>
+
+        <div class="bottom-buttons-area">
+            <button class="main-button"
+                    @onclick="Handler.AddItem">
+                Add a link
+            </button>
+        </div>
+
+        <div class="bottom-buttons-area">
+            <button disabled="@Handler.CannotSave"
+                    class="main-button"
+                    @onclick="Handler.CheckSaveSynopsis">
+                Save local
+            </button>
+            <button class="main-button"
+                    @onclick="Handler.ReloadFromCloud">
+                Reload from cloud
+            </button>
+        </div>
+    </EditForm>
+}

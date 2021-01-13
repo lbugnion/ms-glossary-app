@@ -17,4 +17,10 @@
     <ProjectReference Include="..\..\MsGlossaryApp\MsGlossaryApp.DataModel.Standard\MsGlossaryApp.DataModel.Standard.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Pages\LinksToLearn - Copy.razor.cs">
+      <DependentUpon>LinksToLearn.razor.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>

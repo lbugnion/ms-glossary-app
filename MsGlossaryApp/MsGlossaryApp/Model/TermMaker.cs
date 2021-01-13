@@ -162,16 +162,28 @@ namespace MsGlossaryApp.Model
                 term.Links.LinksToOthers
             };
 
-            foreach (var collection in linkCollections)
+            foreach (var collectionBase in linkCollections)
             {
-                if (collection.Links.Count > 0)
+                IList<Link> links = null;
+
+                if (collectionBase is LinksCollection collection)
+                {
+                    links = collection.Links;
+                }
+
+                if (collectionBase is LinksCollectionOptional collectionOptional)
+                {
+                    links = collectionOptional.Links;
+                }
+
+                if (links.Count > 0)
                 {
                     builder.AppendLine()
-                        .AppendLine(collection.TermTitle.MakeH3())
+                        .AppendLine(collectionBase.TermTitle.MakeH3())
                         .AppendLine();
                 }
 
-                foreach (var link in collection.Links)
+                foreach (var link in links)
                 {
                     builder.AppendLine(link.ToMarkdown());
                 }

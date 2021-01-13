@@ -21,17 +21,10 @@ namespace MsGlossaryApp.DataModel
             set;
         }
 
-        public abstract IList<Link> Links
-        {
-            get;
-            set;
-        }
-
         public LinksCollectionBase(string synopsisTitle, string termTitle)
         {
             SynopsisTitle = synopsisTitle;
             TermTitle = termTitle;
-            Links = new List<Link>();
         }
 
         public override bool Equals(object obj)
@@ -45,33 +38,12 @@ namespace MsGlossaryApp.DataModel
                 return false;
             }
 
-            if (Links.Count != collection.Links.Count)
-            {
-                return false;
-            }
-
-            for (var index = 0; index < Links.Count; index++)
-            {
-                var link1 = Links.ElementAt(index);
-                var link2 = collection.Links.ElementAt(index);
-
-                if (!link1.Equals(link2))
-                {
-                    return false;
-                }
-            }
-
             return true;
-
-            //return obj is LinksCollection collection
-            //    && SynopsisTitle == collection.SynopsisTitle
-            //    && TermTitle == collection.TermTitle
-            //    && EqualityComparer<IList<Link>>.Default.Equals(Links, collection.Links);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(SynopsisTitle, TermTitle, Links);
+            return HashCode.Combine(SynopsisTitle, TermTitle);
         }
     }
 }
