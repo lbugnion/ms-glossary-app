@@ -17,6 +17,7 @@ namespace SynopsisClient.Pages
         protected override async Task OnInitializedAsync()
         {
             Console.WriteLine("OnInitialized");
+            Console.WriteLine($"Handler.ErrorMessage: {Handler.ErrorMessage}");
             UserManager.Initialize();
             CurrentEditContext = new EditContext(UserManager.CurrentUser);
             CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
@@ -40,6 +41,16 @@ namespace SynopsisClient.Pages
             {
                 Console.WriteLine("cannot load");
                 UserManager.CannotLogIn = false;
+            }
+        }
+
+        public async Task LogIn()
+        {
+            await UserManager.LogIn();
+
+            if (UserManager.IsLoggedIn)
+            {
+                Handler.ResetDialogs();
             }
         }
 

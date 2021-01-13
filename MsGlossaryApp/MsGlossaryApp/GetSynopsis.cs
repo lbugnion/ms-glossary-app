@@ -89,9 +89,15 @@ namespace MsGlossaryApp
                 client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
                 markdown = await client.GetStringAsync(synopsisUrl);
             }
+            catch (HttpRequestException ex)
+            {
+                log?.LogError(ex, "HttpRequestException when getting synopsis markdown");
+                error = "Double check the file name";
+            }
             catch (Exception ex)
             {
                 log?.LogError(ex, "Error when getting synopsis markdown");
+                log?.LogInformationEx(ex.GetType().FullName, LogVerbosity.Debug);
                 error = ex.Message;
             }
 
@@ -102,7 +108,7 @@ namespace MsGlossaryApp
                     $"We got the following request: {userEmail} / {fileName}",
                     log);
 
-                return new BadRequestObjectResult("Invalid request");
+                return new BadRequestObjectResult(error);
             }
 
             var synopsis = SynopsisMaker.ParseSynopsis(
@@ -139,9 +145,8 @@ namespace MsGlossaryApp
                     $"Sorry but the author {userEmail} is not listed as one of the original author");
             }
 
-            var json = JsonConvert.SerializeObject(synopsis);
             log?.LogInformationEx("GetSynopsis success, returning Synopsis", LogVerbosity.Verbose);
-            return new OkObjectResult(json);
+            return new OkObjectResult(synopsis);
         }
     }
 }

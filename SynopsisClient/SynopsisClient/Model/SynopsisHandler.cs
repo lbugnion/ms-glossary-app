@@ -53,6 +53,7 @@ namespace SynopsisClient.Model
         {
             ShowConfirmDeleteItemDialog = false;
             ShowConfirmReloadFromCloudDialog = false;
+            ErrorMessage = null;
         }
 
         public bool IsModified
@@ -186,18 +187,44 @@ namespace SynopsisClient.Model
                 httpRequest.Headers.Add(UserEmailHeaderKey, _userManager.CurrentUser.Email);
                 httpRequest.Headers.Add(FileNameHeaderKey, _userManager.CurrentUser.SynopsisName);
 
-                Console.WriteLine("Sending request");
-                var response = await client.SendAsync(httpRequest);
+                HttpResponseMessage response = null;
 
-                if (!response.IsSuccessStatusCode)
+                try
                 {
-                    Console.WriteLine($"Invalid response: {response.StatusCode}");
+                    Console.WriteLine("Sending request");
+                    response = await client.SendAsync(httpRequest);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Invalid response: {response.StatusCode}");
+
+                        ErrorMessage = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"ErrorMessage: {ErrorMessage}");
+
+                        return null;
+                    }
+                }
+                catch (Exception)
+                {
+                    ErrorMessage = "Failed getting Synopsis. Is the service down?";
                     return null;
                 }
 
-                Synopsis = await client.GetFromJsonAsync<Synopsis>("https://localhost:44395/sample-data/test-topic-15.json?ticks=" + DateTime.Now.Ticks);
-                await _localStorage.SetItemAsync(LocalStorageKey, Synopsis);
-                Console.WriteLine("New Synopsis loaded and saved");
+                try
+                {
+                    Synopsis = await response?.Content.ReadFromJsonAsync<Synopsis>();
+                    await _localStorage.SetItemAsync(LocalStorageKey, Synopsis);
+                    Console.WriteLine("New Synopsis loaded and saved");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("ERROR deserializing synopsis");
+                    Console.WriteLine(ex.GetType());
+                    Console.WriteLine(ex.Message);
+                    ErrorMessage = ex.Message;
+                    await _localStorage.RemoveItemAsync(LocalStorageKey);
+                    return null;
+                }
             }
 
             return Synopsis;
@@ -211,9 +238,13 @@ namespace SynopsisClient.Model
                 CurrentEditContext.OnValidationStateChanged -= CurrentEditContextOnValidationStateChanged;
             }
 
-            CurrentEditContext = new EditContext(Synopsis);
-            CurrentEditContext.OnFieldChanged += CurrentEditContextOnFieldChanged;
-            CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
+            if (Synopsis != null)
+            {
+                CurrentEditContext = new EditContext(Synopsis);
+                CurrentEditContext.OnFieldChanged += CurrentEditContextOnFieldChanged;
+                CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
+            }
+
             CannotSave = true;
         }
 
@@ -261,11 +292,33 @@ namespace SynopsisClient.Model
             _listHandler?.DeleteItemConfirmationOkCancelClicked(confirm);
         }
 
-        public async Task InitializePage()
+        public string ErrorMessage
+        {
+            get;
+            private set;
+        }
+
+        public async Task<bool> InitializePage()
         {
             Console.WriteLine("SynopsisHandler.InitializePage");
-            Synopsis = await GetSynopsis(true, false);
-            SetContext();
+
+            try
+            {
+                Synopsis = await GetSynopsis(true, false);
+                SetContext();
+
+                if (Synopsis == null)
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                return false;
+            }
+
+            return true;
         }
 
         public void ReloadFromCloud()

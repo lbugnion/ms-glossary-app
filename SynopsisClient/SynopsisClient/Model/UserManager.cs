@@ -48,9 +48,14 @@ namespace SynopsisClient.Model
             set;
         }
 
-        public async Task CheckLogin()
+        public async Task<bool> CheckLogin()
         {
-            Console.WriteLine("CheckLogin");
+            Console.WriteLine($"CheckLogin: CurrentUser is null: {CurrentUser == null}");
+
+            if (CurrentUser == null)
+            {
+                Initialize();
+            }
 
             CannotLogIn = true;
 
@@ -64,6 +69,7 @@ namespace SynopsisClient.Model
                 IsModified = false;
                 CannotLogOut = false;
                 IsLoggedIn = true;
+                return true;
             }
             else
             {
@@ -71,6 +77,7 @@ namespace SynopsisClient.Model
                 IsModified = true;
                 CannotLogOut = true;
                 IsLoggedIn = false;
+                return false;
             }
         }
 

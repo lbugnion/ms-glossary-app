@@ -1,11 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace MsGlossaryApp.DataModel
 {
     public class LinksCollectionOptional : LinksCollectionBase
     {
+        public LinksCollectionOptional()
+            : base("N/A", "N/A")
+        {
+
+        }
+
         public LinksCollectionOptional(string synopsisTitle, string termTitle)
             : base(synopsisTitle, termTitle)
         {

@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject SynopsisClient.Model.UserManager UserManager
+@inject SynopsisClient.Model.SynopsisHandler Handler
 
 <h1>Microsoft Glossary Synopsis Editor</h1>
 
@@ -17,9 +18,35 @@
 
     @if (UserManager.IsLoggedIn)
     {
-        <p><strong>Select a section from the navigation menu.</strong></p>
+        @if (!string.IsNullOrEmpty(Handler.ErrorMessage))
+        {
+            <div class="error-message">
 
-        <p>Note that the new synopsis is into a GitHub "branch". It means that your changes will be into a kind of sandbox and won't affect the rest of the site until you are ready to submit. <a href="https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-branches">More information about GitHub branches</a>.</p>
+                <p>We are having trouble getting the Synopsis.</p>
+
+                <p>Please try the following steps:</p>
+
+                <ul>
+                    <li>Log out.</li>
+                    <li>Log in again and double check your details.</li>
+                    <li>If this doesn't work, contact <a href="mailto:ms-glossary-help@microsoft.com">ms-glossary-help@microsoft.com</a></li>
+                </ul>
+
+                <div class="error-details">
+                    <label>
+                        <span class="error-details-label">Error message:</span>
+                        <br />@Handler.ErrorMessage
+                    </label>
+                </div>
+
+            </div>
+        }
+        else
+        {
+            <p><strong>Select a section from the navigation menu.</strong></p>
+
+            <p>Note that the new synopsis is into a GitHub "branch". It means that your changes will be into a kind of sandbox and won't affect the rest of the site until you are ready to submit. <a href="https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-branches">More information about GitHub branches</a>.</p>
+        }
     }
     else
     {
@@ -43,7 +70,7 @@
                 <br />
                 <button class="main-button"
                         disabled="@UserManager.CannotLogIn"
-                        @onclick="UserManager.LogIn">
+                        @onclick="LogIn">
                     Log in
                 </button>
             </div>

@@ -18,8 +18,16 @@ namespace SynopsisClient.Pages
                 return;
             }
 
-            await Handler.InitializePage();
-            Handler.DefineList(Handler.Synopsis.Authors);
+            var success = await Handler.InitializePage();
+
+            if (success)
+            {
+                Handler.DefineList(Handler.Synopsis.Authors);
+            }
+            else
+            {
+                Nav.NavigateTo("/");
+            }
         }
     }
 }
