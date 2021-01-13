@@ -31,9 +31,7 @@ namespace MsGlossaryApp.DataModel
                 return false;
             }
 
-            var term = obj as Term;
-
-            if (term == null)
+            if (!(obj is Term term))
             {
                 return false;
             }

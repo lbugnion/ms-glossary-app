@@ -4,15 +4,15 @@ namespace MsGlossaryApp.DataModel
 {
     public class NewSynopsis
     {
-        [JsonProperty("ref")]
-        public string Ref
+        [JsonProperty("filename")]
+        public string FileName
         {
             get;
             set;
         }
 
-        [JsonProperty("filename")]
-        public string FileName
+        [JsonProperty("ref")]
+        public string Ref
         {
             get;
             set;

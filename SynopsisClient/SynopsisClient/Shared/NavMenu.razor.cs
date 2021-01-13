@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Components.Web;
-using System;
+﻿using System;
 
 namespace SynopsisClient.Shared
 {
     public partial class NavMenu : IDisposable
     {
+        private readonly bool _showDebug = true;
         private bool _collapseNavMenu = true;
-        private bool _showNavWarning = false;
         private bool _showLoginWarning;
+        private bool _showNavWarning = false;
+
+        private string NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
 
         private bool ShowLoginWarning
         {
@@ -20,12 +22,9 @@ namespace SynopsisClient.Shared
         }
 
 #if DEBUG
-        private readonly bool _showDebug = true;
 #else
         private readonly bool _showDebug = false;
 #endif
-
-        private string NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
 
         private void CheckNavigateTo(string uri)
         {
@@ -62,15 +61,15 @@ namespace SynopsisClient.Shared
             _collapseNavMenu = !_collapseNavMenu;
         }
 
+        private void UserManagerLoggedInChanged(object sender, bool e)
+        {
+            ShowLoginWarning = !e;
+        }
+
         protected override void OnInitialized()
         {
             Handler.WasSaved += HandlerWasSaved;
             UserManager.LoggedInChanged += UserManagerLoggedInChanged;
-        }
-
-        private void UserManagerLoggedInChanged(object sender, bool e)
-        {
-            ShowLoginWarning = !e;
         }
 
         public void Dispose()

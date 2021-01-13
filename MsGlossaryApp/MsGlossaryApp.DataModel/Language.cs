@@ -13,8 +13,8 @@ namespace MsGlossaryApp.DataModel
 
         public override bool Equals(object obj)
         {
-            return obj is Language language 
-                && Code == language.Code 
+            return obj is Language language
+                && Code == language.Code
                 && LanguageName == language.LanguageName;
         }
 

@@ -6,6 +6,28 @@ namespace MsGlossaryApp.DataModel
 {
     public class Link
     {
+        /// <summary>
+        /// Use this property for the Synopsis client.
+        /// </summary>
+        [JsonIgnore]
+        [Required]
+        [Url]
+        public string EditingUrl
+        {
+            get
+            {
+                return Url;
+            }
+            set
+            {
+                if (Url != value)
+                {
+                    Text = Constants.SynopsisMarkdownMarkers.LinkNoText;
+                    Url = value;
+                }
+            }
+        }
+
         public string Note
         {
             get;
@@ -27,26 +49,9 @@ namespace MsGlossaryApp.DataModel
             set;
         }
 
-        /// <summary>
-        /// Use this property for the Synopsis client.
-        /// </summary>
-        [JsonIgnore]
-        [Required]
-        [Url]
-        public string EditingUrl
+        public Link()
         {
-            get
-            {
-                return Url;
-            }
-            set
-            {
-                if (Url != value)
-                {
-                    Text = Constants.SynopsisMarkdownMarkers.LinkNoText;
-                    Url = value;
-                }
-            }
+            EditingUrl = "http://domain.com/path";
         }
 
         public override bool Equals(object obj)
@@ -72,11 +77,6 @@ namespace MsGlossaryApp.DataModel
             }
 
             return markdown;
-        }
-
-        public Link()
-        {
-            EditingUrl = "http://domain.com/path";
         }
     }
 }

@@ -145,22 +145,22 @@ namespace MsGlossaryApp.Model
             builder.AppendLine();
 
             CreateLinksSection(
-                builder, 
-                Constants.SynopsisMarkdownMarkers.LinksToDocsMarker, 
+                builder,
+                Constants.SynopsisMarkdownMarkers.LinksToDocsMarker,
                 synopsis.LinksToDocs,
                 synopsis.LinksInstructions);
             CreateLinksSection(
-                builder, 
-                Constants.SynopsisMarkdownMarkers.LinksToLearnMarker, 
+                builder,
+                Constants.SynopsisMarkdownMarkers.LinksToLearnMarker,
                 synopsis.LinksToLearn,
                 synopsis.LinksInstructions);
             CreateLinksSection(
-                builder, 
-                Constants.SynopsisMarkdownMarkers.LinksToOthersMarker, 
+                builder,
+                Constants.SynopsisMarkdownMarkers.LinksToOthersMarker,
                 synopsis.LinksToOthers,
                 synopsis.LinksInstructions);
 
-            void CreateLinksSection(
+            static void CreateLinksSection(
                 StringBuilder builder,
                 string title,
                 IList<Link> links,
@@ -360,9 +360,11 @@ namespace MsGlossaryApp.Model
                             case Constants.SynopsisMarkdownMarkers.LinksToDocsMarker:
                                 currentLinksSection = synopsis.LinksToDocs;
                                 break;
+
                             case Constants.SynopsisMarkdownMarkers.LinksToLearnMarker:
                                 currentLinksSection = synopsis.LinksToLearn;
                                 break;
+
                             case Constants.SynopsisMarkdownMarkers.LinksToOthersMarker:
                                 currentLinksSection = synopsis.LinksToOthers;
                                 break;

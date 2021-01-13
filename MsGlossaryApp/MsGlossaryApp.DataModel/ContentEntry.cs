@@ -22,7 +22,7 @@ namespace MsGlossaryApp.DataModel
 
         public override bool Equals(object obj)
         {
-            return obj is ContentEntry entry 
+            return obj is ContentEntry entry
                 && Content == entry.Content;
         }
 

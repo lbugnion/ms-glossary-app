@@ -65,9 +65,7 @@ namespace MsGlossaryApp.DataModel
                 return false;
             }
 
-            var synopsis = obj as Synopsis;
-
-            if (synopsis == null)
+            if (!(obj is Synopsis synopsis))
             {
                 return false;
             }
@@ -78,7 +76,7 @@ namespace MsGlossaryApp.DataModel
             }
 
             if (!IsListEqualTo(
-                synopsis.Demos.Select(d => (object)d).ToList(), 
+                synopsis.Demos.Select(d => (object)d).ToList(),
                 Demos.Select(d => (object)d).ToList()))
             {
                 return false;

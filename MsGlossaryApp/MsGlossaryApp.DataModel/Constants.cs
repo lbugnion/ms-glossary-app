@@ -7,6 +7,7 @@
         public const string DocsGlossaryGitHubAccountVariableName = "DocsGlossaryGitHubAccount";
         public const string DocsGlossaryGitHubMainBranchNameVariableName = "DocsGlossaryGitHubMainBranchName";
         public const string DocsGlossaryGitHubRepoVariableName = "DocsGlossaryGitHubRepo";
+        public const string FileNameHeaderKey = "x-glossary-file-name";
         public const string GitHubSynopsisUrlTemplate = "https://raw.githubusercontent.com/{0}/{1}/{2}/synopsis/{2}.md";
         public const string GitHubTokenVariableName = "GitHubToken";
         public const string ListOfTermsUrlMask = "https://{0}.blob.core.windows.net/{1}/{2}";
@@ -21,7 +22,6 @@
         public const string TermsContainerVariableName = "TermsContainer";
         public const string TermsSettingsFileName = "terms.en.json";
         public const string UserEmailHeaderKey = "x-glossary-user-email";
-        public const string FileNameHeaderKey = "x-glossary-file-name";
 
         public static class SynopsisMarkdownMarkers
         {
@@ -29,6 +29,7 @@
             public const string EmailMarker = "Email: ";
             public const string GitHubMarker = "GitHub: ";
             public const string KeywordsMarker = "## Keywords";
+            public const string LinkNoText = "NO_LINK_TITLE";
             public const string LinksToDocsMarker = "## Links to docs";
             public const string LinksToLearnMarker = "## Links to Learn";
             public const string LinksToOthersMarker = "## Other Links (optional)";
@@ -40,7 +41,6 @@
             public const string TitleMarker = "# Microsoft Glossary Synopsis: ";
             public const string TranscriptMarker = "## Script";
             public const string TwitterMarker = "Twitter: ";
-            public const string LinkNoText = "NO_LINK_TITLE";
         }
 
         public static class TermMarkdownMarkers

@@ -13,6 +13,9 @@ namespace MsGlossaryApp.DataModel
         public IList<Author> Authors { get; set; }
 
         [Required]
+        public string FileName { get; set; }
+
+        [Required]
         public IList<ContentEntry> Keywords { get; set; }
 
         [Required]
@@ -27,9 +30,6 @@ namespace MsGlossaryApp.DataModel
         public IList<Link> LinksToOthers { get; set; }
 
         public bool MustSave { get; set; }
-
-        [Required]
-        public string FileName { get; set; }
 
         [Required]
         [MinLength(60, ErrorMessage = "The short description is too short")]
@@ -104,9 +104,7 @@ namespace MsGlossaryApp.DataModel
 
         public override bool Equals(object obj)
         {
-            var term = obj as TermBase;
-
-            if (term == null)
+            if (!(obj is TermBase term))
             {
                 return false;
             }
@@ -117,7 +115,7 @@ namespace MsGlossaryApp.DataModel
                 return false;
             }
 
-            if (!IsListEqualTo(term.Keywords.Select(k => (object)k).ToList(), 
+            if (!IsListEqualTo(term.Keywords.Select(k => (object)k).ToList(),
                 Keywords.Select(k => (object)k).ToList()))
             {
                 return false;
@@ -164,11 +162,6 @@ namespace MsGlossaryApp.DataModel
             return true;
         }
 
-        public override string ToString()
-        {
-            return Title;
-        }
-
         public override int GetHashCode()
         {
             HashCode hash = new HashCode();
@@ -185,6 +178,11 @@ namespace MsGlossaryApp.DataModel
             hash.Add(Uri);
             hash.Add(Url);
             return hash.ToHashCode();
+        }
+
+        public override string ToString()
+        {
+            return Title;
         }
     }
 }

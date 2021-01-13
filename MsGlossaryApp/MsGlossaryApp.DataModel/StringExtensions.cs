@@ -143,7 +143,8 @@ namespace MsGlossaryApp.DataModel
                 StringSplitOptions.RemoveEmptyEntries
             );
 
-            string url = null, note = null;
+            string url;
+            string note = null;
 
             var indexOfEndOfUrl = parts[1].IndexOf(") ");
 

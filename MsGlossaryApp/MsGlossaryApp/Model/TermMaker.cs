@@ -60,42 +60,6 @@ namespace MsGlossaryApp.Model
             return keyword.KeywordName.MakeLink($"/glossary/term/{keyword.KeywordName.MakeSafeFileName()}/disambiguation");
         }
 
-        private static IList<Language> ParseLanguages(
-            string captions,
-            ILogger log = null)
-        {
-            log?.LogInformationEx("In ParseLanguages", LogVerbosity.Verbose);
-
-            if (string.IsNullOrEmpty(captions))
-            {
-                return null;
-            }
-
-            var languages = captions.Split(new char[]
-            {
-                ','
-            }, StringSplitOptions.RemoveEmptyEntries);
-
-            var result = new List<Language>();
-
-            foreach (var language in languages)
-            {
-                var parts = language.Split(new char[]
-                {
-                    '/'
-                });
-
-                result.Add(new Language
-                {
-                    Code = parts[0].Trim(),
-                    LanguageName = parts[1].Trim()
-                });
-            }
-
-            log?.LogInformationEx("Out ParseLanguages", LogVerbosity.Verbose);
-            return result;
-        }
-
         private static string MakeTermText(
             Keyword keyword,
             ILogger log)
@@ -155,10 +119,12 @@ namespace MsGlossaryApp.Model
             builder
                 .AppendLine(TextHelper.GetText("TermLinks").MakeH2());
 
-            var linksCollections = new Dictionary<string, IList<Link>>();
-            linksCollections.Add(Constants.SynopsisMarkdownMarkers.LinksToDocsMarker, term.LinksToDocs);
-            linksCollections.Add(Constants.SynopsisMarkdownMarkers.LinksToLearnMarker, term.LinksToLearn);
-            linksCollections.Add(Constants.SynopsisMarkdownMarkers.LinksToOthersMarker, term.LinksToOthers);
+            var linksCollections = new Dictionary<string, IList<Link>>
+            {
+                { Constants.SynopsisMarkdownMarkers.LinksToDocsMarker, term.LinksToDocs },
+                { Constants.SynopsisMarkdownMarkers.LinksToLearnMarker, term.LinksToLearn },
+                { Constants.SynopsisMarkdownMarkers.LinksToOthersMarker, term.LinksToOthers }
+            };
 
             foreach (var key in linksCollections.Keys)
             {
@@ -330,6 +296,42 @@ namespace MsGlossaryApp.Model
             {
                 return $"term/{keyword.Term.FileName}/{keyword.KeywordName.MakeSafeFileName()}";
             }
+        }
+
+        private static IList<Language> ParseLanguages(
+                                            string captions,
+            ILogger log = null)
+        {
+            log?.LogInformationEx("In ParseLanguages", LogVerbosity.Verbose);
+
+            if (string.IsNullOrEmpty(captions))
+            {
+                return null;
+            }
+
+            var languages = captions.Split(new char[]
+            {
+                ','
+            }, StringSplitOptions.RemoveEmptyEntries);
+
+            var result = new List<Language>();
+
+            foreach (var language in languages)
+            {
+                var parts = language.Split(new char[]
+                {
+                    '/'
+                });
+
+                result.Add(new Language
+                {
+                    Code = parts[0].Trim(),
+                    LanguageName = parts[1].Trim()
+                });
+            }
+
+            log?.LogInformationEx("Out ParseLanguages", LogVerbosity.Verbose);
+            return result;
         }
 
         public static Task<GlossaryFile> CreateDisambiguationFile(

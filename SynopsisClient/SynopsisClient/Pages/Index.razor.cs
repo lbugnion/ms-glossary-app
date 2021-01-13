@@ -14,17 +14,6 @@ namespace SynopsisClient.Pages
             set;
         }
 
-        protected override async Task OnInitializedAsync()
-        {
-            Console.WriteLine("OnInitialized");
-            Console.WriteLine($"Handler.ErrorMessage: {Handler.ErrorMessage}");
-            UserManager.Initialize();
-            CurrentEditContext = new EditContext(UserManager.CurrentUser);
-            CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
-
-            await UserManager.CheckLogin();
-        }
-
         private void CurrentEditContextOnValidationStateChanged(
             object sender,
             ValidationStateChangedEventArgs e)
@@ -42,6 +31,17 @@ namespace SynopsisClient.Pages
                 Console.WriteLine("cannot load");
                 UserManager.CannotLogIn = false;
             }
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            Console.WriteLine("OnInitialized");
+            Console.WriteLine($"Handler.ErrorMessage: {Handler.ErrorMessage}");
+            UserManager.Initialize();
+            CurrentEditContext = new EditContext(UserManager.CurrentUser);
+            CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
+
+            await UserManager.CheckLogin();
         }
 
         public async Task LogIn()
