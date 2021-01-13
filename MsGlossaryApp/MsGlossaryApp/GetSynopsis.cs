@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
 using Newtonsoft.Json;
 using System;
-using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -15,6 +15,9 @@ namespace MsGlossaryApp
 {
     public static class GetSynopsis
     {
+        private const string UserEmailHeaderKey = "x-glossary-user-email";
+        private const string FileNameHeaderKey = "x-glossary-file-name";
+
         [FunctionName(nameof(GetSynopsis))]
         public static async Task<IActionResult> RunGet(
             [HttpTrigger(
@@ -24,20 +27,40 @@ namespace MsGlossaryApp
             HttpRequest req,
             ILogger log)
         {
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            log?.LogInformationEx("GetSynopsis", LogVerbosity.Verbose);
 
-            if (string.IsNullOrEmpty(requestBody))
+            StringValues userEmailValues;
+            var success = req.Headers.TryGetValue(UserEmailHeaderKey, out userEmailValues);
+
+            if (!success
+                || userEmailValues.Count == 0)
             {
+                log?.LogError("No user email found in header");
+                return new BadRequestObjectResult("No user email found in header");
+            }
+
+            StringValues fileNameValues;
+            success = req.Headers.TryGetValue(FileNameHeaderKey, out fileNameValues);
+
+            if (!success
+                || fileNameValues.Count == 0)
+            {
+                log?.LogError("No file name found in header");
+                return new BadRequestObjectResult("No file name found in header");
+            }
+
+            var userEmail = userEmailValues[0];
+            var fileName = fileNameValues[0];
+
+            if (string.IsNullOrEmpty(userEmail)
+                || string.IsNullOrEmpty(fileName))
+            {
+                log?.LogError("No user email or file name found in header");
                 return new BadRequestObjectResult("Incomplete request");
             }
 
-            var synopsisRequest = JsonConvert.DeserializeObject<NewSynopsis>(requestBody);
-
-            if (string.IsNullOrEmpty(synopsisRequest.FileName)
-                || string.IsNullOrEmpty(synopsisRequest.SubmitterEmail))
-            {
-                return new BadRequestObjectResult("Incomplete request");
-            }
+            log?.LogInformationEx($"userEmail {userEmail}", LogVerbosity.Debug);
+            log?.LogInformationEx($"fileName {fileName}", LogVerbosity.Debug);
 
             // Get the markdown file
 
@@ -46,11 +69,16 @@ namespace MsGlossaryApp
             var repoName = Environment.GetEnvironmentVariable(
                 Constants.DocsGlossaryGitHubRepoVariableName);
 
+            log?.LogInformationEx($"accountName {accountName}", LogVerbosity.Debug);
+            log?.LogInformationEx($"repoName {repoName}", LogVerbosity.Debug);
+
             var synopsisUrl = string.Format(
                 Constants.GitHubSynopsisUrlTemplate,
                 accountName,
                 repoName,
-                synopsisRequest.FileName);
+                fileName);
+
+            log?.LogInformationEx($"synopsisUrl {synopsisUrl}", LogVerbosity.Debug);
 
             string markdown = null;
             string error = null;
@@ -63,6 +91,7 @@ namespace MsGlossaryApp
             }
             catch (Exception ex)
             {
+                log?.LogError(ex, "Error when getting synopsis markdown");
                 error = ex.Message;
             }
 
@@ -70,10 +99,8 @@ namespace MsGlossaryApp
             {
                 await NotificationService.Notify(
                     "Invalid synopsis edit request",
-                    $"We got the following request: {requestBody}",
+                    $"We got the following request: {userEmail} / {fileName}",
                     log);
-
-                log?.LogError($"Invalid request: {error} / {requestBody.Replace("\"", "'")}");
 
                 return new BadRequestObjectResult("Invalid request");
             }
@@ -91,7 +118,7 @@ namespace MsGlossaryApp
             {
                 foreach (var author in synopsis.Authors)
                 {
-                    if (author.Email.ToLower() == synopsisRequest.SubmitterEmail)
+                    if (author.Email.ToLower() == userEmail)
                     {
                         isAuthorValid = true;
                         break;
@@ -103,14 +130,17 @@ namespace MsGlossaryApp
             {
                 await NotificationService.Notify(
                     "Invalid author for synopsis edit request",
-                    $"We got the following request: {requestBody} but author is invalid",
+                    $"We got the following request: {userEmail} / {fileName} but author is invalid",
                     log);
 
+                log?.LogError($"Invalid author: {userEmail} / {fileName}");
+
                 return new BadRequestObjectResult(
-                    $"Sorry but the author {synopsisRequest.SubmitterEmail} is not the original author");
+                    $"Sorry but the author {userEmail} is not listed as one of the original author");
             }
 
             var json = JsonConvert.SerializeObject(synopsis);
+            log?.LogInformationEx("GetSynopsis success, returning Synopsis", LogVerbosity.Verbose);
             return new OkObjectResult(json);
         }
     }
