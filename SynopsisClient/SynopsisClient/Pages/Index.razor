@@ -20,6 +20,8 @@
     {
         @if (!string.IsNullOrEmpty(Handler.ErrorMessage))
         {
+            // TODO Styling
+
             <div class="error-message">
 
                 <p>We are having trouble getting the Synopsis.</p>
@@ -27,7 +29,8 @@
                 <p>Please try the following steps:</p>
 
                 <ul>
-                    <li>Log out.</li>
+                    <li>Try again to navigate to a section.</li>
+                    <li>If it fails, log out.</li>
                     <li>Log in again and double check your details.</li>
                     <li>If this doesn't work, contact <a href="mailto:ms-glossary-help@microsoft.com">ms-glossary-help@microsoft.com</a></li>
                 </ul>

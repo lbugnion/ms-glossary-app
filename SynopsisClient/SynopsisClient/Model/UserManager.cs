@@ -85,11 +85,6 @@ namespace SynopsisClient.Model
         {
             Console.WriteLine("UserManager.Login");
             await _localStorage.SetItemAsync(CurrentUserKey, CurrentUser);
-
-            // TODO Load Synopsis here?
-
-
-
             IsModified = false;
             CannotLogOut = false;
             IsLoggedIn = true;

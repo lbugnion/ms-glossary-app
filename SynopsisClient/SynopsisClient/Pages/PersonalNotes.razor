@@ -5,7 +5,8 @@
 
 <h2>Personal notes</h2>
 
-@if (Handler.Synopsis == null)
+@if (Handler.Synopsis == null
+   || Handler.IsReloading)
 {
     <p><em>Loading...</em></p>
 }

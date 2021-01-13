@@ -5,7 +5,8 @@
 
 <h1>Demos</h1>
 
-@if (Handler.Synopsis == null)
+@if (Handler.Synopsis == null
+   || Handler.IsReloading)
 {
     <p><em>Loading...</em></p>
 }

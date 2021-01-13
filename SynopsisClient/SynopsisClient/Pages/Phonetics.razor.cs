@@ -17,7 +17,12 @@ namespace SynopsisClient.Pages
                 return;
             }
 
-            await Handler.InitializePage();
+            var success = await Handler.InitializePage();
+
+            if (!success)
+            {
+                Nav.NavigateTo("/");
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Configuration;
 using MsGlossaryApp.DataModel;
@@ -28,6 +29,7 @@ namespace SynopsisClient.Model
         private ListHandlerBase _listHandler;
 
         private ILocalStorageService _localStorage;
+        private readonly NavigationManager _nav;
         private IConfiguration _configuration;
         private UserManager _userManager;
 
@@ -49,11 +51,18 @@ namespace SynopsisClient.Model
             set;
         }
 
+        public bool IsReloading
+        {
+            get;
+            private set;
+        }
+
         public void ResetDialogs()
         {
             ShowConfirmDeleteItemDialog = false;
             ShowConfirmReloadFromCloudDialog = false;
             ErrorMessage = null;
+            IsReloading = false;
         }
 
         public bool IsModified
@@ -82,10 +91,12 @@ namespace SynopsisClient.Model
 
         public SynopsisHandler(
             ILocalStorageService localStorage,
+            NavigationManager nav,
             IConfiguration configuration,
             UserManager userManager)
         {
             _localStorage = localStorage;
+            _nav = nav;
             _configuration = configuration;
             _userManager = userManager;
         }
@@ -118,13 +129,6 @@ namespace SynopsisClient.Model
                 Console.WriteLine("cannot save");
                 CannotSave = true;
             }
-        }
-
-        public async Task ExecuteReloadFromCloud()
-        {
-            Console.WriteLine("SynopsisHandler.ExecuteReloadFromCloud");
-            Synopsis = await GetSynopsis(false, true);
-            SetContext();
         }
 
         private async Task<Synopsis> GetSynopsis(
@@ -161,6 +165,9 @@ namespace SynopsisClient.Model
             if (forcefreshOnline
                 || Synopsis == null)
             {
+                Console.WriteLine("Removing Synopsis from local storage");
+                await _localStorage.RemoveItemAsync(LocalStorageKey);
+
                 Console.WriteLine("Attempting to load synopsis from network");
 
                 if (_userManager.CurrentUser == null
@@ -169,7 +176,6 @@ namespace SynopsisClient.Model
                 {
                     Console.WriteLine("User is null or incomplete");
                     CannotReloadFromCloud = true;
-                    await _localStorage.RemoveItemAsync(LocalStorageKey);
                     return null;
                 }
 
@@ -304,6 +310,7 @@ namespace SynopsisClient.Model
 
             try
             {
+                IsReloading = true;
                 Synopsis = await GetSynopsis(true, false);
                 SetContext();
 
@@ -318,6 +325,7 @@ namespace SynopsisClient.Model
                 return false;
             }
 
+            IsReloading = false;
             return true;
         }
 
@@ -333,7 +341,34 @@ namespace SynopsisClient.Model
 
             if (confirm)
             {
-                await ExecuteReloadFromCloud();
+                Console.WriteLine("SynopsisHandler.ExecuteReloadFromCloud");
+                IsReloading = true;
+                var success = true;
+
+                try
+                {
+                    Synopsis = await GetSynopsis(false, true);
+                    SetContext();
+
+                    if (Synopsis == null)
+                    {
+                        success = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = ex.Message;
+                    success = false;
+                }
+
+                if (success)
+                {
+                    IsReloading = false;
+                }
+                else
+                {
+                    _nav.NavigateTo("/");
+                }
             }
         }
 

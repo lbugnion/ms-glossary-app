@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Components.Web;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace SynopsisClient.Pages
@@ -19,7 +17,12 @@ namespace SynopsisClient.Pages
                 return;
             }
 
-            await Handler.InitializePage();
+            var success = await Handler.InitializePage();
+
+            if (!success)
+            {
+                Nav.NavigateTo("/");
+            }
         }
     }
 }

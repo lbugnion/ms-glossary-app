@@ -5,7 +5,8 @@
 
 <h2>Short description</h2>
 
-@if (Handler.Synopsis == null)
+@if (Handler.Synopsis == null
+   || Handler.IsReloading)
 {
     <p><em>Loading...</em></p>
 }
@@ -14,7 +15,6 @@ else
     <div class="intro">
 
         <p>The short description will be used later in the social videos, in the title card</p>
-
 
         <p>Please follow the rules:</p>
 

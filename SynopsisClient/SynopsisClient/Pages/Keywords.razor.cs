@@ -16,8 +16,17 @@ namespace SynopsisClient.Pages
                 Nav.NavigateTo("/");
                 return;
             }
-            await Handler.InitializePage();
-            Handler.DefineList(Handler.Synopsis.Keywords);
+
+            var success = await Handler.InitializePage();
+
+            if (success)
+            {
+                Handler.DefineList(Handler.Synopsis.Keywords);
+            }
+            else
+            {
+                Nav.NavigateTo("/");
+            }
         }
     }
 }

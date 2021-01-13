@@ -17,8 +17,16 @@ namespace SynopsisClient.Pages
                 return;
             }
 
-            await Handler.InitializePage();
-            Handler.DefineList(Handler.Synopsis.Links.LinksToDocs.Links);
+            var success = await Handler.InitializePage();
+
+            if (success)
+            {
+                Handler.DefineList(Handler.Synopsis.Links.LinksToDocs.Links);
+            }
+            else
+            {
+                Nav.NavigateTo("/");
+            }
         }
     }
 }

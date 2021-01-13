@@ -17,8 +17,16 @@ namespace SynopsisClient.Pages
                 return;
             }
 
-            await Handler.InitializePage();
-            Handler.DefineList(Handler.Synopsis.PersonalNotes);
+            var success = await Handler.InitializePage();
+
+            if (success)
+            {
+                Handler.DefineList(Handler.Synopsis.PersonalNotes);
+            }
+            else
+            {
+                Nav.NavigateTo("/");
+            }
         }
     }
 }
