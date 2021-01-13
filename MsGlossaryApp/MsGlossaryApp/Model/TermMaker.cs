@@ -155,35 +155,21 @@ namespace MsGlossaryApp.Model
             builder
                 .AppendLine(TextHelper.GetText("TermLinks").MakeH2());
 
-            var linkCollections = new List<LinksCollectionBase>
+            var linksCollections = new Dictionary<string, IList<Link>>();
+            linksCollections.Add(Constants.SynopsisMarkdownMarkers.LinksToDocsMarker, term.LinksToDocs);
+            linksCollections.Add(Constants.SynopsisMarkdownMarkers.LinksToLearnMarker, term.LinksToLearn);
+            linksCollections.Add(Constants.SynopsisMarkdownMarkers.LinksToOthersMarker, term.LinksToOthers);
+
+            foreach (var key in linksCollections.Keys)
             {
-                term.Links.LinksToDocs,
-                term.Links.LinksToLearn,
-                term.Links.LinksToOthers
-            };
-
-            foreach (var collectionBase in linkCollections)
-            {
-                IList<Link> links = null;
-
-                if (collectionBase is LinksCollection collection)
-                {
-                    links = collection.Links;
-                }
-
-                if (collectionBase is LinksCollectionOptional collectionOptional)
-                {
-                    links = collectionOptional.Links;
-                }
-
-                if (links.Count > 0)
+                if (linksCollections[key].Count > 0)
                 {
                     builder.AppendLine()
-                        .AppendLine(collectionBase.TermTitle.MakeH3())
+                        .AppendLine(key.MakeH3())
                         .AppendLine();
                 }
 
-                foreach (var link in links)
+                foreach (var link in linksCollections[key])
                 {
                     builder.AppendLine(link.ToMarkdown());
                 }
@@ -261,7 +247,7 @@ namespace MsGlossaryApp.Model
                 .AppendLine(Constants.SynopsisMarkdownMarkers.LinksToDocsMarker.MakeH3())
                 .AppendLine();
 
-            foreach (var link in term.Links.LinksToDocs.Links)
+            foreach (var link in term.LinksToDocs)
             {
                 builder.AppendLine(link.ToMarkdown());
             }
@@ -270,18 +256,18 @@ namespace MsGlossaryApp.Model
                 .AppendLine(Constants.SynopsisMarkdownMarkers.LinksToLearnMarker.MakeH3())
                 .AppendLine();
 
-            foreach (var link in term.Links.LinksToLearn.Links)
+            foreach (var link in term.LinksToLearn)
             {
                 builder.AppendLine(link.ToMarkdown());
             }
 
-            if (term.Links.LinksToOthers.Links.Count > 0)
+            if (term.LinksToOthers.Count > 0)
             {
                 builder.AppendLine()
                     .AppendLine(Constants.SynopsisMarkdownMarkers.LinksToOthersMarker.MakeH3())
                     .AppendLine();
 
-                foreach (var link in term.Links.LinksToOthers.Links)
+                foreach (var link in term.LinksToOthers)
                 {
                     builder.AppendLine(link.ToMarkdown());
                 }
@@ -595,7 +581,6 @@ namespace MsGlossaryApp.Model
             var isLearnLinks = false;
             var isOtherLinks = false;
             var transcript = new StringBuilder();
-            var links = new LinksSection();
             string line;
 
             while ((line = markdownReader.ReadLine()) != null)
@@ -663,7 +648,7 @@ namespace MsGlossaryApp.Model
                         continue;
                     }
 
-                    links.LinksToDocs.Links.Add(line.ParseListItem().ParseLink());
+                    term.LinksToDocs.Add(line.ParseListItem().ParseLink());
                 }
                 else if (isLearnLinks)
                 {
@@ -672,7 +657,7 @@ namespace MsGlossaryApp.Model
                         continue;
                     }
 
-                    links.LinksToLearn.Links.Add(line.ParseListItem().ParseLink());
+                    term.LinksToLearn.Add(line.ParseListItem().ParseLink());
                 }
                 else if (isOtherLinks)
                 {
@@ -681,7 +666,7 @@ namespace MsGlossaryApp.Model
                         continue;
                     }
 
-                    links.LinksToOthers.Links.Add(line.ParseListItem().ParseLink());
+                    term.LinksToOthers.Add(line.ParseListItem().ParseLink());
                 }
                 else if (line.IsH1())
                 {
@@ -743,7 +728,6 @@ namespace MsGlossaryApp.Model
             term.Title = title;
             term.FileName = Path.GetFileNameWithoutExtension(uri.LocalPath);
             term.Transcript = transcript.ToString().Trim();
-            term.Links = links;
             term.RecordingDate = recordingDate;
             term.YouTubeCode = youTubeCode;
             term.ShortDescription = shortDescription;

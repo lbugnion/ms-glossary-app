@@ -12,10 +12,6 @@
     <Compile Include="..\MsGlossaryApp.DataModel\Keyword.cs" Link="Keyword.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\Language.cs" Link="Language.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\Link.cs" Link="Link.cs" />
-    <Compile Include="..\MsGlossaryApp.DataModel\LinksCollection.cs" Link="LinksCollection.cs" />
-    <Compile Include="..\MsGlossaryApp.DataModel\LinksCollectionBase.cs" Link="LinksCollectionBase.cs" />
-    <Compile Include="..\MsGlossaryApp.DataModel\LinksCollectionOptional.cs" Link="LinksCollectionOptional.cs" />
-    <Compile Include="..\MsGlossaryApp.DataModel\LinksSection.cs" Link="LinksSection.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\NewSynopsis.cs" Link="NewSynopsis.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\SavingLocations.cs" Link="SavingLocations.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\StringExtensions.cs" Link="StringExtensions.cs" />

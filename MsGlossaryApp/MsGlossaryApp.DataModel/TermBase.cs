@@ -16,7 +16,15 @@ namespace MsGlossaryApp.DataModel
         public IList<ContentEntry> Keywords { get; set; }
 
         [Required]
-        public LinksSection Links { get; set; }
+        [MinLength(1, ErrorMessage = "There must be at least one link to Docs")]
+        public IList<Link> LinksToDocs { get; set; }
+
+        [Required]
+        [MinLength(1, ErrorMessage = "There must be at least one link to Learn")]
+        public IList<Link> LinksToLearn { get; set; }
+
+        [Required]
+        public IList<Link> LinksToOthers { get; set; }
 
         public bool MustSave { get; set; }
 
@@ -53,7 +61,9 @@ namespace MsGlossaryApp.DataModel
         {
             Authors = new List<Author>();
             Keywords = new List<ContentEntry>();
-            Links = new LinksSection();
+            LinksToDocs = new List<Link>();
+            LinksToLearn = new List<Link>();
+            LinksToOthers = new List<Link>();
         }
 
         protected bool IsListEqualTo(IList<object> list1, IList<object> list2)
@@ -113,7 +123,20 @@ namespace MsGlossaryApp.DataModel
                 return false;
             }
 
-            if (!term.Links.Equals(Links))
+            if (!IsListEqualTo(term.LinksToDocs.Select(a => (object)a).ToList(),
+                LinksToDocs.Select(a => (object)a).ToList()))
+            {
+                return false;
+            }
+
+            if (!IsListEqualTo(term.LinksToLearn.Select(a => (object)a).ToList(),
+                LinksToLearn.Select(a => (object)a).ToList()))
+            {
+                return false;
+            }
+
+            if (!IsListEqualTo(term.LinksToOthers.Select(a => (object)a).ToList(),
+                LinksToOthers.Select(a => (object)a).ToList()))
             {
                 return false;
             }
@@ -141,14 +164,27 @@ namespace MsGlossaryApp.DataModel
             return true;
         }
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Authors, Keywords, Links, FileName, ShortDescription, Title, Transcript, Uri);
-        }
-
         public override string ToString()
         {
             return Title;
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+            hash.Add(Authors);
+            hash.Add(Keywords);
+            hash.Add(LinksToDocs);
+            hash.Add(LinksToLearn);
+            hash.Add(LinksToOthers);
+            hash.Add(MustSave);
+            hash.Add(FileName);
+            hash.Add(ShortDescription);
+            hash.Add(Title);
+            hash.Add(Transcript);
+            hash.Add(Uri);
+            hash.Add(Url);
+            return hash.ToHashCode();
         }
     }
 }

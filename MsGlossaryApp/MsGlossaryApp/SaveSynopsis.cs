@@ -26,6 +26,23 @@ namespace MsGlossaryApp
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
+            var (userEmail, fileName) = req.GetUserInfoFromHeaders();
+
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                log?.LogError("No user email found in header");
+                return new BadRequestObjectResult("No user email found in header");
+            }
+
+            if (string.IsNullOrEmpty(fileName))
+            {
+                log?.LogError("No file name found in header");
+                return new BadRequestObjectResult("No file name found in header");
+            }
+
+            log?.LogInformationEx($"userEmail {userEmail}", LogVerbosity.Debug);
+            log?.LogInformationEx($"fileName {fileName}", LogVerbosity.Debug);
+
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
             var synopsis = JsonConvert.DeserializeObject<Synopsis>(requestBody);
@@ -75,8 +92,30 @@ namespace MsGlossaryApp
                 var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
                 var oldMarkdown = await client.GetStringAsync(synopsisUrl);
+                var oldSynopsis = SynopsisMaker.ParseSynopsis(
+                    synopsis.Uri,
+                    oldMarkdown,
+                    log);
 
-                var newFile = SynopsisMaker.PrepareNewSynopsis(synopsis, oldMarkdown, log);
+                // Check if the author is trying to edit the synopsis
+
+                // TODO Check the password with the saved one.
+                //var isAuthorValid = false;
+
+                //if (!isAuthorValid)
+                //{
+                //    await NotificationService.Notify(
+                //        "Invalid author for synopsis edit request",
+                //        $"We got the following request: {userEmail} / {fileName} but author is invalid",
+                //        log);
+
+                //    log?.LogError($"Invalid author: {userEmail} / {fileName}");
+
+                //    return new BadRequestObjectResult(
+                //        $"Sorry but the author {userEmail} is not listed as one of the original author");
+                //}
+
+                var newFile = SynopsisMaker.PrepareNewSynopsis(synopsis, oldSynopsis, log);
 
                 if (newFile.MustSave)
                 {

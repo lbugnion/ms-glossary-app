@@ -15,9 +15,6 @@ namespace MsGlossaryApp
 {
     public static class GetSynopsis
     {
-        private const string UserEmailHeaderKey = "x-glossary-user-email";
-        private const string FileNameHeaderKey = "x-glossary-file-name";
-
         [FunctionName(nameof(GetSynopsis))]
         public static async Task<IActionResult> RunGet(
             [HttpTrigger(
@@ -29,34 +26,18 @@ namespace MsGlossaryApp
         {
             log?.LogInformationEx("GetSynopsis", LogVerbosity.Verbose);
 
-            StringValues userEmailValues;
-            var success = req.Headers.TryGetValue(UserEmailHeaderKey, out userEmailValues);
+            var (userEmail, fileName) = req.GetUserInfoFromHeaders();
 
-            if (!success
-                || userEmailValues.Count == 0)
+            if (string.IsNullOrEmpty(userEmail))
             {
                 log?.LogError("No user email found in header");
                 return new BadRequestObjectResult("No user email found in header");
             }
 
-            StringValues fileNameValues;
-            success = req.Headers.TryGetValue(FileNameHeaderKey, out fileNameValues);
-
-            if (!success
-                || fileNameValues.Count == 0)
+            if (string.IsNullOrEmpty(fileName))
             {
                 log?.LogError("No file name found in header");
                 return new BadRequestObjectResult("No file name found in header");
-            }
-
-            var userEmail = userEmailValues[0];
-            var fileName = fileNameValues[0];
-
-            if (string.IsNullOrEmpty(userEmail)
-                || string.IsNullOrEmpty(fileName))
-            {
-                log?.LogError("No user email or file name found in header");
-                return new BadRequestObjectResult("Incomplete request");
             }
 
             log?.LogInformationEx($"userEmail {userEmail}", LogVerbosity.Debug);

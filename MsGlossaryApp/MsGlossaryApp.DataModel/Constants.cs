@@ -20,6 +20,8 @@
         public const string SettingsContainerVariableName = "SettingsContainer";
         public const string TermsContainerVariableName = "TermsContainer";
         public const string TermsSettingsFileName = "terms.en.json";
+        public const string UserEmailHeaderKey = "x-glossary-user-email";
+        public const string FileNameHeaderKey = "x-glossary-file-name";
 
         public static class SynopsisMarkdownMarkers
         {

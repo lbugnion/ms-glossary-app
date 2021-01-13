@@ -21,7 +21,7 @@ namespace SynopsisClient.Pages
 
             if (success)
             {
-                Handler.DefineList(Handler.Synopsis.Links.LinksToLearn.Links);
+                Handler.DefineList(Handler.Synopsis.LinksToLearn);
             }
             else
             {

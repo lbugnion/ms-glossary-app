@@ -65,7 +65,7 @@ namespace MsGlossaryApp.DataModel
 
             if (isValid)
             {
-                foreach (var link in term.Links.LinksToDocs.Links)
+                foreach (var link in term.LinksToDocs)
                 {
                     context = new ValidationContext(link);
                     isValid = Validator.TryValidateObject(link, context, results, true);
@@ -79,7 +79,7 @@ namespace MsGlossaryApp.DataModel
 
             if (isValid)
             {
-                foreach (var link in term.Links.LinksToLearn.Links)
+                foreach (var link in term.LinksToLearn)
                 {
                     context = new ValidationContext(link);
                     isValid = Validator.TryValidateObject(link, context, results, true);
@@ -93,7 +93,7 @@ namespace MsGlossaryApp.DataModel
 
             if (isValid)
             {
-                foreach (var link in term.Links.LinksToOthers.Links)
+                foreach (var link in term.LinksToOthers)
                 {
                     context = new ValidationContext(link);
                     isValid = Validator.TryValidateObject(link, context, results, true);

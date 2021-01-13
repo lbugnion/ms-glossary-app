@@ -69,12 +69,16 @@ namespace MsGlossaryApp.DataModel
             hash.Add(base.GetHashCode());
             hash.Add(Authors);
             hash.Add(Keywords);
-            hash.Add(Links);
+            hash.Add(LinksToDocs);
+            hash.Add(LinksToLearn);
+            hash.Add(LinksToOthers);
+            hash.Add(MustSave);
             hash.Add(FileName);
             hash.Add(ShortDescription);
             hash.Add(Title);
             hash.Add(Transcript);
             hash.Add(Uri);
+            hash.Add(Url);
             hash.Add(Captions);
             hash.Add(Language);
             hash.Add(RecordingDate);

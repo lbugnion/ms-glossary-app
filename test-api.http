@@ -39,32 +39,32 @@ x-functions-key: Xq9pl6xS6uI1RVuxKaN0e2HG6ts0AKgqAbniQQXKUCaHxDEAdtC1Fw==
 
 ### Get synopsis for edit
 GET http://localhost:7071/api/synopsis
-x-glossary-user-email: lbugnion@live.com
+x-glossary-user-email: lbugnion@microsoft.com
 x-glossary-file-name: test-topic-17
 
 ### Save synopsis
 POST http://localhost:7071/api/synopsis
+x-glossary-user-email: lbugnion@microsoft.com
+x-glossary-file-name: test-topic-17
 
 {
-  "AuthorsInstructions": [
-    "Enter a comma-separated list of author names, email, Twitter handle and GitHub username.",
-    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#submitted-by)"
+  "authorsInstructions": [
   ],
-  "Demos": [
+  "demos": [
     {
-      "Content": "Short description of the demo."
+      "content": "Short description of the demo."
     }
   ],
-  "DemosInstructions": [
+  "demosInstructions": [
     "Quick list of the demos you want to show.",
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#demos)"
   ],
-  "KeywordsInstructions": [
+  "keywordsInstructions": [
     "List of keywords or keyphrases, comma separated.",
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#keywords-or-key-expressions)",
     "For example"
   ],
-  "LinksInstructions": {
+  "linksInstructions": {
     "Links to docs": [
       "As part of the preparation, prepare a list of links to the documentation that you will use to prepare the content. These links will be included in the website too.",
       "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#links-to-docs)"
@@ -78,98 +78,98 @@ POST http://localhost:7071/api/synopsis
       "These can be other links to Microsoft properties or to other sites."
     ]
   },
-  "PersonalNotes": [
+  "personalNotes": [
     {
-      "Content": "Note 1"
+      "content": "Note 1"
     },
     {
-      "Content": "Note 2"
+      "content": "Note 2"
     }
   ],
-  "PersonalNotesInstructions": [
+  "personalNotesInstructions": [
     "A bullet points list of notes you can use to keep track of things.",
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#personal-notes)"
   ],
-  "Phonetics": "wɜrd",
-  "PhoneticsInstructions": [
+  "phonetics": "wɜrd",
+  "phoneticsInstructions": [
     "[https://tophonetics.com](https://tophonetics.com/)",
     "Add the phonetics of the word or the expression.",
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#phonetics)"
   ],
-  "ShortDescriptionInstructions": [
+  "shortDescriptionInstructions": [
     "Please keep between 60 and 200 characters.",
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#short-description)"
   ],
-  "TitleInstructions": [
+  "titleInstructions": [
     "This is a template to help you create a synopsis. [You can see an example here](https://aka.ms/glossary/sample/synopsis).",
     "Go to [the instructions to get started with a new term!](https://github.com/lbugnion/ms-glossary/blob/master/instructions/getting-started.md)"
   ],
-  "TranscriptInstructions": [
+  "transcriptInstructions": [
     "A transcript of what you are planning to say on camera, including demos etc.",
     "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#script)",
     "When writing your script, and even though we are not working on the video yet, [keep in mind the general structure of the social videos](./getting-started-video.md).",
     "For abbreviations, also mention the full expression in the intro and show phonetics too."
   ],
-  "Authors": [
+  "authors": [
     {
-      "Email": "lbugnion@microsoft.com",
-      "GitHub": "LBugnion",
-      "Name": "Laurent Bugnion",
-      "Twitter": "LBugnion"
+      "email": "lbugnion@microsoft.com",
+      "gitHub": "LBugnion",
+      "name": "Laurent Bugnion",
+      "twitter": "LBugnion"
     }
   ],
-  "Keywords": [
+  "keywords": [
     {
-      "Content": "AAD"
+      "content": "AAD"
     },
     {
-      "Content": "Active Directory"
+      "content": "Active Directory"
     },
     {
-      "Content": "Authentication"
+      "content": "Authentication"
     },
     {
-      "Content": "Identity"
+      "content": "Identity"
     }
   ],
-  "Links": {
-    "LinksToDocs": {
-      "Links": [
+  "links": {
+    "linksToDocs": {
+      "links": [
         {
-          "Note": null,
-          "Text": "An introduction to Azure Functions",
-          "Url": "https://docs.microsoft.com/azure/azure-functions/functions-overview"
+          "note": null,
+          "text": "An introduction to Azure Functions",
+          "url": "https://docs.microsoft.com/azure/azure-functions/functions-overview"
         }
       ],
-      "SynopsisTitle": "Links to docs",
-      "TermTitle": "Documentation"
+      "synopsisTitle": "Links to docs",
+      "termTitle": "Documentation"
     },
-    "LinksToLearn": {
-      "Links": [
+    "linksToLearn": {
+      "links": [
         {
-          "Note": "(*learning path*)",
-          "Text": "Create serverless applications",
-          "Url": "https://docs.microsoft.com/learn/paths/create-serverless-applications"
+          "note": "(*learning path*)",
+          "text": "Create serverless applications",
+          "url": "https://docs.microsoft.com/learn/paths/create-serverless-applications"
         },
         {
-          "Note": "(*module*)",
-          "Text": "Refactor Node.js and Express APIs to Serverless APIs with Azure Functions",
-          "Url": "https://docs.microsoft.com/learn/modules/shift-nodejs-express-apis-serverless"
+          "note": "(*module*)",
+          "text": "Refactor Node.js and Express APIs to Serverless APIs with Azure Functions",
+          "url": "https://docs.microsoft.com/learn/modules/shift-nodejs-express-apis-serverless"
         }
       ],
-      "SynopsisTitle": "Links to Learn",
-      "TermTitle": "Microsoft Learn"
+      "synopsisTitle": "Links to Learn",
+      "termTitle": "Microsoft Learn"
     },
-    "LinksToOthers": {
-      "Links": [],
-      "SynopsisTitle": "Other Links (optional)",
-      "TermTitle": "Other links"
+    "linksToOthers": {
+      "links": [],
+      "synopsisTitle": "Other Links (optional)",
+      "termTitle": "Other links"
     }
   },
-  "MustSave": false,
-  "FileName": "test-topic-17",
-  "ShortDescription": "This is a test again",
-  "Title": "Test topic 17",
-  "Transcript": "Today's word of the day is: WORD.\r\nToday's words of the day are: EXPRESSION.\r\nToday's word of the day is an abbreviation: ABBREVIATION.\r\n\r\n> Enter production notes like this. This is to help you while filming or while editing the video.\r\n\r\nHello and welcome to Microsoft Azure Words of the Day, the show that teaches you the Azure vocabulary!\r\n",
-  "Uri": "https://raw.githubusercontent.com/lbugnion/tests-auto-commit/test-topic-17/synopsis/test-topic-17.md"
+  "mustSave": false,
+  "fileName": "test-topic-17",
+  "shortDescription": "This is a test again",
+  "title": "Test topic 17",
+  "transcript": "Today's word of the day is: WORD.\r\nToday's words of the day are: EXPRESSION.\r\nToday's word of the day is an abbreviation: ABBREVIATION.\r\n\r\n> Enter production notes like this. This is to help you while filming or while editing the video.\r\n\r\nHello and welcome to Microsoft Azure Words of the Day, the show that teaches you the Azure vocabulary!\r\n",
+  "uri": "https://raw.githubusercontent.com/lbugnion/tests-auto-commit/test-topic-17/synopsis/test-topic-17.md"
 }

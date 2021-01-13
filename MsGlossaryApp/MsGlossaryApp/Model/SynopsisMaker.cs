@@ -144,40 +144,41 @@ namespace MsGlossaryApp.Model
 
             builder.AppendLine();
 
-            CreateLinksSection(builder, synopsis.Links.LinksToDocs);
-            CreateLinksSection(builder, synopsis.Links.LinksToDocs);
-            CreateLinksSection(builder, synopsis.Links.LinksToDocs);
+            CreateLinksSection(
+                builder, 
+                Constants.SynopsisMarkdownMarkers.LinksToDocsMarker, 
+                synopsis.LinksToDocs,
+                synopsis.LinksInstructions);
+            CreateLinksSection(
+                builder, 
+                Constants.SynopsisMarkdownMarkers.LinksToLearnMarker, 
+                synopsis.LinksToLearn,
+                synopsis.LinksInstructions);
+            CreateLinksSection(
+                builder, 
+                Constants.SynopsisMarkdownMarkers.LinksToOthersMarker, 
+                synopsis.LinksToOthers,
+                synopsis.LinksInstructions);
 
             void CreateLinksSection(
                 StringBuilder builder,
-                LinksCollectionBase collectionBase)
+                string title,
+                IList<Link> links,
+                Dictionary<string, IList<string>> instructions)
             {
                 builder
-                    .AppendLine(collectionBase.SynopsisTitle.MakeH2())
+                    .AppendLine(title.MakeH2())
                     .AppendLine();
 
-                if (synopsis.LinksInstructions != null
-                    && synopsis.LinksInstructions.ContainsKey(collectionBase.SynopsisTitle)
-                    && synopsis.LinksInstructions[collectionBase.SynopsisTitle] != null)
+                if (instructions.ContainsKey(title)
+                    && instructions[title] != null)
                 {
-                    foreach (var instruction in synopsis.LinksInstructions[collectionBase.SynopsisTitle])
+                    foreach (var instruction in instructions[title])
                     {
                         builder
                             .AppendLine(instruction.MakeNote())
                             .AppendLine();
                     }
-                }
-
-                IList<Link> links = null;
-
-                if (collectionBase is LinksCollection collection)
-                {
-                    links = collection.Links;
-                }
-
-                if (collectionBase is LinksCollectionOptional collectionOptional)
-                {
-                    links = collectionOptional.Links;
                 }
 
                 foreach (var link in links)
@@ -357,13 +358,13 @@ namespace MsGlossaryApp.Model
                         switch (line)
                         {
                             case Constants.SynopsisMarkdownMarkers.LinksToDocsMarker:
-                                currentLinksSection = synopsis.Links.LinksToDocs.Links;
+                                currentLinksSection = synopsis.LinksToDocs;
                                 break;
                             case Constants.SynopsisMarkdownMarkers.LinksToLearnMarker:
-                                currentLinksSection = synopsis.Links.LinksToLearn.Links;
+                                currentLinksSection = synopsis.LinksToLearn;
                                 break;
                             case Constants.SynopsisMarkdownMarkers.LinksToOthersMarker:
-                                currentLinksSection = synopsis.Links.LinksToOthers.Links;
+                                currentLinksSection = synopsis.LinksToOthers;
                                 break;
                         }
 
@@ -481,14 +482,9 @@ namespace MsGlossaryApp.Model
 
         public static GlossaryFile PrepareNewSynopsis(
             Synopsis synopsis,
-            string oldMarkdown,
+            Synopsis oldSynopsis,
             ILogger log)
         {
-            var oldSynopsis = ParseSynopsis(
-                synopsis.Uri,
-                oldMarkdown,
-                log);
-
             var file = new GlossaryFile
             {
                 Path = string.Format(SaveToGitHubPathMask, synopsis.FileName)
