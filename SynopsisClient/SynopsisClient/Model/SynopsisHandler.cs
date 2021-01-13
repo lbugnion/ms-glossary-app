@@ -1,6 +1,8 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Extensions.Configuration;
 using MsGlossaryApp.DataModel;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,15 +14,30 @@ namespace SynopsisClient.Model
 {
     public class SynopsisHandler
     {
+        private const string GetSynopsisUrlKey = "GetSynopsisUrl";
+        private const string GetSynopsisUrlFunctionKeyKey = "GetSynopsisUrlFunctionKey";
+        private const string SaveSynopsisUrlKey = "SaveSynopsisUrl";
+        private const string SaveSynopsisUrlFunctionKeyKey = "SaveSynopsisUrlFunctionKey";
+        private const string UserEmailHeaderKey = "x-glossary-user-email";
+        private const string FileNameHeaderKey = "x-glossary-file-name";
+
         public event EventHandler WasSaved;
 
-        private const string Key = "Current-Synopsis";
+        public const string LocalStorageKey = "Current-Synopsis";
 
         private ListHandlerBase _listHandler;
 
         private ILocalStorageService _localStorage;
+        private IConfiguration _configuration;
+        private UserManager _userManager;
 
         public bool CannotSave
+        {
+            get;
+            private set;
+        }
+
+        public bool CannotReloadFromCloud
         {
             get;
             private set;
@@ -62,9 +79,14 @@ namespace SynopsisClient.Model
             private set;
         }
 
-        public SynopsisHandler(ILocalStorageService localStorage)
+        public SynopsisHandler(
+            ILocalStorageService localStorage,
+            IConfiguration configuration,
+            UserManager userManager)
         {
             _localStorage = localStorage;
+            _configuration = configuration;
+            _userManager = userManager;
         }
 
         private void CurrentEditContextOnFieldChanged(
@@ -97,19 +119,19 @@ namespace SynopsisClient.Model
             }
         }
 
-        private async Task ExecuteReloadFromCloud()
+        public async Task ExecuteReloadFromCloud()
         {
-            Console.WriteLine("SynopsisHandler.ReloadFromCloud");
+            Console.WriteLine("SynopsisHandler.ExecuteReloadFromCloud");
             Synopsis = await GetSynopsis(false, true);
             SetContext();
-            await _localStorage.SetItemAsync(Key, Synopsis);
-            Console.WriteLine($"{Synopsis.Authors.Count} authors found");
         }
 
         private async Task<Synopsis> GetSynopsis(
             bool forceRefreshLocal,
             bool forcefreshOnline)
         {
+            Console.WriteLine("GetSynopsis");
+
             if (!forcefreshOnline
                 && (Synopsis == null
                 || forceRefreshLocal))
@@ -118,7 +140,7 @@ namespace SynopsisClient.Model
 
                 try
                 {
-                    Synopsis = await _localStorage.GetItemAsync<Synopsis>(Key);
+                    Synopsis = await _localStorage.GetItemAsync<Synopsis>(LocalStorageKey);
                 }
                 catch
                 {
@@ -138,9 +160,44 @@ namespace SynopsisClient.Model
             if (forcefreshOnline
                 || Synopsis == null)
             {
-                Console.WriteLine("Loading synopsis from network");
+                Console.WriteLine("Attempting to load synopsis from network");
+
+                if (_userManager.CurrentUser == null
+                    || string.IsNullOrEmpty(_userManager.CurrentUser.Email)
+                    || string.IsNullOrEmpty(_userManager.CurrentUser.SynopsisName))
+                {
+                    Console.WriteLine("User is null or incomplete");
+                    CannotReloadFromCloud = true;
+                    await _localStorage.RemoveItemAsync(LocalStorageKey);
+                    return null;
+                }
+
+                var url = _configuration.GetValue<string>(GetSynopsisUrlKey);
+                Console.WriteLine($"URL: {url}");
+                var functionKey = _configuration.GetValue<string>(GetSynopsisUrlFunctionKeyKey);
+                Console.WriteLine($"Function Key: {functionKey}");
+
+                Console.WriteLine("Creating client");
+
                 var client = new HttpClient();
+
+                Console.WriteLine("Creating request");
+                var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
+                httpRequest.Headers.Add(UserEmailHeaderKey, _userManager.CurrentUser.Email);
+                httpRequest.Headers.Add(FileNameHeaderKey, _userManager.CurrentUser.SynopsisName);
+
+                Console.WriteLine("Sending request");
+                var response = await client.SendAsync(httpRequest);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"Invalid response: {response.StatusCode}");
+                    return null;
+                }
+
                 Synopsis = await client.GetFromJsonAsync<Synopsis>("https://localhost:44395/sample-data/test-topic-15.json?ticks=" + DateTime.Now.Ticks);
+                await _localStorage.SetItemAsync(LocalStorageKey, Synopsis);
+                Console.WriteLine("New Synopsis loaded and saved");
             }
 
             return Synopsis;
@@ -176,7 +233,7 @@ namespace SynopsisClient.Model
                 && !CannotSave)
             {
                 Console.WriteLine("Must save");
-                await _localStorage.SetItemAsync(Key, Synopsis);
+                await _localStorage.SetItemAsync(LocalStorageKey, Synopsis);
                 CurrentEditContext.MarkAsUnmodified();
                 CannotSave = true;
                 IsModified = false;
@@ -206,12 +263,7 @@ namespace SynopsisClient.Model
 
         public async Task InitializePage()
         {
-            //await _localStorage.SetItemAsync<Synopsis>(Key, null);
-
-            // Reset changes every time that the page changes
-
             Console.WriteLine("SynopsisHandler.InitializePage");
-
             Synopsis = await GetSynopsis(true, false);
             SetContext();
         }

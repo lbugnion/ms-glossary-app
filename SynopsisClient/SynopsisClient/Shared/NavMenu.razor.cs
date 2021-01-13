@@ -7,6 +7,17 @@ namespace SynopsisClient.Shared
     {
         private bool _collapseNavMenu = true;
         private bool _showNavWarning = false;
+        private bool _showLoginWarning;
+
+        private bool ShowLoginWarning
+        {
+            get => _showLoginWarning;
+            set
+            {
+                _showLoginWarning = value;
+                StateHasChanged();
+            }
+        }
 
 #if DEBUG
         private readonly bool _showDebug = true;
@@ -27,7 +38,14 @@ namespace SynopsisClient.Shared
                 return;
             }
 
+            if (!UserManager.IsLoggedIn)
+            {
+                ShowLoginWarning = true;
+                return;
+            }
+
             _showNavWarning = false;
+            ShowLoginWarning = false;
             Handler.ResetDialogs();
             Nav.NavigateTo(uri);
         }
@@ -47,11 +65,18 @@ namespace SynopsisClient.Shared
         protected override void OnInitialized()
         {
             Handler.WasSaved += HandlerWasSaved;
+            UserManager.LoggedInChanged += UserManagerLoggedInChanged;
+        }
+
+        private void UserManagerLoggedInChanged(object sender, bool e)
+        {
+            ShowLoginWarning = !e;
         }
 
         public void Dispose()
         {
             Handler.WasSaved -= HandlerWasSaved;
+            UserManager.LoggedInChanged -= UserManagerLoggedInChanged;
         }
     }
 }

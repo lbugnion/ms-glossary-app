@@ -7,6 +7,7 @@ namespace SynopsisClient.Model
     public class UserManager
     {
         private ILocalStorageService _localStorage;
+        private bool isLoggedIn;
         private const string CurrentUserKey = "CurrentUser";
 
         private const string DefaultEmail = "user@domain.com";
@@ -77,6 +78,11 @@ namespace SynopsisClient.Model
         {
             Console.WriteLine("UserManager.Login");
             await _localStorage.SetItemAsync(CurrentUserKey, CurrentUser);
+
+            // TODO Load Synopsis here?
+
+
+
             IsModified = false;
             CannotLogOut = false;
             IsLoggedIn = true;
@@ -85,7 +91,8 @@ namespace SynopsisClient.Model
         public async Task LogOut()
         {
             Console.WriteLine("UserManager.Logout");
-            await _localStorage.SetItemAsync<User>(CurrentUserKey, null);
+            await _localStorage.RemoveItemAsync(CurrentUserKey);
+            await _localStorage.RemoveItemAsync(SynopsisHandler.LocalStorageKey);
 
             CurrentUser = new User
             {
@@ -100,11 +107,18 @@ namespace SynopsisClient.Model
 
         public bool IsLoggedIn
         {
-            get;
-            private set;
+            get => isLoggedIn;
+            private set
+            {
+                isLoggedIn = value;
+                LoggedInChanged?.Invoke(this, value);
+            }
         }
 
-        public UserManager(ILocalStorageService localStorage)
+        public event EventHandler<bool> LoggedInChanged;
+
+        public UserManager(
+            ILocalStorageService localStorage)
         {
             _localStorage = localStorage;
         }
