@@ -45,16 +45,18 @@ else
         <div class="edit-area">
             @foreach (var keyword in Handler.Synopsis.Keywords)
             {
-                <label title="Demo description">
-                    <span class="form-label">Keyword</span>
-                    <br />
-                    <InputText class="wide-input"
-                               @bind-Value="keyword.Content" />
-                </label>
-                <button class="small-button"
-                        @onclick="(e => Handler.Delete(keyword))">
-                    Delete
-                </button>
+                <div>
+                    <label title="Demo description">
+                        <span class="form-label">Keyword</span>
+                        <br />
+                        <InputText class="wide-input"
+                                   @bind-Value="keyword.Content" />
+                    </label>
+                    <button class="small-button"
+                            @onclick="(e => Handler.Delete(keyword))">
+                        Delete
+                    </button>
+                </div>
             }
         </div>
 

@@ -73,5 +73,10 @@ namespace MsGlossaryApp.DataModel
 
             return markdown;
         }
+
+        public Link()
+        {
+            EditingUrl = "http://domain.com/path";
+        }
     }
 }

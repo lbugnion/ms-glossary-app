@@ -43,12 +43,14 @@ else
         <div class="edit-area">
             @foreach (var note in Handler.Synopsis.PersonalNotes)
             {
-                <label title="Personal note">
-                    <InputText class="wide-input"
-                               @bind-Value="note.Content" />
-                </label>
+                <div>
+                    <label title="Personal note">
+                        <InputText class="wide-input"
+                                   @bind-Value="note.Content" />
+                    </label>
 
-                <button @onclick="(e => Handler.Delete(note))">Delete</button>
+                    <button @onclick="(e => Handler.Delete(note))">Delete</button>
+                </div>
             }
         </div>
 

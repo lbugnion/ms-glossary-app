@@ -45,16 +45,18 @@ else
         <div class="edit-area">
             @foreach (var link in Handler.Synopsis.Links.LinksToDocs.Links)
             {
-                <label title="Link">
-                    <span class="form-label">Link</span>
-                    <br />
-                    <InputText class="wide-input"
-                               @bind-Value="link.EditingUrl" />
-                </label>
-                <button class="small-button"
-                        @onclick="(e => Handler.Delete(link))">
-                    Delete
-                </button>
+                <div>
+                    <label title="Link">
+                        <span class="form-label">Link</span>
+                        <br />
+                        <InputText class="wide-input"
+                                   @bind-Value="link.EditingUrl" />
+                    </label>
+                    <button class="small-button"
+                            @onclick="(e => Handler.Delete(link))">
+                        Delete
+                    </button>
+                </div>
             }
         </div>
 
