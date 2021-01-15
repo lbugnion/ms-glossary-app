@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace MsGlossaryApp.DataModel
 {
@@ -32,16 +34,16 @@ namespace MsGlossaryApp.DataModel
         public bool MustSave { get; set; }
 
         [Required]
-        [MinLength(60, ErrorMessage = "The short description is too short")]
-        [MaxLength(200, ErrorMessage = "The short description is too long")]
+        [MinLength(40, ErrorMessage = "The short description is too short")]
+        [MaxLength(150, ErrorMessage = "The short description is too long")]
         public string ShortDescription { get; set; }
 
         [Required]
         public string Title { get; set; }
 
         [Required]
-        [MinLength(1, ErrorMessage = "You need to define a script")]
-        public string Transcript { get; set; }
+        [MinLength(1, ErrorMessage = "Please define a script")]
+        public IList<ContentEntry> TranscriptLines { get; set; }
 
         [Required]
         public Uri Uri { get; set; }
@@ -64,6 +66,7 @@ namespace MsGlossaryApp.DataModel
             LinksToDocs = new List<Link>();
             LinksToLearn = new List<Link>();
             LinksToOthers = new List<Link>();
+            TranscriptLines = new List<ContentEntry>();
         }
 
         protected bool IsListEqualTo(IList<object> list1, IList<object> list2)
@@ -149,9 +152,17 @@ namespace MsGlossaryApp.DataModel
                 return false;
             }
 
-            if (term.Transcript != Transcript)
+            if (term.TranscriptLines.Count != TranscriptLines.Count)
             {
                 return false;
+            }
+
+            for (var index = 0; index < TranscriptLines.Count; index++)
+            {
+                if (!term.TranscriptLines[index].Equals(TranscriptLines[index]))
+                {
+                    return false;
+                }
             }
 
             if (term.Uri != Uri)
@@ -174,7 +185,7 @@ namespace MsGlossaryApp.DataModel
             hash.Add(FileName);
             hash.Add(ShortDescription);
             hash.Add(Title);
-            hash.Add(Transcript);
+            hash.Add(TranscriptLines);
             hash.Add(Uri);
             hash.Add(Url);
             return hash.ToHashCode();
@@ -183,6 +194,35 @@ namespace MsGlossaryApp.DataModel
         public override string ToString()
         {
             return Title;
+        }
+
+        public string GetTranscriptMarkdown()
+        {
+            var builder = new StringBuilder();
+
+            foreach (var line in TranscriptLines)
+            {
+                builder
+                    .AppendLine(line.Content)
+                    .AppendLine();
+            }
+
+            return builder.ToString();
+        }
+
+        public void SetTranscriptMarkdown(string markdown)
+        {
+            TranscriptLines = new List<ContentEntry>();
+            var reader = new StringReader(markdown);
+            string line;
+
+            while ((line = reader.ReadLine()) != null)
+            {
+                if (!string.IsNullOrEmpty(line))
+                {
+                    TranscriptLines.Add(new ContentEntry(line));
+                }
+            }
         }
     }
 }

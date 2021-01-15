@@ -9,6 +9,7 @@ namespace MsGlossaryApp.DataModel
         private const string H3Marker = "### ";
         private const string LinkSeparator = "](";
         private const string LinkTextOpener = "[";
+        private const string ImageTextOpener = "![";
         private const string LinkUrlCloser = ")";
         private const string ListMarker = "-";
         private const string NoteMarker = ">";
@@ -87,6 +88,11 @@ namespace MsGlossaryApp.DataModel
             return $"{LinkTextOpener}{text.Trim()}{LinkSeparator}{url.Trim()}{LinkUrlCloser}";
         }
 
+        public static string MakeImage(this string title, string url)
+        {
+            return $"{ImageTextOpener}{title.Trim()}{LinkSeparator}{url.Trim()}{LinkUrlCloser}";
+        }
+
         public static string MakeListItem(this string line)
         {
             return Make(line, ListMarker);
@@ -125,6 +131,48 @@ namespace MsGlossaryApp.DataModel
         public static string ParseH3(this string line)
         {
             return Parse(line, H3Marker);
+        }
+
+        public static bool IsImage(this string text)
+        {
+            text = text.Trim();
+
+            return text.StartsWith(ImageTextOpener)
+                && text.Contains(LinkSeparator);
+        }
+
+        public static Image ParseImage(this string text)
+        {
+            text = text.Trim();
+
+            if (!text.IsImage())
+            {
+                return null;
+            }
+
+            var parts = text.Split(new[]
+                {
+                    LinkSeparator
+                },
+                StringSplitOptions.RemoveEmptyEntries
+            );
+
+            if (!parts[0].StartsWith(ImageTextOpener)
+                || !parts[1].EndsWith(LinkUrlCloser))
+            {
+                return null;
+            }
+
+            parts[0] = parts[0].Substring(ImageTextOpener.Length).Trim();
+            parts[1] = parts[1].Substring(0, parts[1].Length - LinkUrlCloser.Length).Trim();
+
+            var image = new Image
+            {
+                Title = parts[0],
+                Url = parts[1]
+            };
+
+            return image;
         }
 
         public static Link ParseLink(this string text)

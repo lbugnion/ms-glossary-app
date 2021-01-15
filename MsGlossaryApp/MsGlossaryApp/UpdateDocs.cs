@@ -118,7 +118,7 @@ namespace MsGlossaryApp
             Uri termUri,
             ILogger log)
         {
-            Term term = null;
+            Term term;
 
             try
             {
@@ -166,14 +166,16 @@ namespace MsGlossaryApp
             (List<Keyword> keywordsToReplace, Term currentTerm) input,
             ILogger log)
         {
+            var oldTranscript = input.currentTerm.GetTranscriptMarkdown();
+
             var newTranscript = await KeywordReplacer.Replace(
-                input.currentTerm.Transcript,
+                oldTranscript,
                 input.keywordsToReplace,
                 log);
 
-            if (newTranscript != input.currentTerm.Transcript)
+            if (newTranscript != oldTranscript)
             {
-                input.currentTerm.Transcript = newTranscript;
+                input.currentTerm.SetTranscriptMarkdown(newTranscript);
                 input.currentTerm.MustSave = true;
             }
 
@@ -193,7 +195,7 @@ namespace MsGlossaryApp
 
             foreach (var termUrl in allTermsUrls)
             {
-                //var termUrl = allTermsUrls.First();
+                //var termUrl = allTermsUrls.First(u => u.Contains("/test.en.md"));
 
                 allTermsTasks.Add(context.CallActivityAsync<Term>(
                     nameof(UpdateDocsParseTerm),
@@ -229,7 +231,7 @@ namespace MsGlossaryApp
 
             foreach (var term in allTerms)
             {
-                // var term = allTerms.First(t => t.TermName == "aad");
+                //var term = allTerms.First(t => t.FileName == "aad");
 
                 var keywordsToReplace = allKeywords
                     .Where(k =>

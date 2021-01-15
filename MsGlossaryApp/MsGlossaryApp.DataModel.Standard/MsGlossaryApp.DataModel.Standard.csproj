@@ -9,6 +9,7 @@
     <Compile Include="..\MsGlossaryApp.DataModel\Constants.cs" Link="Constants.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\ContentEntry.cs" Link="ContentEntry.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\GlossaryFile.cs" Link="GlossaryFile.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\Image.cs" Link="Image.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\Keyword.cs" Link="Keyword.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\Language.cs" Link="Language.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\Link.cs" Link="Link.cs" />

@@ -37,7 +37,9 @@ namespace MsGlossaryApp.TestDownloadBlobs
                 blobHelper.GetContainerFromName(
                     "captions"),
                 blobHelper.GetContainerFromName(
-                    "terms")
+                    "terms"),
+                blobHelper.GetContainerFromName(
+                    "terms-testing")
             };
 
             Console.WriteLine("Ready, press any key except N to start");

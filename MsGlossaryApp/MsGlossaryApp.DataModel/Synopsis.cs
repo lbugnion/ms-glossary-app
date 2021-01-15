@@ -159,18 +159,6 @@ namespace MsGlossaryApp.DataModel
         {
             HashCode hash = new HashCode();
             hash.Add(base.GetHashCode());
-            hash.Add(Authors);
-            hash.Add(Keywords);
-            hash.Add(LinksToDocs);
-            hash.Add(LinksToLearn);
-            hash.Add(LinksToOthers);
-            hash.Add(MustSave);
-            hash.Add(FileName);
-            hash.Add(ShortDescription);
-            hash.Add(Title);
-            hash.Add(Transcript);
-            hash.Add(Uri);
-            hash.Add(Url);
             hash.Add(AuthorsInstructions);
             hash.Add(Demos);
             hash.Add(DemosInstructions);

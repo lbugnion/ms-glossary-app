@@ -167,13 +167,15 @@ namespace MsGlossaryApp.Model
                 Dictionary<string, IList<string>> instructions)
             {
                 builder
-                    .AppendLine(title.MakeH2())
+                    .AppendLine(title)
                     .AppendLine();
 
-                if (instructions.ContainsKey(title)
-                    && instructions[title] != null)
+                var key = title.ParseH2();
+
+                if (instructions.ContainsKey(key)
+                    && instructions[key] != null)
                 {
-                    foreach (var instruction in instructions[title])
+                    foreach (var instruction in instructions[key])
                     {
                         builder
                             .AppendLine(instruction.MakeNote())
@@ -186,8 +188,11 @@ namespace MsGlossaryApp.Model
                     builder
                         .AppendLine(link.ToMarkdown().MakeListItem());
                 }
-
-                builder.AppendLine();
+                
+                if (links.Count > 0)
+                {
+                    builder.AppendLine();
+                }
             }
 
             builder
@@ -201,7 +206,12 @@ namespace MsGlossaryApp.Model
                     .AppendLine();
             }
 
-            builder.AppendLine(synopsis.Transcript);
+            foreach (var line in synopsis.TranscriptLines)
+            {
+                builder
+                    .AppendLine(line.Content)
+                    .AppendLine();
+            }
 
             log?.LogInformationEx("Out MakeSynopsisText", LogVerbosity.Verbose);
             return builder.ToString();
@@ -217,6 +227,11 @@ namespace MsGlossaryApp.Model
             log?.LogInformationEx("In ParseSynopsis", LogVerbosity.Verbose);
             log?.LogInformationEx($"Synopsis: {uri}", LogVerbosity.Verbose);
 
+            var synopsis = new Synopsis
+            {
+                Uri = uri
+            };
+
             var markdownReader = new StringReader(markdown);
 
             string authorNames = null;
@@ -225,7 +240,6 @@ namespace MsGlossaryApp.Model
             string githubs = null;
             IList<Link> currentLinksSection = null;
             IList<string> currentInstructionsSection = null;
-            var transcript = new StringBuilder();
             var shortDescription = new StringBuilder();
             bool isSubmittedBy = false,
                  isShortDescription = false,
@@ -236,12 +250,6 @@ namespace MsGlossaryApp.Model
                  isLinks = false,
                  isTranscript = false;
             var transcriptStarted = false;
-
-            var synopsis = new Synopsis
-            {
-                Uri = uri
-            };
-
             string line;
 
             while ((line = markdownReader.ReadLine()) != null)
@@ -446,8 +454,7 @@ namespace MsGlossaryApp.Model
                 }
                 else if (isTranscript)
                 {
-                    if (!transcriptStarted
-                        && string.IsNullOrEmpty(line))
+                    if (string.IsNullOrEmpty(line))
                     {
                         continue;
                     }
@@ -464,7 +471,7 @@ namespace MsGlossaryApp.Model
                     }
                     else
                     {
-                        transcript.AppendLine(line);
+                        synopsis.TranscriptLines.Add(new ContentEntry(line));
                     }
                 }
             }
@@ -477,7 +484,6 @@ namespace MsGlossaryApp.Model
 
             synopsis.ShortDescription = shortDescription.ToString().Trim();
             synopsis.FileName = Path.GetFileNameWithoutExtension(uri.LocalPath);
-            synopsis.Transcript = transcript.ToString();
 
             return synopsis;
         }

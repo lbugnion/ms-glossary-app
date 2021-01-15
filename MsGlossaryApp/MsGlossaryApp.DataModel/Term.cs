@@ -7,7 +7,6 @@ namespace MsGlossaryApp.DataModel
 {
     public class Term : TermBase
     {
-        [Required]
         public IList<Language> Captions { get; set; }
 
         [Required]
@@ -16,7 +15,6 @@ namespace MsGlossaryApp.DataModel
         [Required]
         public DateTime RecordingDate { get; set; }
 
-        [Required]
         public string YouTubeCode { get; set; }
 
         public Term()
@@ -65,18 +63,7 @@ namespace MsGlossaryApp.DataModel
         {
             HashCode hash = new HashCode();
             hash.Add(base.GetHashCode());
-            hash.Add(Authors);
-            hash.Add(Keywords);
-            hash.Add(LinksToDocs);
-            hash.Add(LinksToLearn);
-            hash.Add(LinksToOthers);
             hash.Add(MustSave);
-            hash.Add(FileName);
-            hash.Add(ShortDescription);
-            hash.Add(Title);
-            hash.Add(Transcript);
-            hash.Add(Uri);
-            hash.Add(Url);
             hash.Add(Captions);
             hash.Add(Language);
             hash.Add(RecordingDate);
