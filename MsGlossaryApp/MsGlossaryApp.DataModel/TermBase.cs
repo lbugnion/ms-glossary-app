@@ -43,7 +43,7 @@ namespace MsGlossaryApp.DataModel
 
         [Required]
         [MinLength(1, ErrorMessage = "Please define a script")]
-        public IList<ContentEntry> TranscriptLines { get; set; }
+        public IList<TranscriptLine> TranscriptLines { get; set; }
 
         [Required]
         public Uri Uri { get; set; }
@@ -66,7 +66,7 @@ namespace MsGlossaryApp.DataModel
             LinksToDocs = new List<Link>();
             LinksToLearn = new List<Link>();
             LinksToOthers = new List<Link>();
-            TranscriptLines = new List<ContentEntry>();
+            TranscriptLines = new List<TranscriptLine>();
         }
 
         protected bool IsListEqualTo(IList<object> list1, IList<object> list2)
@@ -203,7 +203,7 @@ namespace MsGlossaryApp.DataModel
             foreach (var line in TranscriptLines)
             {
                 builder
-                    .AppendLine(line.Content)
+                    .AppendLine(line.Markdown)
                     .AppendLine();
             }
 
@@ -212,7 +212,7 @@ namespace MsGlossaryApp.DataModel
 
         public void SetTranscriptMarkdown(string markdown)
         {
-            TranscriptLines = new List<ContentEntry>();
+            TranscriptLines = new List<TranscriptLine>();
             var reader = new StringReader(markdown);
             string line;
 
@@ -220,7 +220,7 @@ namespace MsGlossaryApp.DataModel
             {
                 if (!string.IsNullOrEmpty(line))
                 {
-                    TranscriptLines.Add(new ContentEntry(line));
+                    TranscriptLines.Add(TranscriptLine.GetEntry(line));
                 }
             }
         }

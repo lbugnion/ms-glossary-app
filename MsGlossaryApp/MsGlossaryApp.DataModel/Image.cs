@@ -31,5 +31,17 @@ namespace MsGlossaryApp.DataModel
         {
             return HashCode.Combine(Title, Url);
         }
+
+        public Image()
+        {
+            Title = "Image title";
+            Url = "http://domain.com/image.jpg";
+        }
+
+        public string ToMarkdown()
+        {
+            var markdown = Title.MakeImage(Url);
+            return markdown;
+        }
     }
 }

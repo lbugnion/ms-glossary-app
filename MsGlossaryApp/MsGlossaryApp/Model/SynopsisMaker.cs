@@ -209,7 +209,7 @@ namespace MsGlossaryApp.Model
             foreach (var line in synopsis.TranscriptLines)
             {
                 builder
-                    .AppendLine(line.Content)
+                    .AppendLine(line.Markdown)
                     .AppendLine();
             }
 
@@ -471,7 +471,7 @@ namespace MsGlossaryApp.Model
                     }
                     else
                     {
-                        synopsis.TranscriptLines.Add(new ContentEntry(line));
+                        synopsis.TranscriptLines.Add(TranscriptLine.GetEntry(line));
                     }
                 }
             }

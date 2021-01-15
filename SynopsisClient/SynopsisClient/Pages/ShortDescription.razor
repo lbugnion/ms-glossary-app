@@ -32,26 +32,31 @@ else
 
     <EditForm EditContext="@Handler.CurrentEditContext">
         <DataAnnotationsValidator />
-        <ValidationSummary />
 
-        <ConfirmDialog Title="Are you sure?"
-                       ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
+        <ConfirmDialog Title="Handler.ConfirmReloadDialogTitle"
+                       ShowDialog="Handler.ShowConfirmReloadDialog"
                        OkText="Yes"
                        CancelText="No"
-                       OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
+                       OnOkCancelClicked="Handler.ReloadConfirmationOkCancelClicked">
             <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
         </ConfirmDialog>
 
         <div class="edit-area">
             <InputTextArea @bind-Value="Handler.Synopsis.ShortDescription"
-                           class="medium-input-text" />
+                           class="medium-input-text-area" />
         </div>
+
+        <ValidationSummary />
 
         <div class="bottom-buttons-area">
             <button disabled="@Handler.CannotSave"
                     class="main-button"
                     @onclick="Handler.CheckSaveSynopsis">
                 Save local
+            </button>
+            <button class="main-button"
+                    @onclick="Handler.ReloadLocal">
+                Reload local
             </button>
             <button class="main-button"
                     @onclick="Handler.ReloadFromCloud">

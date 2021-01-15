@@ -148,7 +148,7 @@ namespace MsGlossaryApp.Model
             foreach (var line in term.TranscriptLines)
             {
                 builder
-                    .AppendLine(line.Content)
+                    .AppendLine(line.Markdown)
                     .AppendLine();
             }
 
@@ -212,7 +212,7 @@ namespace MsGlossaryApp.Model
             foreach (var line in term.TranscriptLines)
             {
                 builder
-                    .AppendLine(line.Content)
+                    .AppendLine(line.Markdown)
                     .AppendLine();
             }
 
@@ -664,7 +664,7 @@ namespace MsGlossaryApp.Model
                 }
                 else if (isTranscript)
                 {
-                    term.TranscriptLines.Add(new ContentEntry(line));
+                    term.TranscriptLines.Add(TranscriptLine.GetEntry(line));
                 }
                 else if (line.IsH1())
                 {

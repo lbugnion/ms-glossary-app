@@ -20,7 +20,6 @@ else
 
     <EditForm EditContext="@Handler.CurrentEditContext">
         <DataAnnotationsValidator />
-        <ValidationSummary />
 
         <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
                                               ShowDialog="Handler.ShowConfirmDeleteItemDialog"
@@ -32,11 +31,11 @@ else
             You can also reload the unchanged synopsis from the cloud.
         </SynopsisClient.Dialogs.ConfirmDialog>
 
-        <SynopsisClient.Dialogs.ConfirmDialog Title="Are you sure?"
-                                              ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
+        <SynopsisClient.Dialogs.ConfirmDialog Title="Handler.ConfirmReloadDialogTitle"
+                                              ShowDialog="Handler.ShowConfirmReloadDialog"
                                               OkText="Yes"
                                               CancelText="No"
-                                              OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
+                                              OnOkCancelClicked="Handler.ReloadConfirmationOkCancelClicked">
             <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
         </SynopsisClient.Dialogs.ConfirmDialog>
 
@@ -45,7 +44,7 @@ else
             {
                 <div>
                     <label title="Personal note">
-                        <InputText class="wide-input"
+                        <InputText class="medium-input-text"
                                    @bind-Value="note.Content" />
                     </label>
 
@@ -53,6 +52,8 @@ else
                 </div>
             }
         </div>
+
+        <ValidationSummary />
 
         <div class="bottom-buttons-area">
             <button class="main-button"
@@ -66,6 +67,10 @@ else
                     class="main-button"
                     @onclick="Handler.CheckSaveSynopsis">
                 Save local
+            </button>
+            <button class="main-button"
+                    @onclick="Handler.ReloadLocal">
+                Reload local
             </button>
             <button class="main-button"
                     @onclick="Handler.ReloadFromCloud">

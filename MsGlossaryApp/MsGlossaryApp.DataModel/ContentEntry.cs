@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace MsGlossaryApp.DataModel
 {
     public class ContentEntry
     {
+        [Required]
         public string Content
         {
             get;

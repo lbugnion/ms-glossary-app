@@ -27,7 +27,6 @@ else
 
     <EditForm EditContext="@Handler.CurrentEditContext">
         <DataAnnotationsValidator />
-        <ValidationSummary />
 
         <ConfirmDialog Title="Are you sure?"
                        ShowDialog="Handler.ShowConfirmDeleteItemDialog"
@@ -39,11 +38,11 @@ else
             You can also reload the unchanged synopsis from the cloud.
         </ConfirmDialog>
 
-        <ConfirmDialog Title="Are you sure?"
-                       ShowDialog="Handler.ShowConfirmReloadFromCloudDialog"
+        <ConfirmDialog Title="Handler.ConfirmReloadDialogTitle"
+                       ShowDialog="Handler.ShowConfirmReloadDialog"
                        OkText="Yes"
                        CancelText="No"
-                       OnOkCancelClicked="Handler.ReloadFromCloudConfirmationOkCancelClicked">
+                       OnOkCancelClicked="Handler.ReloadConfirmationOkCancelClicked">
             <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
         </ConfirmDialog>
 
@@ -55,26 +54,26 @@ else
                     <label title="Author's name">
                         <span class="form-label">Author name</span>
                         <br />
-                        <InputText class="short-input"
-                                    @bind-Value="author.Name" />
+                        <InputText class="short-input-text"
+                                   @bind-Value="author.Name" />
                     </label>
                     <label title="Author's Email address">
                         <span class="form-label">Email</span>
                         <br />
-                        <InputText class="short-input"
-                                    @bind-Value="author.Email" />
+                        <InputText class="short-input-text"
+                                   @bind-Value="author.Email" />
                     </label>
                     <label title="Author's GitHub username">
                         <span class="form-label">GitHub</span>
                         <br />
-                        <InputText class="short-input"
-                                    @bind-Value="author.GitHub" />
+                        <InputText class="short-input-text"
+                                   @bind-Value="author.GitHub" />
                     </label>
                     <label title="Author's Twitter username">
                         <span class="form-label">Twitter</span>
                         <br />
-                        <InputText class="short-input"
-                                    @bind-Value="author.Twitter" />
+                        <InputText class="short-input-text"
+                                   @bind-Value="author.Twitter" />
                     </label>
                     <br />
                     <button class="small-button"
@@ -86,6 +85,8 @@ else
                 <hr />
             }
         </div>
+
+        <ValidationSummary />
 
         <div class="bottom-buttons-area">
             <button class="main-button"
@@ -99,6 +100,10 @@ else
                     class="main-button"
                     @onclick="Handler.CheckSaveSynopsis">
                 Save local
+            </button>
+            <button class="main-button"
+                    @onclick="Handler.ReloadLocal">
+                Reload local
             </button>
             <button class="main-button"
                     @onclick="Handler.ReloadFromCloud">

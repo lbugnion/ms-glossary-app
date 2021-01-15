@@ -114,7 +114,7 @@ x-glossary-file-name: test-topic-17
   ],
   "authors": [
     {
-      "email": "lbugnion2@microsoft.com",
+      "email": "lbugnion@microsoft.com",
       "gitHub": "LBugnion",
       "name": "Laurent Bugnion",
       "twitter": "LBugnion"
@@ -166,19 +166,19 @@ x-glossary-file-name: test-topic-17
   "title": "Test topic 17",
   "transcriptLines": [
     {
-      "content": "Today's word of the day is: WORD."
+      "markdown": "Today's word of the day is: WORD."
     },
     {
-      "content": "Today's words of the day are: EXPRESSION."
+      "markdown": "Today's words of the day are: EXPRESSION."
     },
     {
-      "content": "Today's word of the day is an abbreviation: ABBREVIATION."
+      "markdown": "Today's word of the day is an abbreviation: ABBREVIATION."
     },
     {
-      "content": "> Enter production notes like this. This is to help you while filming or while editing the video."
+      "markdown": "> Enter production notes like this. This is to help you while filming or while editing the video."
     },
     {
-      "content": "Hello and welcome to Microsoft Azure Words of the Day, the show that teaches you the Azure vocabulary!"
+      "markdown": "Hello and welcome to Microsoft Azure Words of the Day, the show that teaches you the Azure vocabulary!"
     }
   ],
   "uri": "https://raw.githubusercontent.com/lbugnion/tests-auto-commit/test-topic-17/synopsis/test-topic-17.md"

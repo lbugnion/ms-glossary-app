@@ -22,6 +22,9 @@ namespace SynopsisClient.Model
         private const string UserEmailHeaderKey = "x-glossary-user-email";
         private const string FileNameHeaderKey = "x-glossary-file-name";
 
+        private const string ReloadLocalTitle = "Are you sure? Reload local";
+        private const string ReloadFromCloudTitle = "Are you sure? Reload frm Cloud";
+
         public event EventHandler WasSaved;
 
         public const string LocalStorageKey = "Current-Synopsis";
@@ -60,7 +63,7 @@ namespace SynopsisClient.Model
         public void ResetDialogs()
         {
             ShowConfirmDeleteItemDialog = false;
-            ShowConfirmReloadFromCloudDialog = false;
+            ShowConfirmReloadDialog = false;
             ErrorMessage = null;
             IsReloading = false;
         }
@@ -77,10 +80,16 @@ namespace SynopsisClient.Model
             private set;
         }
 
-        public bool ShowConfirmReloadFromCloudDialog
+        public bool ShowConfirmReloadDialog
         {
             get;
             private set;
+        }
+
+        public string ConfirmReloadDialogTitle 
+        {
+            get;
+            private set; 
         }
 
         public Synopsis Synopsis
@@ -233,6 +242,19 @@ namespace SynopsisClient.Model
                 }
             }
 
+            var originalLines = Synopsis.TranscriptLines;
+            Synopsis.TranscriptLines = new List<TranscriptLine>();
+
+            Console.WriteLine("Reloading lines");
+
+            foreach (var line in originalLines)
+            {
+                Console.WriteLine($"Found {line.Markdown}");
+                var typedLine = TranscriptLine.GetEntry(line.Markdown);
+                Console.WriteLine(typedLine.GetType().Name);
+                Synopsis.TranscriptLines.Add(typedLine);
+            }
+
             return Synopsis;
         }
 
@@ -325,50 +347,77 @@ namespace SynopsisClient.Model
                 return false;
             }
 
+
+
             IsReloading = false;
             return true;
         }
 
+        private bool _reloadFromCloud;
+        private bool _reloadLocal;
+
         public void ReloadFromCloud()
         {
             Console.WriteLine("In ReloadFromCloud");
-            ShowConfirmReloadFromCloudDialog = true;
+            _reloadFromCloud = true;
+            ShowConfirmReloadDialog = true;
+            ConfirmReloadDialogTitle = ReloadFromCloudTitle;
         }
 
-        public async Task ReloadFromCloudConfirmationOkCancelClicked(bool confirm)
+        public async Task ReloadConfirmationOkCancelClicked(bool confirm)
         {
-            ShowConfirmReloadFromCloudDialog = false;
+            ShowConfirmReloadDialog = false;
 
             if (confirm)
             {
-                Console.WriteLine("SynopsisHandler.ExecuteReloadFromCloud");
-                IsReloading = true;
-                var success = true;
-
-                try
+                if (_reloadFromCloud)
                 {
-                    Synopsis = await GetSynopsis(false, true);
-                    SetContext();
-
-                    if (Synopsis == null)
-                    {
-                        success = false;
-                    }
+                    _reloadFromCloud = false;
+                    await ExecuteReloadFromCloud();
                 }
-                catch (Exception ex)
+
+                if (_reloadLocal)
                 {
-                    ErrorMessage = ex.Message;
+                    _reloadLocal = false;
+                    ExecuteReloadLocal();
+                }
+            }
+        }
+
+        private void ExecuteReloadLocal()
+        {
+            _nav.NavigateTo(_nav.Uri, forceLoad: true);
+        }
+
+        private async Task ExecuteReloadFromCloud()
+        {
+            Console.WriteLine("SynopsisHandler.ExecuteReloadFromCloud");
+            IsReloading = true;
+            var success = true;
+
+            try
+            {
+                Synopsis = await GetSynopsis(false, true);
+                SetContext();
+
+                if (Synopsis == null)
+                {
                     success = false;
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                success = false;
+            }
 
-                if (success)
-                {
-                    IsReloading = false;
-                }
-                else
-                {
-                    _nav.NavigateTo("/");
-                }
+            if (success)
+            {
+                IsReloading = false;
+            }
+            else
+            {
+                _nav.NavigateTo("/");
             }
         }
 
@@ -381,6 +430,14 @@ namespace SynopsisClient.Model
                 var isValid = CurrentEditContext.Validate();
                 Console.WriteLine("TriggerValidation: " + isValid);
             }
+        }
+
+        public void ReloadLocal()
+        {
+            Console.WriteLine("In ReloadLocal");
+            _reloadLocal = true;
+            ShowConfirmReloadDialog = true;
+            ConfirmReloadDialogTitle = ReloadLocalTitle;
         }
 
         private class ListHandler<T> : ListHandlerBase
