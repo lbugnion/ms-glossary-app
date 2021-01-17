@@ -21,8 +21,9 @@ namespace SynopsisClient.Model
         private const string FileNameHeaderKey = "x-glossary-file-name";
         private const string GetSynopsisUrlFunctionKeyKey = "GetSynopsisUrlFunctionKey";
         private const string GetSynopsisUrlKey = "GetSynopsisUrl";
-        private const string ReloadFromCloudTitle = "Are you sure? Reload from Cloud";
-        private const string ReloadLocalTitle = "Are you sure? Reload local";
+        private const string ReloadFromCloudDialogTitle = "Are you sure? Reload from Cloud...";
+        private const string ReloadLocalDialogTitle = "Are you sure? Reload local..";
+        private const string DeleteDialogTitle = "Are you sure? Deleting...";
 
         private IModalService _modal;
 
@@ -72,12 +73,6 @@ namespace SynopsisClient.Model
         }
 
         public bool IsReloading
-        {
-            get;
-            private set;
-        }
-
-        public bool ShowConfirmDeleteItemDialog
         {
             get;
             private set;
@@ -356,16 +351,15 @@ namespace SynopsisClient.Model
             _listHandler = new ListHandler<T>(this, items);
         }
 
-        public void Delete<T>(T item)
+        public async Task Delete<T>(T item)
             where T : class
         {
             Console.WriteLine("SynopsisHandler.Delete");
-            _listHandler?.StartDelete(item);
-        }
 
-        public void DeletItemConfirmationOkCancelClicked(bool confirm)
-        {
-            _listHandler?.DeleteItemConfirmationOkCancelClicked(confirm);
+            if (await Confirm<ConfirmDeleteDialog>(DeleteDialogTitle))
+            {
+                _listHandler?.Delete(item);
+            }
         }
 
         public async Task<bool> InitializePage()
@@ -397,7 +391,7 @@ namespace SynopsisClient.Model
         {
             Console.WriteLine("Handler.ReloadFromCloud");
 
-            if (await ConfirmReload(ReloadFromCloudTitle))
+            if (await Confirm<ConfirmReloadDialog>(ReloadFromCloudDialogTitle))
             {
                 await ExecuteReloadFromCloud();
             }
@@ -407,13 +401,14 @@ namespace SynopsisClient.Model
         {
             Console.WriteLine("Handler.ReloadLocal");
 
-            if (await ConfirmReload(ReloadLocalTitle))
+            if (await Confirm<ConfirmReloadDialog>(ReloadLocalDialogTitle))
             {
                 ExecuteReloadLocal();
             }
         }
 
-        private async Task<bool> ConfirmReload(string title)
+        private async Task<bool> Confirm<TComponent>(string title)
+            where TComponent : IComponent
         {
             if (_modal == null)
             {
@@ -421,7 +416,7 @@ namespace SynopsisClient.Model
                 return false;
             }
 
-            var formModal = _modal.Show<ConfirmReloadDialog>(title);
+            var formModal = _modal.Show<TComponent>(title);
             var result = await formModal.Result;
 
             Console.WriteLine($"Result cancelled: {result.Cancelled}");
@@ -439,7 +434,6 @@ namespace SynopsisClient.Model
 
         public void ResetDialogs()
         {
-            ShowConfirmDeleteItemDialog = false;
             ErrorMessage = null;
             IsReloading = false;
         }
@@ -464,12 +458,6 @@ namespace SynopsisClient.Model
                 set;
             }
 
-            public T SelectedItem
-            {
-                get;
-                set;
-            }
-
             public ListHandler(SynopsisHandler parent, IList<T> items)
                                         : base(parent)
             {
@@ -486,35 +474,23 @@ namespace SynopsisClient.Model
 
                 var newItem = new T();
                 Items.Add(newItem);
-                SelectedItem = newItem;
                 _parent.TriggerValidation();
                 _parent.IsModified = true;
             }
 
-            public override void DeleteItemConfirmationOkCancelClicked(bool confirm)
+            public override void Delete<T2>(T2 item)
             {
-                Console.WriteLine("ListHandler.DeleteItemConfirmationOkCancelClicked");
-                _parent.ShowConfirmDeleteItemDialog = false;
-
-                if (!confirm
-                    || SelectedItem == null)
-                {
-                    Console.WriteLine("deletion cancelled");
-                    return;
-                }
-
-                Console.WriteLine("Execute deletion");
+                var casted = item as T;
 
                 if (Items != null
-                    && Items.Contains(SelectedItem))
+                    && Items.Contains(casted))
                 {
-                    Items.Remove(SelectedItem);
+                    Items.Remove(casted);
                     _parent.IsModified = true;
                     Console.WriteLine("item removed");
                 }
 
                 _parent.TriggerValidation();
-                SelectedItem = default;
             }
 
             public int GetIndexOf(T item)
@@ -531,24 +507,8 @@ namespace SynopsisClient.Model
                 }
 
                 Items.Insert(index, newItem);
-                SelectedItem = newItem;
                 _parent.TriggerValidation();
                 _parent.IsModified = true;
-            }
-
-            public override void StartDelete<T2>(T2 item)
-                                        where T2 : class
-            {
-                Console.WriteLine("ListHandler.StartDelete");
-
-                if (item is T casted
-                    && Items != null
-                    && Items.Contains(casted))
-                {
-                    Console.WriteLine("must show delete dialog");
-                    _parent.ShowConfirmDeleteItemDialog = true;
-                    SelectedItem = casted;
-                }
             }
         }
 
@@ -562,12 +522,10 @@ namespace SynopsisClient.Model
                 _parent = parent;
             }
 
+            public abstract void Delete<T2>(T2 item)
+                where T2 : class;
+
             public abstract void AddItem();
-
-            public abstract void DeleteItemConfirmationOkCancelClicked(bool confirm);
-
-            public abstract void StartDelete<T2>(T2 item)
-                                        where T2 : class;
         }
     }
 }
