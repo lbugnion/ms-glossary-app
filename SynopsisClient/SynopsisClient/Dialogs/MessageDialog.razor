@@ -1,10 +1,28 @@
-﻿@if (ShowDialog)
-{
-    <div class="card" style="width:22rem">
-        <div class="card-body">
-            <h3 class="card-title">@Title</h3>
-            <p class="card-text">@ChildContent</p>
-            <button @onclick="OnOk">@OkText</button>
-        </div>
+﻿<div class="card dialog">
+    <div class="card-body">
+        <p class="card-text">@Message</p>
+        <button @onclick="OnCancel">OK</button>
     </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    BlazoredModalInstance ModalInstance
+    {
+        get;
+        set;
+    }
+
+    [Parameter]
+    public string Message
+    {
+        get;
+        set;
+    }
+
+    private async Task OnCancel()
+    {
+        await ModalInstance.CancelAsync();
+    }
 }

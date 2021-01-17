@@ -6,13 +6,10 @@ namespace SynopsisClient.Model
 {
     public class UserManager
     {
-        public event EventHandler<bool> LoggedInChanged;
-
         private const string CurrentUserKey = "CurrentUser";
         private const string DefaultEmail = "user@domain.com";
         private const string DefaultSynopsisName = "this-is-an-example";
         private ILocalStorageService _localStorage;
-        private bool isLoggedIn;
 
         public bool CannotLogIn
         {
@@ -32,14 +29,10 @@ namespace SynopsisClient.Model
             set;
         }
 
-        public bool IsLoggedIn
-        {
-            get => isLoggedIn;
-            private set
-            {
-                isLoggedIn = value;
-                LoggedInChanged?.Invoke(this, value);
-            }
+        public bool IsLoggedIn 
+        { 
+            get; 
+            private set; 
         }
 
         public bool IsModified

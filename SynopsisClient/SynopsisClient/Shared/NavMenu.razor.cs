@@ -1,24 +1,22 @@
-﻿using System;
+﻿using Blazored.Modal;
+using Blazored.Modal.Services;
+using Microsoft.AspNetCore.Components;
+using SynopsisClient.Dialogs;
 
 namespace SynopsisClient.Shared
 {
-    public partial class NavMenu : IDisposable
+    public partial class NavMenu
     {
         private readonly bool _showDebug = true;
         private bool _collapseNavMenu = true;
-        private bool _showLoginWarning;
-        private bool _showNavWarning = false;
 
         private string NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
 
-        private bool ShowLoginWarning
+        [CascadingParameter]
+        public IModalService Modal
         {
-            get => _showLoginWarning;
-            set
-            {
-                _showLoginWarning = value;
-                StateHasChanged();
-            }
+            get;
+            set;
         }
 
 #if DEBUG
@@ -28,54 +26,40 @@ namespace SynopsisClient.Shared
 
         private void CheckNavigateTo(string uri)
         {
+            var cannotNavigate = false;
+            string message = null;
+
             if ((Handler.CurrentEditContext != null
                 && Handler.CurrentEditContext.IsModified())
                 || Handler.IsModified)
             {
-                _showNavWarning = true;
-                Console.WriteLine("Edit Context is modified --> No nav");
-                return;
+                cannotNavigate = true;
+                message = "You cannot navigate now, please save or fix the Synopsis first.";
             }
 
             if (!UserManager.IsLoggedIn)
             {
-                ShowLoginWarning = true;
+                cannotNavigate = true;
+                message = "You cannot navigate now, please log in first.";
+            }
+
+            if (cannotNavigate)
+            {
+                var parameters = new ModalParameters();
+                parameters.Add(
+                    nameof(MessageDialog.Message),
+                    message);
+                Modal.Show<MessageDialog>("Cannot navigate", parameters);
                 return;
             }
 
-            _showNavWarning = false;
-            ShowLoginWarning = false;
             Handler.ResetDialogs();
             Nav.NavigateTo(uri);
-        }
-
-        private void HandlerWasSaved(object sender, EventArgs e)
-        {
-            Console.WriteLine("HandlerWasSaved");
-            _showNavWarning = false;
-            StateHasChanged();
         }
 
         private void ToggleNavMenu()
         {
             _collapseNavMenu = !_collapseNavMenu;
-        }
-
-        private void UserManagerLoggedInChanged(object sender, bool e)
-        {
-            ShowLoginWarning = !e;
-        }
-
-        protected override void OnInitialized()
-        {
-            Handler.WasSaved += HandlerWasSaved;
-            UserManager.LoggedInChanged += UserManagerLoggedInChanged;
-        }
-
-        public void Dispose()
-        {
-            Handler.WasSaved -= HandlerWasSaved;
-            UserManager.LoggedInChanged -= UserManagerLoggedInChanged;
         }
     }
 }

@@ -16,8 +16,6 @@ namespace SynopsisClient.Model
 {
     public class SynopsisHandler
     {
-        public event EventHandler WasSaved;
-
         private const string FileNameHeaderKey = "x-glossary-file-name";
         private const string GetSynopsisUrlFunctionKeyKey = "GetSynopsisUrlFunctionKey";
         private const string GetSynopsisUrlKey = "GetSynopsisUrl";
@@ -339,7 +337,6 @@ namespace SynopsisClient.Model
                 CurrentEditContext.MarkAsUnmodified();
                 CannotSave = true;
                 IsModified = false;
-                WasSaved?.Invoke(this, EventArgs.Empty);
                 Console.WriteLine("Saved and invoked event");
             }
         }

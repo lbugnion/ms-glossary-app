@@ -17,13 +17,6 @@
         set;
     }
 
-    [Parameter]
-    public string Title
-    {
-        get;
-        set;
-    }
-
     private async Task OnCancel()
     {
         await ModalInstance.CancelAsync();
