@@ -28,7 +28,7 @@ else
     <EditForm EditContext="@Handler.CurrentEditContext">
         <DataAnnotationsValidator />
 
-        <ConfirmDialog Title="Handler.ConfirmReloadDialogTitle"
+        <ConfirmDialog Title="@Handler.ConfirmReloadDialogTitle"
                        ShowDialog="Handler.ShowConfirmReloadDialog"
                        OkText="Yes"
                        CancelText="No"
@@ -36,17 +36,27 @@ else
             <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
         </ConfirmDialog>
 
+        <ConfirmDialog Title="Are you sure?"
+                       ShowDialog="Handler.ShowConfirmDeleteItemDialog"
+                       OkText="Yes"
+                       CancelText="No"
+                       OnOkCancelClicked="Handler.DeletItemConfirmationOkCancelClicked">
+            <em>Note:</em> You can cancel your local changes by reloading the page <strong>BEFORE</strong> saving.
+            <br />
+            You can also reload the unchanged synopsis from the cloud.
+        </ConfirmDialog>
+
         <div class="edit-area">
 
             <div class="transcript-action-links">
                 <a href="#"
-                   @onclick="(e => AddLineAfter(null))"
+                   @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptSimpleLine>(null))"
                    @onclick:preventDefault>New line here</a>&nbsp;|&nbsp;
+                @*<a href="#"
+                @onclick="(e => AddImageAfter(null))"
+                @onclick:preventDefault>New image here</a>&nbsp;|&nbsp;*@
                 <a href="#"
-                   @onclick="(e => AddImageAfter(null))"
-                   @onclick:preventDefault>New image here</a>&nbsp;|&nbsp;
-                <a href="#"
-                   @onclick="(e => AddNoteAfter(null))"
+                   @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptNote>(null))"
                    @onclick:preventDefault>New note here</a>
             </div>
 
@@ -62,7 +72,7 @@ else
                                            @bind-Value="note.Note" />
                         </label>
                     }
-                    else if (line is TranscriptImage image)
+                    @*else if (line is TranscriptImage image)
                     {
                         <label title="Enter an image to illustrate your point">
                             <span class="form-label">Image title</span>
@@ -70,7 +80,7 @@ else
                             <InputText class="medium-input-text"
                                        @bind-Value="image.Image.Title" />
                         </label>
-                    }
+                    }*@
                     else if (line is TranscriptSimpleLine simpleLine)
                     {
                         <label title="Enter one single line of script">
@@ -83,16 +93,16 @@ else
 
                     <div class="transcript-action-links">
                         <a href="#"
-                           @onclick="(e => Delete(line))"
+                           @onclick="(e => Handler.Delete(line))"
                            @onclick:preventDefault>Delete</a>&nbsp;|&nbsp;
                         <a href="#"
-                           @onclick="(e => AddLineAfter(line))"
+                           @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptSimpleLine>(line))"
                            @onclick:preventDefault>New line</a>&nbsp;|&nbsp;
+                        @*<a href="#"
+                        @onclick="(e => AddImageAfter(line))"
+                        @onclick:preventDefault>New image</a>&nbsp;|&nbsp;*@
                         <a href="#"
-                           @onclick="(e => AddImageAfter(line))"
-                           @onclick:preventDefault>New image</a>&nbsp;|&nbsp;
-                        <a href="#"
-                           @onclick="(e => AddNoteAfter(line))"
+                           @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptNote>(line))"
                            @onclick:preventDefault>New note</a>
                     </div>
                 </div>

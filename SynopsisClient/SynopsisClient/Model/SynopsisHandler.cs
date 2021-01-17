@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Configuration;
 using MsGlossaryApp.DataModel;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,26 +14,30 @@ namespace SynopsisClient.Model
 {
     public class SynopsisHandler
     {
-        private const string GetSynopsisUrlKey = "GetSynopsisUrl";
-        private const string GetSynopsisUrlFunctionKeyKey = "GetSynopsisUrlFunctionKey";
-        private const string SaveSynopsisUrlKey = "SaveSynopsisUrl";
-        private const string SaveSynopsisUrlFunctionKeyKey = "SaveSynopsisUrlFunctionKey";
-        private const string UserEmailHeaderKey = "x-glossary-user-email";
-        private const string FileNameHeaderKey = "x-glossary-file-name";
-
-        private const string ReloadLocalTitle = "Are you sure? Reload local";
-        private const string ReloadFromCloudTitle = "Are you sure? Reload frm Cloud";
-
         public event EventHandler WasSaved;
 
+        private const string FileNameHeaderKey = "x-glossary-file-name";
+        private const string GetSynopsisUrlFunctionKeyKey = "GetSynopsisUrlFunctionKey";
+        private const string GetSynopsisUrlKey = "GetSynopsisUrl";
+        private const string ReloadFromCloudTitle = "Are you sure? Reload from Cloud";
+        private const string ReloadLocalTitle = "Are you sure? Reload local";
+        private const string SaveSynopsisUrlFunctionKeyKey = "SaveSynopsisUrlFunctionKey";
+        private const string SaveSynopsisUrlKey = "SaveSynopsisUrl";
+        private const string UserEmailHeaderKey = "x-glossary-user-email";
+        private readonly IConfiguration _configuration;
+        private readonly ILocalStorageService _localStorage;
+        private readonly NavigationManager _nav;
+        private readonly UserManager _userManager;
+        private ListHandlerBase _listHandler;
+        private bool _reloadFromCloud;
+        private bool _reloadLocal;
         public const string LocalStorageKey = "Current-Synopsis";
 
-        private ListHandlerBase _listHandler;
-
-        private ILocalStorageService _localStorage;
-        private readonly NavigationManager _nav;
-        private IConfiguration _configuration;
-        private UserManager _userManager;
+        public bool CannotReloadFromCloud
+        {
+            get;
+            private set;
+        }
 
         public bool CannotSave
         {
@@ -42,7 +45,7 @@ namespace SynopsisClient.Model
             private set;
         }
 
-        public bool CannotReloadFromCloud
+        public string ConfirmReloadDialogTitle
         {
             get;
             private set;
@@ -54,21 +57,19 @@ namespace SynopsisClient.Model
             set;
         }
 
-        public bool IsReloading
+        public string ErrorMessage
         {
             get;
             private set;
         }
 
-        public void ResetDialogs()
+        public bool IsModified
         {
-            ShowConfirmDeleteItemDialog = false;
-            ShowConfirmReloadDialog = false;
-            ErrorMessage = null;
-            IsReloading = false;
+            get;
+            private set;
         }
 
-        public bool IsModified
+        public bool IsReloading
         {
             get;
             private set;
@@ -84,12 +85,6 @@ namespace SynopsisClient.Model
         {
             get;
             private set;
-        }
-
-        public string ConfirmReloadDialogTitle 
-        {
-            get;
-            private set; 
         }
 
         public Synopsis Synopsis
@@ -138,6 +133,43 @@ namespace SynopsisClient.Model
                 Console.WriteLine("cannot save");
                 CannotSave = true;
             }
+        }
+
+        private async Task ExecuteReloadFromCloud()
+        {
+            Console.WriteLine("SynopsisHandler.ExecuteReloadFromCloud");
+            IsReloading = true;
+            var success = true;
+
+            try
+            {
+                Synopsis = await GetSynopsis(false, true);
+                SetContext();
+
+                if (Synopsis == null)
+                {
+                    success = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                success = false;
+            }
+
+            if (success)
+            {
+                IsReloading = false;
+            }
+            else
+            {
+                _nav.NavigateTo("/");
+            }
+        }
+
+        private void ExecuteReloadLocal()
+        {
+            _nav.NavigateTo(_nav.Uri, forceLoad: true);
         }
 
         private async Task<Synopsis> GetSynopsis(
@@ -202,7 +234,7 @@ namespace SynopsisClient.Model
                 httpRequest.Headers.Add(UserEmailHeaderKey, _userManager.CurrentUser.Email);
                 httpRequest.Headers.Add(FileNameHeaderKey, _userManager.CurrentUser.SynopsisName);
 
-                HttpResponseMessage response = null;
+                HttpResponseMessage response;
 
                 try
                 {
@@ -282,6 +314,25 @@ namespace SynopsisClient.Model
             _listHandler?.AddItem();
         }
 
+        public void AddTranscriptLineAfter<T>(TranscriptLine previousLine)
+            where T : TranscriptLine, new()
+        {
+            if (!(_listHandler is ListHandler<TranscriptLine> castedListHandler))
+            {
+                return;
+            }
+
+            if (previousLine == null)
+            {
+                castedListHandler.InsertItemAt(0, new T());
+            }
+            else
+            {
+                var previousIndex = castedListHandler.GetIndexOf(previousLine);
+                castedListHandler.InsertItemAt(previousIndex + 1, new T());
+            }
+        }
+
         public async Task CheckSaveSynopsis()
         {
             Console.WriteLine("CheckSaveSynopsis");
@@ -301,6 +352,9 @@ namespace SynopsisClient.Model
             }
         }
 
+        //        Handler.Synopsis.TranscriptLines.Insert(0, new TranscriptNote()); ;
+        //        return;
+        //    }
         public void DefineList<T>(IList<T> items)
             where T : class, new()
         {
@@ -308,6 +362,8 @@ namespace SynopsisClient.Model
             _listHandler = new ListHandler<T>(this, items);
         }
 
+        //    if (line == null)
+        //    {
         public void Delete<T>(T item)
             where T : class
         {
@@ -315,17 +371,20 @@ namespace SynopsisClient.Model
             _listHandler?.StartDelete(item);
         }
 
+        //public void AddNoteAfter(TranscriptLine line)
+        //{
+        //    ResetDialogs();
         public void DeletItemConfirmationOkCancelClicked(bool confirm)
         {
             _listHandler?.DeleteItemConfirmationOkCancelClicked(confirm);
         }
 
-        public string ErrorMessage
-        {
-            get;
-            private set;
-        }
-
+        //    if (Handler.Synopsis.TranscriptLines.Contains(line))
+        //    {
+        //        var index = Handler.Synopsis.TranscriptLines.IndexOf(line);
+        //        Handler.Synopsis.TranscriptLines.Insert(index + 1, new TranscriptImage());
+        //    }
+        //}
         public async Task<bool> InitializePage()
         {
             Console.WriteLine("SynopsisHandler.InitializePage");
@@ -347,21 +406,8 @@ namespace SynopsisClient.Model
                 return false;
             }
 
-
-
             IsReloading = false;
             return true;
-        }
-
-        private bool _reloadFromCloud;
-        private bool _reloadLocal;
-
-        public void ReloadFromCloud()
-        {
-            Console.WriteLine("In ReloadFromCloud");
-            _reloadFromCloud = true;
-            ShowConfirmReloadDialog = true;
-            ConfirmReloadDialogTitle = ReloadFromCloudTitle;
         }
 
         public async Task ReloadConfirmationOkCancelClicked(bool confirm)
@@ -384,43 +430,55 @@ namespace SynopsisClient.Model
             }
         }
 
-        private void ExecuteReloadLocal()
+        //    if (line == null)
+        //    {
+        //        Handler.Synopsis.TranscriptLines.Insert(0, new TranscriptImage());
+        //        return;
+        //    }
+        public void ReloadFromCloud()
         {
-            _nav.NavigateTo(_nav.Uri, forceLoad: true);
+            Console.WriteLine("In ReloadFromCloud");
+            _reloadFromCloud = true;
+            ShowConfirmReloadDialog = true;
+            ConfirmReloadDialogTitle = ReloadFromCloudTitle;
         }
 
-        private async Task ExecuteReloadFromCloud()
+        public void ReloadLocal()
         {
-            Console.WriteLine("SynopsisHandler.ExecuteReloadFromCloud");
-            IsReloading = true;
-            var success = true;
-
-            try
-            {
-                Synopsis = await GetSynopsis(false, true);
-                SetContext();
-
-                if (Synopsis == null)
-                {
-                    success = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = ex.Message;
-                success = false;
-            }
-
-            if (success)
-            {
-                IsReloading = false;
-            }
-            else
-            {
-                _nav.NavigateTo("/");
-            }
+            Console.WriteLine("In ReloadLocal");
+            _reloadLocal = true;
+            ShowConfirmReloadDialog = true;
+            ConfirmReloadDialogTitle = ReloadLocalTitle;
         }
 
+        public void ResetDialogs()
+        {
+            ShowConfirmDeleteItemDialog = false;
+            ShowConfirmReloadDialog = false;
+            ErrorMessage = null;
+            IsReloading = false;
+        }
+
+        //private void AddLineAfter(TranscriptLine line)
+        //{
+        //    Handler.ResetDialogs();
+
+        //    if (line == null)
+        //    {
+        //        Handler.Synopsis.TranscriptLines.Insert(0, new TranscriptSimpleLine());
+        //        return;
+        //    }
+
+        //    if (Handler.Synopsis.TranscriptLines.Contains(line))
+        //    {
+        //        var index = Handler.Synopsis.TranscriptLines.IndexOf(line);
+        //        Handler.Synopsis.TranscriptLines.Insert(index + 1, new TranscriptSimpleLine());
+        //    }
+        //}
+
+        //private void AddImageAfter(TranscriptLine line)
+        //{
+        //    Handler.ResetDialogs();
         public void TriggerValidation()
         {
             Console.WriteLine("Triggering Validation");
@@ -430,14 +488,6 @@ namespace SynopsisClient.Model
                 var isValid = CurrentEditContext.Validate();
                 Console.WriteLine("TriggerValidation: " + isValid);
             }
-        }
-
-        public void ReloadLocal()
-        {
-            Console.WriteLine("In ReloadLocal");
-            _reloadLocal = true;
-            ShowConfirmReloadDialog = true;
-            ConfirmReloadDialogTitle = ReloadLocalTitle;
         }
 
         private class ListHandler<T> : ListHandlerBase
@@ -499,7 +549,26 @@ namespace SynopsisClient.Model
                 }
 
                 _parent.TriggerValidation();
-                SelectedItem = default(T);
+                SelectedItem = default;
+            }
+
+            public int GetIndexOf(T item)
+            {
+                return Items.IndexOf(item);
+            }
+
+            public void InsertItemAt<T2>(int index, T2 newItem)
+                                        where T2 : T
+            {
+                if (Items == null)
+                {
+                    return;
+                }
+
+                Items.Insert(index, newItem);
+                SelectedItem = newItem;
+                _parent.TriggerValidation();
+                _parent.IsModified = true;
             }
 
             public override void StartDelete<T2>(T2 item)
@@ -507,9 +576,7 @@ namespace SynopsisClient.Model
             {
                 Console.WriteLine("ListHandler.StartDelete");
 
-                var casted = item as T;
-
-                if (casted != null
+                if (item is T casted
                     && Items != null
                     && Items.Contains(casted))
                 {
