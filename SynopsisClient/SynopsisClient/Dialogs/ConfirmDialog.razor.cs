@@ -1,10 +1,19 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Blazored.Modal;
+using Blazored.Modal.Services;
+using Microsoft.AspNetCore.Components;
 using System.Threading.Tasks;
 
 namespace SynopsisClient.Dialogs
 {
     public partial class ConfirmDialog
     {
+        [CascadingParameter]
+        BlazoredModalInstance ModalInstance
+        {
+            get;
+            set;
+        }
+
         [Parameter]
         public string CancelText
         {
@@ -13,28 +22,21 @@ namespace SynopsisClient.Dialogs
         }
 
         [Parameter]
-        public RenderFragment ChildContent
+        public string Message
         {
             get;
             set;
         }
+
+        //[Parameter]
+        //public RenderFragment ChildContent
+        //{
+        //    get;
+        //    set;
+        //}
 
         [Parameter]
         public string OkText
-        {
-            get;
-            set;
-        }
-
-        [Parameter]
-        public EventCallback<bool> OnOkCancelClicked
-        {
-            get;
-            set;
-        }
-
-        [Parameter]
-        public bool ShowDialog
         {
             get;
             set;
@@ -49,14 +51,12 @@ namespace SynopsisClient.Dialogs
 
         private async Task OnCancel()
         {
-            await OnOkCancelClicked.InvokeAsync(false);
-            ShowDialog = false;
+            await ModalInstance.CancelAsync();
         }
 
         private async Task OnOk()
         {
-            await OnOkCancelClicked.InvokeAsync(true);
-            ShowDialog = false;
+            await ModalInstance.CloseAsync(ModalResult.Ok(true));
         }
     }
 }

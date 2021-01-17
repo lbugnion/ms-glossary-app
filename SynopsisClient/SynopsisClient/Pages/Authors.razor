@@ -25,7 +25,7 @@ else
     <EditForm EditContext="@Handler.CurrentEditContext">
         <DataAnnotationsValidator />
 
-        <ConfirmDialog Title="Are you sure?"
+        @*<ConfirmDialog Title="Are you sure?"
                        ShowDialog="Handler.ShowConfirmDeleteItemDialog"
                        OkText="Yes"
                        CancelText="No"
@@ -41,7 +41,7 @@ else
                        CancelText="No"
                        OnOkCancelClicked="Handler.ReloadConfirmationOkCancelClicked">
             <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
-        </ConfirmDialog>
+        </ConfirmDialog>*@
 
         <div class="edit-area">
 
@@ -99,7 +99,7 @@ else
                 Save local
             </button>
             <button class="main-button"
-                    @onclick="Handler.ReloadLocal">
+                    @onclick="ReloadLocal">
                 Reload local
             </button>
             <button class="main-button"

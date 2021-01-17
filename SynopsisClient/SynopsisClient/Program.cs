@@ -1,4 +1,5 @@
 using Blazored.LocalStorage;
+using Blazored.Modal;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using SynopsisClient.Model;
@@ -20,6 +21,7 @@ namespace SynopsisClient
             builder.Services.AddScoped<SynopsisHandler>();
             builder.Services.AddScoped<UserManager>();
             builder.Services.AddBlazoredLocalStorage();
+            builder.Services.AddBlazoredModal();
 
             await builder.Build().RunAsync();
         }

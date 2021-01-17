@@ -1,8 +1,10 @@
 ﻿using Blazored.LocalStorage;
+using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Configuration;
 using MsGlossaryApp.DataModel;
+using SynopsisClient.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,9 +30,10 @@ namespace SynopsisClient.Model
         private readonly ILocalStorageService _localStorage;
         private readonly NavigationManager _nav;
         private readonly UserManager _userManager;
+        private readonly object _modalService;
         private ListHandlerBase _listHandler;
         private bool _reloadFromCloud;
-        private bool _reloadLocal;
+        //private bool _reloadLocal;
         public const string LocalStorageKey = "Current-Synopsis";
 
         public bool CannotReloadFromCloud
@@ -91,6 +94,13 @@ namespace SynopsisClient.Model
         {
             get;
             private set;
+        }
+
+        [CascadingParameter]
+        private IModalService Modal
+        {
+            get;
+            set;
         }
 
         public SynopsisHandler(
@@ -167,8 +177,9 @@ namespace SynopsisClient.Model
             }
         }
 
-        private void ExecuteReloadLocal()
+        public void ExecuteReloadLocal()
         {
+            // TODO Reload synopsis local without reloading the page
             _nav.NavigateTo(_nav.Uri, forceLoad: true);
         }
 
@@ -396,25 +407,25 @@ namespace SynopsisClient.Model
             return true;
         }
 
-        public async Task ReloadConfirmationOkCancelClicked(bool confirm)
-        {
-            ShowConfirmReloadDialog = false;
+        //public async Task ReloadConfirmationOkCancelClicked(bool confirm)
+        //{
+        //    ShowConfirmReloadDialog = false;
 
-            if (confirm)
-            {
-                if (_reloadFromCloud)
-                {
-                    _reloadFromCloud = false;
-                    await ExecuteReloadFromCloud();
-                }
+        //    if (confirm)
+        //    {
+        //        if (_reloadFromCloud)
+        //        {
+        //            _reloadFromCloud = false;
+        //            await ExecuteReloadFromCloud();
+        //        }
 
-                if (_reloadLocal)
-                {
-                    _reloadLocal = false;
-                    ExecuteReloadLocal();
-                }
-            }
-        }
+        //        if (_reloadLocal)
+        //        {
+        //            _reloadLocal = false;
+        //            ExecuteReloadLocal();
+        //        }
+        //    }
+        //}
 
         public void ReloadFromCloud()
         {
@@ -424,12 +435,27 @@ namespace SynopsisClient.Model
             ConfirmReloadDialogTitle = ReloadFromCloudTitle;
         }
 
-        public void ReloadLocal()
+        public async Task ReloadLocal()
         {
             Console.WriteLine("In ReloadLocal");
-            _reloadLocal = true;
-            ShowConfirmReloadDialog = true;
-            ConfirmReloadDialogTitle = ReloadLocalTitle;
+            //_reloadLocal = true;
+            //ShowConfirmReloadDialog = true;
+            //ConfirmReloadDialogTitle = ReloadLocalTitle;
+            var formModal = Modal.Show<ConfirmDialog>();
+            var result = await formModal.Result;
+
+            Console.WriteLine($"Result cancelled: {result.Cancelled}");
+            Console.WriteLine($"Result confirmed: {(bool) result.Data}");
+
+            if (result.Cancelled)
+            {
+                Console.WriteLine("Cancelling reload local");
+            }
+            else if ((bool) result.Data)
+            {
+                Console.WriteLine("Reloading local");
+                ExecuteReloadLocal();
+            }
         }
 
         public void ResetDialogs()

@@ -1,11 +1,7 @@
-﻿@if (ShowDialog)
-{
-    <div class="card dialog">
-        <div class="card-body">
-            <h3 class="card-title">@Title</h3>
-            <p class="card-text">@ChildContent</p>
-            <button @onclick="OnOk">@OkText</button>
-            <button @onclick="OnCancel">@CancelText</button>
-        </div>
+﻿<div class="card dialog">
+    <div class="card-body">
+        <p class="card-text">@Message</p>
+        <button @onclick="OnOk">@OkText</button>
+        <button @onclick="OnCancel">@CancelText</button>
     </div>
-}
+</div>
