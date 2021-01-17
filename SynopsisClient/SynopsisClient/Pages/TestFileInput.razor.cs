@@ -9,22 +9,11 @@ namespace SynopsisClient.Pages
 {
     public partial class TestFileInput
     {
+        private const int MaxFileSize = maxKiloBytes * 1024;
         private const int maxKiloBytes = 500;
-        private const int MaxFileSize = maxKiloBytes * 1024; // 500KB
-        
+        // 500KB
+
         private string _status = $"Load a file max {maxKiloBytes} kBytes";
-
-        protected override async Task OnInitializedAsync()
-        {
-            await UserManager.CheckLogin();
-
-            if (!UserManager.IsLoggedIn)
-            {
-                Console.WriteLine("not logged in");
-                Nav.NavigateTo("/");
-                return;
-            }
-        }
 
         private async Task HandleSelection(IFileListEntry[] files)
         {
@@ -69,6 +58,18 @@ namespace SynopsisClient.Pages
                     content);
 
                 _status = await response.Content.ReadAsStringAsync();
+            }
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            await UserManager.CheckLogin();
+
+            if (!UserManager.IsLoggedIn)
+            {
+                Console.WriteLine("not logged in");
+                Nav.NavigateTo("/");
+                return;
             }
         }
     }

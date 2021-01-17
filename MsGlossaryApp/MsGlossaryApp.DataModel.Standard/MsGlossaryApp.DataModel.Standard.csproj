@@ -19,7 +19,10 @@
     <Compile Include="..\MsGlossaryApp.DataModel\Synopsis.cs" Link="Synopsis.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\Term.cs" Link="Term.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\TermBase.cs" Link="TermBase.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\TranscriptImage.cs" Link="TranscriptImage.cs" />
     <Compile Include="..\MsGlossaryApp.DataModel\TranscriptLine.cs" Link="TranscriptLine.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\TranscriptNote.cs" Link="TranscriptNote.cs" />
+    <Compile Include="..\MsGlossaryApp.DataModel\TranscriptSimpleLine.cs" Link="TranscriptSimpleLine.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,9 +7,9 @@ namespace MsGlossaryApp.DataModel
         private const string H1Marker = "# ";
         private const string H2Marker = "## ";
         private const string H3Marker = "### ";
+        private const string ImageTextOpener = "![";
         private const string LinkSeparator = "](";
         private const string LinkTextOpener = "[";
-        private const string ImageTextOpener = "![";
         private const string LinkUrlCloser = ")";
         private const string ListMarker = "-";
         private const string NoteMarker = ">";
@@ -49,6 +49,14 @@ namespace MsGlossaryApp.DataModel
             return Is(line, H3Marker);
         }
 
+        public static bool IsImage(this string text)
+        {
+            text = text.Trim();
+
+            return text.StartsWith(ImageTextOpener)
+                && text.Contains(LinkSeparator);
+        }
+
         public static bool IsLink(this string text)
         {
             text = text.Trim();
@@ -83,14 +91,14 @@ namespace MsGlossaryApp.DataModel
             return Make(line, H3Marker);
         }
 
-        public static string MakeLink(this string text, string url)
-        {
-            return $"{LinkTextOpener}{text.Trim()}{LinkSeparator}{url.Trim()}{LinkUrlCloser}";
-        }
-
         public static string MakeImage(this string title, string url)
         {
             return $"{ImageTextOpener}{title.Trim()}{LinkSeparator}{url.Trim()}{LinkUrlCloser}";
+        }
+
+        public static string MakeLink(this string text, string url)
+        {
+            return $"{LinkTextOpener}{text.Trim()}{LinkSeparator}{url.Trim()}{LinkUrlCloser}";
         }
 
         public static string MakeListItem(this string line)
@@ -131,14 +139,6 @@ namespace MsGlossaryApp.DataModel
         public static string ParseH3(this string line)
         {
             return Parse(line, H3Marker);
-        }
-
-        public static bool IsImage(this string text)
-        {
-            text = text.Trim();
-
-            return text.StartsWith(ImageTextOpener)
-                && text.Contains(LinkSeparator);
         }
 
         public static Image ParseImage(this string text)

@@ -20,22 +20,22 @@ namespace MsGlossaryApp.DataModel
             set;
         }
 
+        public Image()
+        {
+            Title = "Image title";
+            Url = "http://domain.com/image.jpg";
+        }
+
         public override bool Equals(object obj)
         {
-            return obj is Image image 
-                && Title == image.Title 
+            return obj is Image image
+                && Title == image.Title
                 && Url == image.Url;
         }
 
         public override int GetHashCode()
         {
             return HashCode.Combine(Title, Url);
-        }
-
-        public Image()
-        {
-            Title = "Image title";
-            Url = "http://domain.com/image.jpg";
         }
 
         public string ToMarkdown()
