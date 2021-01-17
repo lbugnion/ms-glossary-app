@@ -829,8 +829,12 @@ namespace MsGlossaryApp.Model
             return tcs.Task;
         }
 
-        public static async Task<GlossaryFile> VerifyFile(GlossaryFile file)
+        public static async Task<GlossaryFile> VerifyFile(
+            GlossaryFile file, 
+            ILogger log = null)
         {
+            log?.LogInformationEx("In VerifyFile", LogVerbosity.Verbose);
+
             var account = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubAccountVariableName);
             var repo = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubRepoVariableName);
             var branch = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubMainBranchNameVariableName);
@@ -842,6 +846,8 @@ namespace MsGlossaryApp.Model
                 branch,
                 file.Path);
 
+            log?.LogInformationEx($"Url: {url}", LogVerbosity.Debug);
+
             try
             {
                 var client = new HttpClient();
@@ -850,12 +856,18 @@ namespace MsGlossaryApp.Model
                 if (currentText != file.Content)
                 {
                     file.MustSave = true;
+                    log?.LogInformationEx("File must be saved", LogVerbosity.Debug);
                 }
+
+                log?.LogInformationEx("File must not be saved", LogVerbosity.Debug);
             }
             catch (HttpRequestException)
             {
                 file.MustSave = true;
+                log?.LogInformationEx("Can't find original file", LogVerbosity.Debug);
             }
+
+            log?.LogInformationEx("Out VerifyFile", LogVerbosity.Verbose);
 
             return file;
         }

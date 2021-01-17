@@ -123,7 +123,7 @@ namespace SynopsisClient.Model
             Console.WriteLine($"CurrentEditContext.GetValidationMessages().Count(): {CurrentEditContext.GetValidationMessages().Count()}");
 
             if ((CurrentEditContext.IsModified() || IsModified)
-                && CurrentEditContext.GetValidationMessages().Count() == 0)
+                && !CurrentEditContext.GetValidationMessages().Any())
             {
                 Console.WriteLine("can save");
                 CannotSave = false;
@@ -317,7 +317,7 @@ namespace SynopsisClient.Model
         public void AddTranscriptLineAfter<T>(TranscriptLine previousLine)
             where T : TranscriptLine, new()
         {
-            if (!(_listHandler is ListHandler<TranscriptLine> castedListHandler))
+            if (_listHandler is not ListHandler<TranscriptLine> castedListHandler)
             {
                 return;
             }

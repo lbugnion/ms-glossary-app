@@ -191,11 +191,6 @@ namespace MsGlossaryApp.DataModel
             return hash.ToHashCode();
         }
 
-        public override string ToString()
-        {
-            return Title;
-        }
-
         public string GetTranscriptMarkdown()
         {
             var builder = new StringBuilder();
@@ -223,6 +218,11 @@ namespace MsGlossaryApp.DataModel
                     TranscriptLines.Add(TranscriptLine.GetEntry(line));
                 }
             }
+        }
+
+        public override string ToString()
+        {
+            return Title;
         }
     }
 }

@@ -21,7 +21,7 @@ namespace SynopsisClient.Pages
             Console.WriteLine("CurrentEditContextOnValidationStateChanged");
 
             if ((UserManager.IsModified || CurrentEditContext.IsModified())
-                && CurrentEditContext.GetValidationMessages().Count() == 0)
+                && !CurrentEditContext.GetValidationMessages().Any())
             {
                 Console.WriteLine("can load");
                 UserManager.CannotLogIn = false;

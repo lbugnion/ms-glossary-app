@@ -6,29 +6,13 @@ namespace SynopsisClient.Model
 {
     public class UserManager
     {
-        private ILocalStorageService _localStorage;
-        private bool isLoggedIn;
-        private const string CurrentUserKey = "CurrentUser";
+        public event EventHandler<bool> LoggedInChanged;
 
+        private const string CurrentUserKey = "CurrentUser";
         private const string DefaultEmail = "user@domain.com";
         private const string DefaultSynopsisName = "this-is-an-example";
-
-        public User CurrentUser
-        {
-            get;
-            set;
-        }
-
-        public void Initialize()
-        {
-            CurrentUser = new User
-            {
-                Email = DefaultEmail,
-                SynopsisName = DefaultSynopsisName
-            };
-
-            IsLoggedIn = false;
-        }
+        private ILocalStorageService _localStorage;
+        private bool isLoggedIn;
 
         public bool CannotLogIn
         {
@@ -42,10 +26,32 @@ namespace SynopsisClient.Model
             set;
         }
 
+        public User CurrentUser
+        {
+            get;
+            set;
+        }
+
+        public bool IsLoggedIn
+        {
+            get => isLoggedIn;
+            private set
+            {
+                isLoggedIn = value;
+                LoggedInChanged?.Invoke(this, value);
+            }
+        }
+
         public bool IsModified
         {
             get;
             set;
+        }
+
+        public UserManager(
+            ILocalStorageService localStorage)
+        {
+            _localStorage = localStorage;
         }
 
         public async Task<bool> CheckLogin()
@@ -81,6 +87,17 @@ namespace SynopsisClient.Model
             }
         }
 
+        public void Initialize()
+        {
+            CurrentUser = new User
+            {
+                Email = DefaultEmail,
+                SynopsisName = DefaultSynopsisName
+            };
+
+            IsLoggedIn = false;
+        }
+
         public async Task LogIn()
         {
             Console.WriteLine("UserManager.Login");
@@ -105,24 +122,6 @@ namespace SynopsisClient.Model
             IsModified = true;
             CannotLogOut = true;
             IsLoggedIn = false;
-        }
-
-        public bool IsLoggedIn
-        {
-            get => isLoggedIn;
-            private set
-            {
-                isLoggedIn = value;
-                LoggedInChanged?.Invoke(this, value);
-            }
-        }
-
-        public event EventHandler<bool> LoggedInChanged;
-
-        public UserManager(
-            ILocalStorageService localStorage)
-        {
-            _localStorage = localStorage;
         }
     }
 }
