@@ -1,0 +1,83 @@
+﻿.edit-area {
+    padding-bottom: 10px;
+}
+
+.form-label {
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.medium-input-text-area {
+    width: 500px;
+    height: 100px;
+}
+
+.production-note {
+    font-style: italic;
+    background-color: black;
+    color: white;
+}
+
+.medium-input-text {
+    width: 500px;
+}
+
+.short-input-text {
+    width: 200px;
+}
+
+.bottom-buttons-area {
+    margin-bottom: 10px;
+}
+
+.main-button {
+    width: 200px;
+    margin-bottom: 5px;
+}
+
+.small-button {
+    width: 100px;
+}
+
+.transcript-action-links {
+    font-size: 0.8em;
+    font-weight: bold;
+    margin-top: -0.9em;
+    margin-bottom: 0.5em;
+}
+
+.intro {
+    background-color: #EEEEEE;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.dialog {
+    width: 500px;
+    margin-bottom: 20px;
+    background-color: #EEEEEE;
+}
+
+.dialog button {
+    width: 80px;
+}
+
+.error-message {
+    background-color: bisque;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.error-message h1 {
+    font-weight: bold;
+    color: red;
+    font-size: 1.1em;
+}
+
+.error-details {
+    font-style: italic;
+}
+
+.error-details-title {
+    font-weight: bold;
+}

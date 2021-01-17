@@ -1,8 +1,5 @@
 ﻿@using MsGlossaryApp.DataModel 
 @page "/transcript"
-@inject SynopsisClient.Model.SynopsisHandler Handler
-@inject SynopsisClient.Model.UserManager UserManager
-@inject NavigationManager Nav
 
 <h2>Transcript</h2>
 
@@ -51,13 +48,13 @@ else
             <div class="transcript-action-links">
                 <a href="#"
                    @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptSimpleLine>(null))"
-                   @onclick:preventDefault>New line here</a>&nbsp;|&nbsp;
+                   @onclick:preventDefault>Add new line here</a>&nbsp;|&nbsp;
                 @*<a href="#"
                 @onclick="(e => AddImageAfter(null))"
                 @onclick:preventDefault>New image here</a>&nbsp;|&nbsp;*@
                 <a href="#"
                    @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptNote>(null))"
-                   @onclick:preventDefault>New note here</a>
+                   @onclick:preventDefault>Add new note here</a>
             </div>
 
             @foreach (var line in Handler.Synopsis.TranscriptLines)
@@ -107,6 +104,8 @@ else
                     </div>
                 </div>
             }
+
+            <hr />
 
         </div>
 

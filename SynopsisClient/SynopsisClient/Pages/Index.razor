@@ -1,7 +1,4 @@
 ﻿@page "/"
-@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
-@inject SynopsisClient.Model.UserManager UserManager
-@inject SynopsisClient.Model.SynopsisHandler Handler
 
 <h1>Microsoft Glossary Synopsis Editor</h1>
 
@@ -24,7 +21,7 @@
 
             <div class="error-message">
 
-                <p>We are having trouble getting the Synopsis.</p>
+                <h1>We are having trouble getting the Synopsis.</h1>
 
                 <p>Please try the following steps:</p>
 
@@ -37,7 +34,7 @@
 
                 <div class="error-details">
                     <label>
-                        <span class="error-details-label">Error message:</span>
+                        <span class="error-details-title">Error message:</span>
                         <br />@Handler.ErrorMessage
                     </label>
                 </div>

@@ -1,7 +1,4 @@
 ﻿@page "/personal-notes"
-@inject SynopsisClient.Model.SynopsisHandler Handler
-@inject SynopsisClient.Model.UserManager UserManager
-@inject NavigationManager Nav
 
 <h2>Personal notes</h2>
 
@@ -50,6 +47,8 @@ else
 
                     <button @onclick="(e => Handler.Delete(note))">Delete</button>
                 </div>
+
+                <hr />
             }
         </div>
 
