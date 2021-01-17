@@ -1,0 +1,38 @@
+﻿<div class="card dialog">
+    <div class="card-body">
+        <p class="card-text">
+            <em>Note:</em> You can cancel your local changes by reloading the page <strong>BEFORE</strong> saving.
+            <br />
+            You can also reload the unchanged synopsis from the cloud.
+        </p>
+        <button @onclick="OnOk">OK</button>
+        <button @onclick="OnCancel">Cancel</button>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    BlazoredModalInstance ModalInstance
+    {
+        get;
+        set;
+    }
+
+    [Parameter]
+    public string Title
+    {
+        get;
+        set;
+    }
+
+    private async Task OnCancel()
+    {
+        await ModalInstance.CancelAsync();
+    }
+
+    private async Task OnOk()
+    {
+        await ModalInstance.CloseAsync(ModalResult.Ok(true));
+    }
+}

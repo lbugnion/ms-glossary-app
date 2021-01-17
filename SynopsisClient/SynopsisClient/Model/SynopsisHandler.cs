@@ -23,6 +23,14 @@ namespace SynopsisClient.Model
         private const string GetSynopsisUrlKey = "GetSynopsisUrl";
         private const string ReloadFromCloudTitle = "Are you sure? Reload from Cloud";
         private const string ReloadLocalTitle = "Are you sure? Reload local";
+
+        private IModalService _modal;
+
+        public void DefineModal(IModalService modal)
+        {
+            _modal = modal;
+        }
+
         private const string SaveSynopsisUrlFunctionKeyKey = "SaveSynopsisUrlFunctionKey";
         private const string SaveSynopsisUrlKey = "SaveSynopsisUrl";
         private const string UserEmailHeaderKey = "x-glossary-user-email";
@@ -30,10 +38,7 @@ namespace SynopsisClient.Model
         private readonly ILocalStorageService _localStorage;
         private readonly NavigationManager _nav;
         private readonly UserManager _userManager;
-        private readonly object _modalService;
         private ListHandlerBase _listHandler;
-        private bool _reloadFromCloud;
-        //private bool _reloadLocal;
         public const string LocalStorageKey = "Current-Synopsis";
 
         public bool CannotReloadFromCloud
@@ -43,12 +48,6 @@ namespace SynopsisClient.Model
         }
 
         public bool CannotSave
-        {
-            get;
-            private set;
-        }
-
-        public string ConfirmReloadDialogTitle
         {
             get;
             private set;
@@ -84,23 +83,10 @@ namespace SynopsisClient.Model
             private set;
         }
 
-        public bool ShowConfirmReloadDialog
-        {
-            get;
-            private set;
-        }
-
         public Synopsis Synopsis
         {
             get;
             private set;
-        }
-
-        [CascadingParameter]
-        private IModalService Modal
-        {
-            get;
-            set;
         }
 
         public SynopsisHandler(
@@ -407,61 +393,53 @@ namespace SynopsisClient.Model
             return true;
         }
 
-        //public async Task ReloadConfirmationOkCancelClicked(bool confirm)
-        //{
-        //    ShowConfirmReloadDialog = false;
-
-        //    if (confirm)
-        //    {
-        //        if (_reloadFromCloud)
-        //        {
-        //            _reloadFromCloud = false;
-        //            await ExecuteReloadFromCloud();
-        //        }
-
-        //        if (_reloadLocal)
-        //        {
-        //            _reloadLocal = false;
-        //            ExecuteReloadLocal();
-        //        }
-        //    }
-        //}
-
-        public void ReloadFromCloud()
+        public async Task ReloadFromCloud()
         {
-            Console.WriteLine("In ReloadFromCloud");
-            _reloadFromCloud = true;
-            ShowConfirmReloadDialog = true;
-            ConfirmReloadDialogTitle = ReloadFromCloudTitle;
+            Console.WriteLine("Handler.ReloadFromCloud");
+
+            if (await ConfirmReload(ReloadFromCloudTitle))
+            {
+                await ExecuteReloadFromCloud();
+            }
         }
 
         public async Task ReloadLocal()
         {
-            Console.WriteLine("In ReloadLocal");
-            //_reloadLocal = true;
-            //ShowConfirmReloadDialog = true;
-            //ConfirmReloadDialogTitle = ReloadLocalTitle;
-            var formModal = Modal.Show<ConfirmDialog>();
+            Console.WriteLine("Handler.ReloadLocal");
+
+            if (await ConfirmReload(ReloadLocalTitle))
+            {
+                ExecuteReloadLocal();
+            }
+        }
+
+        private async Task<bool> ConfirmReload(string title)
+        {
+            if (_modal == null)
+            {
+                Console.WriteLine("Modal is not set");
+                return false;
+            }
+
+            var formModal = _modal.Show<ConfirmReloadDialog>(title);
             var result = await formModal.Result;
 
             Console.WriteLine($"Result cancelled: {result.Cancelled}");
-            Console.WriteLine($"Result confirmed: {(bool) result.Data}");
 
-            if (result.Cancelled)
+            if (!result.Cancelled
+                && result.Data != null
+                && (bool)result.Data)
             {
-                Console.WriteLine("Cancelling reload local");
+                Console.WriteLine("Reloading");
+                return true;
             }
-            else if ((bool) result.Data)
-            {
-                Console.WriteLine("Reloading local");
-                ExecuteReloadLocal();
-            }
+
+            return false;
         }
 
         public void ResetDialogs()
         {
             ShowConfirmDeleteItemDialog = false;
-            ShowConfirmReloadDialog = false;
             ErrorMessage = null;
             IsReloading = false;
         }

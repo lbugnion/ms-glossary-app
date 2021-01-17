@@ -34,42 +34,44 @@ namespace SynopsisClient.Pages
             if (success)
             {
                 Handler.DefineList(Handler.Synopsis.Authors);
+                Handler.DefineModal(Modal);
             }
             else
             {
+                Handler.DefineModal(null);
                 Nav.NavigateTo("/");
             }
         }
 
-        private async Task ReloadLocal()
-        {
-            Console.WriteLine("Authors.ReloadLocal");
+        //private async Task ReloadLocal()
+        //{
+        //    Console.WriteLine("Authors.ReloadLocal");
 
-            var parameters = new ModalParameters();
-            parameters.Add(nameof(ConfirmDialog.OkText), "OK");
-            parameters.Add(nameof(ConfirmDialog.CancelText), "Cancel");
-            parameters.Add(nameof(ConfirmDialog.Message), "Some message");
+        //    var parameters = new ModalParameters();
+        //    parameters.Add(nameof(ConfirmDialog.OkText), "OK");
+        //    parameters.Add(nameof(ConfirmDialog.CancelText), "Cancel");
+        //    parameters.Add(nameof(ConfirmDialog.Message), new RenderFragment());
 
-            var formModal = Modal.Show<ConfirmDialog>("Some title", parameters);
-            var result = await formModal.Result;
+        //    var formModal = Modal.Show<ConfirmDialog>("Some title", parameters);
+        //    var result = await formModal.Result;
 
-            Console.WriteLine($"Result cancelled: {result.Cancelled}");
+        //    Console.WriteLine($"Result cancelled: {result.Cancelled}");
             
-            if (!result.Cancelled)
-            {
-                Console.WriteLine($"Result confirmed: {(bool)result.Data}");
-            }
+        //    if (!result.Cancelled)
+        //    {
+        //        Console.WriteLine($"Result confirmed: {(bool)result.Data}");
+        //    }
 
-            if (result.Cancelled)
-            {
-                Console.WriteLine("Cancelling reload local");
-            }
-            else if (result.Data != null
-                && (bool)result.Data)
-            {
-                Console.WriteLine("Reloading local");
-                Handler.ExecuteReloadLocal();
-            }
-        }
+        //    if (result.Cancelled)
+        //    {
+        //        Console.WriteLine("Cancelling reload local");
+        //    }
+        //    else if (result.Data != null
+        //        && (bool)result.Data)
+        //    {
+        //        Console.WriteLine("Reloading local");
+        //        Handler.ExecuteReloadLocal();
+        //    }
+        //}
     }
 }

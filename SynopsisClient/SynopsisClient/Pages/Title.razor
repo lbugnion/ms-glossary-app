@@ -20,14 +20,6 @@ else
     <EditForm EditContext="@Handler.CurrentEditContext">
         <DataAnnotationsValidator />
 
-        <ConfirmDialog Title="Handler.ConfirmReloadDialogTitle"
-                       ShowDialog="Handler.ShowConfirmReloadDialog"
-                       OkText="Yes"
-                       CancelText="No"
-                       OnOkCancelClicked="Handler.ReloadConfirmationOkCancelClicked">
-            <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
-        </ConfirmDialog>
-
         <div class="edit-area">
             <label title="Term's title">
                 <span class="form-label">Term title</span>

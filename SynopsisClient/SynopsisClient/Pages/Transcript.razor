@@ -25,15 +25,7 @@ else
     <EditForm EditContext="@Handler.CurrentEditContext">
         <DataAnnotationsValidator />
 
-        <ConfirmDialog Title="@Handler.ConfirmReloadDialogTitle"
-                       ShowDialog="Handler.ShowConfirmReloadDialog"
-                       OkText="Yes"
-                       CancelText="No"
-                       OnOkCancelClicked="Handler.ReloadConfirmationOkCancelClicked">
-            <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
-        </ConfirmDialog>
-
-        <ConfirmDialog Title="Are you sure?"
+        @*<ConfirmDialog Title="Are you sure?"
                        ShowDialog="Handler.ShowConfirmDeleteItemDialog"
                        OkText="Yes"
                        CancelText="No"
@@ -41,7 +33,7 @@ else
             <em>Note:</em> You can cancel your local changes by reloading the page <strong>BEFORE</strong> saving.
             <br />
             You can also reload the unchanged synopsis from the cloud.
-        </ConfirmDialog>
+        </ConfirmDialog>*@
 
         <div class="edit-area">
 
