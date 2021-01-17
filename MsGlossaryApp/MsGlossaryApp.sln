@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MsGlossaryApp", "MsGlossary
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MsGlossaryApp.TestDownloadBlobs", "MsGlossaryApp.TestDownloadBlobs\MsGlossaryApp.TestDownloadBlobs.csproj", "{62F615CA-F926-4343-B5B3-CE4783B008F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsGlossaryApp.DataModel", "MsGlossaryApp.DataModel\MsGlossaryApp.DataModel.csproj", "{CD4C881F-17E2-4115-BA07-4A3A816B3ACE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MsGlossaryApp.DataModel", "MsGlossaryApp.DataModel\MsGlossaryApp.DataModel.csproj", "{CD4C881F-17E2-4115-BA07-4A3A816B3ACE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsGlossaryApp.DataModel.Standard", "MsGlossaryApp.DataModel.Standard\MsGlossaryApp.DataModel.Standard.csproj", "{F5937670-9487-442D-A0CF-DDFE9AFCFC4F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MsGlossaryApp.DataModel.Standard", "MsGlossaryApp.DataModel.Standard\MsGlossaryApp.DataModel.Standard.csproj", "{F5937670-9487-442D-A0CF-DDFE9AFCFC4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

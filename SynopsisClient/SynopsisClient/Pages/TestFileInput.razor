@@ -1,0 +1,12 @@
+﻿@page "/tests"
+@using BlazorInputFile
+@inject SynopsisClient.Model.UserManager UserManager
+@inject NavigationManager Nav
+
+<h1>Single file</h1>
+
+<p>A single file input that uploads automatically on file selection</p>
+
+<InputFile OnChange="HandleSelection" />
+
+<p>@_status</p>
