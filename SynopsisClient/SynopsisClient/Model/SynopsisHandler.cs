@@ -352,9 +352,6 @@ namespace SynopsisClient.Model
             }
         }
 
-        //        Handler.Synopsis.TranscriptLines.Insert(0, new TranscriptNote()); ;
-        //        return;
-        //    }
         public void DefineList<T>(IList<T> items)
             where T : class, new()
         {
@@ -362,8 +359,6 @@ namespace SynopsisClient.Model
             _listHandler = new ListHandler<T>(this, items);
         }
 
-        //    if (line == null)
-        //    {
         public void Delete<T>(T item)
             where T : class
         {
@@ -371,20 +366,11 @@ namespace SynopsisClient.Model
             _listHandler?.StartDelete(item);
         }
 
-        //public void AddNoteAfter(TranscriptLine line)
-        //{
-        //    ResetDialogs();
         public void DeletItemConfirmationOkCancelClicked(bool confirm)
         {
             _listHandler?.DeleteItemConfirmationOkCancelClicked(confirm);
         }
 
-        //    if (Handler.Synopsis.TranscriptLines.Contains(line))
-        //    {
-        //        var index = Handler.Synopsis.TranscriptLines.IndexOf(line);
-        //        Handler.Synopsis.TranscriptLines.Insert(index + 1, new TranscriptImage());
-        //    }
-        //}
         public async Task<bool> InitializePage()
         {
             Console.WriteLine("SynopsisHandler.InitializePage");
@@ -430,11 +416,6 @@ namespace SynopsisClient.Model
             }
         }
 
-        //    if (line == null)
-        //    {
-        //        Handler.Synopsis.TranscriptLines.Insert(0, new TranscriptImage());
-        //        return;
-        //    }
         public void ReloadFromCloud()
         {
             Console.WriteLine("In ReloadFromCloud");
@@ -459,26 +440,6 @@ namespace SynopsisClient.Model
             IsReloading = false;
         }
 
-        //private void AddLineAfter(TranscriptLine line)
-        //{
-        //    Handler.ResetDialogs();
-
-        //    if (line == null)
-        //    {
-        //        Handler.Synopsis.TranscriptLines.Insert(0, new TranscriptSimpleLine());
-        //        return;
-        //    }
-
-        //    if (Handler.Synopsis.TranscriptLines.Contains(line))
-        //    {
-        //        var index = Handler.Synopsis.TranscriptLines.IndexOf(line);
-        //        Handler.Synopsis.TranscriptLines.Insert(index + 1, new TranscriptSimpleLine());
-        //    }
-        //}
-
-        //private void AddImageAfter(TranscriptLine line)
-        //{
-        //    Handler.ResetDialogs();
         public void TriggerValidation()
         {
             Console.WriteLine("Triggering Validation");
