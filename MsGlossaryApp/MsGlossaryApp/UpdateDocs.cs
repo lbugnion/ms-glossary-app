@@ -39,7 +39,7 @@ namespace MsGlossaryApp
             // Function input comes from the request content.
             string instanceId = await starter.StartNewAsync(nameof(UpdateDocsRunOrchestrator), null);
 
-            log.LogInformationEx($"Started orchestration in UpdateDocs with ID = '{instanceId}'.", LogVerbosity.Normal);
+            log.LogInformation($"Started orchestration in UpdateDocs with ID = '{instanceId}'.");
 
             return starter.CreateCheckStatusResponse(req, instanceId);
         }
@@ -50,7 +50,7 @@ namespace MsGlossaryApp
             IList<GlossaryFile> files,
             ILogger log)
         {
-            log?.LogInformationEx("In UpdateDocsCommitFiles", LogVerbosity.Normal);
+            log?.LogInformation("In UpdateDocsCommitFiles");
             //return null;
 
             return await FileSaver.SaveFiles(
@@ -406,7 +406,7 @@ namespace MsGlossaryApp
             IList<Term> terms,
             ILogger log)
         {
-            log?.LogInformationEx("In UpdateDocsSaveTermsToSettings", LogVerbosity.Normal);
+            log?.LogInformation("In UpdateDocsSaveTermsToSettings");
 
             var account = CloudStorageAccount.Parse(
                 Environment.GetEnvironmentVariable(
@@ -425,7 +425,7 @@ namespace MsGlossaryApp
             log?.LogInformationEx($"json: {json}", LogVerbosity.Debug);
 
             await blob.UploadTextAsync(json);
-            log?.LogInformationEx("Out UpdateDocsSaveTermsToSettings", LogVerbosity.Normal);
+            log?.LogInformation("Out UpdateDocsSaveTermsToSettings");
         }
 
         [FunctionName(nameof(UpdateDocsSortDisambiguations))]

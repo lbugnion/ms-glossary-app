@@ -28,7 +28,7 @@ namespace MsGlossaryApp
             //Microsoft.AspNetCore.Http.HttpRequest req,
             ILogger log)
         {
-            log.LogInformationEx($"In UpdateHomePage", LogVerbosity.Normal);
+            log.LogInformation($"In UpdateHomePage");
             Exception error = null;
 
             try
@@ -167,7 +167,7 @@ namespace MsGlossaryApp
                     log);
             }
 
-            log.LogInformationEx($"Out UpdateHomePage", LogVerbosity.Normal);
+            log.LogInformation($"Out UpdateHomePage");
         }
     }
 }

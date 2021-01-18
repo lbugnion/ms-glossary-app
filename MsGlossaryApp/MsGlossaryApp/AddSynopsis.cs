@@ -37,7 +37,7 @@ namespace MsGlossaryApp
             HttpRequest req,
             ILogger log)
         {
-            log?.LogInformationEx("In AddSynopsis", LogVerbosity.Normal);
+            log?.LogInformation("In AddSynopsis");
 
             // Initialize
 
@@ -157,7 +157,7 @@ namespace MsGlossaryApp
 
             log?.LogInformationEx($"newTerm.Ref: {newTerm.Ref}", LogVerbosity.Debug);
             log?.LogInformation($"newTerm.Url: {newTerm.Url}");
-            log?.LogInformationEx("Out AddSynopsis", LogVerbosity.Normal);
+            log?.LogInformation("Out AddSynopsis");
 
             return new OkObjectResult(jsonResult);
         }

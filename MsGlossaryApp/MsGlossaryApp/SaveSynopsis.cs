@@ -201,7 +201,7 @@ namespace MsGlossaryApp
                 successMessage,
                 log);
 
-            log?.LogInformationEx(successMessage, LogVerbosity.Normal);
+            log?.LogInformation(successMessage);
             return new OkObjectResult(string.Empty);
         }
     }
