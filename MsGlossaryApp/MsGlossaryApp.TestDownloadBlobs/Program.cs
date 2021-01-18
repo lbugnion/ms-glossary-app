@@ -89,7 +89,7 @@ namespace MsGlossaryApp.TestDownloadBlobs
                                 }
                             }
 
-                            fileName = nameParts[nameParts.Length - 1];
+                            fileName = nameParts[^1];
 
                             var file = new FileInfo(
                                 Path.Combine(

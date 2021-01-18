@@ -461,7 +461,7 @@ namespace MsGlossaryApp
             GlossaryFile file,
             ILogger log)
         {
-            return await TermMaker.VerifyFile(file);
+            return await TermMaker.VerifyFile(file, log);
         }
     }
 }

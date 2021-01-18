@@ -19,13 +19,11 @@ namespace MsGlossaryApp.Model
         {
             var logLevelString = Environment.GetEnvironmentVariable(LogVerbosityVariableName);
 
-            object logVerb;
-
             var success = Enum.TryParse(
                 typeof(LogVerbosity),
                 logLevelString,
                 true,
-                out logVerb);
+                out object logVerb);
 
             if (success)
             {

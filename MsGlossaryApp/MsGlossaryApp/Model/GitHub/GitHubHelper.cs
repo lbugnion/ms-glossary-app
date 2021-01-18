@@ -20,7 +20,7 @@ namespace MsGlossaryApp.Model.GitHub
         private const string UpdateReferenceUrl = "git/refs/heads/{0}";
         private const string UploadBlobUrl = "git/blobs";
 
-        private HttpClient _client;
+        private readonly HttpClient _client;
 
         public GitHubHelper()
         {
@@ -78,12 +78,12 @@ namespace MsGlossaryApp.Model.GitHub
             var treeInfos = new List<TreeInfo>();
             string jsonRequest;
 
-            foreach (var file in fileNamesAndContent)
+            foreach (var (path, content) in fileNamesAndContent)
             {
-                log?.LogDebug($"Posting to GitHub blob: {file.path}");
+                log?.LogDebug($"Posting to GitHub blob: {path}");
                 var uploadInfo = new UploadInfo
                 {
-                    Content = file.content
+                    Content = content
                 };
 
                 jsonRequest = JsonConvert.SerializeObject(uploadInfo);
@@ -131,7 +131,7 @@ namespace MsGlossaryApp.Model.GitHub
                 var uploadBlobResult = JsonConvert.DeserializeObject<ShaInfo>(uploadBlobJsonResult);
                 log?.LogInformation($"Done posting to GitHub blob {uploadBlobResult.Sha}");
 
-                var info = new TreeInfo(file.path, uploadBlobResult.Sha);
+                var info = new TreeInfo(path, uploadBlobResult.Sha);
                 treeInfos.Add(info);
             }
 
