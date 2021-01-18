@@ -1,10 +1,19 @@
-﻿using System;
+﻿using Blazored.Modal.Services;
+using Microsoft.AspNetCore.Components;
+using System;
 using System.Threading.Tasks;
 
 namespace SynopsisClient.Pages
 {
     public partial class Demos
     {
+        [CascadingParameter]
+        private IModalService Modal
+        {
+            get;
+            set;
+        }
+
         protected override async Task OnInitializedAsync()
         {
             Console.WriteLine("PersonalNotes.OnInitializedAsync");
@@ -21,10 +30,12 @@ namespace SynopsisClient.Pages
 
             if (success)
             {
+                Handler.DefineModal(Modal);
                 Handler.DefineList(Handler.Synopsis.Demos);
             }
             else
             {
+                Handler.DefineModal(null);
                 Nav.NavigateTo("/");
             }
         }

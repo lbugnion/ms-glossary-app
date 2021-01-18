@@ -54,6 +54,7 @@ namespace SynopsisClient.Shared
             }
 
             Handler.ResetDialogs();
+            Handler.DefineModal(null);
             Nav.NavigateTo(uri);
         }
 

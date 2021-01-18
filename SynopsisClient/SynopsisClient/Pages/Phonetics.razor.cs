@@ -1,10 +1,19 @@
-﻿using System;
+﻿using Blazored.Modal.Services;
+using Microsoft.AspNetCore.Components;
+using System;
 using System.Threading.Tasks;
 
 namespace SynopsisClient.Pages
 {
     public partial class Phonetics
     {
+        [CascadingParameter]
+        private IModalService Modal
+        {
+            get;
+            set;
+        }
+
         protected override async Task OnInitializedAsync()
         {
             Console.WriteLine("Phonetics.OnInitializedAsync");
@@ -19,8 +28,13 @@ namespace SynopsisClient.Pages
 
             var success = await Handler.InitializePage();
 
-            if (!success)
+            if (success)
             {
+                Handler.DefineModal(Modal);
+            }
+            else
+            {
+                Handler.DefineModal(null);
                 Nav.NavigateTo("/");
             }
         }

@@ -1,10 +1,19 @@
-﻿using System;
+﻿using Blazored.Modal.Services;
+using Microsoft.AspNetCore.Components;
+using System;
 using System.Threading.Tasks;
 
 namespace SynopsisClient.Pages
 {
     public partial class Transcript
     {
+        [CascadingParameter]
+        private IModalService Modal
+        {
+            get;
+            set;
+        }
+
         protected override async Task OnInitializedAsync()
         {
             Console.WriteLine("Title.OnInitializedAsync");
@@ -22,9 +31,11 @@ namespace SynopsisClient.Pages
             if (success)
             {
                 Handler.DefineList(Handler.Synopsis.TranscriptLines);
+                Handler.DefineModal(Modal);
             }
             else
             {
+                Handler.DefineModal(null);
                 Nav.NavigateTo("/");
             }
         }

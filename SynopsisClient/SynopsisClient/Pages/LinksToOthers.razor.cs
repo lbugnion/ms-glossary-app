@@ -1,10 +1,19 @@
-﻿using System;
+﻿using Blazored.Modal.Services;
+using Microsoft.AspNetCore.Components;
+using System;
 using System.Threading.Tasks;
 
 namespace SynopsisClient.Pages
 {
     public partial class LinksToOthers
     {
+        [CascadingParameter]
+        private IModalService Modal
+        {
+            get;
+            set;
+        }
+
         protected override async Task OnInitializedAsync()
         {
             Console.WriteLine("LinksToOthers.OnInitializedAsync");
@@ -22,9 +31,11 @@ namespace SynopsisClient.Pages
             if (success)
             {
                 Handler.DefineList(Handler.Synopsis.LinksToOthers);
+                Handler.DefineModal(Modal);
             }
             else
             {
+                Handler.DefineModal(null);
                 Nav.NavigateTo("/");
             }
         }
