@@ -46,6 +46,7 @@ namespace MsGlossaryApp
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
             var synopsis = JsonConvert.DeserializeObject<Synopsis>(requestBody);
+            synopsis.CastTranscriptLines();
 
             // Perform validation
 
