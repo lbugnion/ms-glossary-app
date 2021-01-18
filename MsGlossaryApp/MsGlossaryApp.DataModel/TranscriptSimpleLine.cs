@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace MsGlossaryApp.DataModel
@@ -31,6 +32,17 @@ namespace MsGlossaryApp.DataModel
         public TranscriptSimpleLine()
         {
             Line = DefaultText;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is TranscriptSimpleLine line 
+                && Line == line.Line;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Line);
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace MsGlossaryApp.DataModel
@@ -29,6 +31,17 @@ namespace MsGlossaryApp.DataModel
         public TranscriptImage()
         {
             Image = new Image();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is TranscriptImage image 
+                && Image.Equals(image.Image);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Image);
         }
     }
 }
