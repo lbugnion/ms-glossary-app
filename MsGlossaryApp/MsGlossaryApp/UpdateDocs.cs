@@ -83,7 +83,7 @@ namespace MsGlossaryApp
 
                 foreach (CloudBlockBlob blob in response.Results)
                 {
-                    log?.LogInformationEx($"Found: {blob.Name}", LogVerbosity.Debug);
+                    log?.LogDebug($"Found: {blob.Name}");
                     terms.Add(blob.Uri.ToString());
                 }
             }
@@ -422,7 +422,7 @@ namespace MsGlossaryApp
             var termsNames = terms.Select(t => t.FileName).ToList();
 
             var json = JsonConvert.SerializeObject(termsNames);
-            log?.LogInformationEx($"json: {json}", LogVerbosity.Debug);
+            log?.LogDebug($"json: {json}");
 
             await blob.UploadTextAsync(json);
             log?.LogInformation("Out UpdateDocsSaveTermsToSettings");

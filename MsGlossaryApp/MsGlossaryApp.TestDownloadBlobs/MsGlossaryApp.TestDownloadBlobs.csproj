@@ -8,7 +8,6 @@
   <ItemGroup>
     <Compile Include="..\MsGlossaryApp.DataModel\Constants.cs" Link="Constants.cs" />
     <Compile Include="..\MsGlossaryApp\Model\BlobHelper.cs" Link="BlobHelper.cs" />
-    <Compile Include="..\MsGlossaryApp\Model\LoggerExtensions.cs" Link="LoggerExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -41,15 +41,15 @@ namespace MsGlossaryApp
                 return new BadRequestObjectResult("No file name found in header");
             }
 
-            log?.LogInformationEx($"userEmail {userEmail}", LogVerbosity.Debug);
-            log?.LogInformationEx($"fileName {fileName}", LogVerbosity.Debug);
+            log?.LogDebug($"userEmail {userEmail}");
+            log?.LogDebug($"fileName {fileName}");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
             var synopsis = JsonConvert.DeserializeObject<Synopsis>(requestBody);
             synopsis.CastTranscriptLines();
 
-            log?.LogInformationEx($"-----> {synopsis.LinksInstructions.First().Key}", LogVerbosity.Debug);
+            log?.LogDebug($"-----> {synopsis.LinksInstructions.First().Key}");
 
             // Perform validation
 

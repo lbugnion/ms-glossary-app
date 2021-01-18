@@ -38,8 +38,8 @@ namespace MsGlossaryApp
                 return new BadRequestObjectResult("No file name found in header");
             }
 
-            log?.LogInformationEx($"userEmail {userEmail}", LogVerbosity.Debug);
-            log?.LogInformationEx($"fileName {fileName}", LogVerbosity.Debug);
+            log?.LogDebug($"userEmail {userEmail}");
+            log?.LogDebug($"fileName {fileName}");
 
             // Get the markdown file
 
@@ -48,8 +48,8 @@ namespace MsGlossaryApp
             var repoName = Environment.GetEnvironmentVariable(
                 Constants.DocsGlossaryGitHubRepoVariableName);
 
-            log?.LogInformationEx($"accountName {accountName}", LogVerbosity.Debug);
-            log?.LogInformationEx($"repoName {repoName}", LogVerbosity.Debug);
+            log?.LogDebug($"accountName {accountName}");
+            log?.LogDebug($"repoName {repoName}");
 
             var synopsisUrl = string.Format(
                 Constants.GitHubSynopsisUrlTemplate,
@@ -57,7 +57,7 @@ namespace MsGlossaryApp
                 repoName,
                 fileName);
 
-            log?.LogInformationEx($"synopsisUrl {synopsisUrl}", LogVerbosity.Debug);
+            log?.LogDebug($"synopsisUrl {synopsisUrl}");
 
             string markdown = null;
             string error = null;
@@ -76,7 +76,7 @@ namespace MsGlossaryApp
             catch (Exception ex)
             {
                 log?.LogError(ex, "Error when getting synopsis markdown");
-                log?.LogInformationEx(ex.GetType().FullName, LogVerbosity.Debug);
+                log?.LogDebug(ex.GetType().FullName);
                 error = ex.Message;
             }
 

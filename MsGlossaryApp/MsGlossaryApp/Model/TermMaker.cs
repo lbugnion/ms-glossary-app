@@ -673,52 +673,52 @@ namespace MsGlossaryApp.Model
                 else if (line.StartsWith(Constants.TermMarkdownMarkers.YouTubeMarker))
                 {
                     youTubeCode = line.Substring(Constants.TermMarkdownMarkers.YouTubeMarker.Length).Trim();
-                    log?.LogInformationEx($"youTubeCode: {youTubeCode}", LogVerbosity.Debug);
+                    log?.LogDebug($"youTubeCode: {youTubeCode}");
                 }
                 else if (line.StartsWith(Constants.TermMarkdownMarkers.KeywordsMarker))
                 {
                     keywordsLine = line.Substring(Constants.TermMarkdownMarkers.KeywordsMarker.Length).Trim();
-                    log?.LogInformationEx($"keywordsLine: {keywordsLine}", LogVerbosity.Debug);
+                    log?.LogDebug($"keywordsLine: {keywordsLine}");
                 }
                 else if (line.StartsWith(Constants.TermMarkdownMarkers.ShortDescriptionMarker))
                 {
                     shortDescription = line.Substring(Constants.TermMarkdownMarkers.ShortDescriptionMarker.Length).Trim();
-                    log?.LogInformationEx($"blurb: {shortDescription}", LogVerbosity.Debug);
+                    log?.LogDebug($"blurb: {shortDescription}");
                 }
                 else if (line.StartsWith(Constants.TermMarkdownMarkers.CaptionsMarker))
                 {
                     captions = line.Substring(Constants.TermMarkdownMarkers.CaptionsMarker.Length).Trim();
-                    log?.LogInformationEx($"captions: {captions}", LogVerbosity.Debug);
+                    log?.LogDebug($"captions: {captions}");
                 }
                 else if (line.StartsWith(Constants.TermMarkdownMarkers.LanguageMarker))
                 {
                     language = line.Substring(Constants.TermMarkdownMarkers.LanguageMarker.Length).Trim();
-                    log?.LogInformationEx($"language: {language}", LogVerbosity.Debug);
+                    log?.LogDebug($"language: {language}");
                 }
                 else if (line.StartsWith(Constants.TermMarkdownMarkers.AuthorNameMarker))
                 {
                     authorName = line.Substring(Constants.TermMarkdownMarkers.AuthorNameMarker.Length).Trim();
-                    log?.LogInformationEx($"authorName: {authorName}", LogVerbosity.Debug);
+                    log?.LogDebug($"authorName: {authorName}");
                 }
                 else if (line.StartsWith(Constants.TermMarkdownMarkers.EmailMarker))
                 {
                     email = line.Substring(Constants.TermMarkdownMarkers.EmailMarker.Length).Trim();
-                    log?.LogInformationEx($"email: {email}", LogVerbosity.Debug);
+                    log?.LogDebug($"email: {email}");
                 }
                 else if (line.StartsWith(Constants.TermMarkdownMarkers.GitHubMarker))
                 {
                     github = line.Substring(Constants.TermMarkdownMarkers.GitHubMarker.Length).Trim();
-                    log?.LogInformationEx($"github: {github}", LogVerbosity.Debug);
+                    log?.LogDebug($"github: {github}");
                 }
                 else if (line.StartsWith(Constants.TermMarkdownMarkers.TwitterMarker))
                 {
                     twitter = line.Substring(Constants.TermMarkdownMarkers.TwitterMarker.Length).Trim();
-                    log?.LogInformationEx($"twitter: {twitter}", LogVerbosity.Debug);
+                    log?.LogDebug($"twitter: {twitter}");
                 }
                 else if (line.StartsWith(Constants.TermMarkdownMarkers.RecordingDateMarker))
                 {
                     var dateString = line.Substring(Constants.TermMarkdownMarkers.RecordingDateMarker.Length).Trim();
-                    log?.LogInformationEx($"dateString: {dateString}", LogVerbosity.Debug);
+                    log?.LogDebug($"dateString: {dateString}");
                     recordingDate = DateTime.ParseExact(dateString, "yyyyMMdd", CultureInfo.InvariantCulture);
                 }
             }
@@ -846,7 +846,7 @@ namespace MsGlossaryApp.Model
                 branch,
                 file.Path);
 
-            log?.LogInformationEx($"Url: {url}", LogVerbosity.Debug);
+            log?.LogDebug($"Url: {url}");
 
             try
             {
@@ -856,15 +856,15 @@ namespace MsGlossaryApp.Model
                 if (currentText != file.Content)
                 {
                     file.MustSave = true;
-                    log?.LogInformationEx("File must be saved", LogVerbosity.Debug);
+                    log?.LogDebug("File must be saved");
                 }
 
-                log?.LogInformationEx("File must not be saved", LogVerbosity.Debug);
+                log?.LogDebug("File must not be saved");
             }
             catch (HttpRequestException)
             {
                 file.MustSave = true;
-                log?.LogInformationEx("Can't find original file", LogVerbosity.Debug);
+                log?.LogDebug("Can't find original file");
             }
 
             log?.LogInformation("Out VerifyFile");

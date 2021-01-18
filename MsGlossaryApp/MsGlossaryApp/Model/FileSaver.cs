@@ -89,10 +89,10 @@ namespace MsGlossaryApp.Model
                 var token = Environment.GetEnvironmentVariable(
                     Constants.GitHubTokenVariableName);
 
-                log?.LogInformationEx($"accountName: {accountName}", LogVerbosity.Debug);
-                log?.LogInformationEx($"repoName: {repoName}", LogVerbosity.Debug);
-                log?.LogInformationEx($"branchName: {branchName}", LogVerbosity.Debug);
-                log?.LogInformationEx($"token: {token}", LogVerbosity.Debug);
+                log?.LogDebug($"accountName: {accountName}");
+                log?.LogDebug($"repoName: {repoName}");
+                log?.LogDebug($"branchName: {branchName}");
+                log?.LogDebug($"token: {token}");
 
                 // Commit only files who have changed
                 var commitContent = filesToCommit
@@ -141,7 +141,7 @@ namespace MsGlossaryApp.Model
                         var name = file.Path.Replace("/", "_");
                         var targetBlob = targetContainer.GetBlockBlobReference(name);
                         await targetBlob.UploadTextAsync(file.Content);
-                        log?.LogInformationEx($"Uploaded {name} to storage", LogVerbosity.Debug);
+                        log?.LogDebug($"Uploaded {name} to storage");
                     }
                 }
                 catch (Exception ex)

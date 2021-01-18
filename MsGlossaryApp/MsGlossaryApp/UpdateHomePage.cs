@@ -37,9 +37,9 @@ namespace MsGlossaryApp
                 var repoName = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubRepoVariableName);
                 var branchName = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubMainBranchNameVariableName);
 
-                log.LogInformationEx($"accountName: {accountName}", LogVerbosity.Debug);
-                log.LogInformationEx($"repoName: {repoName}", LogVerbosity.Debug);
-                log.LogInformationEx($"branchName: {branchName}", LogVerbosity.Debug);
+                log.LogDebug($"accountName: {accountName}");
+                log.LogDebug($"repoName: {repoName}");
+                log.LogDebug($"branchName: {branchName}");
 
                 // Read the current state of the file
 
@@ -49,7 +49,7 @@ namespace MsGlossaryApp
                     repoName,
                     branchName);
 
-                log.LogInformationEx($"filePath: {filePath}", LogVerbosity.Debug);
+                log.LogDebug($"filePath: {filePath}");
 
                 var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
@@ -66,7 +66,7 @@ namespace MsGlossaryApp
                         newContentBuilder.AppendLine(line);
                     }
 
-                    log.LogInformationEx($"line: {line}", LogVerbosity.Debug);
+                    log.LogDebug($"line: {line}");
                 }
 
                 log.LogInformation("Obtained and read the content");
@@ -80,9 +80,9 @@ namespace MsGlossaryApp
                 var settingsContainerName = Environment.GetEnvironmentVariable(Constants.SettingsContainerVariableName);
                 var termsUrl = string.Format(Constants.ListOfTermsUrlMask, blobStoreName, settingsContainerName, Constants.TermsSettingsFileName);
 
-                log.LogInformationEx($"blobStoreName: {blobStoreName}", LogVerbosity.Debug);
-                log.LogInformationEx($"settingsContainerName: {settingsContainerName}", LogVerbosity.Debug);
-                log.LogInformationEx($"termsUrl: {termsUrl}", LogVerbosity.Debug);
+                log.LogDebug($"blobStoreName: {blobStoreName}");
+                log.LogDebug($"settingsContainerName: {settingsContainerName}");
+                log.LogDebug($"termsUrl: {termsUrl}");
 
                 var termsJson = await client.GetStringAsync(termsUrl);
 
@@ -94,7 +94,7 @@ namespace MsGlossaryApp
                         && s != "another-test")
                     .ToList();
 
-                log.LogInformationEx($"{terms.Count} terms found", LogVerbosity.Debug);
+                log.LogDebug($"{terms.Count} terms found");
 
                 var random = new Random();
                 var index = random.Next(0, terms.Count - 1);
@@ -107,7 +107,7 @@ namespace MsGlossaryApp
                     TextHelper.GetText("TermRandomTerm"),
                     randomTerm);
 
-                log?.LogInformationEx($"include: {include}", LogVerbosity.Debug);
+                log?.LogDebug($"include: {include}");
 
                 // Line before last is the include directive
 
@@ -117,7 +117,7 @@ namespace MsGlossaryApp
                     + Environment.NewLine;
 
                 var token = Environment.GetEnvironmentVariable(Constants.GitHubTokenVariableName);
-                log?.LogInformationEx($"GitHub token: {token}", LogVerbosity.Debug);
+                log?.LogDebug($"GitHub token: {token}");
 
                 var helper = new GitHubHelper(client);
 

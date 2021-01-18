@@ -292,7 +292,7 @@ namespace MsGlossaryApp.Model.GitHub
             jsonResult = await response.Content.ReadAsStringAsync();
             var headResult = JsonConvert.DeserializeObject<GetHeadResult>(jsonResult);
             log?.LogInformation("Done updating the reference");
-            log?.LogInformationEx($"Ref: {headResult.Ref}", LogVerbosity.Debug);
+            log?.LogDebug($"Ref: {headResult.Ref}");
 
             log?.LogInformation("Out GitHubHelper.CommitFiles");
 
@@ -364,8 +364,8 @@ namespace MsGlossaryApp.Model.GitHub
                 repoName,
                 string.Format(GetHeadUrl, branchName));
 
-            log?.LogInformationEx($"repoName: {repoName}", LogVerbosity.Debug);
-            log?.LogInformationEx($"url: {url}", LogVerbosity.Debug);
+            log?.LogDebug($"repoName: {repoName}");
+            log?.LogDebug($"url: {url}");
 
             var request = new HttpRequestMessage
             {
@@ -451,7 +451,7 @@ namespace MsGlossaryApp.Model.GitHub
 
             var jsonResult = await response.Content.ReadAsStringAsync();
             var masterCommitResult = JsonConvert.DeserializeObject<CommitResult>(jsonResult);
-            log?.LogInformationEx($"Done grabbing master commit {masterCommitResult.Sha}", LogVerbosity.Debug);
+            log?.LogDebug($"Done grabbing master commit {masterCommitResult.Sha}");
 
             log?.LogInformation("Out GitHubHelper.GetMainCommit");
 

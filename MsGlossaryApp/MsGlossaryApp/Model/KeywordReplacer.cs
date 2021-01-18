@@ -60,7 +60,7 @@ namespace MsGlossaryApp.Model
                     {
                         // Preserve casing
                         var oldKeyword = markdown.Substring(indexOfKeyword, k.KeywordName.Length);
-                        log?.LogInformationEx($"oldKeyword: {oldKeyword}", LogVerbosity.Debug);
+                        log?.LogDebug($"oldKeyword: {oldKeyword}");
 
                         string newUrlAlone = null;
 
@@ -80,10 +80,10 @@ namespace MsGlossaryApp.Model
                             }
                         }
 
-                        log?.LogInformationEx($"newUrlAlone: {newUrlAlone}", LogVerbosity.Debug);
+                        log?.LogDebug($"newUrlAlone: {newUrlAlone}");
 
                         var newUrl = oldKeyword.MakeLink(newUrlAlone);
-                        log?.LogInformationEx($"newUrl: {newUrl}", LogVerbosity.Debug);
+                        log?.LogDebug($"newUrl: {newUrl}");
 
                         var foundOpening = false;
                         var indexOfOpening = -1;

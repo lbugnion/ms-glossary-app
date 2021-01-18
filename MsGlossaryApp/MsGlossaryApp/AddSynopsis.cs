@@ -49,21 +49,21 @@ namespace MsGlossaryApp
             var mainBranchName = Environment.GetEnvironmentVariable(Constants.MsGlossaryGitHubMainBranchName);
             var token = Environment.GetEnvironmentVariable(Constants.GitHubTokenVariableName);
 
-            log?.LogInformationEx($"accountName: {accountName}", LogVerbosity.Debug);
-            log?.LogInformationEx($"repoName: {repoName}", LogVerbosity.Debug);
-            log?.LogInformationEx($"mainBranchName: {mainBranchName}", LogVerbosity.Debug);
-            log?.LogInformationEx($"token: {token}", LogVerbosity.Debug);
+            log?.LogDebug($"accountName: {accountName}");
+            log?.LogDebug($"repoName: {repoName}");
+            log?.LogDebug($"mainBranchName: {mainBranchName}");
+            log?.LogDebug($"token: {token}");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var newTerm = JsonConvert.DeserializeObject<NewSynopsis>(requestBody);
 
             log?.LogInformation("Received new term");
-            log?.LogInformationEx($"newTerm.SubmitterName: {newTerm.SubmitterName}", LogVerbosity.Debug);
-            log?.LogInformationEx($"newTerm.SubmitterEmail: {newTerm.SubmitterEmail}", LogVerbosity.Debug);
-            log?.LogInformationEx($"newTerm.SubmitterTwitter: {newTerm.SubmitterTwitter}", LogVerbosity.Debug);
-            log?.LogInformationEx($"newTerm.SubmitterGithub: {newTerm.SubmitterGithub}", LogVerbosity.Debug);
-            log?.LogInformationEx($"newTerm.Term: {newTerm.Term}", LogVerbosity.Debug);
-            log?.LogInformationEx($"newTerm.ShortDescription: {newTerm.ShortDescription}", LogVerbosity.Debug);
+            log?.LogDebug($"newTerm.SubmitterName: {newTerm.SubmitterName}");
+            log?.LogDebug($"newTerm.SubmitterEmail: {newTerm.SubmitterEmail}");
+            log?.LogDebug($"newTerm.SubmitterTwitter: {newTerm.SubmitterTwitter}");
+            log?.LogDebug($"newTerm.SubmitterGithub: {newTerm.SubmitterGithub}");
+            log?.LogDebug($"newTerm.Term: {newTerm.Term}");
+            log?.LogDebug($"newTerm.ShortDescription: {newTerm.ShortDescription}");
 
             if (string.IsNullOrEmpty(newTerm.SubmitterName)
                 || string.IsNullOrEmpty(newTerm.SubmitterEmail)
@@ -114,7 +114,7 @@ namespace MsGlossaryApp
 
             log?.LogInformation("Getting file template from GitHub");
             var templateUrl = string.Format(RawTemplateUrl, accountName, repoName, mainBranchName);
-            log?.LogInformationEx($"templateUrl: {templateUrl}", LogVerbosity.Debug);
+            log?.LogDebug($"templateUrl: {templateUrl}");
 
             var markdownTemplate = await client.GetStringAsync(templateUrl);
 
@@ -124,7 +124,7 @@ namespace MsGlossaryApp
                 .Replace(EmailMarker, newTerm.SubmitterEmail)
                 .Replace(ShortDescriptionMarker, newTerm.ShortDescription);
 
-            log?.LogInformationEx("Template replaced", LogVerbosity.Debug);
+            log?.LogDebug("Template replaced");
 
             if (!newTerm.SubmitterTwitter.StartsWith('@'))
             {
@@ -155,7 +155,7 @@ namespace MsGlossaryApp
             newTerm.Url = string.Format(NewSynopsisUrl, accountName, repoName, newTerm.FileName);
             var jsonResult = JsonConvert.SerializeObject(newTerm);
 
-            log?.LogInformationEx($"newTerm.Ref: {newTerm.Ref}", LogVerbosity.Debug);
+            log?.LogDebug($"newTerm.Ref: {newTerm.Ref}");
             log?.LogInformation($"newTerm.Url: {newTerm.Url}");
             log?.LogInformation("Out AddSynopsis");
 
