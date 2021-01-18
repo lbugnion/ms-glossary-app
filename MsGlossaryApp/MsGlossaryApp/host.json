@@ -11,6 +11,9 @@
       "samplingSettings": {
         "isEnabled": true
       }
+    },
+    "logLevel": {
+      "Function": "Critical"
     }
   }
 }

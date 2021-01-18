@@ -19,14 +19,14 @@ namespace MsGlossaryApp.Model
         public CloudBlobContainer GetContainerFromName(string containerName)
         {
             var container = _client.GetContainerReference(containerName);
-            _logger?.LogInformationEx($"container: {containerName} : {container.Uri}", LogVerbosity.Verbose);
+            _logger?.LogDebug($"container: {containerName} : {container.Uri}");
             return container;
         }
 
         public CloudBlobContainer GetContainerFromVariable(string variableName)
         {
             var containerName = Environment.GetEnvironmentVariable(variableName);
-            _logger?.LogInformationEx($"variableName: {variableName} : {containerName}", LogVerbosity.Verbose);
+            _logger?.LogDebug($"variableName: {variableName} : {containerName}");
             return GetContainerFromName(containerName);
         }
     }

@@ -138,11 +138,11 @@ namespace MsGlossaryApp
                             message,
                             log);
 
-                        log?.LogInformationEx($"Synopsis was NOT saved {message}", LogVerbosity.Verbose);
+                        log?.LogInformation($"Synopsis was NOT saved {message}");
                         return new OkObjectResult(message);
                     }
 
-                    log?.LogInformationEx("Synopsis was saved", LogVerbosity.Verbose);
+                    log?.LogInformation("Synopsis was saved");
                 }
                 else
                 {
@@ -152,7 +152,7 @@ namespace MsGlossaryApp
                         result,
                         log);
 
-                    log?.LogInformationEx($"Synopsis was NOT saved {result}", LogVerbosity.Verbose);
+                    log?.LogInformation($"Synopsis was NOT saved {result}");
                     return new OkObjectResult(result);
                 }
             }

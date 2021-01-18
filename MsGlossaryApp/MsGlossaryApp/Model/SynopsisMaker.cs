@@ -17,7 +17,7 @@ namespace MsGlossaryApp.Model
         {
             // TODO Validate the Synopsis, throw exception if it is invalid
 
-            log?.LogInformationEx("In MakeSynopsisText", LogVerbosity.Verbose);
+            log?.LogInformation("In MakeSynopsisText");
 
             var builder = new StringBuilder()
                 .Append(Constants.SynopsisMarkdownMarkers.TitleMarker)
@@ -213,7 +213,7 @@ namespace MsGlossaryApp.Model
                     .AppendLine();
             }
 
-            log?.LogInformationEx("Out MakeSynopsisText", LogVerbosity.Verbose);
+            log?.LogInformation("Out MakeSynopsisText");
             return builder.ToString();
         }
 
@@ -224,8 +224,8 @@ namespace MsGlossaryApp.Model
         {
             // TODO Once the Synopsis client is published, remove the instructions from the template and force only Synopsis client to be used
 
-            log?.LogInformationEx("In ParseSynopsis", LogVerbosity.Verbose);
-            log?.LogInformationEx($"Synopsis: {uri}", LogVerbosity.Verbose);
+            log?.LogInformation("In ParseSynopsis");
+            log?.LogInformation($"Synopsis: {uri}");
 
             var synopsis = new Synopsis
             {

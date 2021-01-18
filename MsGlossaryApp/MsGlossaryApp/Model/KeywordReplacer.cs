@@ -22,7 +22,7 @@ namespace MsGlossaryApp.Model
         {
             var tcs = new TaskCompletionSource<string>();
 
-            log?.LogInformationEx("In Replace", LogVerbosity.Verbose);
+            log?.LogInformation("In Replace");
             var builder = new StringBuilder(markdown);
 
             var replaced = string.Empty;
@@ -213,7 +213,7 @@ namespace MsGlossaryApp.Model
 
             tcs.SetResult(builder.ToString());
 
-            log?.LogInformationEx("Out Replace", LogVerbosity.Verbose);
+            log?.LogInformation("Out Replace");
             return tcs.Task;
         }
     }

@@ -69,7 +69,7 @@ namespace MsGlossaryApp
                     log.LogInformationEx($"line: {line}", LogVerbosity.Debug);
                 }
 
-                log.LogInformationEx("Obtained and read the content", LogVerbosity.Verbose);
+                log.LogInformation("Obtained and read the content");
 
                 var newContent = newContentBuilder.ToString()
                     .Trim();
@@ -86,7 +86,7 @@ namespace MsGlossaryApp
 
                 var termsJson = await client.GetStringAsync(termsUrl);
 
-                log.LogInformationEx("Terms JSON loaded", LogVerbosity.Verbose);
+                log.LogInformation("Terms JSON loaded");
 
                 // TODO Remove checking for test and another-test when these are removed from the repos.
                 var terms = JsonConvert.DeserializeObject<List<string>>(termsJson)
@@ -100,7 +100,7 @@ namespace MsGlossaryApp
                 var index = random.Next(0, terms.Count - 1);
                 var randomTerm = terms[index];
 
-                log?.LogInformationEx($"New random term: {randomTerm}", LogVerbosity.Verbose);
+                log?.LogDebug($"New random term: {randomTerm}");
 
                 var include = string.Format(
                     IncludeLineMask,
@@ -144,14 +144,14 @@ namespace MsGlossaryApp
                     return;
                 }
 
-                log?.LogInformationEx("Term commited to Github", LogVerbosity.Verbose);
+                log?.LogInformation("Term commited to Github");
 
                 await NotificationService.Notify(
                     "Updated homepage",
                     $"The glossary homepage was updated with term {randomTerm}",
                     log);
 
-                log?.LogInformationEx("Done updating homepage", LogVerbosity.Verbose);
+                log?.LogInformation("Done updating homepage");
             }
             catch (Exception ex)
             {

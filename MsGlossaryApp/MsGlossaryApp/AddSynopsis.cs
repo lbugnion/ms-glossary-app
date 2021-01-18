@@ -57,7 +57,7 @@ namespace MsGlossaryApp
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var newTerm = JsonConvert.DeserializeObject<NewSynopsis>(requestBody);
 
-            log?.LogInformationEx("Received new term", LogVerbosity.Verbose);
+            log?.LogInformation("Received new term");
             log?.LogInformationEx($"newTerm.SubmitterName: {newTerm.SubmitterName}", LogVerbosity.Debug);
             log?.LogInformationEx($"newTerm.SubmitterEmail: {newTerm.SubmitterEmail}", LogVerbosity.Debug);
             log?.LogInformationEx($"newTerm.SubmitterTwitter: {newTerm.SubmitterTwitter}", LogVerbosity.Debug);
@@ -79,7 +79,7 @@ namespace MsGlossaryApp
             // Get the main head
 
             newTerm.FileName = newTerm.Term.MakeSafeFileName();
-            log?.LogInformationEx($"Safe term: {newTerm.FileName}", LogVerbosity.Verbose);
+            log?.LogInformation($"Safe term: {newTerm.FileName}");
 
             var helper = new GitHubHelper(client);
 
@@ -112,7 +112,7 @@ namespace MsGlossaryApp
 
             // Get and update file template from GitHub
 
-            log?.LogInformationEx("Getting file template from GitHub", LogVerbosity.Verbose);
+            log?.LogInformation("Getting file template from GitHub");
             var templateUrl = string.Format(RawTemplateUrl, accountName, repoName, mainBranchName);
             log?.LogInformationEx($"templateUrl: {templateUrl}", LogVerbosity.Debug);
 
@@ -134,7 +134,7 @@ namespace MsGlossaryApp
             markdownTemplate = markdownTemplate.Replace(TwitterMarker, newTerm.SubmitterTwitter);
             markdownTemplate = markdownTemplate.Replace(GitHubMarker, newTerm.SubmitterGithub);
 
-            log?.LogInformationEx("Done getting file template from GitHub and updating it", LogVerbosity.Verbose);
+            log?.LogInformation("Done getting file template from GitHub and updating it");
 
             // Commit new file to GitHub
 
@@ -156,7 +156,7 @@ namespace MsGlossaryApp
             var jsonResult = JsonConvert.SerializeObject(newTerm);
 
             log?.LogInformationEx($"newTerm.Ref: {newTerm.Ref}", LogVerbosity.Debug);
-            log?.LogInformationEx($"newTerm.Url: {newTerm.Url}", LogVerbosity.Verbose);
+            log?.LogInformation($"newTerm.Url: {newTerm.Url}");
             log?.LogInformationEx("Out AddSynopsis", LogVerbosity.Normal);
 
             return new OkObjectResult(jsonResult);

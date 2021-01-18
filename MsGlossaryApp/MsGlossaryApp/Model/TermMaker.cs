@@ -19,7 +19,7 @@ namespace MsGlossaryApp.Model
             IList<Keyword> keywords,
             ILogger log = null)
         {
-            log?.LogInformationEx("In MakeDisambiguationText", LogVerbosity.Verbose);
+            log?.LogInformation("In MakeDisambiguationText");
 
             var lastKeyword = keywords.OrderByDescending(k => k.Term.RecordingDate).First();
 
@@ -48,7 +48,7 @@ namespace MsGlossaryApp.Model
             }
 
             builder.AppendLine();
-            log?.LogInformationEx("Out MakeDisambiguationText", LogVerbosity.Verbose);
+            log?.LogInformation("Out MakeDisambiguationText");
             return builder.ToString();
         }
 
@@ -56,7 +56,7 @@ namespace MsGlossaryApp.Model
             Keyword keyword,
             ILogger log = null)
         {
-            log?.LogInformationEx("In MakeDisambiguationTitleLink", LogVerbosity.Verbose);
+            log?.LogInformation("In MakeDisambiguationTitleLink");
             return keyword.KeywordName.MakeLink($"/glossary/term/{keyword.KeywordName.MakeSafeFileName()}/disambiguation");
         }
 
@@ -64,7 +64,7 @@ namespace MsGlossaryApp.Model
             Keyword keyword,
             ILogger log)
         {
-            log?.LogInformationEx("In MakeTermText", LogVerbosity.Verbose);
+            log?.LogInformation("In MakeTermText");
             var term = keyword.Term;
 
             var redirect = string.Empty;
@@ -171,7 +171,7 @@ namespace MsGlossaryApp.Model
             }
 
             builder.AppendLine();
-            log?.LogInformationEx("Out MakeTermText", LogVerbosity.Verbose);
+            log?.LogInformation("Out MakeTermText");
             return builder.ToString();
         }
 
@@ -179,7 +179,7 @@ namespace MsGlossaryApp.Model
             Keyword keyword,
             ILogger log)
         {
-            log?.LogInformationEx("In MakeTermTextWithoutVideo", LogVerbosity.Verbose);
+            log?.LogInformation("In MakeTermTextWithoutVideo");
             var term = keyword.Term;
 
             var redirect = string.Empty;
@@ -268,7 +268,7 @@ namespace MsGlossaryApp.Model
             }
 
             builder.AppendLine();
-            log?.LogInformationEx("Out MakeTermTextWithoutVideo", LogVerbosity.Verbose);
+            log?.LogInformation("Out MakeTermTextWithoutVideo");
             return builder.ToString();
         }
 
@@ -276,7 +276,7 @@ namespace MsGlossaryApp.Model
             Keyword keyword,
             ILogger log = null)
         {
-            log?.LogInformationEx("In MakeTitleLink", LogVerbosity.Verbose);
+            log?.LogInformation("In MakeTitleLink");
             if (keyword.IsMainKeyword)
             {
                 return keyword.Term.Title.MakeLink($"/glossary/term/{keyword.Term.FileName}");
@@ -291,7 +291,7 @@ namespace MsGlossaryApp.Model
                     Keyword keyword,
             ILogger log = null)
         {
-            log?.LogInformationEx("In MakeTocLink", LogVerbosity.Verbose);
+            log?.LogInformation("In MakeTocLink");
 
             if (keyword.IsMainKeyword)
             {
@@ -312,7 +312,7 @@ namespace MsGlossaryApp.Model
                                             string captions,
             ILogger log = null)
         {
-            log?.LogInformationEx("In ParseLanguages", LogVerbosity.Verbose);
+            log?.LogInformation("In ParseLanguages");
 
             if (string.IsNullOrEmpty(captions))
             {
@@ -340,7 +340,7 @@ namespace MsGlossaryApp.Model
                 });
             }
 
-            log?.LogInformationEx("Out ParseLanguages", LogVerbosity.Verbose);
+            log?.LogInformation("Out ParseLanguages");
             return result;
         }
 
@@ -348,7 +348,7 @@ namespace MsGlossaryApp.Model
             IList<Keyword> keywords,
             ILogger log = null)
         {
-            log?.LogInformationEx("In CreateDisambiguationFile", LogVerbosity.Verbose);
+            log?.LogInformation("In CreateDisambiguationFile");
             var result = new GlossaryFile();
             var tcs = new TaskCompletionSource<GlossaryFile>();
 
@@ -369,7 +369,7 @@ namespace MsGlossaryApp.Model
                 result.ErrorMessage = ex.Message;
             }
 
-            log?.LogInformationEx("Out CreateDisambiguationFile", LogVerbosity.Verbose);
+            log?.LogInformation("Out CreateDisambiguationFile");
             tcs.SetResult(result);
             return tcs.Task;
         }
@@ -378,7 +378,7 @@ namespace MsGlossaryApp.Model
             Keyword keyword,
             ILogger log = null)
         {
-            log?.LogInformationEx("In CreateKeywordFile", LogVerbosity.Verbose);
+            log?.LogInformation("In CreateKeywordFile");
 
             var tcs = new TaskCompletionSource<GlossaryFile>();
             var result = new GlossaryFile();
@@ -416,7 +416,7 @@ namespace MsGlossaryApp.Model
                 result.ErrorMessage = ex.Message;
             }
 
-            log?.LogInformationEx("Out CreateKeywordFile", LogVerbosity.Verbose);
+            log?.LogInformation("Out CreateKeywordFile");
             tcs.SetResult(result);
             return tcs.Task;
         }
@@ -425,7 +425,7 @@ namespace MsGlossaryApp.Model
             IList<Keyword> keywords,
             ILogger log = null)
         {
-            log?.LogInformationEx("In CreateTableOfContentsFile", LogVerbosity.Verbose);
+            log?.LogInformation("In CreateTableOfContentsFile");
             var result = new GlossaryFile();
             var tcs = new TaskCompletionSource<GlossaryFile>();
 
@@ -481,7 +481,7 @@ namespace MsGlossaryApp.Model
                 result.ErrorMessage = ex.Message;
             }
 
-            log?.LogInformationEx("Out CreateTableOfContentsFile", LogVerbosity.Verbose);
+            log?.LogInformation("Out CreateTableOfContentsFile");
             tcs.SetResult(result);
             return tcs.Task;
         }
@@ -493,7 +493,7 @@ namespace MsGlossaryApp.Model
             string twitter,
             ILogger log = null)
         {
-            log?.LogInformationEx("In MakeAuthors", LogVerbosity.Verbose);
+            log?.LogInformation("In MakeAuthors");
 
             var authorNames = authorName.Split(new char[]
             {
@@ -536,7 +536,7 @@ namespace MsGlossaryApp.Model
                 result.Add(author);
             }
 
-            log?.LogInformationEx("Out MakeAuthors", LogVerbosity.Verbose);
+            log?.LogInformation("Out MakeAuthors");
             return result;
         }
 
@@ -565,8 +565,8 @@ namespace MsGlossaryApp.Model
             string markdown,
             ILogger log)
         {
-            log?.LogInformationEx("In ParseTerm", LogVerbosity.Verbose);
-            log?.LogInformationEx($"Term: {uri}", LogVerbosity.Verbose);
+            log?.LogInformation("In ParseTerm");
+            log?.LogInformation($"Term: {uri}");
 
             var term = new Term
             {
@@ -734,7 +734,7 @@ namespace MsGlossaryApp.Model
             term.Language = ParseLanguages(language, log).First();
             term.Keywords = MakeKeywords(keywordsLine);
 
-            log?.LogInformationEx("Out CreateTerm", LogVerbosity.Verbose);
+            log?.LogInformation("Out CreateTerm");
             return term;
         }
 
@@ -742,7 +742,7 @@ namespace MsGlossaryApp.Model
             IList<Keyword> keywords,
             ILogger log = null)
         {
-            log?.LogInformationEx("In SortDisambiguations", LogVerbosity.Verbose);
+            log?.LogInformation("In SortDisambiguations");
 
             var tcs = new TaskCompletionSource<IList<Keyword>>();
 
@@ -772,7 +772,7 @@ namespace MsGlossaryApp.Model
             }
 
             tcs.SetResult(keywords);
-            log?.LogInformationEx("Out SortDisambiguations", LogVerbosity.Verbose);
+            log?.LogInformation("Out SortDisambiguations");
             return tcs.Task;
         }
 
@@ -781,7 +781,7 @@ namespace MsGlossaryApp.Model
             Term currentTerm,
             ILogger log = null)
         {
-            log?.LogInformationEx("In SortKeywords", LogVerbosity.Verbose);
+            log?.LogInformation("In SortKeywords");
 
             var tcs = new TaskCompletionSource<IList<Keyword>>();
 
@@ -825,7 +825,7 @@ namespace MsGlossaryApp.Model
             }
 
             tcs.SetResult(result);
-            log?.LogInformationEx("Out SortKeywords", LogVerbosity.Verbose);
+            log?.LogInformation("Out SortKeywords");
             return tcs.Task;
         }
 
@@ -833,7 +833,7 @@ namespace MsGlossaryApp.Model
             GlossaryFile file,
             ILogger log = null)
         {
-            log?.LogInformationEx("In VerifyFile", LogVerbosity.Verbose);
+            log?.LogInformation("In VerifyFile");
 
             var account = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubAccountVariableName);
             var repo = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubRepoVariableName);
@@ -867,7 +867,7 @@ namespace MsGlossaryApp.Model
                 log?.LogInformationEx("Can't find original file", LogVerbosity.Debug);
             }
 
-            log?.LogInformationEx("Out VerifyFile", LogVerbosity.Verbose);
+            log?.LogInformation("Out VerifyFile");
 
             return file;
         }

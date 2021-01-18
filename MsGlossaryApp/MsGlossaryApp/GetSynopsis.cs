@@ -22,7 +22,7 @@ namespace MsGlossaryApp
             HttpRequest req,
             ILogger log)
         {
-            log?.LogInformationEx("GetSynopsis", LogVerbosity.Verbose);
+            log?.LogInformation("GetSynopsis");
 
             var (userEmail, fileName) = req.GetUserInfoFromHeaders();
 
@@ -124,7 +124,7 @@ namespace MsGlossaryApp
                     $"Sorry but the author {userEmail} is not listed as one of the original author");
             }
 
-            log?.LogInformationEx("GetSynopsis success, returning Synopsis", LogVerbosity.Verbose);
+            log?.LogInformation("GetSynopsis success, returning Synopsis");
             return new OkObjectResult(synopsis);
         }
     }

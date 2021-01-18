@@ -73,7 +73,7 @@ namespace MsGlossaryApp.Model
                     || savingLocation == SavingLocations.Both)
                 && filesToCommit.Count > 0)
             {
-                log?.LogInformationEx("Committing to GitHub", LogVerbosity.Verbose);
+                log?.LogInformation("Committing to GitHub");
 
                 var accountName = Environment.GetEnvironmentVariable(
                     Constants.DocsGlossaryGitHubAccountVariableName);
@@ -111,7 +111,7 @@ namespace MsGlossaryApp.Model
                     log: log);
 
                 errorMessage = result.ErrorMessage;
-                log?.LogInformationEx("Done committing to GitHub", LogVerbosity.Verbose);
+                log?.LogInformation("Done committing to GitHub");
             }
 
             if (!string.IsNullOrEmpty(errorMessage))
@@ -124,7 +124,7 @@ namespace MsGlossaryApp.Model
                     || savingLocation == SavingLocations.Both)
                 && files.Count > 0)
             {
-                log?.LogInformationEx("Saving to storage", LogVerbosity.Verbose);
+                log?.LogInformation("Saving to storage");
 
                 try
                 {
@@ -150,7 +150,7 @@ namespace MsGlossaryApp.Model
                     return ex.Message;
                 }
 
-                log?.LogInformationEx("Done saving to storage", LogVerbosity.Verbose);
+                log?.LogInformation("Done saving to storage");
             }
 
             return null;
