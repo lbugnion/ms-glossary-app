@@ -1,7 +1,5 @@
-﻿using Blazored.Modal;
-using Blazored.Modal.Services;
+﻿using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
-using SynopsisClient.Dialogs;
 using System;
 using System.Threading.Tasks;
 
@@ -33,7 +31,7 @@ namespace SynopsisClient.Pages
 
             if (success)
             {
-                Handler.DefineList(Handler.Synopsis.Authors);
+                DefineList();
                 Handler.DefineModal(Modal);
             }
             else
@@ -43,35 +41,18 @@ namespace SynopsisClient.Pages
             }
         }
 
-        //private async Task ReloadLocal()
-        //{
-        //    Console.WriteLine("Authors.ReloadLocal");
+        private void DefineList()
+        {
+            if (Handler.Synopsis != null)
+            {
+                Handler.DefineList(Handler.Synopsis.Authors);
+            }
+        }
 
-        //    var parameters = new ModalParameters();
-        //    parameters.Add(nameof(ConfirmDialog.OkText), "OK");
-        //    parameters.Add(nameof(ConfirmDialog.CancelText), "Cancel");
-        //    parameters.Add(nameof(ConfirmDialog.Message), new RenderFragment());
-
-        //    var formModal = Modal.Show<ConfirmDialog>("Some title", parameters);
-        //    var result = await formModal.Result;
-
-        //    Console.WriteLine($"Result cancelled: {result.Cancelled}");
-            
-        //    if (!result.Cancelled)
-        //    {
-        //        Console.WriteLine($"Result confirmed: {(bool)result.Data}");
-        //    }
-
-        //    if (result.Cancelled)
-        //    {
-        //        Console.WriteLine("Cancelling reload local");
-        //    }
-        //    else if (result.Data != null
-        //        && (bool)result.Data)
-        //    {
-        //        Console.WriteLine("Reloading local");
-        //        Handler.ExecuteReloadLocal();
-        //    }
-        //}
+        private async Task ReloadFromCloud()
+        {
+            await Handler.ReloadFromCloud();
+            DefineList();
+        }
     }
 }

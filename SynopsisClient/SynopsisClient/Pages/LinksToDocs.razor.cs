@@ -30,7 +30,7 @@ namespace SynopsisClient.Pages
 
             if (success)
             {
-                Handler.DefineList(Handler.Synopsis.LinksToDocs);
+                DefineList();
                 Handler.DefineModal(Modal);
             }
             else
@@ -38,6 +38,20 @@ namespace SynopsisClient.Pages
                 Handler.DefineModal(null);
                 Nav.NavigateTo("/");
             }
+        }
+
+        private void DefineList()
+        {
+            if (Handler.Synopsis != null)
+            {
+                Handler.DefineList(Handler.Synopsis.LinksToDocs);
+            }
+        }
+
+        private async Task ReloadFromCloud()
+        {
+            await Handler.ReloadFromCloud();
+            DefineList();
         }
     }
 }

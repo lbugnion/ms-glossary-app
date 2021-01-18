@@ -31,13 +31,27 @@ namespace SynopsisClient.Pages
             if (success)
             {
                 Handler.DefineModal(Modal);
-                Handler.DefineList(Handler.Synopsis.Demos);
+                DefineList();
             }
             else
             {
                 Handler.DefineModal(null);
                 Nav.NavigateTo("/");
             }
+        }
+
+        private void DefineList()
+        {
+            if (Handler.Synopsis != null)
+            {
+                Handler.DefineList(Handler.Synopsis.Demos);
+            }
+        }
+
+        private async Task ReloadFromCloud()
+        {
+            await Handler.ReloadFromCloud();
+            DefineList();
         }
     }
 }
