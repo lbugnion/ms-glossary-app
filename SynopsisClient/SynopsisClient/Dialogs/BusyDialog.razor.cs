@@ -10,7 +10,7 @@ namespace SynopsisClient.Dialogs
         private static BusyDialog _instance;
 
         [CascadingParameter]
-        BlazoredModalInstance ModalInstance
+        private BlazoredModalInstance ModalInstance
         {
             get;
             set;
@@ -31,12 +31,6 @@ namespace SynopsisClient.Dialogs
             Console.WriteLine("Initialized");
         }
 
-        public async Task Dismiss()
-        {
-            Console.WriteLine("BusyDialog.Dismiss");
-            await ModalInstance.CancelAsync();
-        }
-
         public async static Task DismissAll()
         {
             Console.WriteLine("BusyDialog.DismissAll");
@@ -45,6 +39,12 @@ namespace SynopsisClient.Dialogs
             {
                 await _instance.Dismiss();
             }
+        }
+
+        public async Task Dismiss()
+        {
+            Console.WriteLine("BusyDialog.Dismiss");
+            await ModalInstance.CancelAsync();
         }
     }
 }

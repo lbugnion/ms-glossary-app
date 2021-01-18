@@ -1,15 +1,13 @@
-using System.IO;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using MsGlossaryApp.Model;
 using Microsoft.WindowsAzure.Storage;
-using System;
 using MsGlossaryApp.DataModel;
+using MsGlossaryApp.Model;
+using System;
+using System.Threading.Tasks;
 
 namespace MsGlossaryApp
 {
@@ -18,9 +16,9 @@ namespace MsGlossaryApp
         [FunctionName("UploadFile")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Function, 
-                "post", 
-                Route = null)] 
+                AuthorizationLevel.Function,
+                "post",
+                Route = null)]
             HttpRequest req,
             ILogger log)
         {

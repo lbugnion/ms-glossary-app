@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace MsGlossaryApp.DataModel
@@ -35,7 +34,7 @@ namespace MsGlossaryApp.DataModel
 
         public override bool Equals(object obj)
         {
-            return obj is TranscriptImage image 
+            return obj is TranscriptImage image
                 && Image.Equals(image.Image);
         }
 

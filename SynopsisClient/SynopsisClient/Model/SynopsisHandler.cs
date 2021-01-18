@@ -11,27 +11,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace SynopsisClient.Model
 {
     public class SynopsisHandler
     {
+        private const string DeleteDialogTitle = "Are you sure? Deleting...";
         private const string FileNameHeaderKey = "x-glossary-file-name";
         private const string GetSynopsisUrlFunctionKeyKey = "GetSynopsisUrlFunctionKey";
         private const string GetSynopsisUrlKey = "GetSynopsisUrl";
         private const string ReloadFromCloudDialogTitle = "Are you sure? Reload from Cloud...";
         private const string ReloadLocalDialogTitle = "Are you sure? Reload local..";
-        private const string DeleteDialogTitle = "Are you sure? Deleting...";
-
-        private IModalService _modal;
-
-        public void DefineModal(IModalService modal)
-        {
-            _modal = modal;
-        }
-
         private const string SaveSynopsisUrlFunctionKeyKey = "SaveSynopsisUrlFunctionKey";
         private const string SaveSynopsisUrlKey = "SaveSynopsisUrl";
         private const string UserEmailHeaderKey = "x-glossary-user-email";
@@ -40,7 +31,15 @@ namespace SynopsisClient.Model
         private readonly NavigationManager _nav;
         private readonly UserManager _userManager;
         private ListHandlerBase _listHandler;
+        private IModalService _modal;
+
         public const string LocalStorageKey = "Current-Synopsis";
+
+        public string CannotLoadErrorMessage
+        {
+            get;
+            private set;
+        }
 
         public bool CannotReloadFromCloud
         {
@@ -54,25 +53,19 @@ namespace SynopsisClient.Model
             private set;
         }
 
+        public string CannotSaveErrorMessage
+        {
+            get;
+            private set;
+        }
+
         public EditContext CurrentEditContext
         {
             get;
             set;
         }
 
-        public string CannotLoadErrorMessage
-        {
-            get;
-            private set;
-        }
-
-        public async Task DeleteLocalSynopsis()
-        {
-            Synopsis = null;
-            await _localStorage.RemoveItemAsync(SynopsisHandler.LocalStorageKey);
-        }
-
-        public string CannotSaveErrorMessage
+        public bool IsModified
         {
             get;
             private set;
@@ -88,35 +81,6 @@ namespace SynopsisClient.Model
         {
             get;
             private set;
-        }
-
-        public bool IsModified
-        {
-            get;
-            private set;
-        }
-
-        private async Task ShowHideBusyDialog(bool show, string title = null)
-        {
-            Console.WriteLine($"ShowHideReloadDialog: {show}");
-
-            if (_modal != null)
-            {
-                if (show)
-                {
-                    var options = new ModalOptions()
-                    {
-                        HideCloseButton = true,
-                        DisableBackgroundCancel = true
-                    };
-
-                    _modal.Show<BusyDialog>(title, options);
-                }
-                else
-                {
-                    await BusyDialog.DismissAll();
-                }
-            }
         }
 
         public Synopsis Synopsis
@@ -135,6 +99,31 @@ namespace SynopsisClient.Model
             _nav = nav;
             _configuration = configuration;
             _userManager = userManager;
+        }
+
+        private async Task<bool> Confirm<TComponent>(string title)
+            where TComponent : IComponent
+        {
+            if (_modal == null)
+            {
+                Console.WriteLine("Modal is not set");
+                return false;
+            }
+
+            var formModal = _modal.Show<TComponent>(title);
+            var result = await formModal.Result;
+
+            Console.WriteLine($"Confirm: cancelled: {result.Cancelled}");
+
+            if (!result.Cancelled
+                && result.Data != null
+                && (bool)result.Data)
+            {
+                Console.WriteLine("Confirm: confirmed");
+                return true;
+            }
+
+            return false;
         }
 
         private void CurrentEditContextOnFieldChanged(
@@ -198,12 +187,6 @@ namespace SynopsisClient.Model
             {
                 _nav.NavigateTo("/");
             }
-        }
-
-        public void ExecuteReloadLocal()
-        {
-            // TODO Reload synopsis local without reloading the page
-            _nav.NavigateTo(_nav.Uri, forceLoad: true);
         }
 
         private async Task<Synopsis> GetSynopsis(
@@ -345,6 +328,29 @@ namespace SynopsisClient.Model
             CannotSave = true;
         }
 
+        private async Task ShowHideBusyDialog(bool show, string title = null)
+        {
+            Console.WriteLine($"ShowHideReloadDialog: {show}");
+
+            if (_modal != null)
+            {
+                if (show)
+                {
+                    var options = new ModalOptions()
+                    {
+                        HideCloseButton = true,
+                        DisableBackgroundCancel = true
+                    };
+
+                    _modal.Show<BusyDialog>(title, options);
+                }
+                else
+                {
+                    await BusyDialog.DismissAll();
+                }
+            }
+        }
+
         public void AddItem()
         {
             Console.WriteLine("SynopsisHandler.AddItem");
@@ -392,11 +398,122 @@ namespace SynopsisClient.Model
             }
         }
 
+        public async Task CheckSaveSynopsisToCloud()
+        {
+            Console.WriteLine("CheckSaveSynopsisToCloud");
+            Console.WriteLine($"CurrentEditContext.IsModified: {CurrentEditContext.IsModified()}");
+            Console.WriteLine($"_isModified: {IsModified}");
+
+            if (Synopsis != null
+                && Synopsis.LinksInstructions != null
+                && Synopsis.LinksInstructions.Count > 0)
+            {
+                Console.WriteLine($"01 -----> {Synopsis.LinksInstructions.First().Key}");
+            }
+
+            await ShowHideBusyDialog(true, "Saving...");
+
+            await CheckSaveSynopsis();
+
+            if (Synopsis != null
+                && Synopsis.LinksInstructions != null
+                && Synopsis.LinksInstructions.Count > 0)
+            {
+                Console.WriteLine($"02 -----> {Synopsis.LinksInstructions.First().Key}");
+            }
+
+            if (Synopsis == null
+                || _userManager.CurrentUser == null
+                || string.IsNullOrEmpty(_userManager.CurrentUser.Email)
+                || string.IsNullOrEmpty(_userManager.CurrentUser.SynopsisName)
+                || CurrentEditContext.IsModified()
+                || IsModified)
+            {
+                CannotSaveErrorMessage = "There is a problem, please contact support";
+                Console.WriteLine("Still modified, cannot save to cloud");
+                _nav.NavigateTo("/");
+                await ShowHideBusyDialog(false);
+                return;
+            }
+
+            var url = _configuration.GetValue<string>(SaveSynopsisUrlKey);
+            Console.WriteLine($"URL: {url}");
+            var functionKey = _configuration.GetValue<string>(SaveSynopsisUrlFunctionKeyKey);
+            Console.WriteLine($"Function Key: {functionKey}");
+
+            Console.WriteLine("Creating client");
+
+            var client = new HttpClient();
+
+            Console.WriteLine("Creating request with headers");
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
+            httpRequest.Headers.Add(UserEmailHeaderKey, _userManager.CurrentUser.Email);
+            httpRequest.Headers.Add(FileNameHeaderKey, _userManager.CurrentUser.SynopsisName);
+
+            Console.WriteLine("Serializing Synopsis");
+
+            var json = JsonConvert.SerializeObject(Synopsis);
+
+            Console.WriteLine(json);
+            if (Synopsis != null
+                && Synopsis.LinksInstructions != null
+                && Synopsis.LinksInstructions.Count > 0)
+            {
+                Console.WriteLine($"03 -----> {Synopsis.LinksInstructions.First().Key}");
+            }
+
+            httpRequest.Content = new StringContent(json);
+
+            HttpResponseMessage response;
+
+            try
+            {
+                Console.WriteLine("Sending request");
+                response = await client.SendAsync(httpRequest);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"Invalid response: {response.StatusCode}");
+                    CannotSaveErrorMessage = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"ErrorMessage: {CannotSaveErrorMessage}");
+                    _nav.NavigateTo("/");
+                    await ShowHideBusyDialog(false);
+                    return;
+                }
+            }
+            catch (Exception)
+            {
+                CannotSaveErrorMessage = "Failed saving Synopsis. Is the service down?";
+                _nav.NavigateTo("/");
+                await ShowHideBusyDialog(false);
+                return;
+            }
+
+            ShowSavedToCloudSuccessMessage = true;
+            SaveResponseMessage = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Synopsis was saved successfully");
+            _nav.NavigateTo("/");
+            await ShowHideBusyDialog(false);
+
+            if (Synopsis != null
+                && Synopsis.LinksInstructions != null
+                && Synopsis.LinksInstructions.Count > 0)
+            {
+                Console.WriteLine($"04 -----> {Synopsis.LinksInstructions.First().Key}");
+            }
+        }
+
         public void DefineList<T>(IList<T> items)
             where T : class, new()
         {
             Console.WriteLine("SynopsisHandler.DefineList");
             _listHandler = new ListHandler<T>(this, items);
+        }
+
+        public void DefineModal(IModalService modal)
+        {
+            _modal = modal;
         }
 
         public async Task Delete<T>(T item)
@@ -409,6 +526,18 @@ namespace SynopsisClient.Model
                 Console.WriteLine("SynopsisHandler: Asking List handler to delete");
                 _listHandler?.Delete(item);
             }
+        }
+
+        public async Task DeleteLocalSynopsis()
+        {
+            Synopsis = null;
+            await _localStorage.RemoveItemAsync(SynopsisHandler.LocalStorageKey);
+        }
+
+        public void ExecuteReloadLocal()
+        {
+            // TODO Reload synopsis local without reloading the page
+            _nav.NavigateTo(_nav.Uri, forceLoad: true);
         }
 
         public async Task<bool> InitializePage()
@@ -455,31 +584,6 @@ namespace SynopsisClient.Model
             {
                 ExecuteReloadLocal();
             }
-        }
-
-        private async Task<bool> Confirm<TComponent>(string title)
-            where TComponent : IComponent
-        {
-            if (_modal == null)
-            {
-                Console.WriteLine("Modal is not set");
-                return false;
-            }
-
-            var formModal = _modal.Show<TComponent>(title);
-            var result = await formModal.Result;
-
-            Console.WriteLine($"Confirm: cancelled: {result.Cancelled}");
-
-            if (!result.Cancelled
-                && result.Data != null
-                && (bool)result.Data)
-            {
-                Console.WriteLine("Confirm: confirmed");
-                return true;
-            }
-
-            return false;
         }
 
         public async Task ResetDialogs()
@@ -604,116 +708,10 @@ namespace SynopsisClient.Model
                 _parent = parent;
             }
 
-            public abstract void Delete<T2>(T2 item)
-                where T2 : class;
-
             public abstract void AddItem();
-        }
 
-        public async Task CheckSaveSynopsisToCloud()
-        {
-            Console.WriteLine("CheckSaveSynopsisToCloud");
-            Console.WriteLine($"CurrentEditContext.IsModified: {CurrentEditContext.IsModified()}");
-            Console.WriteLine($"_isModified: {IsModified}");
-
-            if (Synopsis != null
-                && Synopsis.LinksInstructions != null
-                && Synopsis.LinksInstructions.Count > 0)
-            {
-                Console.WriteLine($"01 -----> {Synopsis.LinksInstructions.First().Key}");
-            }
-
-            await ShowHideBusyDialog(true, "Saving...");
-
-            await CheckSaveSynopsis();
-
-            if (Synopsis != null
-                && Synopsis.LinksInstructions != null
-                && Synopsis.LinksInstructions.Count > 0)
-            {
-                Console.WriteLine($"02 -----> {Synopsis.LinksInstructions.First().Key}");
-            }
-
-            if (Synopsis == null
-                || _userManager.CurrentUser == null
-                || string.IsNullOrEmpty(_userManager.CurrentUser.Email)
-                || string.IsNullOrEmpty(_userManager.CurrentUser.SynopsisName)
-                || CurrentEditContext.IsModified()
-                || IsModified)
-            {
-                CannotSaveErrorMessage = "There is a problem, please contact support";
-                Console.WriteLine("Still modified, cannot save to cloud");
-                _nav.NavigateTo("/");
-                await ShowHideBusyDialog(false);
-                return;
-            }
-
-            var url = _configuration.GetValue<string>(SaveSynopsisUrlKey);
-            Console.WriteLine($"URL: {url}");
-            var functionKey = _configuration.GetValue<string>(SaveSynopsisUrlFunctionKeyKey);
-            Console.WriteLine($"Function Key: {functionKey}");
-
-            Console.WriteLine("Creating client");
-
-            var client = new HttpClient();
-
-            Console.WriteLine("Creating request with headers");
-
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
-            httpRequest.Headers.Add(UserEmailHeaderKey, _userManager.CurrentUser.Email);
-            httpRequest.Headers.Add(FileNameHeaderKey, _userManager.CurrentUser.SynopsisName);
-
-            Console.WriteLine("Serializing Synopsis");
-
-            var json = JsonConvert.SerializeObject(Synopsis);
-
-            Console.WriteLine(json);
-            if (Synopsis != null
-                && Synopsis.LinksInstructions != null
-                && Synopsis.LinksInstructions.Count > 0)
-            {
-                Console.WriteLine($"03 -----> {Synopsis.LinksInstructions.First().Key}");
-            }
-
-            httpRequest.Content = new StringContent(json);
-
-            HttpResponseMessage response;
-
-            try
-            {
-                Console.WriteLine("Sending request");
-                response = await client.SendAsync(httpRequest);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine($"Invalid response: {response.StatusCode}");
-                    CannotSaveErrorMessage = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"ErrorMessage: {CannotSaveErrorMessage}");
-                    _nav.NavigateTo("/");
-                    await ShowHideBusyDialog(false);
-                    return;
-                }
-            }
-            catch (Exception)
-            {
-                CannotSaveErrorMessage = "Failed saving Synopsis. Is the service down?";
-                _nav.NavigateTo("/");
-                await ShowHideBusyDialog(false);
-                return;
-            }
-
-            ShowSavedToCloudSuccessMessage = true;
-            SaveResponseMessage = await response.Content.ReadAsStringAsync();
-            Console.WriteLine("Synopsis was saved successfully");
-            _nav.NavigateTo("/");
-            await ShowHideBusyDialog(false);
-
-            if (Synopsis != null
-                && Synopsis.LinksInstructions != null
-                && Synopsis.LinksInstructions.Count > 0)
-            {
-                Console.WriteLine($"04 -----> {Synopsis.LinksInstructions.First().Key}");
-            }
+            public abstract void Delete<T2>(T2 item)
+                            where T2 : class;
         }
     }
 }

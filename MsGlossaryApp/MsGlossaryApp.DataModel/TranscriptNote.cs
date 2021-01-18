@@ -36,7 +36,7 @@ namespace MsGlossaryApp.DataModel
 
         public override bool Equals(object obj)
         {
-            return obj is TranscriptNote note 
+            return obj is TranscriptNote note
                 && Note == note.Note;
         }
 

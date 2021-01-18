@@ -29,10 +29,10 @@ namespace SynopsisClient.Model
             set;
         }
 
-        public bool IsLoggedIn 
-        { 
-            get; 
-            private set; 
+        public bool IsLoggedIn
+        {
+            get;
+            private set;
         }
 
         public bool IsModified

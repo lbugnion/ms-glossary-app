@@ -188,7 +188,7 @@ namespace MsGlossaryApp.Model
                     builder
                         .AppendLine(link.ToMarkdown().MakeListItem());
                 }
-                
+
                 if (links.Count > 0)
                 {
                     builder.AppendLine();

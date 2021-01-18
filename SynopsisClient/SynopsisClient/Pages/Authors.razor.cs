@@ -14,6 +14,20 @@ namespace SynopsisClient.Pages
             set;
         }
 
+        private void DefineList()
+        {
+            if (Handler.Synopsis != null)
+            {
+                Handler.DefineList(Handler.Synopsis.Authors);
+            }
+        }
+
+        private async Task ReloadFromCloud()
+        {
+            await Handler.ReloadFromCloud();
+            DefineList();
+        }
+
         protected override async Task OnInitializedAsync()
         {
             Console.WriteLine("Authors.OnInitializedAsync");
@@ -39,20 +53,6 @@ namespace SynopsisClient.Pages
                 Handler.DefineModal(null);
                 Nav.NavigateTo("/");
             }
-        }
-
-        private void DefineList()
-        {
-            if (Handler.Synopsis != null)
-            {
-                Handler.DefineList(Handler.Synopsis.Authors);
-            }
-        }
-
-        private async Task ReloadFromCloud()
-        {
-            await Handler.ReloadFromCloud();
-            DefineList();
         }
     }
 }

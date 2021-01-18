@@ -58,6 +58,18 @@ namespace MsGlossaryApp.DataModel
             TranscriptInstructions = new List<string>();
         }
 
+        public void CastTranscriptLines()
+        {
+            var originalLines = TranscriptLines;
+            TranscriptLines = new List<TranscriptLine>();
+
+            foreach (var line in originalLines)
+            {
+                var typedLine = TranscriptLine.GetEntry(line.Markdown);
+                TranscriptLines.Add(typedLine);
+            }
+        }
+
         public override bool Equals(object obj)
         {
             if (!base.Equals(obj))
@@ -172,18 +184,6 @@ namespace MsGlossaryApp.DataModel
             hash.Add(TitleInstructions);
             hash.Add(TranscriptInstructions);
             return hash.ToHashCode();
-        }
-
-        public void CastTranscriptLines()
-        {
-            var originalLines = TranscriptLines;
-            TranscriptLines = new List<TranscriptLine>();
-
-            foreach (var line in originalLines)
-            {
-                var typedLine = TranscriptLine.GetEntry(line.Markdown);
-                TranscriptLines.Add(typedLine);
-            }
         }
     }
 }

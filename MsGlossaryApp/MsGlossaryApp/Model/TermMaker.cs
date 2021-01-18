@@ -830,7 +830,7 @@ namespace MsGlossaryApp.Model
         }
 
         public static async Task<GlossaryFile> VerifyFile(
-            GlossaryFile file, 
+            GlossaryFile file,
             ILogger log = null)
         {
             log?.LogInformationEx("In VerifyFile", LogVerbosity.Verbose);

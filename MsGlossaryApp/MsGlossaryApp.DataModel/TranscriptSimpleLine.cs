@@ -36,7 +36,7 @@ namespace MsGlossaryApp.DataModel
 
         public override bool Equals(object obj)
         {
-            return obj is TranscriptSimpleLine line 
+            return obj is TranscriptSimpleLine line
                 && Line == line.Line;
         }
 
