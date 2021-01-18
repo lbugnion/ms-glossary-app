@@ -8,6 +8,7 @@ using MsGlossaryApp.Model;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -47,6 +48,8 @@ namespace MsGlossaryApp
 
             var synopsis = JsonConvert.DeserializeObject<Synopsis>(requestBody);
             synopsis.CastTranscriptLines();
+
+            log?.LogInformationEx($"-----> {synopsis.LinksInstructions.First().Key}", LogVerbosity.Debug);
 
             // Perform validation
 
@@ -135,8 +138,11 @@ namespace MsGlossaryApp
                             message,
                             log);
 
+                        log?.LogInformationEx($"Synopsis was NOT saved {message}", LogVerbosity.Verbose);
                         return new OkObjectResult(message);
                     }
+
+                    log?.LogInformationEx("Synopsis was saved", LogVerbosity.Verbose);
                 }
                 else
                 {
@@ -146,6 +152,7 @@ namespace MsGlossaryApp
                         result,
                         log);
 
+                    log?.LogInformationEx($"Synopsis was NOT saved {result}", LogVerbosity.Verbose);
                     return new OkObjectResult(result);
                 }
             }
@@ -194,7 +201,8 @@ namespace MsGlossaryApp
                 successMessage,
                 log);
 
-            return new OkObjectResult(successMessage);
+            log?.LogInformationEx(successMessage, LogVerbosity.Normal);
+            return new OkObjectResult(string.Empty);
         }
     }
 }
