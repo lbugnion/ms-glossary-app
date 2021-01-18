@@ -2,6 +2,7 @@
 using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using SynopsisClient.Dialogs;
+using System.Threading.Tasks;
 
 namespace SynopsisClient.Shared
 {
@@ -24,7 +25,7 @@ namespace SynopsisClient.Shared
         private readonly bool _showDebug = false;
 #endif
 
-        private void CheckNavigateTo(string uri)
+        private async Task CheckNavigateTo(string uri)
         {
             var cannotNavigate = false;
             string message = null;
@@ -53,7 +54,7 @@ namespace SynopsisClient.Shared
                 return;
             }
 
-            Handler.ResetDialogs();
+            await Handler.ResetDialogs();
             Handler.DefineModal(null);
             Nav.NavigateTo(uri);
         }
