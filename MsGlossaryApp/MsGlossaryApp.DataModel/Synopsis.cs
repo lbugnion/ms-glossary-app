@@ -179,13 +179,9 @@ namespace MsGlossaryApp.DataModel
             var originalLines = TranscriptLines;
             TranscriptLines = new List<TranscriptLine>();
 
-            Console.WriteLine("Reloading lines");
-
             foreach (var line in originalLines)
             {
-                Console.WriteLine($"Found {line.Markdown}");
                 var typedLine = TranscriptLine.GetEntry(line.Markdown);
-                Console.WriteLine(typedLine.GetType().Name);
                 TranscriptLines.Add(typedLine);
             }
         }
