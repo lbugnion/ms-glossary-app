@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
+﻿using Blazored.Modal.Services;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using SynopsisClient.Model;
 using System;
 using System.Linq;
@@ -8,6 +10,13 @@ namespace SynopsisClient.Pages
 {
     public partial class Index
     {
+        [CascadingParameter]
+        private IModalService Modal
+        {
+            get;
+            set;
+        }
+
         public EditContext CurrentEditContext
         {
             get;
@@ -36,12 +45,22 @@ namespace SynopsisClient.Pages
         protected override async Task OnInitializedAsync()
         {
             Console.WriteLine("OnInitialized");
-            Console.WriteLine($"Handler.ErrorMessage: {Handler.ErrorMessage}");
+            Console.WriteLine($"Handler.CannotLoadErrorMessage: {Handler.CannotLoadErrorMessage}");
+            Console.WriteLine($"Handler.CannotSaveErrorMessage: {Handler.CannotSaveErrorMessage}");
             UserManager.Initialize();
             CurrentEditContext = new EditContext(UserManager.CurrentUser);
             CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
 
+            Handler.DefineModal(Modal);
             await UserManager.CheckLogin();
+
+            if (Handler != null
+                && Handler.Synopsis != null
+                && Handler.Synopsis.LinksInstructions != null
+                && Handler.Synopsis.LinksInstructions.Count > 0)
+            {
+                Console.WriteLine($"21 -----> {Handler.Synopsis.LinksInstructions.First().Key}");
+            }
         }
 
         public async Task LogIn()
@@ -50,13 +69,14 @@ namespace SynopsisClient.Pages
 
             if (UserManager.IsLoggedIn)
             {
-                Handler.ResetDialogs();
+                await Handler.ResetDialogs();
             }
         }
 
         public async Task LogOut()
         {
             await UserManager.LogOut();
+            Handler.DeleteLocalSynopsis();
 
             if (CurrentEditContext != null)
             {

@@ -66,6 +66,7 @@
     background-color: bisque;
     padding: 10px;
     margin-bottom: 20px;
+    width: 500px;
 }
 
 .error-message h1 {
@@ -79,5 +80,26 @@
 }
 
 .error-details-title {
+    font-weight: bold;
+}
+
+.success-message {
+    background-color: #D9FFC9;
+    padding: 10px;
+    margin-bottom: 20px;
+    width: 500px;
+}
+
+.success-message h1 {
+    font-weight: bold;
+    color: green;
+    font-size: 1.1em;
+}
+
+.not-saved-details {
+    font-style: italic;
+}
+
+.not-saved-title {
     font-weight: bold;
 }

@@ -9,7 +9,7 @@ namespace SynopsisClient.Model
         private const string CurrentUserKey = "CurrentUser";
         private const string DefaultEmail = "user@domain.com";
         private const string DefaultSynopsisName = "this-is-an-example";
-        private ILocalStorageService _localStorage;
+        private readonly ILocalStorageService _localStorage;
 
         public bool CannotLogIn
         {
@@ -104,7 +104,6 @@ namespace SynopsisClient.Model
         {
             Console.WriteLine("UserManager.Logout");
             await _localStorage.RemoveItemAsync(CurrentUserKey);
-            await _localStorage.RemoveItemAsync(SynopsisHandler.LocalStorageKey);
 
             CurrentUser = new User
             {

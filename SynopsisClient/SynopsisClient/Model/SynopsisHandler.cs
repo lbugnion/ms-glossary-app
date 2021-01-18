@@ -1,9 +1,11 @@
 ﻿using Blazored.LocalStorage;
+using Blazored.Modal;
 using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Configuration;
 using MsGlossaryApp.DataModel;
+using Newtonsoft.Json;
 using SynopsisClient.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -58,7 +60,31 @@ namespace SynopsisClient.Model
             set;
         }
 
-        public string ErrorMessage
+        public string CannotLoadErrorMessage
+        {
+            get;
+            private set;
+        }
+
+        public async Task DeleteLocalSynopsis()
+        {
+            Synopsis = null;
+            await _localStorage.RemoveItemAsync(SynopsisHandler.LocalStorageKey);
+        }
+
+        public string CannotSaveErrorMessage
+        {
+            get;
+            private set;
+        }
+
+        public string SaveResponseMessage
+        {
+            get;
+            private set;
+        }
+
+        public bool ShowSavedToCloudSuccessMessage
         {
             get;
             private set;
@@ -70,10 +96,27 @@ namespace SynopsisClient.Model
             private set;
         }
 
-        public bool IsReloading
+        private async Task ShowHideBusyDialog(bool show, string title = null)
         {
-            get;
-            private set;
+            Console.WriteLine($"ShowHideReloadDialog: {show}");
+
+            if (_modal != null)
+            {
+                if (show)
+                {
+                    var options = new ModalOptions()
+                    {
+                        HideCloseButton = true,
+                        DisableBackgroundCancel = true
+                    };
+
+                    _modal.Show<BusyDialog>(title, options);
+                }
+                else
+                {
+                    await BusyDialog.DismissAll();
+                }
+            }
         }
 
         public Synopsis Synopsis
@@ -127,7 +170,8 @@ namespace SynopsisClient.Model
         private async Task ExecuteReloadFromCloud()
         {
             Console.WriteLine("SynopsisHandler.ExecuteReloadFromCloud");
-            IsReloading = true;
+            await ShowHideBusyDialog(true, "Reloading...");
+            IsModified = false;
             var success = true;
 
             try
@@ -142,13 +186,13 @@ namespace SynopsisClient.Model
             }
             catch (Exception ex)
             {
-                ErrorMessage = ex.Message;
+                CannotLoadErrorMessage = ex.Message;
                 success = false;
             }
 
             if (success)
             {
-                IsReloading = false;
+                await ShowHideBusyDialog(false);
             }
             else
             {
@@ -164,11 +208,11 @@ namespace SynopsisClient.Model
 
         private async Task<Synopsis> GetSynopsis(
             bool forceRefreshLocal,
-            bool forcefreshOnline)
+            bool forceRefreshOnline)
         {
-            Console.WriteLine("GetSynopsis");
+            Console.WriteLine($"GetSynopsis local {forceRefreshLocal}, online {forceRefreshOnline}");
 
-            if (!forcefreshOnline
+            if (!forceRefreshOnline
                 && (Synopsis == null
                 || forceRefreshLocal))
             {
@@ -176,7 +220,10 @@ namespace SynopsisClient.Model
 
                 try
                 {
-                    Synopsis = await _localStorage.GetItemAsync<Synopsis>(LocalStorageKey);
+                    // do NOT use the automatic deserialization in _localStorage to avoid
+                    // issues with Dictionary keys being forced to lower caps.
+                    var json = await _localStorage.GetItemAsync<string>(LocalStorageKey);
+                    Synopsis = JsonConvert.DeserializeObject<Synopsis>(json);
                 }
                 catch
                 {
@@ -193,7 +240,7 @@ namespace SynopsisClient.Model
                 }
             }
 
-            if (forcefreshOnline
+            if (forceRefreshOnline
                 || Synopsis == null)
             {
                 Console.WriteLine("Removing Synopsis from local storage");
@@ -235,22 +282,26 @@ namespace SynopsisClient.Model
                     {
                         Console.WriteLine($"Invalid response: {response.StatusCode}");
 
-                        ErrorMessage = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine($"ErrorMessage: {ErrorMessage}");
+                        CannotLoadErrorMessage = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"CannotLoadErrorMessage: {CannotLoadErrorMessage}");
 
                         return null;
                     }
                 }
                 catch (Exception)
                 {
-                    ErrorMessage = "Failed getting Synopsis. Is the service down?";
+                    CannotLoadErrorMessage = "Failed getting Synopsis. Is the service down?";
                     return null;
                 }
 
                 try
                 {
-                    Synopsis = await response?.Content.ReadFromJsonAsync<Synopsis>();
-                    await _localStorage.SetItemAsync(LocalStorageKey, Synopsis);
+                    var json = await response?.Content.ReadAsStringAsync();
+                    Synopsis = JsonConvert.DeserializeObject<Synopsis>(json);
+
+                    // do NOT use the automatic serialization in _localStorage to avoid
+                    // issues with Dictionary keys being forced to lower caps.
+                    await _localStorage.SetItemAsync(LocalStorageKey, json);
                     Console.WriteLine("New Synopsis loaded and saved");
                 }
                 catch (Exception ex)
@@ -258,23 +309,19 @@ namespace SynopsisClient.Model
                     Console.WriteLine("ERROR deserializing synopsis");
                     Console.WriteLine(ex.GetType());
                     Console.WriteLine(ex.Message);
-                    ErrorMessage = ex.Message;
+                    CannotLoadErrorMessage = ex.Message;
                     await _localStorage.RemoveItemAsync(LocalStorageKey);
                     return null;
                 }
             }
 
-            var originalLines = Synopsis.TranscriptLines;
-            Synopsis.TranscriptLines = new List<TranscriptLine>();
+            Synopsis.CastTranscriptLines();
 
-            Console.WriteLine("Reloading lines");
-
-            foreach (var line in originalLines)
+            if (Synopsis != null
+                && Synopsis.LinksInstructions != null
+                && Synopsis.LinksInstructions.Count > 0)
             {
-                Console.WriteLine($"Found {line.Markdown}");
-                var typedLine = TranscriptLine.GetEntry(line.Markdown);
-                Console.WriteLine(typedLine.GetType().Name);
-                Synopsis.TranscriptLines.Add(typedLine);
+                Console.WriteLine($"11 -----> {Synopsis.LinksInstructions.First().Key}");
             }
 
             return Synopsis;
@@ -333,7 +380,11 @@ namespace SynopsisClient.Model
                 && !CannotSave)
             {
                 Console.WriteLine("Must save");
-                await _localStorage.SetItemAsync(LocalStorageKey, Synopsis);
+
+                // do NOT use the automatic serialization in _localStorage to avoid
+                // issues with Dictionary keys being forced to lower caps.
+                var json = JsonConvert.SerializeObject(Synopsis);
+                await _localStorage.SetItemAsync(LocalStorageKey, json);
                 CurrentEditContext.MarkAsUnmodified();
                 CannotSave = true;
                 IsModified = false;
@@ -355,6 +406,7 @@ namespace SynopsisClient.Model
 
             if (await Confirm<ConfirmDeleteDialog>(DeleteDialogTitle))
             {
+                Console.WriteLine("SynopsisHandler: Asking List handler to delete");
                 _listHandler?.Delete(item);
             }
         }
@@ -365,8 +417,8 @@ namespace SynopsisClient.Model
 
             try
             {
-                IsReloading = true;
-                Synopsis = await GetSynopsis(true, false);
+                await ShowHideBusyDialog(true, "Reloading...");
+                Synopsis = await GetSynopsis(false, false);
                 SetContext();
 
                 if (Synopsis == null)
@@ -376,11 +428,12 @@ namespace SynopsisClient.Model
             }
             catch (Exception ex)
             {
-                ErrorMessage = ex.Message;
+                await ShowHideBusyDialog(false);
+                CannotLoadErrorMessage = ex.Message;
                 return false;
             }
 
-            IsReloading = false;
+            await ShowHideBusyDialog(false);
             return true;
         }
 
@@ -416,23 +469,25 @@ namespace SynopsisClient.Model
             var formModal = _modal.Show<TComponent>(title);
             var result = await formModal.Result;
 
-            Console.WriteLine($"Result cancelled: {result.Cancelled}");
+            Console.WriteLine($"Confirm: cancelled: {result.Cancelled}");
 
             if (!result.Cancelled
                 && result.Data != null
                 && (bool)result.Data)
             {
-                Console.WriteLine("Reloading");
+                Console.WriteLine("Confirm: confirmed");
                 return true;
             }
 
             return false;
         }
 
-        public void ResetDialogs()
+        public async Task ResetDialogs()
         {
-            ErrorMessage = null;
-            IsReloading = false;
+            CannotLoadErrorMessage = null;
+            CannotSaveErrorMessage = null;
+            ShowSavedToCloudSuccessMessage = false;
+            await ShowHideBusyDialog(false);
         }
 
         public void TriggerValidation()
@@ -477,14 +532,44 @@ namespace SynopsisClient.Model
 
             public override void Delete<T2>(T2 item)
             {
+                Console.WriteLine("ListHandler.Delete");
+
                 var casted = item as T;
+
+                if (casted == null)
+                {
+                    Console.WriteLine($"Casted is null");
+                }
+                else
+                {
+                    Console.WriteLine($"Casted is not null");
+                }
+
+                if (Items == null)
+                {
+                    Console.WriteLine($"Items is null");
+                }
+                else
+                {
+                    Console.WriteLine($"Items is not null");
+
+                    if (Items.Contains(casted))
+                    {
+                        Console.WriteLine("Items contains casted");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Items does NOT contain casted");
+                    }
+                }
 
                 if (Items != null
                     && Items.Contains(casted))
                 {
+                    Console.WriteLine("Casted found in Items");
                     Items.Remove(casted);
                     _parent.IsModified = true;
-                    Console.WriteLine("item removed");
+                    Console.WriteLine("Item removed");
                 }
 
                 _parent.TriggerValidation();
@@ -523,6 +608,112 @@ namespace SynopsisClient.Model
                 where T2 : class;
 
             public abstract void AddItem();
+        }
+
+        public async Task CheckSaveSynopsisToCloud()
+        {
+            Console.WriteLine("CheckSaveSynopsisToCloud");
+            Console.WriteLine($"CurrentEditContext.IsModified: {CurrentEditContext.IsModified()}");
+            Console.WriteLine($"_isModified: {IsModified}");
+
+            if (Synopsis != null
+                && Synopsis.LinksInstructions != null
+                && Synopsis.LinksInstructions.Count > 0)
+            {
+                Console.WriteLine($"01 -----> {Synopsis.LinksInstructions.First().Key}");
+            }
+
+            await ShowHideBusyDialog(true, "Saving...");
+
+            await CheckSaveSynopsis();
+
+            if (Synopsis != null
+                && Synopsis.LinksInstructions != null
+                && Synopsis.LinksInstructions.Count > 0)
+            {
+                Console.WriteLine($"02 -----> {Synopsis.LinksInstructions.First().Key}");
+            }
+
+            if (Synopsis == null
+                || _userManager.CurrentUser == null
+                || string.IsNullOrEmpty(_userManager.CurrentUser.Email)
+                || string.IsNullOrEmpty(_userManager.CurrentUser.SynopsisName)
+                || CurrentEditContext.IsModified()
+                || IsModified)
+            {
+                CannotSaveErrorMessage = "There is a problem, please contact support";
+                Console.WriteLine("Still modified, cannot save to cloud");
+                _nav.NavigateTo("/");
+                await ShowHideBusyDialog(false);
+                return;
+            }
+
+            var url = _configuration.GetValue<string>(SaveSynopsisUrlKey);
+            Console.WriteLine($"URL: {url}");
+            var functionKey = _configuration.GetValue<string>(SaveSynopsisUrlFunctionKeyKey);
+            Console.WriteLine($"Function Key: {functionKey}");
+
+            Console.WriteLine("Creating client");
+
+            var client = new HttpClient();
+
+            Console.WriteLine("Creating request with headers");
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
+            httpRequest.Headers.Add(UserEmailHeaderKey, _userManager.CurrentUser.Email);
+            httpRequest.Headers.Add(FileNameHeaderKey, _userManager.CurrentUser.SynopsisName);
+
+            Console.WriteLine("Serializing Synopsis");
+
+            var json = JsonConvert.SerializeObject(Synopsis);
+
+            Console.WriteLine(json);
+            if (Synopsis != null
+                && Synopsis.LinksInstructions != null
+                && Synopsis.LinksInstructions.Count > 0)
+            {
+                Console.WriteLine($"03 -----> {Synopsis.LinksInstructions.First().Key}");
+            }
+
+            httpRequest.Content = new StringContent(json);
+
+            HttpResponseMessage response;
+
+            try
+            {
+                Console.WriteLine("Sending request");
+                response = await client.SendAsync(httpRequest);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"Invalid response: {response.StatusCode}");
+                    CannotSaveErrorMessage = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"ErrorMessage: {CannotSaveErrorMessage}");
+                    _nav.NavigateTo("/");
+                    await ShowHideBusyDialog(false);
+                    return;
+                }
+            }
+            catch (Exception)
+            {
+                CannotSaveErrorMessage = "Failed saving Synopsis. Is the service down?";
+                _nav.NavigateTo("/");
+                await ShowHideBusyDialog(false);
+                return;
+            }
+
+            ShowSavedToCloudSuccessMessage = true;
+            SaveResponseMessage = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Synopsis was saved successfully");
+            _nav.NavigateTo("/");
+            await ShowHideBusyDialog(false);
+
+            if (Synopsis != null
+                && Synopsis.LinksInstructions != null
+                && Synopsis.LinksInstructions.Count > 0)
+            {
+                Console.WriteLine($"04 -----> {Synopsis.LinksInstructions.First().Key}");
+            }
         }
     }
 }
