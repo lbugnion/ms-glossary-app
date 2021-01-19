@@ -1,6 +1,6 @@
 ﻿using Blazored.Modal;
 using Microsoft.AspNetCore.Components;
-using System;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace SynopsisClient.Dialogs
@@ -8,6 +8,7 @@ namespace SynopsisClient.Dialogs
     public partial class BusyDialog
     {
         private static BusyDialog _instance;
+        private static ILogger _staticLog;
 
         [CascadingParameter]
         private BlazoredModalInstance ModalInstance
@@ -18,22 +19,23 @@ namespace SynopsisClient.Dialogs
 
         protected override async Task OnInitializedAsync()
         {
-            Console.WriteLine("BusyDialog.OnInitializedAsync");
+            _staticLog = Log;
+            Log.LogInformation("BusyDialog.OnInitializedAsync");
 
             if (_instance != null)
             {
-                Console.WriteLine("Found instance, dismissing");
+                Log.LogDebug("Found instance, dismissing");
                 await _instance.Dismiss();
             }
 
             _instance = this;
             base.OnInitialized();
-            Console.WriteLine("Initialized");
+            Log.LogInformation("Initialized");
         }
 
         public async static Task DismissAll()
         {
-            Console.WriteLine("BusyDialog.DismissAll");
+            _staticLog?.LogInformation("BusyDialog.DismissAll");
 
             if (_instance != null)
             {
@@ -43,7 +45,7 @@ namespace SynopsisClient.Dialogs
 
         public async Task Dismiss()
         {
-            Console.WriteLine("BusyDialog.Dismiss");
+            Log.LogInformation("BusyDialog.Dismiss");
             await ModalInstance.CancelAsync();
         }
     }

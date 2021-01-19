@@ -1,4 +1,5 @@
 ﻿using BlazorInputFile;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace SynopsisClient.Pages
             else if (file.Size > MaxFileSize)
             {
                 _status = $"That's too big. Max size: 500 kBytes.";
-                Console.WriteLine(_status);
+                Log.LogDebug(_status);
             }
             else
             {
@@ -36,18 +37,18 @@ namespace SynopsisClient.Pages
                 await file.Data.CopyToAsync(ms);
 
                 _status = $"Starting upload";
-                Console.WriteLine(_status);
+                Log.LogDebug(_status);
 
-                Console.WriteLine(UserManager == null ? "UserManager is null" : "UserManager is not null");
+                Log.LogDebug(UserManager == null ? "UserManager is null" : "UserManager is not null");
 
                 if (UserManager != null)
                 {
-                    Console.WriteLine(UserManager.CurrentUser == null ? "CurrentUser is null" : "CurrentUser is not null");
+                    Log.LogDebug(UserManager.CurrentUser == null ? "CurrentUser is null" : "CurrentUser is not null");
 
                     if (UserManager.CurrentUser != null)
                     {
-                        Console.WriteLine(UserManager.CurrentUser == null ? "CurrentUser is null" : "CurrentUser is not null");
-                        Console.WriteLine(UserManager.CurrentUser.Email);
+                        Log.LogDebug(UserManager.CurrentUser == null ? "CurrentUser is null" : "CurrentUser is not null");
+                        Log.LogDebug(UserManager.CurrentUser.Email);
                     }
                 }
 
@@ -67,7 +68,7 @@ namespace SynopsisClient.Pages
 
             if (!UserManager.IsLoggedIn)
             {
-                Console.WriteLine("not logged in");
+                Log.LogDebug("not logged in");
                 Nav.NavigateTo("/");
                 return;
             }

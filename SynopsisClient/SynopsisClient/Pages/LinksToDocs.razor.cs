@@ -1,5 +1,6 @@
 ﻿using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -30,17 +31,17 @@ namespace SynopsisClient.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            Console.WriteLine("LinksToDocs.OnInitializedAsync");
+            Log.LogInformation("LinksToDocs.OnInitializedAsync");
             await UserManager.CheckLogin();
 
             if (!UserManager.IsLoggedIn)
             {
-                Console.WriteLine("not logged in");
+                Log.LogWarning("not logged in");
                 Nav.NavigateTo("/");
                 return;
             }
 
-            var success = await Handler.InitializePage();
+            var success = await Handler.InitializePage(Log);
 
             if (success)
             {

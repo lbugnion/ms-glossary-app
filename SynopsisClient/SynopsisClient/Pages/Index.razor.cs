@@ -5,6 +5,7 @@ using SynopsisClient.Model;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace SynopsisClient.Pages
 {
@@ -27,26 +28,27 @@ namespace SynopsisClient.Pages
             object sender,
             ValidationStateChangedEventArgs e)
         {
-            Console.WriteLine("CurrentEditContextOnValidationStateChanged");
+            Log.LogInformation("CurrentEditContextOnValidationStateChanged");
 
             if ((UserManager.IsModified || CurrentEditContext.IsModified())
                 && !CurrentEditContext.GetValidationMessages().Any())
             {
-                Console.WriteLine("can load");
+                Log.LogInformation("can load");
                 UserManager.CannotLogIn = false;
             }
             else
             {
-                Console.WriteLine("cannot load");
+                Log.LogInformation("cannot load");
                 UserManager.CannotLogIn = false;
             }
         }
 
         protected override async Task OnInitializedAsync()
         {
-            Console.WriteLine("OnInitialized");
-            Console.WriteLine($"Handler.CannotLoadErrorMessage: {Handler.CannotLoadErrorMessage}");
-            Console.WriteLine($"Handler.CannotSaveErrorMessage: {Handler.CannotSaveErrorMessage}");
+            Log.LogInformation("OnInitialized");
+            Log.LogDebug($"Handler.CannotLoadErrorMessage: {Handler.CannotLoadErrorMessage}");
+            Log.LogDebug($"Handler.CannotSaveErrorMessage: {Handler.CannotSaveErrorMessage}");
+            
             UserManager.Initialize();
             CurrentEditContext = new EditContext(UserManager.CurrentUser);
             CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
@@ -59,7 +61,7 @@ namespace SynopsisClient.Pages
                 && Handler.Synopsis.LinksInstructions != null
                 && Handler.Synopsis.LinksInstructions.Count > 0)
             {
-                Console.WriteLine($"21 -----> {Handler.Synopsis.LinksInstructions.First().Key}");
+                Log.LogDebug($"21 -----> {Handler.Synopsis.LinksInstructions.First().Key}");
             }
         }
 

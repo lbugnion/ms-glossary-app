@@ -8,8 +8,8 @@ namespace SynopsisClient.Shared
 {
     public partial class NavMenu
     {
-        private readonly bool _showDebug = true;
         private bool _collapseNavMenu = true;
+        private bool _showDebug;
 
         private string NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
 
@@ -19,11 +19,6 @@ namespace SynopsisClient.Shared
             get;
             set;
         }
-
-#if DEBUG
-#else
-        private readonly bool _showDebug = false;
-#endif
 
         private async Task CheckNavigateTo(string uri)
         {
@@ -62,6 +57,13 @@ namespace SynopsisClient.Shared
         private void ToggleNavMenu()
         {
             _collapseNavMenu = !_collapseNavMenu;
+        }
+
+        protected override void OnInitialized()
+        {
+#if DEBUG
+            _showDebug = true;
+#endif
         }
     }
 }

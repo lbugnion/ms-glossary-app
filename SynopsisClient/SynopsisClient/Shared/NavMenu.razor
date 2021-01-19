@@ -1,4 +1,6 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@inject ILogger<NavMenu> Log
+
+<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">Synopsis Editor</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -86,7 +88,7 @@
             <li class="nav-item px-3">
                 <NavLink class="nav-link"
                          @onclick="@(e => CheckNavigateTo("/tests"))">
-                    <span class="oi oi-arrow-right" aria-hidden="true"></span> Test 
+                    <span class="oi oi-arrow-right" aria-hidden="true"></span> Test
                 </NavLink>
             </li>
         }

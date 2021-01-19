@@ -1,5 +1,5 @@
 ﻿using Blazored.LocalStorage;
-using System;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace SynopsisClient.Model
@@ -23,6 +23,12 @@ namespace SynopsisClient.Model
             set;
         }
 
+        private ILogger Log 
+        { 
+            get; 
+            set; 
+        }
+
         public User CurrentUser
         {
             get;
@@ -41,15 +47,20 @@ namespace SynopsisClient.Model
             set;
         }
 
-        public UserManager(
-            ILocalStorageService localStorage)
+        public UserManager(ILocalStorageService localStorage)
         {
             _localStorage = localStorage;
         }
 
-        public async Task<bool> CheckLogin()
+        public async Task<bool> CheckLogin(ILogger log = null)
         {
-            Console.WriteLine($"CheckLogin: CurrentUser is null: {CurrentUser == null}");
+            if (log != null)
+            {
+                Log = log;
+            }
+
+            Log?.LogInformation("UserManager.CheckLogin");
+            Log?.LogDebug($"CurrentUser is null: {CurrentUser == null}");
 
             if (CurrentUser == null)
             {
@@ -62,7 +73,7 @@ namespace SynopsisClient.Model
 
             if (savedUser != null)
             {
-                Console.WriteLine($"Found user in storage: {savedUser.Email} / {savedUser.SynopsisName}");
+                Log?.LogDebug($"Found user in storage: {savedUser.Email} / {savedUser.SynopsisName}");
                 CurrentUser.Email = savedUser.Email;
                 CurrentUser.SynopsisName = savedUser.SynopsisName;
                 IsModified = false;
@@ -72,7 +83,7 @@ namespace SynopsisClient.Model
             }
             else
             {
-                Console.WriteLine($"No user found in storage");
+                Log?.LogDebug($"No user found in storage");
                 IsModified = true;
                 CannotLogOut = true;
                 IsLoggedIn = false;
@@ -93,7 +104,7 @@ namespace SynopsisClient.Model
 
         public async Task LogIn()
         {
-            Console.WriteLine("UserManager.Login");
+            Log?.LogInformation("UserManager.Login");
             await _localStorage.SetItemAsync(CurrentUserKey, CurrentUser);
             IsModified = false;
             CannotLogOut = false;
@@ -102,7 +113,7 @@ namespace SynopsisClient.Model
 
         public async Task LogOut()
         {
-            Console.WriteLine("UserManager.Logout");
+            Log?.LogInformation("UserManager.Logout");
             await _localStorage.RemoveItemAsync(CurrentUserKey);
 
             CurrentUser = new User
