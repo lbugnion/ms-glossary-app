@@ -27,6 +27,15 @@ namespace SynopsisClient
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddBlazoredModal();
 
+            builder.Logging
+                //.ClearProviders()
+                .AddProvider(new DayLoggerProvider(
+                    new DayLoggerConfiguration
+                    {
+                        // TODO Read default level from Settings file in storage?
+                        //LogLevel = LogLevel.Trace
+                    }));
+
             await builder.Build().RunAsync();
         }
     }

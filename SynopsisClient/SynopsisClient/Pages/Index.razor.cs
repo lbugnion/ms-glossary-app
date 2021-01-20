@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using SynopsisClient.Model;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace SynopsisClient.Pages
 {
@@ -45,6 +45,13 @@ namespace SynopsisClient.Pages
 
         protected override async Task OnInitializedAsync()
         {
+            Log.LogTrace("TRACE");
+            Log.LogDebug("DEBUG");
+            Log.LogInformation("INFO");
+            Log.LogWarning("WARN");
+            Log.LogError("ERROR");
+            Log.LogCritical("CRITICAL");
+
             Log.LogInformation("OnInitialized");
             Log.LogDebug($"Handler.CannotLoadErrorMessage: {Handler.CannotLoadErrorMessage}");
             Log.LogDebug($"Handler.CannotSaveErrorMessage: {Handler.CannotSaveErrorMessage}");
