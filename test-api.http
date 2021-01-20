@@ -37,10 +37,16 @@ http://localhost:7071/api/update-docs
 https://msglossary-app-staging.azurewebsites.net/api/update-docs
 x-functions-key: Xq9pl6xS6uI1RVuxKaN0e2HG6ts0AKgqAbniQQXKUCaHxDEAdtC1Fw==
 
-### Get synopsis for edit
+### Get synopsis for edit local
 GET http://localhost:7071/api/synopsis
 x-glossary-user-email: lbugnion@microsoft.com
 x-glossary-file-name: test-topic-17
+
+### Get synopsis for edit test
+GET https://msglossary-app-test.azurewebsites.net/api/synopsis
+x-glossary-user-email: lbugnion@microsoft.com
+x-glossary-file-name: test-topic-17
+x-functions-key: jIzX5ysczMLK9ttfQAHORzhHNfupM6HChYMRvGj/c5Y5tTEUwnORlw==
 
 ### Save synopsis
 POST http://localhost:7071/api/synopsis

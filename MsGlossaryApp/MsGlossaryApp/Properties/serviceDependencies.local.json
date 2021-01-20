@@ -1,9 +1,3 @@
 {
-  "dependencies": {
-    "storage1": {
-      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroup')]/providers/Microsoft.Storage/storageAccounts/msglossarystore",
-      "type": "storage.azure",
-      "connectionId": "AzureWebJobsStorage"
-    }
-  }
+  "dependencies": {}
 }
