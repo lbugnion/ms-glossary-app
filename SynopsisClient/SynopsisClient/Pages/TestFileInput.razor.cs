@@ -25,7 +25,7 @@ namespace SynopsisClient.Pages
             else if (file.Size > MaxFileSize)
             {
                 _status = $"That's too big. Max size: 500 kBytes.";
-                Log.LogDebug(_status);
+                Log.LogWarning(_status);
             }
             else
             {
@@ -35,7 +35,7 @@ namespace SynopsisClient.Pages
                 await file.Data.CopyToAsync(ms);
 
                 _status = $"Starting upload";
-                Log.LogDebug(_status);
+                Log.LogTrace(_status);
 
                 Log.LogDebug(UserManager == null ? "UserManager is null" : "UserManager is not null");
 
@@ -61,14 +61,21 @@ namespace SynopsisClient.Pages
 
         protected override async Task OnInitializedAsync()
         {
+            Log.LogInformation("-> OnInitializedAsync");
+
+            UserManager.DefineLog(Log);
+            Handler.DefineLog(Log);
+
             await UserManager.CheckLogin();
 
             if (!UserManager.IsLoggedIn)
             {
-                Log.LogDebug("not logged in");
+                Log.LogWarning("not logged in");
                 Nav.NavigateTo("/");
                 return;
             }
+
+            Log.LogInformation("OnInitializedAsync ->");
         }
     }
 }

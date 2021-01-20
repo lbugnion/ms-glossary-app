@@ -1,6 +1,7 @@
 ﻿using Blazored.Modal;
 using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using SynopsisClient.Dialogs;
 using System.Threading.Tasks;
 
@@ -22,6 +23,9 @@ namespace SynopsisClient.Shared
 
         private async Task CheckNavigateTo(string uri)
         {
+            Log.LogInformation("-> CheckNavigateTo");
+            Log.LogDebug(uri);
+
             var cannotNavigate = false;
             string message = null;
 
@@ -31,12 +35,14 @@ namespace SynopsisClient.Shared
             {
                 cannotNavigate = true;
                 message = "You cannot navigate now, please save or fix the Synopsis first.";
+                Log.LogWarning(message);
             }
 
             if (!UserManager.IsLoggedIn)
             {
                 cannotNavigate = true;
                 message = "You cannot navigate now, please log in first.";
+                Log.LogWarning(message);
             }
 
             if (cannotNavigate)
@@ -46,12 +52,18 @@ namespace SynopsisClient.Shared
                     nameof(MessageDialog.Message),
                     message);
                 Modal.Show<MessageDialog>("Cannot navigate", parameters);
+                Log.LogInformation("Showing cannot navigate message");
                 return;
             }
 
+            Log.LogTrace("Resetting dialog");
             await Handler.ResetDialogs();
+            Log.LogTrace("Resetting modal");
             Handler.DefineModal(null);
+            Log.LogTrace($"Navigating to {uri}");
             Nav.NavigateTo(uri);
+
+            Log.LogInformation("CheckNavigateTo ->");
         }
 
         private void ToggleNavMenu()

@@ -19,23 +19,24 @@ namespace SynopsisClient.Dialogs
 
         protected override async Task OnInitializedAsync()
         {
+            Log.LogInformation("-> BusyDialog.OnInitializedAsync");
+
             _staticLog = Log;
-            Log.LogInformation("BusyDialog.OnInitializedAsync");
 
             if (_instance != null)
             {
-                Log.LogDebug("Found instance, dismissing");
+                Log.LogTrace("Found instance, dismissing");
                 await _instance.Dismiss();
             }
 
             _instance = this;
             base.OnInitialized();
-            Log.LogInformation("Initialized");
+            Log.LogInformation("BusyDialog.OnInitializedAsync ->");
         }
 
         public async static Task DismissAll()
         {
-            _staticLog?.LogInformation("BusyDialog.DismissAll");
+            _staticLog?.LogInformation("-> BusyDialog.DismissAll");
 
             if (_instance != null)
             {
@@ -45,7 +46,7 @@ namespace SynopsisClient.Dialogs
 
         public async Task Dismiss()
         {
-            Log.LogInformation("BusyDialog.Dismiss");
+            Log.LogInformation("-> BusyDialog.Dismiss");
             await ModalInstance.CancelAsync();
         }
     }

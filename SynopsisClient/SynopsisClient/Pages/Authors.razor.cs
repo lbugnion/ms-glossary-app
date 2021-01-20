@@ -17,32 +17,40 @@ namespace SynopsisClient.Pages
 
         private void DefineList()
         {
+            Log.LogInformation("-> DefineList");
+
             if (Handler.Synopsis != null)
             {
+                Log.LogTrace("Synopsis is not null");
                 Handler.DefineList(Handler.Synopsis.Authors);
             }
         }
 
         private async Task ReloadFromCloud()
         {
+            Log.LogInformation("-> ReloadFromCloud");
+
             await Handler.ReloadFromCloud();
             DefineList();
         }
 
         protected override async Task OnInitializedAsync()
         {
-            Log.LogInformation("Authors.OnInitializedAsync");
+            Log.LogInformation("-> OnInitializedAsync");
 
-            await UserManager.CheckLogin(Log);
+            UserManager.DefineLog(Log);
+            Handler.DefineLog(Log);
+
+            await UserManager.CheckLogin();
 
             if (!UserManager.IsLoggedIn)
             {
-                Log.LogInformation("not logged in");
+                Log.LogWarning("not logged in");
                 Nav.NavigateTo("/");
                 return;
             }
 
-            var success = await Handler.InitializePage(Log);
+            var success = await Handler.InitializePage();
 
             if (success)
             {
@@ -51,9 +59,12 @@ namespace SynopsisClient.Pages
             }
             else
             {
+                Log.LogWarning("Failed initializing page");
                 Handler.DefineModal(null);
                 Nav.NavigateTo("/");
             }
+
+            Log.LogInformation("OnInitializedAsync ->");
         }
     }
 }

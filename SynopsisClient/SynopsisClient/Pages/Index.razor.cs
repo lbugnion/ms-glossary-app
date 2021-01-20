@@ -5,7 +5,6 @@ using SynopsisClient.Model;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using System;
 
 namespace SynopsisClient.Pages
 {
@@ -28,55 +27,63 @@ namespace SynopsisClient.Pages
             object sender,
             ValidationStateChangedEventArgs e)
         {
-            Log.LogInformation("CurrentEditContextOnValidationStateChanged");
+            Log.LogInformation("-> CurrentEditContextOnValidationStateChanged");
 
             if ((UserManager.IsModified || CurrentEditContext.IsModified())
                 && !CurrentEditContext.GetValidationMessages().Any())
             {
-                Log.LogInformation("can load");
+                Log.LogTrace("can load");
                 UserManager.CannotLogIn = false;
             }
             else
             {
-                Log.LogInformation("cannot load");
+                Log.LogTrace("cannot load");
                 UserManager.CannotLogIn = false;
             }
         }
 
         protected override async Task OnInitializedAsync()
         {
-            Log.LogInformation("OnInitialized");
+            Log.LogInformation("-> OnInitializedAsync");
+
             Log.LogDebug($"Handler.CannotLoadErrorMessage: {Handler.CannotLoadErrorMessage}");
             Log.LogDebug($"Handler.CannotSaveErrorMessage: {Handler.CannotSaveErrorMessage}");
-            
+
+            UserManager.DefineLog(Log);
+            Handler.DefineLog(Log);
+
+            Log.LogTrace("Initializing UserManager");
             UserManager.Initialize();
             CurrentEditContext = new EditContext(UserManager.CurrentUser);
             CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
 
+            Log.LogTrace("Passing modal in SynopsisHandler");
             Handler.DefineModal(Modal);
+
+            Log.LogTrace("Checking login");
             await UserManager.CheckLogin();
 
-            if (Handler != null
-                && Handler.Synopsis != null
-                && Handler.Synopsis.LinksInstructions != null
-                && Handler.Synopsis.LinksInstructions.Count > 0)
-            {
-                Log.LogDebug($"21 -----> {Handler.Synopsis.LinksInstructions.First().Key}");
-            }
+            Log.LogInformation("OnInitializedAsync ->");
         }
 
         public async Task LogIn()
         {
+            Log.LogInformation("-> LogIn");
+
             await UserManager.LogIn();
 
             if (UserManager.IsLoggedIn)
             {
                 await Handler.ResetDialogs();
             }
+
+            Log.LogInformation("LogIn ->");
         }
 
         public async Task LogOut()
         {
+            Log.LogInformation("-> LogOut");
+
             await UserManager.LogOut();
             await Handler.DeleteLocalSynopsis();
 
@@ -87,6 +94,8 @@ namespace SynopsisClient.Pages
 
             CurrentEditContext = new EditContext(UserManager.CurrentUser);
             CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
+
+            Log.LogInformation("LogOut ->");
         }
     }
 }

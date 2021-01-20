@@ -17,7 +17,11 @@ namespace SynopsisClient.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            Log.LogInformation("Title.OnInitializedAsync");
+            Log.LogInformation("-> OnInitializedAsync");
+
+            UserManager.DefineLog(Log);
+            Handler.DefineLog(Log);
+
             await UserManager.CheckLogin();
 
             if (!UserManager.IsLoggedIn)
@@ -27,7 +31,7 @@ namespace SynopsisClient.Pages
                 return;
             }
 
-            var success = await Handler.InitializePage(Log);
+            var success = await Handler.InitializePage();
 
             if (success)
             {
@@ -35,9 +39,12 @@ namespace SynopsisClient.Pages
             }
             else
             {
+                Log.LogWarning("Failed initializing page");
                 Handler.DefineModal(null);
                 Nav.NavigateTo("/");
             }
+
+            Log.LogInformation("OnInitializedAsync ->");
         }
     }
 }
