@@ -28,13 +28,11 @@ namespace SynopsisClient
             builder.Services.AddBlazoredModal();
 
             builder.Logging
-                //.ClearProviders()
-                .AddProvider(new DayLoggerProvider(
-                    new DayLoggerConfiguration
-                    {
-                        // TODO Read default level from Settings file in storage?
-                        //LogLevel = LogLevel.Trace
-                    }));
+                .ClearProviders()
+                .AddProvider(new DayLoggerProvider(new DayLoggerConfiguration
+                {
+                    LogLevel = LogLevel.Trace
+                }));
 
             await builder.Build().RunAsync();
         }

@@ -37,17 +37,16 @@ public class DayLogger : ILogger
     private readonly DayLoggerConfiguration _config;
     private DateTime _lastFolderDate;
 
-    public DayLogger(
-        string name,
-        DayLoggerConfiguration config)
+    public DayLogger(string name, DayLoggerConfiguration config)
     {
-        (_name, _config) = (name, config);
+        _name = name;
+        _config = config;
     }
 
     public IDisposable BeginScope<TState>(TState state) => default;
 
     public bool IsEnabled(LogLevel logLevel) =>
-        logLevel == _config.LogLevel;
+        logLevel >= _config.LogLevel;
 
     public void Log<TState>(
         LogLevel logLevel,
@@ -56,42 +55,50 @@ public class DayLogger : ILogger
         Exception exception,
         Func<TState, Exception, string> formatter)
     {
-        Console.WriteLine("DAYLOGGER ---------------");
-        //Console.WriteLine($"eventId {eventId}");
-        //Console.WriteLine($"TState {typeof(TState)}");
-
-        if (_config.LogLevel > logLevel)
+        if (!IsEnabled(logLevel))
         {
-            Console.WriteLine("Disabled: " + logLevel);
             return;
         }
 
         string color;
+        string prefix;
 
         switch (logLevel)
         {
             case LogLevel.Trace:
-                color = ConsoleCodes.FgCyan;
+                color = ConsoleCodes.FgGreen;
+                prefix = "trce";
                 break;
 
             case LogLevel.Debug:
-                color = ConsoleCodes.FgBlue;
+                color = ConsoleCodes.FgGreen;
+                prefix = "debg";
+                break;
+
+            case LogLevel.Warning:
+                color = ConsoleCodes.BgYellow;
+                prefix = "warn";
                 break;
 
             case LogLevel.Error:
                 color = ConsoleCodes.FgRed;
+                prefix = "errr";
                 break;
 
             case LogLevel.Critical:
-                color = ConsoleCodes.BgRed;
+                color = ConsoleCodes.FgRed;
+                prefix = "crit";
                 break;
 
             default:
-                color = ConsoleCodes.FgBlack;
+                color = ConsoleCodes.FgBlue;
+                prefix = "info";
                 break;
         }
 
-        Console.WriteLine($"{logLevel}: {color}{state}\x1b[0m");
+        var timestamp = DateTime.Now.ToString("yyyy:MM:dd HH:mm:ss:fff");
+
+        Console.WriteLine($"{ConsoleCodes.BgCyan}{_name} @ {timestamp} {color}{prefix}: {state}\x1b[0m");
 
         //Task.Run(() =>
         //{

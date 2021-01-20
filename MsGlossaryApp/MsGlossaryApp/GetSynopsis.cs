@@ -22,6 +22,13 @@ namespace MsGlossaryApp
             HttpRequest req,
             ILogger log)
         {
+            log.LogCritical("CRITICAL");
+            log.LogError("ERROR");
+            log.LogWarning("WARNING");
+            log.LogInformation("INFORMATION");
+            log.LogDebug("DEBUG");
+            log.LogTrace("TRACE");
+
             log?.LogInformation("GetSynopsis");
 
             var (userEmail, fileName) = req.GetUserInfoFromHeaders();
