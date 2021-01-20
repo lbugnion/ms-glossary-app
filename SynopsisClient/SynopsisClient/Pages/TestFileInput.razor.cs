@@ -1,6 +1,5 @@
 ﻿using BlazorInputFile;
 using Microsoft.Extensions.Logging;
-using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -11,8 +10,7 @@ namespace SynopsisClient.Pages
     public partial class TestFileInput
     {
         private const int MaxFileSize = maxKiloBytes * 1024;
-        private const int maxKiloBytes = 500;
-        // 500KB
+        private const int maxKiloBytes = 500;  // 500KB
 
         private string _status = $"Load a file max {maxKiloBytes} kBytes";
 
@@ -52,9 +50,8 @@ namespace SynopsisClient.Pages
                     }
                 }
 
-                var client = new HttpClient();
                 var content = new StreamContent(ms);
-                var response = await client.PostAsync(
+                var response = await Http.PostAsync(
                     $"http://localhost:7071/api/UploadFile?e={UserManager.CurrentUser.Email}&f={file.Name}",
                     content);
 

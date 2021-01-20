@@ -45,13 +45,6 @@ namespace SynopsisClient.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            Log.LogTrace("TRACE");
-            Log.LogDebug("DEBUG");
-            Log.LogInformation("INFO");
-            Log.LogWarning("WARN");
-            Log.LogError("ERROR");
-            Log.LogCritical("CRITICAL");
-
             Log.LogInformation("OnInitialized");
             Log.LogDebug($"Handler.CannotLoadErrorMessage: {Handler.CannotLoadErrorMessage}");
             Log.LogDebug($"Handler.CannotSaveErrorMessage: {Handler.CannotSaveErrorMessage}");
@@ -85,7 +78,7 @@ namespace SynopsisClient.Pages
         public async Task LogOut()
         {
             await UserManager.LogOut();
-            Handler.DeleteLocalSynopsis();
+            await Handler.DeleteLocalSynopsis();
 
             if (CurrentEditContext != null)
             {

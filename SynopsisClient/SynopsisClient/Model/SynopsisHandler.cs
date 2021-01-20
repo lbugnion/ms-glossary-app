@@ -20,6 +20,7 @@ namespace SynopsisClient.Model
     {
         private const string DeleteDialogTitle = "Are you sure? Deleting...";
         private const string FileNameHeaderKey = "x-glossary-file-name";
+        private const string FunctionCodeHeaderKey = "x-functions-key";
         private const string GetSynopsisUrlFunctionKeyKey = "GetSynopsisUrlFunctionKey";
         private const string GetSynopsisUrlKey = "GetSynopsisUrl";
         private const string ReloadFromCloudDialogTitle = "Are you sure? Reload from Cloud...";
@@ -30,6 +31,7 @@ namespace SynopsisClient.Model
         private readonly IConfiguration _configuration;
         private readonly ILocalStorageService _localStorage;
         private readonly NavigationManager _nav;
+        private readonly HttpClient _http;
         private readonly UserManager _userManager;
         private ListHandlerBase _listHandler;
         private IModalService _modal;
@@ -99,11 +101,13 @@ namespace SynopsisClient.Model
         public SynopsisHandler(
             ILocalStorageService localStorage,
             NavigationManager nav,
+            HttpClient http,
             IConfiguration configuration,
             UserManager userManager)
         {
             _localStorage = localStorage;
             _nav = nav;
+            _http = http;
             _configuration = configuration;
             _userManager = userManager;
         }
@@ -254,19 +258,18 @@ namespace SynopsisClient.Model
 
                 Log.LogInformation("Creating client");
 
-                var client = new HttpClient();
-
                 Log.LogInformation("Creating request");
                 var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
                 httpRequest.Headers.Add(UserEmailHeaderKey, _userManager.CurrentUser.Email);
                 httpRequest.Headers.Add(FileNameHeaderKey, _userManager.CurrentUser.SynopsisName);
+                httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
 
                 HttpResponseMessage response;
 
                 try
                 {
                     Log.LogInformation("Sending request");
-                    response = await client.SendAsync(httpRequest);
+                    response = await _http.SendAsync(httpRequest);
 
                     if (!response.IsSuccessStatusCode)
                     {
@@ -450,13 +453,12 @@ namespace SynopsisClient.Model
 
             Log.LogInformation("Creating client");
 
-            var client = new HttpClient();
-
             Log.LogInformation("Creating request with headers");
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
             httpRequest.Headers.Add(UserEmailHeaderKey, _userManager.CurrentUser.Email);
             httpRequest.Headers.Add(FileNameHeaderKey, _userManager.CurrentUser.SynopsisName);
+            httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
 
             Log.LogInformation("Serializing Synopsis");
 
@@ -477,7 +479,7 @@ namespace SynopsisClient.Model
             try
             {
                 Log.LogInformation("Sending request");
-                response = await client.SendAsync(httpRequest);
+                response = await _http.SendAsync(httpRequest);
 
                 if (!response.IsSuccessStatusCode)
                 {
