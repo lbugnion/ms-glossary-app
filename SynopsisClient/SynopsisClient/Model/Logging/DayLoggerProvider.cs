@@ -1,14 +1,14 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 
-public sealed class DayLoggerProvider : ILoggerProvider
+public sealed class SynopsisClientLoggerProvider : ILoggerProvider
 {
-    private readonly DayLoggerConfiguration _config;
+    private readonly SynopsisClientLoggerConfiguration _config;
 
-    private readonly ConcurrentDictionary<string, DayLogger> _loggers =
-        new ConcurrentDictionary<string, DayLogger>();
+    private readonly ConcurrentDictionary<string, SynopsisClientLogger> _loggers =
+        new ConcurrentDictionary<string, SynopsisClientLogger>();
 
-    public DayLoggerProvider(DayLoggerConfiguration config)
+    public SynopsisClientLoggerProvider(SynopsisClientLoggerConfiguration config)
     {
         _config = config;
     }
@@ -17,7 +17,7 @@ public sealed class DayLoggerProvider : ILoggerProvider
     {
         return _loggers.GetOrAdd(
             categoryName, 
-            name => new DayLogger(name, _config));
+            name => new SynopsisClientLogger(name, _config));
     }
 
     public void Dispose() => _loggers.Clear();

@@ -1,7 +1,6 @@
-﻿using System;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
-public class DayLoggerConfiguration
+public class SynopsisClientLoggerConfiguration
 {
-    public LogLevel LogLevel { get; set; } = LogLevel.Trace;
+    public LogLevel MinimumLogLevel { get; set; } = LogLevel.Trace;
 }

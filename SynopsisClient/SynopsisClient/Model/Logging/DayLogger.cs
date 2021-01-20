@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Drawing;
 using Microsoft.Extensions.Logging;
 
-public class DayLogger : ILogger
+public class SynopsisClientLogger : ILogger
 {
     private static class ConsoleCodes
     {
@@ -34,10 +33,10 @@ public class DayLogger : ILogger
     }
 
     private readonly string _name;
-    private readonly DayLoggerConfiguration _config;
+    private readonly SynopsisClientLoggerConfiguration _config;
     private DateTime _lastFolderDate;
 
-    public DayLogger(string name, DayLoggerConfiguration config)
+    public SynopsisClientLogger(string name, SynopsisClientLoggerConfiguration config)
     {
         _name = name;
         _config = config;
@@ -46,7 +45,7 @@ public class DayLogger : ILogger
     public IDisposable BeginScope<TState>(TState state) => default;
 
     public bool IsEnabled(LogLevel logLevel) =>
-        logLevel >= _config.LogLevel;
+        logLevel >= _config.MinimumLogLevel;
 
     public void Log<TState>(
         LogLevel logLevel,

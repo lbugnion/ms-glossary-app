@@ -29,9 +29,9 @@ namespace SynopsisClient
 
             builder.Logging
                 .ClearProviders()
-                .AddProvider(new DayLoggerProvider(new DayLoggerConfiguration
+                .AddProvider(new SynopsisClientLoggerProvider(new SynopsisClientLoggerConfiguration
                 {
-                    LogLevel = LogLevel.Trace
+                    MinimumLogLevel = LogLevel.Trace
                 }));
 
             await builder.Build().RunAsync();
