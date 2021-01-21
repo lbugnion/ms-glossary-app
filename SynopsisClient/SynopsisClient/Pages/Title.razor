@@ -33,20 +33,7 @@ else
 
         <ValidationSummary />
 
-        <div class="bottom-buttons-area">
-            <button disabled="@Handler.CannotSave"
-                    class="main-button"
-                    @onclick="Handler.CheckSaveSynopsis">
-                Save local
-            </button>
-            <button class="main-button"
-                    @onclick="Handler.ReloadLocal">
-                Reload local
-            </button>
-            <button class="main-button"
-                    @onclick="Handler.ReloadFromCloud">
-                Reload from cloud
-            </button>
-        </div>
+        <Footer ReloadFromCloudClicked="@Handler.ReloadFromCloud" />
+
     </EditForm>
 }

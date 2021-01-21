@@ -1,0 +1,23 @@
+﻿<div class="bottom-buttons-area">
+    <button disabled="@Handler.CannotSave"
+            class="main-button"
+            @onclick="Handler.CheckSaveSynopsis">
+        Save local
+    </button>
+    <button class="main-button"
+            @onclick="Handler.CheckSaveSynopsisToCloud">
+        Commit to Cloud
+    </button>
+    <button class="main-button"
+            @onclick="Handler.ReloadLocal">
+        Reload local
+    </button>
+    <button class="main-button"
+            @onclick="ReloadFromCloud">
+        Reload from cloud
+    </button>
+</div>
+
+<div class="footer-link-area">
+    <a href="@Handler.Synopsis.Uri" target="_blank">This synopsis in GitHub...</a>
+</div>

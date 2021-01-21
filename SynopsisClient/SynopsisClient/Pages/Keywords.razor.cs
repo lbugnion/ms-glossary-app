@@ -17,14 +17,19 @@ namespace SynopsisClient.Pages
 
         private void DefineList()
         {
+            Log.LogInformation("-> DefineList");
+
             if (Handler.Synopsis != null)
             {
-                Handler.DefineList(Handler.Synopsis.Keywords);
+                Log.LogTrace("Synopsis is not null");
+                Handler.DefineList(Handler.Synopsis.Authors);
             }
         }
 
         private async Task ReloadFromCloud()
         {
+            Log.LogInformation("-> ReloadFromCloud");
+
             await Handler.ReloadFromCloud();
             DefineList();
         }
