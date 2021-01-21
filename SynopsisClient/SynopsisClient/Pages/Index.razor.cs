@@ -5,6 +5,7 @@ using SynopsisClient.Model;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using SynopsisClient.Dialogs;
 
 namespace SynopsisClient.Pages
 {
@@ -83,6 +84,19 @@ namespace SynopsisClient.Pages
         public async Task LogOut()
         {
             Log.LogInformation("-> LogOut");
+
+            var formModal = Modal.Show<ConfirmReloadDialog>("Are you sure you want to log out?");
+            var result = await formModal.Result;
+
+            Log.LogDebug($"Confirm: cancelled: {result.Cancelled}");
+
+            if (result.Cancelled
+                || result.Data == null
+                || !(bool)result.Data)
+            {
+                Log.LogTrace("Confirm: cancelled");
+                return;
+            }
 
             await UserManager.LogOut();
             await Handler.DeleteLocalSynopsis();
