@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynopsisClient", "SynopsisClient\SynopsisClient.csproj", "{E5C5582C-3547-4875-B8B5-36119C385B32}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SynopsisClient", "SynopsisClient\SynopsisClient.csproj", "{E5C5582C-3547-4875-B8B5-36119C385B32}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MsGlossaryApp.DataModel.Standard", "..\MsGlossaryApp\MsGlossaryApp.DataModel.Standard\MsGlossaryApp.DataModel.Standard.csproj", "{51DCF1AC-A600-4D98-B7E5-7FF389048150}"
 EndProject
