@@ -2,7 +2,7 @@
 {
     public class ErrorResult
     {
-        public string Message
+        public string ErrorMessage
         {
             get;
             set;

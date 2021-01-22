@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
+using MsGlossaryApp.Model.GitHub;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -13,6 +14,8 @@ namespace MsGlossaryApp
 {
     public static class GetSynopsis
     {
+        private const string SynopsisPathMask = "synopsis/{0}.md";
+
         [FunctionName(nameof(GetSynopsis))]
         public static async Task<IActionResult> RunGet(
             [HttpTrigger(
@@ -47,52 +50,68 @@ namespace MsGlossaryApp
                 Constants.MsGlossaryGitHubAccountVariableName);
             var repoName = Environment.GetEnvironmentVariable(
                 Constants.MsGlossaryGitHubRepoVariableName);
+            var token = Environment.GetEnvironmentVariable(
+                Constants.GitHubTokenVariableName);
 
             log?.LogDebug($"accountName {accountName}");
             log?.LogDebug($"repoName {repoName}");
+            log?.LogDebug($"token {token}");
 
-            var synopsisUrl = string.Format(
-                Constants.GitHubSynopsisUrlTemplate,
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
+
+            var helper = new GitHubHelper(client);
+
+            var result = await helper.GetTextFile(
                 accountName,
                 repoName,
-                fileName.ToLower());
+                fileName,
+                string.Format(SynopsisPathMask, fileName),
+                token,
+                log);
 
-            log?.LogDebug($"synopsisUrl {synopsisUrl}");
+            //var synopsisUrl = string.Format(
+            //    Constants.GitHubSynopsisUrlTemplate,
+            //    accountName,
+            //    repoName,
+            //    fileName.ToLower());
 
-            string markdown = null;
-            string error = null;
+            //log?.LogDebug($"synopsisUrl {synopsisUrl}");
 
-            try
-            {
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
-                markdown = await client.GetStringAsync(synopsisUrl);
-            }
-            catch (HttpRequestException ex)
-            {
-                log?.LogError(ex, "HttpRequestException when getting synopsis markdown");
-                error = "Double check the file name";
-            }
-            catch (Exception ex)
-            {
-                log?.LogError(ex, "Error when getting synopsis markdown");
-                log?.LogDebug(ex.GetType().FullName);
-                error = ex.Message;
-            }
+            //string markdown = null;
+            //string error = null;
 
-            if (!string.IsNullOrEmpty(error))
+            //try
+            //{
+            //    var client = new HttpClient();
+            //    client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
+            //    markdown = await client.GetStringAsync(synopsisUrl);
+            //}
+            //catch (HttpRequestException ex)
+            //{
+            //    log?.LogError(ex, "HttpRequestException when getting synopsis markdown");
+            //    error = "Double check the file name";
+            //}
+            //catch (Exception ex)
+            //{
+            //    log?.LogError(ex, "Error when getting synopsis markdown");
+            //    log?.LogDebug(ex.GetType().FullName);
+            //    error = ex.Message;
+            //}
+
+            if (!string.IsNullOrEmpty(result.ErrorMessage))
             {
                 await NotificationService.Notify(
                     "Invalid synopsis edit request",
                     $"We got the following request: {userEmail} / {fileName}",
                     log);
 
-                return new BadRequestObjectResult(error);
+                return new BadRequestObjectResult(result.ErrorMessage);
             }
 
             var synopsis = SynopsisMaker.ParseSynopsis(
-                new Uri(synopsisUrl),
-                markdown,
+                new Uri(result.HtmlUrl),
+                result.TextContent,
                 log);
 
             // Check if the author is trying to edit the synopsis

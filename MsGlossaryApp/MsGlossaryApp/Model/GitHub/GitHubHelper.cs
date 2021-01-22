@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace MsGlossaryApp.Model.GitHub
@@ -19,6 +20,7 @@ namespace MsGlossaryApp.Model.GitHub
         private const string GitHubApiBaseUrlMask = "https://api.github.com/repos/{0}/{1}/{2}";
         private const string UpdateReferenceUrl = "git/refs/heads/{0}";
         private const string UploadBlobUrl = "git/blobs";
+        private const string GetMarkdownFileUrl = "contents/{0}?ref={1}";
 
         private readonly HttpClient _client;
 
@@ -31,6 +33,70 @@ namespace MsGlossaryApp.Model.GitHub
         public GitHubHelper(HttpClient client)
         {
             _client = client;
+        }
+
+        public async Task<GetTextFileResult> GetTextFile(
+            string accountName,
+            string repoName,
+            string branchName,
+            string filePathWithExtension,
+            string githubToken,
+            ILogger log = null)
+        {
+            // TODO Add logging
+
+            var getFileUrl = string.Format(GetMarkdownFileUrl, filePathWithExtension, branchName);
+            var url = string.Format(GitHubApiBaseUrlMask, accountName, repoName, getFileUrl);
+
+            var request = new HttpRequestMessage
+            {
+                RequestUri = new Uri(url),
+                Method = HttpMethod.Get
+            };
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
+            var response = await _client.SendAsync(request);
+            var responseText = await response.Content.ReadAsStringAsync();
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return new GetTextFileResult
+                {
+                    ErrorMessage = responseText
+                };
+            }
+
+            try
+            {
+                var result = JsonConvert.DeserializeObject<GetTextFileResult>(responseText);
+
+                if (result.Type != "file")
+                {
+                    return new GetTextFileResult
+                    {
+                        ErrorMessage = $"{filePathWithExtension} doesn't seem to be a file on GitHub"
+                    };
+                }
+
+                if (string.IsNullOrEmpty(result.EncodedContent))
+                {
+                    return new GetTextFileResult
+                    {
+                        ErrorMessage = $"{filePathWithExtension} doesn't have content"
+                    };
+                }
+
+                var bytes = Convert.FromBase64String(result.EncodedContent);
+                result.TextContent = Encoding.UTF8.GetString(bytes);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return new GetTextFileResult
+                {
+                    ErrorMessage = ex.Message
+                };
+            }
         }
 
         public async Task<GetHeadResult> CommitFiles(
@@ -333,10 +399,10 @@ namespace MsGlossaryApp.Model.GitHub
             {
                 var errorResultJson = await response.Content.ReadAsStringAsync();
                 var errorResult = JsonConvert.DeserializeObject<ErrorResult>(errorResultJson);
-                log?.LogError($"Error when creating new branch: {newBranchName} / {errorResult.Message}");
+                log?.LogError($"Error when creating new branch: {newBranchName} / {errorResult.ErrorMessage}");
                 return new GetHeadResult
                 {
-                    ErrorMessage = $"Error when creating new branch: {newBranchName} / {errorResult.Message}"
+                    ErrorMessage = $"Error when creating new branch: {newBranchName} / {errorResult.ErrorMessage}"
                 };
             }
 
