@@ -20,6 +20,10 @@ else
 
         <p>For abbreviations, also mention the full expression in the intro and show phonetics too.</p>
 
+        <p>Aim for <strong>300-320 words</strong> for a <strong>2 minutes video</strong>.</p>
+
+        <p>Currently your transcript has @_words words.</p>
+
     </div>
 
     <EditForm EditContext="@Handler.CurrentEditContext">
@@ -66,7 +70,8 @@ else
                             <span class="form-label">One line of script</span>
                             <br />
                             <InputTextArea class="medium-input-text-area"
-                                           @bind-Value="simpleLine.Line" />
+                                           @bind-Value="simpleLine.Line"
+                                           @onkeypress="CountWords"/>
                         </label>
                     }
 
