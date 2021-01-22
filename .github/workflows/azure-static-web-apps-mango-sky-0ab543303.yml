@@ -41,3 +41,14 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_SKY_0AB543303 }}
           action: "close"
+
+  notify-after:
+    runs-on: ubuntu-latest
+    needs: trigger-close_pull_request_job
+    steps:
+      - uses: CamiloGarciaLaRotta/watermelon-http-client@v1.4
+        with:
+          url: https://notificationsendpoint.azurewebsites.net/api/send
+          method: post
+          headers: '{ "x-functions-key": "${{ secrets.NotifyFunctionKey }}" }'
+          data:  '{	"title": "New Synopsis client version", "body": "New Blazor client published without errors", "channel": "MSGlossary" }'
