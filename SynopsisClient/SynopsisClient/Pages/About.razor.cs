@@ -34,51 +34,33 @@ namespace SynopsisClient.Pages
         {
             Log.LogInformation("-> OnInitialized");
 
-            var versionStringInConfig = Config.GetValue<string>(VersionKey);
+            // Check build number
 
-            Log.LogDebug($"versionStringInConfig: {versionStringInConfig}");
+            var versionInConfig = Config.GetValue<string>(VersionKey);
 
-            if (string.IsNullOrEmpty(versionStringInConfig))
+            if (!string.IsNullOrEmpty(versionInConfig))
             {
-                ClientVersion = "N/A";
+                ClientVersion = versionInConfig;
             }
             else
             {
-                var version = new Version(versionStringInConfig);
-                Log.LogDebug($"version: {version}");
-
-                ClientVersion = $"V{version}";
-            }
-
-            var dateInConfig = Config.GetValue<string>(VersionDateKey);
-
-            Log.LogDebug($"dateInConfig: {dateInConfig}");
-
-            if (string.IsNullOrEmpty(dateInConfig))
-            {
-                ReleaseDate = "N/A";
-            }
-            else
-            {
-                DateTime releaseDate;
-                var success = DateTime.TryParseExact(
-                    dateInConfig, 
-                    "yyyyMMdd", 
-                    CultureInfo.InvariantCulture,
-                    DateTimeStyles.None,
-                    out releaseDate);
-                
-                if (success)
+                try
                 {
-                    ReleaseDate = releaseDate.ToShortDateString();
+                    var version = Assembly
+                        .GetExecutingAssembly()
+                        .GetName()
+                        .Version;
+
+                    Log.LogDebug($"Full version: {version}");
+                    ClientVersion = $"V{version.ToString(4)}";
+                    Log.LogDebug($"clientVersion: {ClientVersion}");
                 }
-                else
+                catch
                 {
-                    Log.LogTrace("Unable to parse release date");
+                    Log.LogWarning($"Assembly not found");
+                    ClientVersion = "N/A";
                 }
             }
-
-            Log.LogInformation("OnInitialized ->");
         }
     }
 }

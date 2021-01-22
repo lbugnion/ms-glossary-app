@@ -6,7 +6,11 @@ using Microsoft.Extensions.Logging;
 using SynopsisClient.Model;
 using System;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
+
+// Set version number for the assembly.
+[assembly: AssemblyVersionAttribute("0.1.*")]
 
 namespace SynopsisClient
 {
@@ -31,7 +35,7 @@ namespace SynopsisClient
                 .ClearProviders()
                 .AddProvider(new SynopsisClientLoggerProvider(new SynopsisClientLoggerConfiguration
                 {
-                    MinimumLogLevel = LogLevel.Trace
+                    MinimumLogLevel = LogLevel.Debug
                 }));
 
             await builder.Build().RunAsync();
