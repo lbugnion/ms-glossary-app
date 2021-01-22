@@ -224,6 +224,9 @@ namespace SynopsisClient.Model
                     // do NOT use the automatic deserialization in _localStorage to avoid
                     // issues with Dictionary keys being forced to lower caps.
                     var json = await _localStorage.GetItemAsync<string>(LocalStorageKey);
+
+                    Log.LogDebug(json);
+
                     Synopsis = JsonConvert.DeserializeObject<Synopsis>(json);
                 }
                 catch
