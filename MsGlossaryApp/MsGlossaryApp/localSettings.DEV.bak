@@ -16,7 +16,7 @@
     "DocsGlossaryGitHubRepo": "tests-auto-commit",
     "DocsGlossaryGitHubMainBranchName": "master",
     "NotifyFunctionCode": "CfPYAamajXsaZQiFOk3CaLxFnDEKThXDnt86NWimMi5O2Gw8yeIK/Q==",
-    "SavingLocation": "Storage",
+    "SavingLocation": "Both",
     "UpdateDocsTaskHub": "TestingUpdateDocsTaskHub",
     "AzureFunctionsJobHost__logging__logLevel__Function" : "Trace"
   },

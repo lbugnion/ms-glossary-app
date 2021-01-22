@@ -9,7 +9,7 @@ namespace MsGlossaryApp.Model
 {
     public class SynopsisMaker
     {
-        private const string SaveToGitHubPathMask = "glossary/synopsis/{0}.md";
+        private const string SaveToGitHubPathMask = "synopsis/{0}.md";
 
         private static string MakeSynopsisText(
             Synopsis synopsis,

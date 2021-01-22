@@ -44,9 +44,9 @@ namespace MsGlossaryApp
             // Get the markdown file
 
             var accountName = Environment.GetEnvironmentVariable(
-                Constants.DocsGlossaryGitHubAccountVariableName);
+                Constants.MsGlossaryGitHubAccountVariableName);
             var repoName = Environment.GetEnvironmentVariable(
-                Constants.DocsGlossaryGitHubRepoVariableName);
+                Constants.MsGlossaryGitHubRepoVariableName);
 
             log?.LogDebug($"accountName {accountName}");
             log?.LogDebug($"repoName {repoName}");

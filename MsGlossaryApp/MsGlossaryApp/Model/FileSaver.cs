@@ -76,14 +76,14 @@ namespace MsGlossaryApp.Model
                 log?.LogInformation("Committing to GitHub");
 
                 var accountName = Environment.GetEnvironmentVariable(
-                    Constants.DocsGlossaryGitHubAccountVariableName);
+                    Constants.MsGlossaryGitHubAccountVariableName);
                 var repoName = Environment.GetEnvironmentVariable(
-                    Constants.DocsGlossaryGitHubRepoVariableName);
+                    Constants.MsGlossaryGitHubRepoVariableName);
 
                 if (string.IsNullOrEmpty(branchName))
                 {
                     branchName = Environment.GetEnvironmentVariable(
-                        Constants.DocsGlossaryGitHubMainBranchNameVariableName);
+                        Constants.MsGlossaryGitHubMainBranchName);
                 }
 
                 var token = Environment.GetEnvironmentVariable(

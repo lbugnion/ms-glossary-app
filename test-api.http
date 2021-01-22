@@ -40,7 +40,7 @@ x-functions-key: Xq9pl6xS6uI1RVuxKaN0e2HG6ts0AKgqAbniQQXKUCaHxDEAdtC1Fw==
 ### Get synopsis for edit local
 GET http://localhost:7071/api/synopsis
 x-glossary-user-email: lbugnion@microsoft.com
-x-glossary-file-name: test-topic-17
+x-glossary-file-name: azure-portal
 
 ### Get synopsis for edit test
 GET https://msglossary-app-test.azurewebsites.net/api/synopsis
@@ -48,144 +48,191 @@ x-glossary-user-email: lbugnion@microsoft.com
 x-glossary-file-name: test-topic-17
 x-functions-key: jIzX5ysczMLK9ttfQAHORzhHNfupM6HChYMRvGj/c5Y5tTEUwnORlw==
 
-### Save synopsis
+### Save synopsis local
 POST http://localhost:7071/api/synopsis
 x-glossary-user-email: lbugnion@microsoft.com
-x-glossary-file-name: test-topic-17
+x-glossary-file-name: azure-portal
 
 {
-  "authorsInstructions": [
-    "Enter a comma-separated list of author names, email, Twitter handle and GitHub username.",
-    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#submitted-by)"
-  ],
+  "authorsInstructions": [],
   "demos": [
     {
-      "content": "Short description of the demo."
+      "content": "Show how to add items to a Dashboard"
+    },
+    {
+      "content": "Show metrics visualizations"
+    },
+    {
+      "content": "Show how to add graphs to the dashboard"
+    },
+    {
+      "content": "Show how to create a resource (Azure Function)"
+    },
+    {
+      "content": "Quick demo of the Azure App"
     }
   ],
-  "demosInstructions": [
-    "Quick list of the demos you want to show.",
-    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#demos)"
-  ],
-  "keywordsInstructions": [
-    "List of keywords or keyphrases, comma separated.",
-    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#keywords-or-key-expressions)",
-    "For example"
-  ],
+  "demosInstructions": [],
+  "keywordsInstructions": [],
   "linksInstructions": {
-    "Links to docs": [
-      "As part of the preparation, prepare a list of links to the documentation that you will use to prepare the content. These links will be included in the website too.",
-      "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#links-to-docs)"
-    ],
-    "Links to Learn": [
-      "As part of the preparation, prepare a list of links to the documentation that you will use to prepare the content. These links will be included in the website too.",
-      "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#links-to-learn)",
-      "For example:"
-    ],
-    "Other Links (optional)": [
-      "These can be other links to Microsoft properties or to other sites."
-    ]
+    "Links to docs": [],
+    "Links to Learn": [],
+    "Other Links (optional)": []
   },
   "personalNotes": [
     {
-      "content": "Note 1"
+      "content": "Explain that there are many ways to manage Azure services"
     },
     {
-      "content": "Note 2"
+      "content": "-> Command line interaction (CLI)"
+    },
+    {
+      "content": "-> Powershell"
+    },
+    {
+      "content": "-> Bash"
+    },
+    {
+      "content": "-> Some development tools like Visual Studio or Visual Studio Code"
+    },
+    {
+      "content": "-> Azure portal on the web"
+    },
+    {
+      "content": "Because of its ease of use, many people start on the web"
+    },
+    {
+      "content": "Provides a dashboard where you can put shortcuts of your services"
+    },
+    {
+      "content": "Can have multiple dashboards"
+    },
+    {
+      "content": "Also provides visualizations of metrics"
+    },
+    {
+      "content": "Easy to create new resources, for example a web app"
+    },
+    {
+      "content": "Did you know that you can also do a lot with the Azure app on Android and iOS"
+    },
+    {
+      "content": "New note, ignore"
     }
   ],
-  "personalNotesInstructions": [
-    "A bullet points list of notes you can use to keep track of things.",
-    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#personal-notes)"
-  ],
-  "phonetics": "wɜrd",
+  "personalNotesInstructions": [],
+  "phonetics": "ˈæʒər ˈpɔrtəl",
   "phoneticsInstructions": [
-    "[https://tophonetics.com](https://tophonetics.com/)",
     "Add the phonetics of the word or the expression.",
-    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#phonetics)"
+    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/master/instructions/synopsis-template-notes.md#phonetics)"
   ],
-  "shortDescriptionInstructions": [
-    "Please keep between 60 and 200 characters.",
-    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#short-description)"
-  ],
+  "shortDescriptionInstructions": [],
   "titleInstructions": [
     "This is a template to help you create a synopsis. [You can see an example here](https://aka.ms/glossary/sample/synopsis).",
     "Go to [the instructions to get started with a new term!](https://github.com/lbugnion/ms-glossary/blob/master/instructions/getting-started.md)"
   ],
-  "transcriptInstructions": [
-    "A transcript of what you are planning to say on camera, including demos etc.",
-    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#script)",
-    "When writing your script, and even though we are not working on the video yet, [keep in mind the general structure of the social videos](./getting-started-video.md).",
-    "For abbreviations, also mention the full expression in the intro and show phonetics too."
-  ],
+  "transcriptInstructions": [],
   "authors": [
     {
       "email": "lbugnion@microsoft.com",
       "gitHub": "LBugnion",
       "name": "Laurent Bugnion",
       "twitter": "LBugnion"
-    },
-    {
-      "email": "scottca@microsoft.com",
-      "gitHub": "ScottCate",
-      "name": "Scott Cate",
-      "twitter": "ScottCa"
     }
   ],
-  "fileName": "test-topic-17",
+  "fileName": "azure-portal",
   "keywords": [
     {
-      "content": "AAD"
+      "content": "Portal"
     },
     {
-      "content": "Active Directory"
+      "content": "Dashboard"
     },
     {
-      "content": "Authentication"
+      "content": "Marketplace"
     },
     {
-      "content": "Identity"
+      "content": "Azure Marketplace"
+    },
+    {
+      "content": "Azure App"
     }
   ],
   "linksToDocs": [
     {
       "note": null,
-      "text": "An introduction to Azure Functions",
-      "url": "https://docs.microsoft.com/azure/azure-functions/functions-overview"
+      "text": "Azure portal overview",
+      "url": "https://docs.microsoft.com/azure/azure-portal/azure-portal-overview"
+    },
+    {
+      "note": null,
+      "text": "Create and share dashboards in the Azure portal",
+      "url": "https://docs.microsoft.com/azure/azure-portal/azure-portal-dashboards"
+    },
+    {
+      "note": null,
+      "text": "Azure portal how-to video series",
+      "url": "https://docs.microsoft.com/azure/azure-portal/azure-portal-video-series"
     }
   ],
   "linksToLearn": [
     {
       "note": "(*learning path*)",
-      "text": "Create serverless applications",
-      "url": "https://docs.microsoft.com/learn/paths/create-serverless-applications"
-    },
-    {
-      "note": "(*module*)",
-      "text": "Refactor Node.js and Express APIs to Serverless APIs with Azure Functions",
-      "url": "https://docs.microsoft.com/learn/modules/shift-nodejs-express-apis-serverless"
+      "text": "Azure fundamentals",
+      "url": "https://docs.microsoft.com/learn/paths/azure-fundamentals/"
     }
   ],
-  "linksToOthers": [],
+  "linksToOthers": [
+    {
+      "note": null,
+      "text": "Azure app",
+      "url": "https://azure.microsoft.com/features/azure-portal/mobile-app/"
+    },
+    {
+      "note": null,
+      "text": "Azure app in Google Play",
+      "url": "https://play.google.com/store/apps/details?id=com.microsoft.azure"
+    },
+    {
+      "note": null,
+      "text": "Azure app in the iOS App store",
+      "url": "https://apps.apple.com/us/app/microsoft-azure/id1219013620?ls=1"
+    }
+  ],
   "mustSave": false,
-  "shortDescription": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut",
-  "title": "Test topic 17",
+  "shortDescription": "The web-based user interface used to manage all Azure services in the web browser.",
+  "title": "Azure Portal",
   "transcriptLines": [
     {
-      "markdown": "Today's word of the day is: WORD."
-    },
-    {
-      "markdown": "Today's words of the day are: EXPRESSION."
-    },
-    {
-      "markdown": "Today's word of the day is an abbreviation: ABBREVIATION."
-    },
-    {
-      "markdown": "> Enter production notes like this. This is to help you while filming or while editing the video."
+      "markdown": "Today's words of the day are: Azure Portal."
     },
     {
       "markdown": "Hello and welcome to Microsoft Azure Words of the Day, the show that teaches you the Azure vocabulary!"
+    },
+    {
+      "markdown": "The Azure Portal is one of a few alternatives that you can use to create and manage your Azure services. It is a web based user interface. There are of course other ways to manage your services and applications such as Command Line Interaction CLI, Bash, PowerShell, Visual Studio, Visual Studio Code and more."
+    },
+    {
+      "markdown": "> Use animated screen shots of each of the solutions"
+    },
+    {
+      "markdown": "In the Azure Portal, you can login using your Azure account and then you have the possibility to create a new resource easily. We have a lot of different templates and services in the marketplace. For instance here I select a web app, and then I can create it."
+    },
+    {
+      "markdown": "> Demo: How to login and create a new resource, for instance an App Service"
+    },
+    {
+      "markdown": "The Azure Portal is quite easy to use and also convenient as you can create custom dashboard with links to your resources, and graphs about metrics you want to observe. You can easily add other links and graphs pointing to your resources. You can then edit and customize the dashboard."
+    },
+    {
+      "markdown": "> Demo: Adding stuff to the dashboard, editing"
+    },
+    {
+      "markdown": "Another thing you might want to check is the Azure app running on iOS and Android. This app provides many of the functionalities of the web portal, including access to the cloud shell. It can show notifications when something happens in your applications and allows you to manage your services even when you don't have a laptop."
+    },
+    {
+      "markdown": "You can get more information about the Azure Portal and the Azure app here, don't forget to check the links. Thank you so much for watching Microsoft Azure Words of the Day. Today's words of the day were: Azure Portal."
     }
   ],
-  "uri": "https://raw.githubusercontent.com/lbugnion/tests-auto-commit/test-topic-17/synopsis/test-topic-17.md"
+  "uri": "https://raw.githubusercontent.com/lbugnion/ms-glossary/azure-portal/synopsis/azure-portal.md"
 }
