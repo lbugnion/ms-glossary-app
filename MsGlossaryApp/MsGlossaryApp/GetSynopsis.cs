@@ -55,7 +55,7 @@ namespace MsGlossaryApp
                 Constants.GitHubSynopsisUrlTemplate,
                 accountName,
                 repoName,
-                fileName);
+                fileName.ToLower());
 
             log?.LogDebug($"synopsisUrl {synopsisUrl}");
 
@@ -103,7 +103,7 @@ namespace MsGlossaryApp
             {
                 foreach (var author in synopsis.Authors)
                 {
-                    if (author.Email.ToLower() == userEmail)
+                    if (author.Email.ToLower() == userEmail.ToLower())
                     {
                         isAuthorValid = true;
                         break;
