@@ -21,7 +21,7 @@ namespace SynopsisClient.Shared
             set;
         }
 
-        private async Task CheckNavigateTo(string uri)
+        private async Task CheckNavigateTo(string uri, bool bypassLogin = false)
         {
             Log.LogInformation("-> CheckNavigateTo");
             Log.LogDebug(uri);
@@ -38,7 +38,8 @@ namespace SynopsisClient.Shared
                 Log.LogWarning(message);
             }
 
-            if (!UserManager.IsLoggedIn)
+            if (!bypassLogin
+                && !UserManager.IsLoggedIn)
             {
                 cannotNavigate = true;
                 message = "You cannot navigate now, please log in first.";

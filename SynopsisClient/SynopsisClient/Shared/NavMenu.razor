@@ -11,7 +11,7 @@
     <ul class="nav flex-column">
         <li class="nav-item px-3">
             <NavLink class="nav-link"
-                     @onclick="@(e => CheckNavigateTo("/"))"
+                     @onclick="@(e => CheckNavigateTo("/", bypassLogin: true))"
                      Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
@@ -84,7 +84,7 @@
         </li>
         <li class="nav-item px-3">
             <NavLink class="nav-link"
-                     @onclick="@(e => CheckNavigateTo("/about"))">
+                     @onclick="@(e => CheckNavigateTo("/about", bypassLogin: true))">
                 <span class="oi oi-wrench" aria-hidden="true"></span> About
             </NavLink>
         </li>
