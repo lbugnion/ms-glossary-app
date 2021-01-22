@@ -431,6 +431,19 @@ namespace SynopsisClient.Model
             Log.LogDebug($"CurrentEditContext.IsModified: {CurrentEditContext.IsModified()}");
             Log.LogDebug($"_isModified: {IsModified}");
 
+            if (IsModified || CurrentEditContext.IsModified())
+            {
+                Log.LogTrace("Synopsis must be saved first");
+
+                var parameters = new ModalParameters();
+                parameters.Add(
+                    nameof(MessageDialog.Message),
+                    "Please save the Synopsis before you commit to the cloud");
+
+                _modal.Show<MessageDialog>("Cannot commit yet", parameters);
+                return;
+            }
+
             await ShowHideBusyDialog(true, "Saving...");
 
             await CheckSaveSynopsis();
