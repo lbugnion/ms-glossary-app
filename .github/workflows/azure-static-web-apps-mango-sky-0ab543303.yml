@@ -44,7 +44,7 @@ jobs:
 
   notify-after:
     runs-on: ubuntu-latest
-    needs: close_pull_request_job
+    needs: build_and_deploy_job
     steps:
       - uses: CamiloGarciaLaRotta/watermelon-http-client@v1.4
         with:
