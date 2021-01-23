@@ -228,14 +228,26 @@ namespace SynopsisClient.Model
                 {
                     // do NOT use the automatic deserialization in _localStorage to avoid
                     // issues with Dictionary keys being forced to lower caps.
-                    var json = await _localStorage.GetItemAsync<string>(LocalStorageKey);
+                    Log.LogDebug($"Loading from storage with key {LocalStorageKey}");
 
+
+                    var json = await _localStorage.GetItemAsStringAsync(LocalStorageKey);
+
+                    //var json = await _localStorage.GetItemAsync<string>(LocalStorageKey);
+
+                    Log.LogDebug($"JSON loaded from storage is null: {string.IsNullOrEmpty(json)}");
                     Log.LogDebug(json);
 
-                    Synopsis = JsonConvert.DeserializeObject<Synopsis>(json);
+                    if (!string.IsNullOrEmpty(json))
+                    {
+                        Log.LogTrace("Deserializing JSON");
+                        Synopsis = JsonConvert.DeserializeObject<Synopsis>(json);
+                        Log.LogTrace("Done deserializing JSON");
+                    }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Log.LogError(ex, $"Error getting or deserializing synopsis: {ex.Message}");
                     Synopsis = null;
                 }
 
@@ -308,15 +320,17 @@ namespace SynopsisClient.Model
                 {
                     var json = await response?.Content.ReadAsStringAsync();
                     Synopsis = JsonConvert.DeserializeObject<Synopsis>(json);
+                    Log.LogTrace("New Synopsis loaded from cloud");
+                    Log.LogDebug(json);
 
                     // do NOT use the automatic serialization in _localStorage to avoid
                     // issues with Dictionary keys being forced to lower caps.
                     await _localStorage.SetItemAsync(LocalStorageKey, json);
-                    Log.LogTrace("New Synopsis loaded and saved");
+                    Log.LogDebug($"New Synopsis saved in storage under {LocalStorageKey}");
                 }
                 catch (Exception ex)
                 {
-                    Log.LogWarning("ERROR deserializing synopsis");
+                    Log.LogError("ERROR deserializing synopsis");
                     Log.LogDebug(ex.GetType().FullName);
                     Log.LogDebug(ex.Message);
                     CannotLoadErrorMessage = ex.Message;

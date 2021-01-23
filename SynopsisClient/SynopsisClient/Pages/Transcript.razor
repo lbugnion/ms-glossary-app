@@ -20,9 +20,11 @@ else
 
         <p>For abbreviations, also mention the full expression in the intro and show phonetics too.</p>
 
-        <p>Aim for <strong>300-320 words</strong> for a <strong>2 minutes video</strong>.</p>
+        <div class="transcript-words-info @_wordsInfoClass">
+            <p>Aim for <strong>@MinWordsInTranscript-@MaxWordsInTranscript words</strong> for a <strong>2 minutes video</strong>.</p>
 
-        <p>Currently your transcript has @_words words.</p>
+            <p>Currently your transcript has <strong><span class="@_wordsSpanClass">@_words words</span></strong>.</p>
+        </div>
 
     </div>
 
@@ -70,8 +72,7 @@ else
                             <span class="form-label">One line of script</span>
                             <br />
                             <InputTextArea class="medium-input-text-area"
-                                           @bind-Value="simpleLine.Line"
-                                           @onkeypress="CountWords"/>
+                                           @bind-Value="simpleLine.Line" />
                         </label>
                     }
 
@@ -87,7 +88,8 @@ else
                         @onclick:preventDefault>New image</a>&nbsp;|&nbsp;*@
                         <a href="#"
                            @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptNote>(line))"
-                           @onclick:preventDefault>New note</a>
+                           @onclick:preventDefault>New note</a>&nbsp;|&nbsp;
+                        <span class="@_wordsSpanClass">@_words words total</span>
                     </div>
                 </div>
             }

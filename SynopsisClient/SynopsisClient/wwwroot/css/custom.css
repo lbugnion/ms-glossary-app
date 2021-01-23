@@ -103,3 +103,24 @@
 .not-saved-title {
     font-weight: bold;
 }
+
+.transcript-words-info {
+    padding: 10px;
+    width: 490px;
+}
+
+.transcript-words-info-good {
+    background-color: #D9FFC9;
+}
+
+.transcript-words-info-bad {
+    background-color: bisque;
+}
+
+.transcript-words-count-good {
+    color: forestgreen;
+}
+
+.transcript-words-count-bad {
+    color: orange;
+}

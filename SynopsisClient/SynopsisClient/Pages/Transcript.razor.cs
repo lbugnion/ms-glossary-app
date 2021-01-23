@@ -1,6 +1,6 @@
 ﻿using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
 using MsGlossaryApp.DataModel;
 using System;
@@ -9,9 +9,19 @@ using System.Threading.Tasks;
 
 namespace SynopsisClient.Pages
 {
-    public partial class Transcript
+    public partial class Transcript : IDisposable
     {
+        private const string WordsInfoGoodClass = "transcript-words-info-good";
+        private const string WordsInfoBadClass = "transcript-words-info-bad";
+        private const string WordsCountGoodClass = "transcript-words-count-good";
+        private const string WordsCountBadClass = "transcript-words-count-bad";
+
         private int _words;
+        private string _wordsInfoClass = WordsInfoGoodClass;
+        private string _wordsSpanClass = WordsCountGoodClass;
+
+        private const int MaxWordsInTranscript = 320;
+        private const int MinWordsInTranscript = 280;
 
         [CascadingParameter]
         private IModalService Modal
@@ -51,18 +61,23 @@ namespace SynopsisClient.Pages
                 return;
             }
 
+            CountWords();
+            Handler.CurrentEditContext.OnValidationStateChanged 
+                += CurrentEditContextOnValidationStateChanged;
+
             Log.LogInformation("OnInitializedAsync ->");
         }
 
-        protected override void OnAfterRender(bool firstRender)
+        private void CurrentEditContextOnValidationStateChanged(
+            object sender, 
+            ValidationStateChangedEventArgs e)
         {
-            base.OnAfterRender(firstRender);
             CountWords();
         }
 
         private void CountWords()
         {
-            var words = Handler.Synopsis
+            _words = Handler.Synopsis
                 .TranscriptLines
                 .Where(l => l is TranscriptSimpleLine)
                 .Select(l => l.Markdown.Split(new char[]
@@ -72,7 +87,27 @@ namespace SynopsisClient.Pages
                 .Select(w => w.Count())
                 .Aggregate(AddFunc);
 
-            Log.LogDebug($"{_words} words");
+            if (_words < MinWordsInTranscript
+                || _words > MaxWordsInTranscript)
+            {
+                _wordsInfoClass = WordsInfoBadClass;
+                _wordsSpanClass = WordsCountBadClass;
+            }
+            else
+            {
+                _wordsInfoClass = WordsInfoGoodClass;
+                _wordsSpanClass = WordsCountGoodClass;
+            }
+
+            Log.LogDebug($"{_words} words after");
+
+            StateHasChanged();
+        }
+
+        public void Dispose()
+        {
+            Handler.CurrentEditContext.OnValidationStateChanged 
+                -= CurrentEditContextOnValidationStateChanged;
         }
 
         private Func<int, int, int> AddFunc = (int i1, int i2) => i1 + i2;
