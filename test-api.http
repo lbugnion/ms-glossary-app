@@ -40,7 +40,7 @@ x-functions-key: Xq9pl6xS6uI1RVuxKaN0e2HG6ts0AKgqAbniQQXKUCaHxDEAdtC1Fw==
 ### Get synopsis for edit local
 GET http://localhost:7071/api/synopsis
 x-glossary-user-email: lbugnion@microsoft.com
-x-glossary-file-name: test-topic-17
+x-glossary-file-name: azure-portal
 
 ### Get synopsis for edit test
 GET https://msglossary-app-test.azurewebsites.net/api/synopsis
