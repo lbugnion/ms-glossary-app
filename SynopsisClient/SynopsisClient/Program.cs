@@ -35,7 +35,7 @@ namespace SynopsisClient
                 .ClearProviders()
                 .AddProvider(new SynopsisClientLoggerProvider(new SynopsisClientLoggerConfiguration
                 {
-                    MinimumLogLevel = LogLevel.Debug
+                    MinimumLogLevel = LogLevel.Trace
                 }));
 
             await builder.Build().RunAsync();

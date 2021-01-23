@@ -212,6 +212,11 @@ namespace SynopsisClient.Model
         {
             Log.LogInformation($"-> SynopsisHandler.GetSynopsis");
             Log.LogDebug($"local {forceRefreshLocal}, online {forceRefreshOnline}");
+            Log.LogDebug($"Synopsis is null: {Synopsis == null}");
+
+            Log.LogDebug((!forceRefreshOnline
+                && (Synopsis == null
+                || forceRefreshLocal)).ToString());
 
             if (!forceRefreshOnline
                 && (Synopsis == null
@@ -242,6 +247,10 @@ namespace SynopsisClient.Model
                 {
                     Log.LogTrace("Synopsis is not null");
                 }
+            }
+            else
+            {
+                Log.LogTrace("Not loading from local");
             }
 
             if (forceRefreshOnline
@@ -315,7 +324,12 @@ namespace SynopsisClient.Model
                     return null;
                 }
             }
+            else
+            {
+                Log.LogTrace("Not loading from cloud");
+            }
 
+            Log.LogTrace("Casting transcript lines");
             Synopsis.CastTranscriptLines();
 
             Log.LogInformation($"SynopsisHandler.GetSynopsis ->");
