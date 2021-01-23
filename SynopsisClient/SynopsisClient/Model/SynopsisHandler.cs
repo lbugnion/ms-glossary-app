@@ -304,6 +304,13 @@ namespace SynopsisClient.Model
                     {
                         Log.LogDebug($"Invalid response: {response.StatusCode}");
 
+                        if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+                        {
+                            CannotLoadErrorMessage = response.ReasonPhrase;
+                            Log.LogDebug($"CannotLoadErrorMessage: {CannotLoadErrorMessage}");
+                            return null;
+                        }
+
                         CannotLoadErrorMessage = await response.Content.ReadAsStringAsync();
                         Log.LogDebug($"CannotLoadErrorMessage: {CannotLoadErrorMessage}");
 

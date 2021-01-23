@@ -79,6 +79,7 @@ namespace SynopsisClient.Model
                 IsModified = false;
                 CannotLogOut = false;
                 IsLoggedIn = true;
+                Log.LogInformation("UserManager.CheckLogin ->");
                 return true;
             }
             else
@@ -87,10 +88,9 @@ namespace SynopsisClient.Model
                 IsModified = true;
                 CannotLogOut = true;
                 IsLoggedIn = false;
+                Log.LogInformation("UserManager.CheckLogin ->");
                 return false;
             }
-
-            Log.LogInformation("UserManager.CheckLogin ->");
         }
 
         public void Initialize()
