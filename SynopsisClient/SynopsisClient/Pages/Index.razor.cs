@@ -12,6 +12,8 @@ namespace SynopsisClient.Pages
 {
     public partial class Index
     {
+        private const string QueryEdit = "edit=";
+
         [Parameter]
         public string Term
         {
@@ -58,6 +60,34 @@ namespace SynopsisClient.Pages
             Log.LogDebug($"Handler.CannotLoadErrorMessage: {Handler.CannotLoadErrorMessage}");
             Log.LogDebug($"Handler.CannotSaveErrorMessage: {Handler.CannotSaveErrorMessage}");
 
+            // Check query string
+            if (string.IsNullOrEmpty(Term))
+            {
+                Log.LogDebug($"HIGHLIGHT--Term is NOT already defined in route: {Term}");
+                Log.LogDebug($"HIGHLIGHT--URI: {Nav.Uri}");
+
+                var query = Nav.ToAbsoluteUri(Nav.Uri).Query;
+                var index = query.IndexOf(QueryEdit);
+
+                if (index > -1)
+                {
+                    Log.LogTrace("HIGHLIGHT--Found edit query");
+
+                    var indexOfAnd = query.IndexOf("&");
+
+                    if (indexOfAnd > -1)
+                    {
+                        Term = query.Substring(index + QueryEdit.Length, indexOfAnd);
+                    }
+                    else
+                    {
+                        Term = query.Substring(index + QueryEdit.Length);
+                    }
+
+                    Log.LogDebug($"HIGHLIGHT--Term in query: {Term}");
+                }
+            }
+
             UserManager.DefineLog(Log);
             Handler.DefineLog(Log);
 
@@ -90,7 +120,7 @@ namespace SynopsisClient.Pages
                 Log.LogTrace("User is currently logged in");
 
                 if (!string.IsNullOrEmpty(Term)
-                    && UserManager.CurrentUser.SynopsisName != Term)
+                    && UserManager.CurrentUser.SynopsisName.ToLower() != Term.ToLower())
                 {
                     Log.LogTrace("User asked for a different term, show dialog");
 

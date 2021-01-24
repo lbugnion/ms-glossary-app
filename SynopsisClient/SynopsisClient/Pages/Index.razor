@@ -7,9 +7,7 @@
 
 <div class="intro">
 
-    <p>Welcome to <a href="http://aka.ms/define">the Microsoft Glossary</a> Synopsis editor.</p>
-
-    <p>This is where you can edit your entry before submitting for review.</p>
+    <p>Welcome to <a href="http://aka.ms/define" target="_blank">the Microsoft Glossary</a> Synopsis editor. This is where you can edit your entry before submitting for review.</p>
 
     <p>
         Before you start, <a href="https://aka.ms/glossary/getting-started"
@@ -99,6 +97,10 @@
                 }
                 else
                 {
+                    <div class="success-message">
+                        <p>You are currently editing: <strong>@UserManager.CurrentUser.SynopsisName</strong>.</p>
+                    </div>
+
                     <p><strong>Select a section from the navigation menu.</strong></p>
 
                     <p>Note that the new synopsis is into a GitHub "branch". It means that your changes will be into a kind of sandbox and won't affect the rest of the site until you are ready to submit. <a href="https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-branches">More information about GitHub branches</a>.</p>
