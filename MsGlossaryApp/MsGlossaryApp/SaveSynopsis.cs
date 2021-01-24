@@ -73,6 +73,8 @@ namespace MsGlossaryApp
                 }
             }
 
+            // TODO Check the password with the saved one.
+
             if (!isAuthorValid)
             {
                 await NotificationService.Notify(
@@ -110,24 +112,6 @@ namespace MsGlossaryApp
                     synopsis.Uri,
                     oldMarkdown,
                     log);
-
-                // Check if the author is trying to edit the synopsis
-
-                // TODO Check the password with the saved one.
-                //var isAuthorValid = false;
-
-                //if (!isAuthorValid)
-                //{
-                //    await NotificationService.Notify(
-                //        "Invalid author for synopsis edit request",
-                //        $"We got the following request: {userEmail} / {fileName} but author is invalid",
-                //        log);
-
-                //    log?.LogError($"Invalid author: {userEmail} / {fileName}");
-
-                //    return new BadRequestObjectResult(
-                //        $"Sorry but the author {userEmail} is not listed as one of the original author");
-                //}
 
                 var newFile = SynopsisMaker.PrepareNewSynopsis(synopsis, oldSynopsis, log);
 

@@ -4,7 +4,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using MsGlossaryApp.DataModel;
-using MsGlossaryApp.Model;
 using MsGlossaryApp.Model.GitHub;
 using Newtonsoft.Json;
 using System;
