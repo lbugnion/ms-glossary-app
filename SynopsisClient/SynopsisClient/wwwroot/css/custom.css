@@ -66,7 +66,6 @@
     background-color: bisque;
     padding: 10px;
     margin-bottom: 20px;
-    width: 500px;
 }
 
 .error-message h1 {
@@ -87,7 +86,6 @@
     background-color: #D9FFC9;
     padding: 10px;
     margin-bottom: 20px;
-    width: 500px;
 }
 
 .success-message h1 {

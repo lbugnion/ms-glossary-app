@@ -6,11 +6,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SynopsisClient.Dialogs;
+using Blazored.Modal;
 
 namespace SynopsisClient.Pages
 {
     public partial class Index
     {
+        [Parameter]
+        public string Term
+        {
+            get;
+            set;
+        }
+
         [CascadingParameter]
         private IModalService Modal
         {
@@ -54,7 +62,7 @@ namespace SynopsisClient.Pages
             Handler.DefineLog(Log);
 
             Log.LogTrace("Initializing UserManager");
-            UserManager.Initialize();
+            UserManager.Initialize(Term);
             CurrentEditContext = new EditContext(UserManager.CurrentUser);
             CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
 
@@ -62,9 +70,64 @@ namespace SynopsisClient.Pages
             Handler.DefineModal(Modal);
 
             Log.LogTrace("Checking login");
+
             await UserManager.CheckLogin();
 
             Log.LogInformation("OnInitializedAsync ->");
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (!firstRender)
+            {
+                return;
+            }
+
+            Log.LogInformation("-> OnAfterRenderAsync");
+
+            if (await UserManager.CheckLogin())
+            {
+                Log.LogTrace("User is currently logged in");
+
+                if (!string.IsNullOrEmpty(Term)
+                    && UserManager.CurrentUser.SynopsisName != Term)
+                {
+                    Log.LogTrace("User asked for a different term, show dialog");
+
+                    var parameters = new ModalParameters();
+                    parameters.Add(
+                        nameof(ConfirmLogOutDialog.CurrentTerm),
+                        UserManager.CurrentUser.SynopsisName);
+                    parameters.Add(
+                        nameof(ConfirmLogOutDialog.NewTerm),
+                        Term);
+
+                    var options = new ModalOptions()
+                    {
+                        HideCloseButton = true,
+                        DisableBackgroundCancel = true
+                    };
+
+                    var formModal = Modal.Show<ConfirmLogOutDialog>(
+                        "You are currently editing!",
+                        parameters,
+                        options);
+
+                    var result = await formModal.Result;
+
+                    Log.LogDebug($"Confirm: cancelled: {result.Cancelled}");
+
+                    if (!result.Cancelled
+                        && result.Data != null
+                        && (bool)result.Data)
+                    {
+                        await LogOut(true, Term);
+                        StateHasChanged();
+                    }
+                }
+            }
+
+            Log.LogInformation("OnAfterRenderAsync ->");
         }
 
         public async Task LogIn()
@@ -81,24 +144,30 @@ namespace SynopsisClient.Pages
             Log.LogInformation("LogIn ->");
         }
 
-        public async Task LogOut()
+        public async Task LogOut(
+            bool suppressConfirm = false,
+            string term = null)
         {
             Log.LogInformation("-> LogOut");
+            Log.LogDebug($"suppressConfirm: {suppressConfirm}");
 
-            var formModal = Modal.Show<ConfirmReloadDialog>("Are you sure you want to log out?");
-            var result = await formModal.Result;
-
-            Log.LogDebug($"Confirm: cancelled: {result.Cancelled}");
-
-            if (result.Cancelled
-                || result.Data == null
-                || !(bool)result.Data)
+            if (!suppressConfirm)
             {
-                Log.LogTrace("Confirm: cancelled");
-                return;
+                var formModal = Modal.Show<ConfirmReloadDialog>("Are you sure you want to log out?");
+                var result = await formModal.Result;
+
+                Log.LogDebug($"Confirm: cancelled: {result.Cancelled}");
+
+                if (result.Cancelled
+                    || result.Data == null
+                    || !(bool)result.Data)
+                {
+                    Log.LogTrace("Confirm: cancelled");
+                    return;
+                }
             }
 
-            await UserManager.LogOut();
+            await UserManager.LogOut(term);
             await Handler.DeleteLocalSynopsis();
 
             if (CurrentEditContext != null)

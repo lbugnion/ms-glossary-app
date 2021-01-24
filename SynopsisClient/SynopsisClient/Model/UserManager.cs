@@ -93,14 +93,22 @@ namespace SynopsisClient.Model
             }
         }
 
-        public void Initialize()
+        public void Initialize(string term = null)
         {
             Log.LogInformation("-> UserManager.Initialize");
+
+            if (string.IsNullOrEmpty(term))
+            {
+                Log.LogTrace("Term is null");
+                term = DefaultSynopsisName;
+            }
+
+            Log.LogDebug($"term: {term}");
 
             CurrentUser = new User
             {
                 Email = DefaultEmail,
-                SynopsisName = DefaultSynopsisName
+                SynopsisName = term
             };
 
             IsLoggedIn = false;
@@ -115,15 +123,17 @@ namespace SynopsisClient.Model
             IsLoggedIn = true;
         }
 
-        public async Task LogOut()
+        public async Task LogOut(string term)
         {
             Log.LogInformation("-> UserManager.Logout");
+            Log.LogDebug($"term: {term}");
+
             await _localStorage.RemoveItemAsync(CurrentUserKey);
 
             CurrentUser = new User
             {
-                Email = "user@domain.com",
-                SynopsisName = "this-is-an-example"
+                Email = DefaultEmail,
+                SynopsisName = term ?? DefaultSynopsisName
             };
 
             IsModified = true;

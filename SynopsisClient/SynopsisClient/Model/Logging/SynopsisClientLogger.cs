@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 
 public class SynopsisClientLogger : ILogger
 {
+    public const string HighlightCode = "HIGHLIGHT--";
+
     private static class ConsoleCodes
     {
         public const string Reset = "\x1b[0m";
@@ -95,9 +97,17 @@ public class SynopsisClientLogger : ILogger
                 break;
         }
 
+        var message = state.ToString();
+
+        if (message.StartsWith(HighlightCode))
+        {
+            color = ConsoleCodes.BgMagenta;
+            message = message.Replace(HighlightCode, string.Empty);
+        }
+
         var timestamp = DateTime.Now.ToString("yyyy:MM:dd HH:mm:ss:fff");
 
-        Console.WriteLine($"{ConsoleCodes.BgCyan}{_name} @ {timestamp} {color}{prefix}: {state}\x1b[0m");
+        Console.WriteLine($"{ConsoleCodes.BgCyan}{_name} @ {timestamp} {color}{prefix}: {message}\x1b[0m");
 
         //Task.Run(() =>
         //{

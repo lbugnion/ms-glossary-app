@@ -1,4 +1,5 @@
 ﻿@page "/"
+@page "/edit/{Term}"
 @inject ILogger<Index> Log
 @inject HttpClient Http
 
@@ -139,7 +140,7 @@
 
     <button class="main-button"
             disabled="@UserManager.CannotLogOut"
-            @onclick="LogOut">
+            @onclick="(e => LogOut())">
         Log out
     </button>
 </div>
