@@ -1,0 +1,25 @@
+﻿<div class="card dialog">
+    <div class="card-body">
+        <div class="card-text">
+
+            <EditForm Model="@Model">
+
+                @if (_showWarning)
+                {
+                    <div class="error-message">You must enter a message.</div>
+                }
+
+                <label title="Enter a message"
+                       style="width: 100%;">
+                    <span class="form-label">Enter a message</span>
+                    <br />
+                    <InputText class="dialog-input-text"
+                               @bind-Value="Model.Message" />
+                </label>
+
+            </EditForm>
+        </div>
+        <button @onclick="OnOk">OK</button>
+        <button @onclick="OnCancel">Cancel</button>
+    </div>
+</div>

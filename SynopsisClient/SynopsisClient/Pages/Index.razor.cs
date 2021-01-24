@@ -63,15 +63,15 @@ namespace SynopsisClient.Pages
             // Check query string
             if (string.IsNullOrEmpty(Term))
             {
-                Log.LogDebug($"HIGHLIGHT--Term is NOT already defined in route: {Term}");
-                Log.LogDebug($"HIGHLIGHT--URI: {Nav.Uri}");
+                Log.LogDebug($"Term is NOT already defined in route: {Term}");
+                Log.LogDebug($"URI: {Nav.Uri}");
 
                 var query = Nav.ToAbsoluteUri(Nav.Uri).Query;
                 var index = query.IndexOf(QueryEdit);
 
                 if (index > -1)
                 {
-                    Log.LogTrace("HIGHLIGHT--Found edit query");
+                    Log.LogTrace("Found edit query");
 
                     var indexOfAnd = query.IndexOf("&");
 
@@ -84,7 +84,7 @@ namespace SynopsisClient.Pages
                         Term = query.Substring(index + QueryEdit.Length);
                     }
 
-                    Log.LogDebug($"HIGHLIGHT--Term in query: {Term}");
+                    Log.LogDebug($"Term in query: {Term}");
                 }
             }
 

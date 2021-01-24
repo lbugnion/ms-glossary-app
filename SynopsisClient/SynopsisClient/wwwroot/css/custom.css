@@ -22,6 +22,10 @@
     width: 500px;
 }
 
+.dialog-input-text {
+    width: 100%;
+}
+
 .short-input-text {
     width: 200px;
 }

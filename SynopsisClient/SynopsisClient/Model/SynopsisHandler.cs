@@ -19,15 +19,12 @@ namespace SynopsisClient.Model
     public class SynopsisHandler
     {
         private const string DeleteDialogTitle = "Are you sure? Deleting...";
-        private const string FileNameHeaderKey = "x-glossary-file-name";
-        private const string FunctionCodeHeaderKey = "x-functions-key";
         private const string GetSynopsisUrlFunctionKeyKey = "GetSynopsisUrlFunctionKey";
         private const string GetSynopsisUrlKey = "GetSynopsisUrl";
         private const string ReloadFromCloudDialogTitle = "Are you sure? Reload from Cloud...";
         private const string ReloadLocalDialogTitle = "Are you sure? Reload local..";
         private const string SaveSynopsisUrlFunctionKeyKey = "SaveSynopsisUrlFunctionKey";
         private const string SaveSynopsisUrlKey = "SaveSynopsisUrl";
-        private const string UserEmailHeaderKey = "x-glossary-user-email";
         private readonly IConfiguration _configuration;
         private readonly ILocalStorageService _localStorage;
         private readonly NavigationManager _nav;
@@ -289,9 +286,9 @@ namespace SynopsisClient.Model
 
                 Log.LogTrace("Creating request");
                 var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
-                httpRequest.Headers.Add(UserEmailHeaderKey, _userManager.CurrentUser.Email);
-                httpRequest.Headers.Add(FileNameHeaderKey, _userManager.CurrentUser.SynopsisName);
-                httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+                httpRequest.Headers.Add(Constants.UserEmailHeaderKey, _userManager.CurrentUser.Email);
+                httpRequest.Headers.Add(Constants.FileNameHeaderKey, _userManager.CurrentUser.SynopsisName);
+                httpRequest.Headers.Add(Constants.FunctionCodeHeaderKey, functionKey);
 
                 HttpResponseMessage response;
 
@@ -479,6 +476,21 @@ namespace SynopsisClient.Model
                 return;
             }
 
+            Log.LogTrace("Showing confirm dialog");
+            var formModal = _modal.Show<CommitDialog>("Ready to commit");
+            var result = await formModal.Result;
+
+            Log.LogDebug($"Confirm: cancelled: {result.Cancelled}");
+
+            if (result.Cancelled
+                || string.IsNullOrEmpty(result.Data.ToString()))
+            {
+                Log.LogTrace("Cancelling commit");
+                return;
+            }
+
+            var commitMessage = result.Data.ToString();
+
             await ShowHideBusyDialog(true, "Saving...");
 
             await CheckSaveSynopsis();
@@ -505,9 +517,10 @@ namespace SynopsisClient.Model
             Log.LogTrace("Creating request with headers");
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
-            httpRequest.Headers.Add(UserEmailHeaderKey, _userManager.CurrentUser.Email);
-            httpRequest.Headers.Add(FileNameHeaderKey, _userManager.CurrentUser.SynopsisName);
-            httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+            httpRequest.Headers.Add(Constants.UserEmailHeaderKey, _userManager.CurrentUser.Email);
+            httpRequest.Headers.Add(Constants.FileNameHeaderKey, _userManager.CurrentUser.SynopsisName);
+            httpRequest.Headers.Add(Constants.CommitMessageHeaderKey, commitMessage);
+            httpRequest.Headers.Add(Constants.FunctionCodeHeaderKey, functionKey);
 
             Log.LogTrace("Serializing Synopsis");
 
