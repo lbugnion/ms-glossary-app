@@ -9,12 +9,6 @@ namespace SynopsisClient.Dialogs
     {
         private bool _showWarning;
 
-        private CommitModel Model
-        {
-            get;
-            set;
-        }
-
         [CascadingParameter]
         private BlazoredModalInstance ModalInstance
         {
@@ -22,9 +16,10 @@ namespace SynopsisClient.Dialogs
             set;
         }
 
-        protected override void OnInitialized()
+        private CommitModel Model
         {
-            Model = new CommitModel();
+            get;
+            set;
         }
 
         private async Task OnCancel()
@@ -43,17 +38,22 @@ namespace SynopsisClient.Dialogs
             await ModalInstance.CloseAsync(ModalResult.Ok(Model.Message));
         }
 
+        protected override void OnInitialized()
+        {
+            Model = new CommitModel();
+        }
+
         public class CommitModel
         {
-            public CommitModel()
-            {
-                Message = string.Empty;
-            }
-
             public string Message
             {
                 get;
                 set;
+            }
+
+            public CommitModel()
+            {
+                Message = string.Empty;
             }
         }
     }

@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 
 // Set version number for the assembly.
-[assembly: AssemblyVersionAttribute("0.2.*")]
+[assembly: AssemblyVersion("0.3.*")]
 
 namespace SynopsisClient
 {

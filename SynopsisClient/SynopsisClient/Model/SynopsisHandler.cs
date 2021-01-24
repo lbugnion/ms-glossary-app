@@ -26,14 +26,20 @@ namespace SynopsisClient.Model
         private const string SaveSynopsisUrlFunctionKeyKey = "SaveSynopsisUrlFunctionKey";
         private const string SaveSynopsisUrlKey = "SaveSynopsisUrl";
         private readonly IConfiguration _configuration;
+        private readonly HttpClient _http;
         private readonly ILocalStorageService _localStorage;
         private readonly NavigationManager _nav;
-        private readonly HttpClient _http;
         private readonly UserManager _userManager;
         private ListHandlerBase _listHandler;
         private IModalService _modal;
 
         public const string LocalStorageKey = "Current-Synopsis";
+
+        private ILogger Log
+        {
+            get;
+            set;
+        }
 
         public string CannotLoadErrorMessage
         {
@@ -87,12 +93,6 @@ namespace SynopsisClient.Model
         {
             get;
             private set;
-        }
-
-        private ILogger Log 
-        { 
-            get;
-            set;
         }
 
         public SynopsisHandler(
@@ -226,7 +226,6 @@ namespace SynopsisClient.Model
                     // do NOT use the automatic deserialization in _localStorage to avoid
                     // issues with Dictionary keys being forced to lower caps.
                     Log.LogDebug($"Loading from storage with key {LocalStorageKey}");
-
 
                     var json = await _localStorage.GetItemAsStringAsync(LocalStorageKey);
 
@@ -570,6 +569,12 @@ namespace SynopsisClient.Model
             _listHandler = new ListHandler<T>(this, items, Log);
         }
 
+        public void DefineLog(ILogger log)
+        {
+            log.LogInformation("-> SynopsisHandler.DefineLog");
+            Log = log;
+        }
+
         public void DefineModal(IModalService modal)
         {
             Log.LogInformation("-> SynopsisHandler.DefineModal");
@@ -600,12 +605,6 @@ namespace SynopsisClient.Model
             Log.LogInformation("-> SynopsisHandler.ExecuteReloadLocal");
             // TODO Reload synopsis local without reloading the page
             _nav.NavigateTo(_nav.Uri, forceLoad: true);
-        }
-
-        public void DefineLog(ILogger log)
-        {
-            log.LogInformation("-> SynopsisHandler.DefineLog");
-            Log = log;
         }
 
         public async Task<bool> InitializePage()
@@ -680,13 +679,13 @@ namespace SynopsisClient.Model
         private class ListHandler<T> : ListHandlerBase
             where T : class, new()
         {
+            private ILogger Log { get; }
+
             public IList<T> Items
             {
                 get;
                 set;
             }
-
-            private ILogger Log { get; }
 
             public ListHandler(SynopsisHandler parent, IList<T> items, ILogger log)
                 : base(parent)

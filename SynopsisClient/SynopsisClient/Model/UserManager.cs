@@ -11,6 +11,12 @@ namespace SynopsisClient.Model
         private const string DefaultSynopsisName = "this-is-an-example";
         private readonly ILocalStorageService _localStorage;
 
+        private ILogger Log
+        {
+            get;
+            set;
+        }
+
         public bool CannotLogIn
         {
             get;
@@ -21,12 +27,6 @@ namespace SynopsisClient.Model
         {
             get;
             set;
-        }
-
-        private ILogger Log 
-        { 
-            get; 
-            set; 
         }
 
         public User CurrentUser
@@ -50,11 +50,6 @@ namespace SynopsisClient.Model
         public UserManager(ILocalStorageService localStorage)
         {
             _localStorage = localStorage;
-        }
-
-        public void DefineLog(ILogger log)
-        {
-            Log = log;
         }
 
         public async Task<bool> CheckLogin()
@@ -91,6 +86,11 @@ namespace SynopsisClient.Model
                 Log.LogInformation("UserManager.CheckLogin ->");
                 return false;
             }
+        }
+
+        public void DefineLog(ILogger log)
+        {
+            Log = log;
         }
 
         public void Initialize(string term = null)

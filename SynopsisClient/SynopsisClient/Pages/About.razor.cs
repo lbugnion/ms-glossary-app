@@ -1,24 +1,21 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Globalization;
-using System.IO;
 using System.Reflection;
 
 namespace SynopsisClient.Pages
 {
     public partial class About
     {
-        private const string VersionKey = "Version";
         private const string VersionDateKey = "VersionDate";
+        private const string VersionKey = "Version";
 
-        public string ClientVersion
+        public string AssemblyVersion
         {
             get;
             private set;
         }
 
-        public string AssemblyVersion
+        public string ClientVersion
         {
             get;
             private set;

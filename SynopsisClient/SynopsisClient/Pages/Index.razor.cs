@@ -1,25 +1,18 @@
-﻿using Blazored.Modal.Services;
+﻿using Blazored.Modal;
+using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Extensions.Logging;
+using SynopsisClient.Dialogs;
 using SynopsisClient.Model;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using SynopsisClient.Dialogs;
-using Blazored.Modal;
 
 namespace SynopsisClient.Pages
 {
     public partial class Index
     {
         private const string QueryEdit = "edit=";
-
-        [Parameter]
-        public string Term
-        {
-            get;
-            set;
-        }
 
         [CascadingParameter]
         private IModalService Modal
@@ -29,6 +22,13 @@ namespace SynopsisClient.Pages
         }
 
         public EditContext CurrentEditContext
+        {
+            get;
+            set;
+        }
+
+        [Parameter]
+        public string Term
         {
             get;
             set;
@@ -51,59 +51,6 @@ namespace SynopsisClient.Pages
                 Log.LogTrace("cannot load");
                 UserManager.CannotLogIn = false;
             }
-        }
-
-        protected override async Task OnInitializedAsync()
-        {
-            Log.LogInformation("-> OnInitializedAsync");
-
-            Log.LogDebug($"Handler.CannotLoadErrorMessage: {Handler.CannotLoadErrorMessage}");
-            Log.LogDebug($"Handler.CannotSaveErrorMessage: {Handler.CannotSaveErrorMessage}");
-
-            // Check query string
-            if (string.IsNullOrEmpty(Term))
-            {
-                Log.LogDebug($"Term is NOT already defined in route: {Term}");
-                Log.LogDebug($"URI: {Nav.Uri}");
-
-                var query = Nav.ToAbsoluteUri(Nav.Uri).Query;
-                var index = query.IndexOf(QueryEdit);
-
-                if (index > -1)
-                {
-                    Log.LogTrace("Found edit query");
-
-                    var indexOfAnd = query.IndexOf("&");
-
-                    if (indexOfAnd > -1)
-                    {
-                        Term = query.Substring(index + QueryEdit.Length, indexOfAnd);
-                    }
-                    else
-                    {
-                        Term = query.Substring(index + QueryEdit.Length);
-                    }
-
-                    Log.LogDebug($"Term in query: {Term}");
-                }
-            }
-
-            UserManager.DefineLog(Log);
-            Handler.DefineLog(Log);
-
-            Log.LogTrace("Initializing UserManager");
-            UserManager.Initialize(Term);
-            CurrentEditContext = new EditContext(UserManager.CurrentUser);
-            CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
-
-            Log.LogTrace("Passing modal in SynopsisHandler");
-            Handler.DefineModal(Modal);
-
-            Log.LogTrace("Checking login");
-
-            await UserManager.CheckLogin();
-
-            Log.LogInformation("OnInitializedAsync ->");
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -158,6 +105,59 @@ namespace SynopsisClient.Pages
             }
 
             Log.LogInformation("OnAfterRenderAsync ->");
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            Log.LogInformation("-> OnInitializedAsync");
+
+            Log.LogDebug($"Handler.CannotLoadErrorMessage: {Handler.CannotLoadErrorMessage}");
+            Log.LogDebug($"Handler.CannotSaveErrorMessage: {Handler.CannotSaveErrorMessage}");
+
+            // Check query string
+            if (string.IsNullOrEmpty(Term))
+            {
+                Log.LogDebug($"Term is NOT already defined in route: {Term}");
+                Log.LogDebug($"URI: {Nav.Uri}");
+
+                var query = Nav.ToAbsoluteUri(Nav.Uri).Query;
+                var index = query.IndexOf(QueryEdit);
+
+                if (index > -1)
+                {
+                    Log.LogTrace("Found edit query");
+
+                    var indexOfAnd = query.IndexOf("&");
+
+                    if (indexOfAnd > -1)
+                    {
+                        Term = query.Substring(index + QueryEdit.Length, indexOfAnd);
+                    }
+                    else
+                    {
+                        Term = query.Substring(index + QueryEdit.Length);
+                    }
+
+                    Log.LogDebug($"Term in query: {Term}");
+                }
+            }
+
+            UserManager.DefineLog(Log);
+            Handler.DefineLog(Log);
+
+            Log.LogTrace("Initializing UserManager");
+            UserManager.Initialize(Term);
+            CurrentEditContext = new EditContext(UserManager.CurrentUser);
+            CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
+
+            Log.LogTrace("Passing modal in SynopsisHandler");
+            Handler.DefineModal(Modal);
+
+            Log.LogTrace("Checking login");
+
+            await UserManager.CheckLogin();
+
+            Log.LogInformation("OnInitializedAsync ->");
         }
 
         public async Task LogIn()

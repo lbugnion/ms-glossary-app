@@ -1,5 +1,5 @@
-﻿using System.Collections.Concurrent;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 
 public sealed class SynopsisClientLoggerProvider : ILoggerProvider
 {
@@ -16,7 +16,7 @@ public sealed class SynopsisClientLoggerProvider : ILoggerProvider
     public ILogger CreateLogger(string categoryName)
     {
         return _loggers.GetOrAdd(
-            categoryName, 
+            categoryName,
             name => new SynopsisClientLogger(name, _config));
     }
 
