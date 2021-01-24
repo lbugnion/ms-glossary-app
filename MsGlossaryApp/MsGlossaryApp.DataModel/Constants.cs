@@ -4,10 +4,12 @@
     {
         public const string AzureWebJobsStorageVariableName = "AzureWebJobsStorage";
         public const string BlobStoreNameVariableName = "BlobStoreName";
+        public const string CommitMessageHeaderKey = "x-glossary-commit-message";
         public const string DocsGlossaryGitHubAccountVariableName = "DocsGlossaryGitHubAccount";
         public const string DocsGlossaryGitHubMainBranchNameVariableName = "DocsGlossaryGitHubMainBranchName";
         public const string DocsGlossaryGitHubRepoVariableName = "DocsGlossaryGitHubRepo";
         public const string FileNameHeaderKey = "x-glossary-file-name";
+        public const string FunctionCodeHeaderKey = "x-functions-key";
         public const string GitHubSynopsisUrlTemplate = "https://raw.githubusercontent.com/{0}/{1}/{2}/synopsis/{2}.md";
         public const string GitHubTokenVariableName = "GitHubToken";
         public const string ImageContainerVariableName = "ImageContainer";

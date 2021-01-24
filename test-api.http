@@ -40,7 +40,7 @@ x-functions-key: Xq9pl6xS6uI1RVuxKaN0e2HG6ts0AKgqAbniQQXKUCaHxDEAdtC1Fw==
 ### Get synopsis for edit local
 GET http://localhost:7071/api/synopsis
 x-glossary-user-email: lbugnion@microsoft.com
-x-glossary-file-name: logic-app
+x-glossary-file-name: test-topic-17
 
 ### Get synopsis for edit test
 GET https://msglossary-app-test.azurewebsites.net/api/synopsis
@@ -51,7 +51,8 @@ x-functions-key: jIzX5ysczMLK9ttfQAHORzhHNfupM6HChYMRvGj/c5Y5tTEUwnORlw==
 ### Save synopsis local
 POST http://localhost:7071/api/synopsis
 x-glossary-user-email: lbugnion@microsoft.com
-x-glossary-file-name: azure-portal
+x-glossary-file-name: test-topic-17
+x-glossary-commit-message: This is a commit message
 
 {
   "authorsInstructions": [
@@ -88,7 +89,7 @@ x-glossary-file-name: azure-portal
   },
   "personalNotes": [
     {
-      "content": "Note 1"
+      "content": "Note 1B"
     },
     {
       "content": "Note 2"
@@ -172,7 +173,7 @@ x-glossary-file-name: azure-portal
   "linksToOthers": [],
   "mustSave": false,
   "shortDescription": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut",
-  "title": "Test topic 17C",
+  "title": "Test topic 17D",
   "transcriptLines": [
     {
       "markdown": "Today's word of the day is: WORD."

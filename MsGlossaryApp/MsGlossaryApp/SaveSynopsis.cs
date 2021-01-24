@@ -27,7 +27,7 @@ namespace MsGlossaryApp
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            var (userEmail, fileName) = req.GetUserInfoFromHeaders();
+            var (userEmail, fileName, commitMessage) = req.GetUserInfoFromHeaders();
 
             if (string.IsNullOrEmpty(userEmail))
             {
@@ -41,8 +41,15 @@ namespace MsGlossaryApp
                 return new BadRequestObjectResult("No file name found in header");
             }
 
+            if (string.IsNullOrEmpty(commitMessage))
+            {
+                log?.LogError("No commit message found in header");
+                return new BadRequestObjectResult("No commit message found in header");
+            }
+
             log?.LogDebug($"userEmail {userEmail}");
             log?.LogDebug($"fileName {fileName}");
+            log?.LogDebug($"commitMessage {commitMessage}");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
@@ -53,28 +60,31 @@ namespace MsGlossaryApp
 
             // Perform validation
 
-            // TODO CONTINUE
+            // TODO PERFORM VALIDATION
 
-            //if (!isValid)
-            //{
-            //    // TODO return messages
-            //}
+            var isAuthorValid = false;
 
-            //foreach (var author in synopsis.Authors)
-            //{
-            //    validationContext = new ValidationContext(author);
+            foreach (var author in synopsis.Authors)
+            {
+                if (author.Email.ToLower() == userEmail.ToLower())
+                {
+                    isAuthorValid = true;
+                    break;
+                }
+            }
 
-            //    isValid = Validator.TryValidateObject(
-            //        author,
-            //        validationContext,
-            //        results,
-            //        true);
+            if (!isAuthorValid)
+            {
+                await NotificationService.Notify(
+                    "Invalid author for synopsis save request",
+                    $"We got the following SAVE request: {userEmail} / {fileName} but author is invalid",
+                    log);
 
-            //    if (!isValid)
-            //    {
-            //        // TODO return messages
-            //    }
-            //}
+                log?.LogError($"Invalid author: {userEmail} / {fileName}");
+
+                return new BadRequestObjectResult(
+                    $"Sorry but the author {userEmail} is not listed as one of the original author");
+            }
 
             // Get the markdown file
 
@@ -126,19 +136,19 @@ namespace MsGlossaryApp
                     // Save file to GitHub
                     var result = await FileSaver.SaveFile(
                         newFile,
-                        $"Saved changes to {newFile.Path}",
+                        $"Saved changes to {newFile.Path}. {commitMessage} by {userEmail}",
                         synopsis.FileName,
                         log);
 
                     if (!string.IsNullOrEmpty(result))
                     {
-                        var message = $"Save request for {synopsis.FileName} received, but file wasn't saved: {result}";
+                        var message = $"Save request for {synopsis.FileName} received from {userEmail}, but file wasn't saved: {result}";
                         await NotificationService.Notify(
                             "Synopsis NOT saved to GitHub",
                             message,
                             log);
 
-                        log?.LogInformation($"Synopsis was NOT saved {message}");
+                        log?.LogInformation(message);
                         return new OkObjectResult(message);
                     }
 
@@ -146,13 +156,13 @@ namespace MsGlossaryApp
                 }
                 else
                 {
-                    var result = $"Save request for {synopsis.FileName} received, but file hasn't changed";
+                    var result = $"Save request for {synopsis.FileName} received from {userEmail}, but file hasn't changed";
                     await NotificationService.Notify(
                         "Synopsis NOT saved to GitHub",
                         result,
                         log);
 
-                    log?.LogInformation($"Synopsis was NOT saved {result}");
+                    log?.LogInformation("result");
                     return new OkObjectResult(result);
                 }
             }
@@ -163,7 +173,7 @@ namespace MsGlossaryApp
 
             if (error != null)
             {
-                var errorMessage = $"{synopsis.FileName} was NOT saved to GitHub: {error.Message}";
+                var errorMessage = $"{synopsis.FileName} was NOT saved to GitHub: {error.Message} / {userEmail}";
 
                 await NotificationService.Notify(
                     "Synopsis NOT saved to GitHub",
@@ -177,7 +187,7 @@ namespace MsGlossaryApp
 
             var location = FileSaver.GetSavingLocation();
 
-            var successMessage = $"Synopsis {synopsis.FileName} was saved";
+            var successMessage = $"Synopsis {synopsis.FileName} edited by {userEmail} was saved";
 
             if (location == SavingLocations.Both
                 || location == SavingLocations.GitHub)

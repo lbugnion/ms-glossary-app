@@ -27,7 +27,7 @@ namespace MsGlossaryApp
         {
             log?.LogInformation("GetSynopsis");
 
-            var (userEmail, fileName) = req.GetUserInfoFromHeaders();
+            var (userEmail, fileName, _) = req.GetUserInfoFromHeaders();
 
             if (string.IsNullOrEmpty(userEmail))
             {
@@ -70,35 +70,6 @@ namespace MsGlossaryApp
                 token,
                 log);
 
-            //var synopsisUrl = string.Format(
-            //    Constants.GitHubSynopsisUrlTemplate,
-            //    accountName,
-            //    repoName,
-            //    fileName.ToLower());
-
-            //log?.LogDebug($"synopsisUrl {synopsisUrl}");
-
-            //string markdown = null;
-            //string error = null;
-
-            //try
-            //{
-            //    var client = new HttpClient();
-            //    client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
-            //    markdown = await client.GetStringAsync(synopsisUrl);
-            //}
-            //catch (HttpRequestException ex)
-            //{
-            //    log?.LogError(ex, "HttpRequestException when getting synopsis markdown");
-            //    error = "Double check the file name";
-            //}
-            //catch (Exception ex)
-            //{
-            //    log?.LogError(ex, "Error when getting synopsis markdown");
-            //    log?.LogDebug(ex.GetType().FullName);
-            //    error = ex.Message;
-            //}
-
             if (!string.IsNullOrEmpty(result.ErrorMessage))
             {
                 await NotificationService.Notify(
@@ -133,8 +104,8 @@ namespace MsGlossaryApp
             if (!isAuthorValid)
             {
                 await NotificationService.Notify(
-                    "Invalid author for synopsis edit request",
-                    $"We got the following request: {userEmail} / {fileName} but author is invalid",
+                    "Invalid author for synopsis get request",
+                    $"We got the following GET request: {userEmail} / {fileName} but author is invalid",
                     log);
 
                 log?.LogError($"Invalid author: {userEmail} / {fileName}");
