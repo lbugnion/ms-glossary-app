@@ -85,7 +85,7 @@ namespace SynopsisClient.Pages
 
             if (success)
             {
-                Handler.DefineList(Handler.Synopsis.TranscriptLines);
+                DefineList();
                 Handler.DefineModal(Modal);
             }
             else
@@ -107,6 +107,26 @@ namespace SynopsisClient.Pages
         {
             Handler.CurrentEditContext.OnValidationStateChanged
                 -= CurrentEditContextOnValidationStateChanged;
+        }
+
+        private void DefineList()
+        {
+            Log.LogInformation("-> DefineList");
+
+            if (Handler.Synopsis != null)
+            {
+                Log.LogTrace("Synopsis is not null");
+                Handler.DefineList(Handler.Synopsis.TranscriptLines);
+            }
+        }
+
+        private async Task ReloadFromCloud()
+        {
+            Log.LogInformation("-> ReloadFromCloud");
+
+            await Handler.ReloadFromCloud();
+            DefineList();
+            CountWords();
         }
     }
 }
