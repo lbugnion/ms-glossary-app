@@ -67,12 +67,16 @@ namespace MsGlossaryApp
             if (string.IsNullOrEmpty(newTerm.SubmitterName)
                 || string.IsNullOrEmpty(newTerm.SubmitterEmail)
                 || string.IsNullOrEmpty(newTerm.SubmitterTwitter)
-                || string.IsNullOrEmpty(newTerm.SubmitterGithub)
                 || string.IsNullOrEmpty(newTerm.Term)
                 || string.IsNullOrEmpty(newTerm.ShortDescription))
             {
                 log?.LogError("Incomplete submission");
                 return new BadRequestObjectResult("Incomplete submission");
+            }
+
+            if (string.IsNullOrEmpty(newTerm.SubmitterGithub))
+            {
+                newTerm.SubmitterGithub = "N/A";
             }
 
             // Get the main head
