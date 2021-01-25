@@ -460,7 +460,7 @@ namespace MsGlossaryApp.Model.GitHub
         }
 
         public async Task<GetTextFileResult> GetTextFile(
-                                            string accountName,
+            string accountName,
             string repoName,
             string branchName,
             string filePathWithExtension,

@@ -222,8 +222,6 @@ namespace MsGlossaryApp.Model
             string markdown,
             ILogger log)
         {
-            // TODO Once the Synopsis client is published, remove the instructions from the template and force only Synopsis client to be used
-
             log?.LogInformation("In ParseSynopsis");
             log?.LogInformation($"Synopsis: {uri}");
 
