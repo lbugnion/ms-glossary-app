@@ -429,6 +429,8 @@ namespace SynopsisClient.Model
                 castedListHandler.InsertItemAt(previousIndex + 1, new T());
             }
 
+            TriggerValidation();
+
             Log.LogInformation("SynopsisHandler.AddTranscriptLineAfter ->");
         }
 
@@ -706,7 +708,6 @@ namespace SynopsisClient.Model
 
                 var newItem = new T();
                 Items.Add(newItem);
-                _parent.TriggerValidation();
                 _parent.IsModified = true;
                 Log.LogInformation("ListHandler.AddItem ->");
             }
@@ -775,7 +776,7 @@ namespace SynopsisClient.Model
                 }
 
                 Items.Insert(index, newItem);
-                _parent.TriggerValidation();
+                //_parent.TriggerValidation();
                 _parent.IsModified = true;
                 Log.LogInformation("ListHandler.InsertItemAt ->");
             }

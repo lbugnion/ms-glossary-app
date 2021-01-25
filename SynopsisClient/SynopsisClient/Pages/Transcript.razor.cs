@@ -53,7 +53,7 @@ namespace SynopsisClient.Pages
                 _wordsSpanClass = WordsCountGoodClass;
             }
 
-            Log.LogDebug($"{_words} words after");
+            Log.LogDebug($"{_words} words");
 
             StateHasChanged();
         }
