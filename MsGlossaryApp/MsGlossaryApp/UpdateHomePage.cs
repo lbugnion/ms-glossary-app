@@ -126,6 +126,8 @@ namespace MsGlossaryApp
                     ("glossary/index.md", newContent)
                 };
 
+                // TODO Check and honor SavingLocation in settings
+
                 var result = await helper.CommitFiles(
                     accountName,
                     repoName,
