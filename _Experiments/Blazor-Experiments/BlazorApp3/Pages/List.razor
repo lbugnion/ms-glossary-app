@@ -1,0 +1,16 @@
+﻿@page "/list"
+
+<EditForm OnValidSubmit="@HandleValidSubmit" EditContext="@_editContext">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    @foreach (var author in _synopsis.Authors)
+    {
+        <InputText id="name" @bind-Value="author.Name" />
+        <br />
+    }
+
+    <br />
+
+    <button type="submit">Submit</button>
+</EditForm>

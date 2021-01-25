@@ -1,0 +1,42 @@
+﻿@page "/phonetics"
+@inject ILogger<Phonetics> Log
+
+<h2>Phonetics</h2>
+
+@if (Handler.Synopsis == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="intro">
+
+        <p>Add the phonetics of the word or the expression.</p>
+
+        <p>You can create a phonetics expression at <a href="https://tophonetics.com" target="_blank">https://tophonetics.com</a></p>
+
+        <p><strong>Make sure to select "American" to ensure consistency.</strong></p>
+
+        <p><a href="https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#phonetics" target="_blank">See the notes</a></p>
+    </div>
+
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+
+        <div class="edit-area">
+            <label title="Term's phonetics transcription">
+                <span class="form-label">Phonetics</span>
+                <br />
+                <InputText class="medium-input-text"
+                           @bind-Value="Handler.Synopsis.Phonetics" />
+            </label>
+
+            <hr />
+        </div>
+
+        <ValidationSummary />
+
+        <Footer ReloadFromCloudClicked="@Handler.ReloadFromCloud" />
+
+    </EditForm>
+}

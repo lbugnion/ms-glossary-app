@@ -1,0 +1,103 @@
+﻿@inject ILogger<NavMenu> Log
+
+<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">Synopsis Editor</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            <NavLink class="nav-link"
+                     @onclick="@(e => CheckNavigateTo("/", bypassLogin: true))"
+                     Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link"
+                     @onclick="@(e => CheckNavigateTo("/title"))">
+                <span class="oi oi-arrow-right" aria-hidden="true"></span> Title
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link"
+                     @onclick="@(e => CheckNavigateTo("/authors"))">
+                <span class="oi oi-arrow-right" aria-hidden="true"></span> Authors
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link"
+                     @onclick="@(e => CheckNavigateTo("/short-description"))">
+                <span class="oi oi-arrow-right" aria-hidden="true"></span> Description
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link"
+                     @onclick="@(e => CheckNavigateTo("/phonetics"))">
+                <span class="oi oi-arrow-right" aria-hidden="true"></span> Phonetics
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link"
+                     @onclick="@(e => CheckNavigateTo("/personal-notes"))">
+                <span class="oi oi-arrow-right" aria-hidden="true"></span> Notes
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link"
+                     @onclick="@(e => CheckNavigateTo("/keywords"))">
+                <span class="oi oi-arrow-right" aria-hidden="true"></span> Keywords
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link"
+                     @onclick="@(e => CheckNavigateTo("/demos"))">
+                <span class="oi oi-arrow-right" aria-hidden="true"></span> Demos
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link"
+                     @onclick="@(e => CheckNavigateTo("/links-docs"))">
+                <span class="oi oi-arrow-right" aria-hidden="true"></span> Links to Docs
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link"
+                     @onclick="@(e => CheckNavigateTo("/links-learn"))">
+                <span class="oi oi-arrow-right" aria-hidden="true"></span> Links to Learn
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link"
+                     @onclick="@(e => CheckNavigateTo("/links-others"))">
+                <span class="oi oi-arrow-right" aria-hidden="true"></span> Other Links
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link"
+                     @onclick="@(e => CheckNavigateTo("/transcript"))">
+                <span class="oi oi-arrow-right" aria-hidden="true"></span> Transcript
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link"
+                     @onclick="@(e => CheckNavigateTo("/about", bypassLogin: true))">
+                <span class="oi oi-wrench" aria-hidden="true"></span> About
+            </NavLink>
+        </li>
+
+        @if (_showDebug)
+        {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link"
+                         @onclick="@(e => CheckNavigateTo("/tests"))">
+                    <span class="oi oi-arrow-right" aria-hidden="true"></span> Test
+                </NavLink>
+            </li>
+        }
+    </ul>
+
+</div>

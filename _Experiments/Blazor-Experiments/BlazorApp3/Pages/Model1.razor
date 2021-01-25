@@ -1,0 +1,60 @@
+﻿@page "/model1"
+@using System.ComponentModel.DataAnnotations;
+
+<EditForm Model="@_exampleModel" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText id="name" @bind-Value="_exampleModel.Name" />
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+@code 
+{
+    private ExampleModel _exampleModel = new ExampleModel(new Example());
+
+    private void HandleValidSubmit()
+    {
+        Console.WriteLine("Submitted");
+    }
+
+    public class ExampleModel
+    {
+        private Example _model;
+
+        public ExampleModel(Example model)
+        {
+            _model = model;
+        }
+
+        [Required]
+        [StringLength(10, ErrorMessage = "Name is too long.")]
+        public string Name
+        {
+            get
+            {
+                return _model.Name;
+            }
+            set
+            {
+                _model.Name = value;
+                Save();
+            }
+        }
+
+        public void Save()
+        {
+            Console.WriteLine("Saving model");
+        }
+    }
+
+    public class Example
+    {
+        public string Name
+        {
+            get;
+            set;
+        }
+    }
+}

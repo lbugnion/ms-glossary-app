@@ -1,0 +1,106 @@
+﻿@using MsGlossaryApp.DataModel
+@page "/transcript"
+@inject ILogger<Transcript> Log
+
+<h2>Transcript</h2>
+
+@if (Handler.Synopsis == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="intro">
+
+        <p>This is a transcript of what you are planning to say on camera.</p>
+
+        <p><a href="https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#script">See the notes</a></p>
+
+        <p>When writing your script, and even though we are not working on the video yet, <a href="https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-video.md">keep in mind the general structure of the social videos</a>.</p>
+
+        <p>For abbreviations, also mention the full expression in the intro and show phonetics too.</p>
+
+        <div class="transcript-words-info @_wordsInfoClass">
+            <p>Aim for <strong>@MinWordsInTranscript-@MaxWordsInTranscript words</strong> for a <strong>2 minutes video</strong>.</p>
+
+            <p>Currently your transcript has <strong><span class="@_wordsSpanClass">@_words words</span></strong>.</p>
+        </div>
+
+    </div>
+
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+
+        <div class="edit-area">
+
+            <div class="transcript-action-links">
+                <a href="#"
+                   @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptSimpleLine>(null))"
+                   @onclick:preventDefault>Add new line here</a>&nbsp;|&nbsp;
+                @*<a href="#"
+                @onclick="(e => AddImageAfter(null))"
+                @onclick:preventDefault>New image here</a>&nbsp;|&nbsp;*@
+                <a href="#"
+                   @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptNote>(null))"
+                   @onclick:preventDefault>Add new note here</a>
+            </div>
+
+            @foreach (var line in Handler.Synopsis.TranscriptLines)
+            {
+                <div>
+                    @if (line is TranscriptNote note)
+                    {
+                        <label title="Enter a note to help you during the video production">
+                            <span class="form-label">Production note</span>
+                            <br />
+                            <InputTextArea class="medium-input-text production-note"
+                                           @bind-Value="note.Note" />
+                        </label>
+                    }
+                    @*else if (line is TranscriptImage image)
+                    {
+                        <label title="Enter an image to illustrate your point">
+                            <span class="form-label">Image title</span>
+                            <br />
+                            <InputText class="medium-input-text"
+                                       @bind-Value="image.Image.Title" />
+                        </label>
+                    }*@
+                    else if (line is TranscriptSimpleLine simpleLine)
+                    {
+                        <label title="Enter one single line of script">
+                            <span class="form-label">One line of script</span>
+                            <br />
+                            <InputTextArea class="medium-input-text-area"
+                                           @bind-Value="simpleLine.Line" />
+                        </label>
+                    }
+
+                    <div class="transcript-action-links">
+                        <a href="#"
+                           @onclick="(e => Handler.Delete(line))"
+                           @onclick:preventDefault>Delete</a>&nbsp;|&nbsp;
+                        <a href="#"
+                           @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptSimpleLine>(line))"
+                           @onclick:preventDefault>New line</a>&nbsp;|&nbsp;
+                        @*<a href="#"
+                        @onclick="(e => AddImageAfter(line))"
+                        @onclick:preventDefault>New image</a>&nbsp;|&nbsp;*@
+                        <a href="#"
+                           @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptNote>(line))"
+                           @onclick:preventDefault>New note</a>&nbsp;|&nbsp;
+                        <span class="@_wordsSpanClass">@_words words total</span>
+                    </div>
+                </div>
+            }
+
+            <hr />
+
+        </div>
+
+        <ValidationSummary />
+
+        <Footer ReloadFromCloudClicked="@Handler.ReloadFromCloud" />
+
+    </EditForm>
+}

@@ -1,0 +1,28 @@
+﻿<div class="card dialog">
+    <div class="card-body">
+        <p class="card-text">@Message</p>
+        <button @onclick="OnCancel">OK</button>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    BlazoredModalInstance ModalInstance
+    {
+        get;
+        set;
+    }
+
+    [Parameter]
+    public string Message
+    {
+        get;
+        set;
+    }
+
+    private async Task OnCancel()
+    {
+        await ModalInstance.CancelAsync();
+    }
+}

@@ -1,0 +1,144 @@
+﻿@page "/"
+@page "/edit/{Term}"
+@inject ILogger<Index> Log
+@inject HttpClient Http
+
+<h1>Microsoft Glossary Synopsis Editor</h1>
+
+<div class="intro">
+
+    <p>Welcome to <a href="http://aka.ms/define" target="_blank">the Microsoft Glossary</a> Synopsis editor. This is where you can edit your entry before submitting for review.</p>
+
+    <p>
+        Before you start, <a href="https://aka.ms/glossary/getting-started"
+                             target="_blank">take a moment to read the instructions</a>. The instructions are also copied into this editor for your convenience.
+    </p>
+
+    @if (UserManager.IsLoggedIn)
+    {
+        @if (!string.IsNullOrEmpty(Handler.CannotLoadErrorMessage))
+        {
+            <div class="error-message">
+
+                <h1>We are having trouble getting the Synopsis.</h1>
+
+                <p>Please try the following steps:</p>
+
+                <ul>
+                    <li>Try again to navigate to a section.</li>
+                    <li>If it fails, log out.</li>
+                    <li>Log in again and double check your details.</li>
+                    <li>If this doesn't work, contact <a href="mailto:ms-glossary-help@microsoft.com">ms-glossary-help@microsoft.com</a></li>
+                </ul>
+
+                <div class="error-details">
+                    <label>
+                        <span class="error-details-title">Error message:</span>
+                        <br />@Handler.CannotLoadErrorMessage
+                    </label>
+                </div>
+
+            </div>
+        }
+        else
+        {
+            @if (!string.IsNullOrEmpty(Handler.CannotSaveErrorMessage))
+            {
+                <div class="error-message">
+
+                    <h1>We are having trouble saving the Synopsis.</h1>
+
+                    <p>Please try the following steps:</p>
+
+                    <ul>
+                        <li>Do <strong>NOT</strong> log out.</li>
+                        <li>Try again what you were doing.</li>
+                        <li>If this doesn't work, contact <a href="mailto:ms-glossary-help@microsoft.com">ms-glossary-help@microsoft.com</a></li>
+                    </ul>
+
+                    <div class="error-details">
+                        <label>
+                            <span class="error-details-title">Error message:</span>
+                            <br />@Handler.CannotSaveErrorMessage
+                        </label>
+                    </div>
+
+                </div>
+            }
+            else
+            {
+                @if (Handler.ShowSavedToCloudSuccessMessage)
+                {
+                    <div class="success-message">
+                        @if (!string.IsNullOrEmpty(Handler.SaveResponseMessage))
+                        {
+                            <h1>Synopsis NOT saved to GitHub.</h1>
+
+                            <p>Everything went well but the Synopsis was not saved:</p>
+
+                            <div class="not-saved-details">
+                                <label>
+                                    <span class="not-saved-title">Server message:</span>
+                                    <br />@Handler.SaveResponseMessage
+                                </label>
+                            </div>
+                        }
+                        else
+                        {
+                            <h1>Synopsis saved to GitHub.</h1>
+                        }
+
+                        <p>If you are done and ready, <a href="https://github.com/lbugnion/ms-glossary/blob/main/instructions/synopsis-pull-request.md">please follow these instructions to submit a Pull Request</a> and get your synopsis to the Glossary team for review.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="success-message">
+                        <p>You are currently editing: <strong>@UserManager.CurrentUser.SynopsisName</strong>.</p>
+                    </div>
+
+                    <p><strong>Select a section from the navigation menu.</strong></p>
+
+                    <p>Note that the new synopsis is into a GitHub "branch". It means that your changes will be into a kind of sandbox and won't affect the rest of the site until you are ready to submit. <a href="https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-branches">More information about GitHub branches</a>.</p>
+                }
+            }
+        }
+    }
+    else
+    {
+        <EditForm EditContext="@CurrentEditContext">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="edit-area">
+                <label title="Your email address">
+                    <span class="form-label">Enter your email address</span>
+                    <br />
+                    <InputText class="short-input-text"
+                               @bind-Value="UserManager.CurrentUser.Email" />
+                </label>
+                <label title="The name of the file you want to load">
+                    <span class="form-label">Synopsis file name</span>
+                    <br />
+                    <InputText class="short-input-text"
+                               @bind-Value="UserManager.CurrentUser.SynopsisName" />
+                </label>
+                <br />
+                <button class="main-button"
+                        disabled="@UserManager.CannotLogIn"
+                        @onclick="LogIn">
+                    Log in
+                </button>
+            </div>
+
+        </EditForm>
+    }
+
+    <p>For questions or support, contact <a href="mailto:ms-glossary-help@microsoft.com">ms-glossary-help@microsoft.com</a></p>
+
+    <button class="main-button"
+            disabled="@UserManager.CannotLogOut"
+            @onclick="(e => LogOut())">
+        Log out
+    </button>
+</div>

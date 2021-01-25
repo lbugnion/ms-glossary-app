@@ -1,0 +1,11 @@
+﻿@page "/tests"
+@inject ILogger<TestFileInput> Log
+@inject HttpClient Http 
+
+<h1>Single file</h1>
+
+<p>A single file input that uploads automatically on file selection</p>
+
+<BlazorInputFile.InputFile OnChange="HandleSelection" />
+
+<p>@_status</p>

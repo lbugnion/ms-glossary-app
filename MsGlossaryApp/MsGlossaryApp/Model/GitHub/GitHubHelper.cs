@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace MsGlossaryApp.Model.GitHub
@@ -16,11 +17,11 @@ namespace MsGlossaryApp.Model.GitHub
         private const string CreateNewBranchUrl = "git/refs";
         private const string CreateTreeUrl = "git/trees";
         private const string GetHeadUrl = "git/ref/heads/{0}";
+        private const string GetMarkdownFileUrl = "contents/{0}?ref={1}";
         private const string GitHubApiBaseUrlMask = "https://api.github.com/repos/{0}/{1}/{2}";
         private const string UpdateReferenceUrl = "git/refs/heads/{0}";
         private const string UploadBlobUrl = "git/blobs";
-
-        private HttpClient _client;
+        private readonly HttpClient _client;
 
         public GitHubHelper()
         {
@@ -43,7 +44,7 @@ namespace MsGlossaryApp.Model.GitHub
             GetHeadResult existingBranchInfo = null,
             ILogger log = null)
         {
-            log?.LogInformationEx("In GitHubHelper.CommitFiles", LogVerbosity.Verbose);
+            log?.LogInformation("In GitHubHelper.CommitFiles");
 
             if (existingBranchInfo == null)
             {
@@ -78,12 +79,12 @@ namespace MsGlossaryApp.Model.GitHub
             var treeInfos = new List<TreeInfo>();
             string jsonRequest;
 
-            foreach (var file in fileNamesAndContent)
+            foreach (var (path, content) in fileNamesAndContent)
             {
-                log?.LogInformationEx($"Posting to GitHub blob: {file.path}", LogVerbosity.Verbose);
+                log?.LogDebug($"Posting to GitHub blob: {path}");
                 var uploadInfo = new UploadInfo
                 {
-                    Content = file.content
+                    Content = content
                 };
 
                 jsonRequest = JsonConvert.SerializeObject(uploadInfo);
@@ -110,7 +111,7 @@ namespace MsGlossaryApp.Model.GitHub
                     try
                     {
                         var errorMessage = $"Error uploading blob: {await uploadBlobResponse.Content.ReadAsStringAsync()}";
-                        log?.LogInformationEx(errorMessage, LogVerbosity.Verbose);
+                        log?.LogError(errorMessage);
                         return new GetHeadResult
                         {
                             ErrorMessage = errorMessage
@@ -129,15 +130,15 @@ namespace MsGlossaryApp.Model.GitHub
 
                 var uploadBlobJsonResult = await uploadBlobResponse.Content.ReadAsStringAsync();
                 var uploadBlobResult = JsonConvert.DeserializeObject<ShaInfo>(uploadBlobJsonResult);
-                log?.LogInformationEx($"Done posting to GitHub blob {uploadBlobResult.Sha}", LogVerbosity.Verbose);
+                log?.LogInformation($"Done posting to GitHub blob {uploadBlobResult.Sha}");
 
-                var info = new TreeInfo(file.path, uploadBlobResult.Sha);
+                var info = new TreeInfo(path, uploadBlobResult.Sha);
                 treeInfos.Add(info);
             }
 
             // Create the tree
 
-            log?.LogInformationEx("Creating the tree", LogVerbosity.Verbose);
+            log?.LogInformation("Creating the tree");
             var newTreeInfo = new CreateTreeInfo()
             {
                 BaseTree = mainCommit.Tree.Sha,
@@ -169,7 +170,7 @@ namespace MsGlossaryApp.Model.GitHub
                 try
                 {
                     var message = $"Error creating tree: {await response.Content.ReadAsStringAsync()}";
-                    log?.LogInformationEx(message, LogVerbosity.Verbose);
+                    log?.LogError(message);
                     return new GetHeadResult
                     {
                         ErrorMessage = message
@@ -188,11 +189,11 @@ namespace MsGlossaryApp.Model.GitHub
 
             var jsonResult = await response.Content.ReadAsStringAsync();
             var createTreeResult = JsonConvert.DeserializeObject<ShaInfo>(jsonResult);
-            log?.LogInformationEx($"Done creating the tree {createTreeResult.Sha}", LogVerbosity.Verbose);
+            log?.LogInformation($"Done creating the tree {createTreeResult.Sha}");
 
             // Create the commit
 
-            log?.LogInformationEx("Creating the commit", LogVerbosity.Verbose);
+            log?.LogInformation("Creating the commit");
             var commitInfo = new CommitInfo(
                 commitMessage,
                 mainCommit.Sha,
@@ -222,7 +223,7 @@ namespace MsGlossaryApp.Model.GitHub
                 try
                 {
                     var message = $"Error creating commit: {await response.Content.ReadAsStringAsync()}";
-                    log?.LogInformationEx(message, LogVerbosity.Verbose);
+                    log?.LogError(message);
                     return new GetHeadResult
                     {
                         ErrorMessage = message
@@ -241,11 +242,11 @@ namespace MsGlossaryApp.Model.GitHub
 
             jsonResult = await response.Content.ReadAsStringAsync();
             var createCommitResult = JsonConvert.DeserializeObject<ShaInfo>(jsonResult);
-            log?.LogInformationEx($"Done creating the commit {createCommitResult.Sha}", LogVerbosity.Verbose);
+            log?.LogInformation($"Done creating the commit {createCommitResult.Sha}");
 
             // Update reference
 
-            log?.LogInformationEx("Updating the reference", LogVerbosity.Verbose);
+            log?.LogInformation("Updating the reference");
             var updateReferenceInfo = new UpdateReferenceInfo(createCommitResult.Sha);
 
             jsonRequest = JsonConvert.SerializeObject(updateReferenceInfo);
@@ -272,7 +273,7 @@ namespace MsGlossaryApp.Model.GitHub
                 try
                 {
                     var message = $"Error updating reference: {await response.Content.ReadAsStringAsync()}";
-                    log?.LogInformationEx(message, LogVerbosity.Verbose);
+                    log?.LogError(message);
                     return new GetHeadResult
                     {
                         ErrorMessage = message
@@ -291,10 +292,10 @@ namespace MsGlossaryApp.Model.GitHub
 
             jsonResult = await response.Content.ReadAsStringAsync();
             var headResult = JsonConvert.DeserializeObject<GetHeadResult>(jsonResult);
-            log?.LogInformationEx("Done updating the reference", LogVerbosity.Verbose);
-            log?.LogInformationEx($"Ref: {headResult.Ref}", LogVerbosity.Debug);
+            log?.LogInformation("Done updating the reference");
+            log?.LogDebug($"Ref: {headResult.Ref}");
 
-            log?.LogInformationEx("Out GitHubHelper.CommitFiles", LogVerbosity.Verbose);
+            log?.LogInformation("Out GitHubHelper.CommitFiles");
 
             return headResult;
         }
@@ -307,7 +308,7 @@ namespace MsGlossaryApp.Model.GitHub
             string newBranchName = null,
             ILogger log = null)
         {
-            log?.LogInformationEx("In GitHubHelper.CreateNewBranch", LogVerbosity.Verbose);
+            log?.LogInformation("In GitHubHelper.CreateNewBranch");
 
             var newBranchRequestBody = new NewBranchInfo
             {
@@ -333,18 +334,18 @@ namespace MsGlossaryApp.Model.GitHub
             {
                 var errorResultJson = await response.Content.ReadAsStringAsync();
                 var errorResult = JsonConvert.DeserializeObject<ErrorResult>(errorResultJson);
-                log?.LogInformationEx($"Error when creating new branch: {newBranchName} / {errorResult.Message}", LogVerbosity.Verbose);
+                log?.LogError($"Error when creating new branch: {newBranchName} / {errorResult.ErrorMessage}");
                 return new GetHeadResult
                 {
-                    ErrorMessage = $"Error when creating new branch: {newBranchName} / {errorResult.Message}"
+                    ErrorMessage = $"Error when creating new branch: {newBranchName} / {errorResult.ErrorMessage}"
                 };
             }
 
             var jsonResult = await response.Content.ReadAsStringAsync();
             var createNewBranchResult = JsonConvert.DeserializeObject<GetHeadResult>(jsonResult);
-            log?.LogInformationEx($"Done creating new branch {createNewBranchResult.Object.Sha}", LogVerbosity.Verbose);
+            log?.LogDebug($"Done creating new branch {createNewBranchResult.Object.Sha}");
 
-            log?.LogInformationEx("Out GitHubHelper.CreateNewBranch", LogVerbosity.Verbose);
+            log?.LogInformation("Out GitHubHelper.CreateNewBranch");
 
             return createNewBranchResult;
         }
@@ -356,7 +357,7 @@ namespace MsGlossaryApp.Model.GitHub
             string token,
             ILogger log = null)
         {
-            log?.LogInformationEx("In GitHubHelper.GetHead", LogVerbosity.Verbose);
+            log?.LogInformation("In GitHubHelper.GetHead");
 
             var url = string.Format(
                 GitHubApiBaseUrlMask,
@@ -364,8 +365,8 @@ namespace MsGlossaryApp.Model.GitHub
                 repoName,
                 string.Format(GetHeadUrl, branchName));
 
-            log?.LogInformationEx($"repoName: {repoName}", LogVerbosity.Debug);
-            log?.LogInformationEx($"url: {url}", LogVerbosity.Debug);
+            log?.LogDebug($"repoName: {repoName}");
+            log?.LogDebug($"url: {url}");
 
             var request = new HttpRequestMessage
             {
@@ -382,7 +383,7 @@ namespace MsGlossaryApp.Model.GitHub
                 try
                 {
                     var errorMessage = $"Error getting head for {branchName}: {await response.Content.ReadAsStringAsync()}";
-                    log?.LogInformationEx(errorMessage, LogVerbosity.Verbose);
+                    log?.LogError(errorMessage);
                     return new GetHeadResult
                     {
                         ErrorMessage = errorMessage
@@ -401,9 +402,9 @@ namespace MsGlossaryApp.Model.GitHub
 
             var jsonResult = await response.Content.ReadAsStringAsync();
             var mainHead = JsonConvert.DeserializeObject<GetHeadResult>(jsonResult);
-            log?.LogInformationEx($"Found head for {branchName}", LogVerbosity.Verbose);
+            log?.LogDebug($"Found head for {branchName}");
 
-            log?.LogInformationEx("Out GitHubHelper.GetHead", LogVerbosity.Verbose);
+            log?.LogInformation("Out GitHubHelper.GetHead");
 
             return mainHead;
         }
@@ -415,7 +416,7 @@ namespace MsGlossaryApp.Model.GitHub
         {
             // Grab main commit
 
-            log?.LogInformationEx("In GitHubHelper.GetMainCommit", LogVerbosity.Verbose);
+            log?.LogInformation("In GitHubHelper.GetMainCommit");
 
             var request = new HttpRequestMessage
             {
@@ -432,7 +433,7 @@ namespace MsGlossaryApp.Model.GitHub
                 try
                 {
                     var errorMessage = $"Error getting commit: {await response.Content.ReadAsStringAsync()}";
-                    log?.LogInformationEx(errorMessage, LogVerbosity.Verbose);
+                    log?.LogError(errorMessage);
                     return new CommitResult
                     {
                         ErrorMessage = errorMessage
@@ -451,11 +452,75 @@ namespace MsGlossaryApp.Model.GitHub
 
             var jsonResult = await response.Content.ReadAsStringAsync();
             var masterCommitResult = JsonConvert.DeserializeObject<CommitResult>(jsonResult);
-            log?.LogInformationEx($"Done grabbing master commit {masterCommitResult.Sha}", LogVerbosity.Debug);
+            log?.LogDebug($"Done grabbing master commit {masterCommitResult.Sha}");
 
-            log?.LogInformationEx("Out GitHubHelper.GetMainCommit", LogVerbosity.Verbose);
+            log?.LogInformation("Out GitHubHelper.GetMainCommit");
 
             return masterCommitResult;
+        }
+
+        public async Task<GetTextFileResult> GetTextFile(
+            string accountName,
+            string repoName,
+            string branchName,
+            string filePathWithExtension,
+            string githubToken,
+            ILogger log = null)
+        {
+            // TODO Add logging
+
+            var getFileUrl = string.Format(GetMarkdownFileUrl, filePathWithExtension, branchName);
+            var url = string.Format(GitHubApiBaseUrlMask, accountName, repoName, getFileUrl);
+
+            var request = new HttpRequestMessage
+            {
+                RequestUri = new Uri(url),
+                Method = HttpMethod.Get
+            };
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
+            var response = await _client.SendAsync(request);
+            var responseText = await response.Content.ReadAsStringAsync();
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return new GetTextFileResult
+                {
+                    ErrorMessage = responseText
+                };
+            }
+
+            try
+            {
+                var result = JsonConvert.DeserializeObject<GetTextFileResult>(responseText);
+
+                if (result.Type != "file")
+                {
+                    return new GetTextFileResult
+                    {
+                        ErrorMessage = $"{filePathWithExtension} doesn't seem to be a file on GitHub"
+                    };
+                }
+
+                if (string.IsNullOrEmpty(result.EncodedContent))
+                {
+                    return new GetTextFileResult
+                    {
+                        ErrorMessage = $"{filePathWithExtension} doesn't have content"
+                    };
+                }
+
+                var bytes = Convert.FromBase64String(result.EncodedContent);
+                result.TextContent = Encoding.UTF8.GetString(bytes);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return new GetTextFileResult
+                {
+                    ErrorMessage = ex.Message
+                };
+            }
         }
     }
 }

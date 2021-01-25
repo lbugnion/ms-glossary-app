@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.Storage.Blob;
+using MsGlossaryApp.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,14 +15,485 @@ namespace MsGlossaryApp.Model
     {
         private const string GitHubRawPathTemplate = "https://raw.githubusercontent.com/{0}/{1}/{2}/{3}";
 
-        private static IList<AuthorInformation> MakeAuthors(
-            string authorName,
+        private static string MakeDisambiguationText(
+            IList<Keyword> keywords,
+            ILogger log = null)
+        {
+            log?.LogInformation("In MakeDisambiguationText");
+
+            var lastKeyword = keywords.OrderByDescending(k => k.Term.RecordingDate).First();
+
+            var dateString = lastKeyword.Term.RecordingDate.ToShortDateString();
+
+            var builder = new StringBuilder()
+                .AppendLine("---")
+                .Append($"title: {lastKeyword.KeywordName}")
+                .AppendLine($" ({TextHelper.GetText("TermDisambiguation")})")
+                .AppendLine($"description: {string.Format(TextHelper.GetText("TermDescriptionDisambiguation"), lastKeyword.KeywordName)}")
+                .AppendLine($"author: {lastKeyword.Term.Authors.First().GitHub}")
+                .AppendLine($"ms.date: {dateString}")
+                .AppendLine($"ms.prod: {TextHelper.GetText("TermNonProductSpecific")}")
+                .AppendLine("ms.topic: glossary")
+                .AppendLine("---")
+                .AppendLine()
+                .AppendLine($"{MakeDisambiguationTitleLink(lastKeyword, log)} ({TextHelper.GetText("TermDisambiguation")})".MakeH1())
+                .AppendLine()
+                .AppendLine(string.Format(TextHelper.GetText("TermDifferentContexts"), lastKeyword.KeywordName).MakeH2())
+                .AppendLine();
+
+            foreach (var keyword in keywords.OrderBy(k => k.Term.Title))
+            {
+                builder
+                    .AppendLine(string.Format(TextHelper.GetText("TermIn"), MakeTitleLink(keyword, log), keyword.Term.ShortDescription));
+            }
+
+            builder.AppendLine();
+            log?.LogInformation("Out MakeDisambiguationText");
+            return builder.ToString();
+        }
+
+        private static string MakeDisambiguationTitleLink(
+            Keyword keyword,
+            ILogger log = null)
+        {
+            log?.LogInformation("In MakeDisambiguationTitleLink");
+            return keyword.KeywordName.MakeLink($"/glossary/term/{keyword.KeywordName.MakeSafeFileName()}/disambiguation");
+        }
+
+        private static string MakeTermText(
+            Keyword keyword,
+            ILogger log)
+        {
+            log?.LogInformation("In MakeTermText");
+            var term = keyword.Term;
+
+            var redirect = string.Empty;
+
+            if (!keyword.IsMainKeyword)
+            {
+                redirect += $" ({string.Format(TextHelper.GetText("TermRedirectedFrom"), keyword.KeywordName)})";
+            }
+
+            var dateString = term.RecordingDate.ToShortDateString();
+
+            var builder = new StringBuilder()
+                .AppendLine("---")
+                .Append($"title: {term.Title}")
+                .AppendLine(redirect)
+                .AppendLine($"description: {string.Format(TextHelper.GetText("TermDescription"), term.Title)}")
+                .AppendLine($"author: {term.Authors.First().GitHub}")
+                .AppendLine($"ms.date: {dateString}")
+                .AppendLine($"ms.prod: {TextHelper.GetText("TermNonProductSpecific")}")
+                .AppendLine("ms.topic: glossary")
+                .AppendLine("---")
+                .AppendLine()
+                .AppendLine($"{MakeTitleLink(keyword, log)}{redirect}".MakeH1())
+                .AppendLine()
+                .AppendLine(term.ShortDescription.MakeNote())
+                .AppendLine()
+                .AppendLine(term.YouTubeCode.MakeYouTubeVideo().MakeNote())
+                .AppendLine()
+                .AppendLine(TextHelper.GetText("TermDownload").MakeH2())
+                .AppendLine()
+                .AppendLine(TextHelper.GetText("TermDownloadHere").MakeLink($"https://msglossarystore.blob.core.windows.net/videos/{term.FileName}.{term.Language.Code}.mp4"))
+                .AppendLine();
+
+            if (term.Captions.Count > 0)
+            {
+                builder
+                .AppendLine(TextHelper.GetText("TermLanguages").MakeH2())
+                .AppendLine()
+                .AppendLine(TextHelper.GetText("TermCaptions"))
+                .AppendLine();
+
+                foreach (var caption in keyword.Term.Captions)
+                {
+                    builder.AppendLine($"- [{caption.LanguageName}](https://msglossarystore.blob.core.windows.net/captions/{term.FileName}.{term.Language.Code}.{caption.Code}.srt)");
+                }
+
+                builder.AppendLine()
+                    .AppendLine($"{TextHelper.GetText("TermCaptionsLearn")}(/glossary/captions).".MakeNote())
+                    .AppendLine();
+            }
+
+            builder
+                .AppendLine(TextHelper.GetText("TermLinks").MakeH2());
+
+            var linksCollections = new Dictionary<string, IList<Link>>
+            {
+                { Constants.TermMarkdownMarkers.LinksToDocsMarker, term.LinksToDocs },
+                { Constants.TermMarkdownMarkers.LinksToLearnMarker, term.LinksToLearn },
+                { Constants.TermMarkdownMarkers.LinksToOthersMarker, term.LinksToOthers }
+            };
+
+            foreach (var key in linksCollections.Keys)
+            {
+                if (linksCollections[key].Count > 0)
+                {
+                    builder.AppendLine()
+                        .AppendLine(key)
+                        .AppendLine();
+                }
+
+                foreach (var link in linksCollections[key])
+                {
+                    builder.AppendLine(link.ToMarkdown().MakeListItem());
+                }
+            }
+
+            builder.AppendLine()
+                .AppendLine(TextHelper.GetText("TermTranscript").MakeH2())
+                .AppendLine();
+
+            foreach (var line in term.TranscriptLines)
+            {
+                builder
+                    .AppendLine(line.Markdown)
+                    .AppendLine();
+            }
+
+            if (term.Authors != null
+                && term.Authors.Count > 0)
+            {
+                builder
+                    .AppendLine(TextHelper.GetText("TermAuthors").MakeH2())
+                    .AppendLine()
+                    .Append($"{TextHelper.GetText("TermCreatedBy")} ");
+
+                foreach (var author in term.Authors)
+                {
+                    builder
+                        .Append(author.Name.MakeLink($"http://twitter.com/{author.Twitter}"))
+                        .Append(", ");
+                }
+
+                builder.Remove(builder.Length - 2, 2);
+            }
+
+            builder.AppendLine();
+            log?.LogInformation("Out MakeTermText");
+            return builder.ToString();
+        }
+
+        private static string MakeTermTextWithoutVideo(
+            Keyword keyword,
+            ILogger log)
+        {
+            log?.LogInformation("In MakeTermTextWithoutVideo");
+            var term = keyword.Term;
+
+            var redirect = string.Empty;
+
+            if (!keyword.IsMainKeyword)
+            {
+                redirect += $" ({string.Format(TextHelper.GetText("TermRedirectedFrom"), keyword.KeywordName)}";
+            }
+
+            var dateString = term.RecordingDate.ToShortDateString();
+
+            var builder = new StringBuilder()
+                .AppendLine("---")
+                .Append($"title: {term.Title}")
+                .AppendLine(redirect)
+                .AppendLine($"description: {string.Format(TextHelper.GetText("TermDescription"), term.Title)}")
+                .AppendLine($"author: {term.Authors.First().GitHub}")
+                .AppendLine($"ms.date: {dateString}")
+                .AppendLine($"ms.prod: {TextHelper.GetText("TermNonProductSpecific")}")
+                .AppendLine($"ms.topic: glossary")
+                .AppendLine("---")
+                .AppendLine()
+                .AppendLine($"{MakeTitleLink(keyword, log)}{redirect}".MakeH1())
+                .AppendLine()
+                .AppendLine(term.ShortDescription.MakeNote())
+                .AppendLine()
+                .AppendLine(TextHelper.GetText("TermDefinition").MakeH2())
+                .AppendLine();
+
+            foreach (var line in term.TranscriptLines)
+            {
+                builder
+                    .AppendLine(line.Markdown)
+                    .AppendLine();
+            }
+
+            builder
+                .AppendLine(TextHelper.GetText("TermLinks").MakeH2());
+
+            builder.AppendLine()
+                .AppendLine(Constants.TermMarkdownMarkers.LinksToDocsMarker)
+                .AppendLine();
+
+            foreach (var link in term.LinksToDocs)
+            {
+                builder.AppendLine(link.ToMarkdown().MakeListItem());
+            }
+
+            builder.AppendLine()
+                .AppendLine(Constants.TermMarkdownMarkers.LinksToLearnMarker)
+                .AppendLine();
+
+            foreach (var link in term.LinksToLearn)
+            {
+                builder.AppendLine(link.ToMarkdown().MakeListItem());
+            }
+
+            if (term.LinksToOthers.Count > 0)
+            {
+                builder.AppendLine()
+                    .AppendLine(Constants.TermMarkdownMarkers.LinksToOthersMarker)
+                    .AppendLine();
+
+                foreach (var link in term.LinksToOthers)
+                {
+                    builder.AppendLine(link.ToMarkdown().MakeListItem());
+                }
+            }
+
+            if (term.Authors != null
+                && term.Authors.Count > 0)
+            {
+                builder.AppendLine()
+                    .AppendLine(TextHelper.GetText("TermAuthors").MakeH2())
+                    .AppendLine()
+                    .Append($"{TextHelper.GetText("TermCreatedBy")} ");
+
+                foreach (var author in term.Authors)
+                {
+                    builder
+                        .Append(author.Name.MakeLink($"http://twitter.com/{author.Twitter}"))
+                        .Append(", ");
+                }
+
+                builder.Remove(builder.Length - 2, 2);
+            }
+
+            builder.AppendLine();
+            log?.LogInformation("Out MakeTermTextWithoutVideo");
+            return builder.ToString();
+        }
+
+        private static string MakeTitleLink(
+            Keyword keyword,
+            ILogger log = null)
+        {
+            log?.LogInformation("In MakeTitleLink");
+            if (keyword.IsMainKeyword)
+            {
+                return keyword.Term.Title.MakeLink($"/glossary/term/{keyword.Term.FileName}");
+            }
+            else
+            {
+                return keyword.Term.Title.MakeLink($"/glossary/term/{keyword.Term.FileName}/{keyword.KeywordName.MakeSafeFileName()}");
+            }
+        }
+
+        private static string MakeTocLink(
+                    Keyword keyword,
+            ILogger log = null)
+        {
+            log?.LogInformation("In MakeTocLink");
+
+            if (keyword.IsMainKeyword)
+            {
+                if (keyword.IsDisambiguation)
+                {
+                    return $"term/{keyword.KeywordName.MakeSafeFileName()}/disambiguation";
+                }
+
+                return $"term/{keyword.Term.FileName}";
+            }
+            else
+            {
+                return $"term/{keyword.Term.FileName}/{keyword.KeywordName.MakeSafeFileName()}";
+            }
+        }
+
+        private static IList<Language> ParseLanguages(
+                                            string captions,
+            ILogger log = null)
+        {
+            log?.LogInformation("In ParseLanguages");
+
+            if (string.IsNullOrEmpty(captions))
+            {
+                return null;
+            }
+
+            var languages = captions.Split(new char[]
+            {
+                ','
+            }, StringSplitOptions.RemoveEmptyEntries);
+
+            var result = new List<Language>();
+
+            foreach (var language in languages)
+            {
+                var parts = language.Split(new char[]
+                {
+                    '/'
+                });
+
+                result.Add(new Language
+                {
+                    Code = parts[0].Trim(),
+                    LanguageName = parts[1].Trim()
+                });
+            }
+
+            log?.LogInformation("Out ParseLanguages");
+            return result;
+        }
+
+        public static Task<GlossaryFile> CreateDisambiguationFile(
+            IList<Keyword> keywords,
+            ILogger log = null)
+        {
+            log?.LogInformation("In CreateDisambiguationFile");
+            var result = new GlossaryFile();
+            var tcs = new TaskCompletionSource<GlossaryFile>();
+
+            try
+            {
+                var firstKeyword = keywords.First();
+
+                string path = $"glossary/term/{firstKeyword.KeywordName.MakeSafeFileName()}/disambiguation.md";
+
+                string text = MakeDisambiguationText(keywords, log);
+
+                result.Path = path;
+                result.Content = text;
+            }
+            catch (Exception ex)
+            {
+                log?.LogError(ex, "Error in CreateDisambiguationFile");
+                result.ErrorMessage = ex.Message;
+            }
+
+            log?.LogInformation("Out CreateDisambiguationFile");
+            tcs.SetResult(result);
+            return tcs.Task;
+        }
+
+        public static Task<GlossaryFile> CreateKeywordFile(
+            Keyword keyword,
+            ILogger log = null)
+        {
+            log?.LogInformation("In CreateKeywordFile");
+
+            var tcs = new TaskCompletionSource<GlossaryFile>();
+            var result = new GlossaryFile();
+
+            try
+            {
+                string path = null;
+
+                if (keyword.IsMainKeyword)
+                {
+                    path = $"glossary/term/{keyword.Term.FileName}/index.md";
+                }
+                else
+                {
+                    path = $"glossary/term/{keyword.Term.FileName}/{keyword.KeywordName.MakeSafeFileName()}.md";
+                }
+
+                string text = null;
+
+                if (string.IsNullOrEmpty(keyword.Term.YouTubeCode))
+                {
+                    text = MakeTermTextWithoutVideo(keyword, log);
+                }
+                else
+                {
+                    text = MakeTermText(keyword, log);
+                }
+
+                result.Path = path;
+                result.Content = text;
+            }
+            catch (Exception ex)
+            {
+                log?.LogError(ex, $"Error in CreateKeywordFile for {keyword}");
+                result.ErrorMessage = ex.Message;
+            }
+
+            log?.LogInformation("Out CreateKeywordFile");
+            tcs.SetResult(result);
+            return tcs.Task;
+        }
+
+        public static Task<GlossaryFile> CreateTableOfContentsFile(
+            IList<Keyword> keywords,
+            ILogger log = null)
+        {
+            log?.LogInformation("In CreateTableOfContentsFile");
+            var result = new GlossaryFile();
+            var tcs = new TaskCompletionSource<GlossaryFile>();
+
+            try
+            {
+                var tocBuilder = new StringBuilder()
+                    .AppendLine($"- name: {TextHelper.GetText("TermTocTitle")}")
+                    .AppendLine("  href: index.md")
+                    .AppendLine();
+
+                var groups = keywords
+                    .GroupBy(k => k.Term.Title);
+
+                foreach (var g in groups.OrderBy(g => g.Key))
+                {
+                    var mainKeyword = g.First(k => k.IsMainKeyword);
+
+                    if (mainKeyword.IsDisambiguation)
+                    {
+                        tocBuilder
+                            .AppendLine($"- name: {mainKeyword.KeywordName} ({TextHelper.GetText("TermDisambiguation")})")
+                            .AppendLine($"  href: {MakeTocLink(mainKeyword)}");
+                    }
+                    else
+                    {
+                        tocBuilder
+                            .AppendLine($"- name: {mainKeyword.Term.Title}")
+                            .AppendLine($"  href: {MakeTocLink(mainKeyword)}");
+                    }
+
+                    var count = g.Count();
+
+                    if (count > 1)
+                    {
+                        tocBuilder
+                            .AppendLine("  items:");
+
+                        foreach (var k in g.Where(k => !k.IsMainKeyword).OrderBy(k => k.KeywordName))
+                        {
+                            tocBuilder
+                                .AppendLine($"  - name: {k.KeywordName}")
+                                .AppendLine($"    href: {MakeTocLink(k)}");
+                        }
+                    }
+                }
+
+                result.Path = "glossary/TOC.yml";
+                result.Content = tocBuilder.ToString();
+            }
+            catch (Exception ex)
+            {
+                log?.LogError("Error in CreateTableOfContentsFile", ex);
+                result.ErrorMessage = ex.Message;
+            }
+
+            log?.LogInformation("Out CreateTableOfContentsFile");
+            tcs.SetResult(result);
+            return tcs.Task;
+        }
+
+        public static IList<Author> MakeAuthors(
+                                                                                            string authorName,
             string email,
             string github,
             string twitter,
             ILogger log = null)
         {
-            log?.LogInformationEx("In MakeAuthors", LogVerbosity.Verbose);
+            log?.LogInformation("In MakeAuthors");
 
             var authorNames = authorName.Split(new char[]
             {
@@ -52,11 +523,11 @@ namespace MsGlossaryApp.Model
                 throw new InvalidOperationException("Invalid author, email github or twitter lists");
             }
 
-            var result = new List<AuthorInformation>();
+            var result = new List<Author>();
 
             for (var index = 0; index < authorNames.Length; index++)
             {
-                var author = new AuthorInformation(
+                var author = new Author(
                     authorNames[index].Trim(),
                     emails[index].Trim(),
                     githubs[index].Trim(),
@@ -65,471 +536,49 @@ namespace MsGlossaryApp.Model
                 result.Add(author);
             }
 
-            log?.LogInformationEx("Out MakeAuthors", LogVerbosity.Verbose);
+            log?.LogInformation("Out MakeAuthors");
             return result;
         }
 
-        private static string MakeDisambiguationText(
-            IList<KeywordInformation> keywords,
-            ILogger log = null)
+        public static IList<ContentEntry> MakeKeywords(string keywordsLine)
         {
-            log?.LogInformationEx("In MakeDisambiguationText", LogVerbosity.Verbose);
-
-            var lastKeyword = keywords.OrderByDescending(k => k.Term.RecordingDate).First();
-
-            var dateString = lastKeyword.Term.RecordingDate.ToShortDateString();
-
-            var builder = new StringBuilder()
-                .AppendLine("---")
-                .Append($"title: {lastKeyword.Keyword}")
-                .AppendLine($" ({TextHelper.GetText("TermDisambiguation")})")
-                .AppendLine($"description: {string.Format(TextHelper.GetText("TermDescriptionDisambiguation"), lastKeyword.Keyword)}")
-                .AppendLine($"author: {lastKeyword.Term.Authors.First().GitHub}")
-                .AppendLine($"ms.date: {dateString}")
-                .AppendLine($"ms.prod: {TextHelper.GetText("TermNonProductSpecific")}")
-                .AppendLine("ms.topic: glossary")
-                .AppendLine("---")
-                .AppendLine()
-                .Append(Constants.H1)
-                .Append(MakeDisambiguationTitleLink(lastKeyword, log))
-                .AppendLine($" ({TextHelper.GetText("TermDisambiguation")})")
-                .AppendLine()
-                .Append(Constants.H2)
-                .AppendLine(string.Format(TextHelper.GetText("TermDifferentContexts"), lastKeyword.Keyword))
-                .AppendLine();
-
-            foreach (var keyword in keywords.OrderBy(k => k.Term.Title))
+            return keywordsLine.Split(new char[]
             {
-                builder
-                    .AppendLine(string.Format(TextHelper.GetText("TermIn"), MakeTitleLink(keyword, log), keyword.Term.Blurb));
-            }
-
-            builder.AppendLine();
-            log?.LogInformationEx("Out MakeDisambiguationText", LogVerbosity.Verbose);
-            return builder.ToString();
+                Constants.Separator
+            }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(k => new ContentEntry(k.Trim()))
+                .ToList();
         }
 
-        private static string MakeDisambiguationTitleLink(
-            KeywordInformation keyword,
-            ILogger log = null)
+        public static string MakeKeywordsLine(IList<ContentEntry> keywords)
         {
-            log?.LogInformationEx("In MakeDisambiguationTitleLink", LogVerbosity.Verbose);
-            return $"[{keyword.Keyword}](/glossary/term/{keyword.Keyword.MakeSafeFileName()}/disambiguation)";
+            if (keywords == null)
+            {
+                return string.Empty;
+            }
+
+            return string.Join(", ", keywords.Select(k => k.Content));
         }
 
-        private static IList<LanguageInfo> MakeLanguages(
-                            string captions,
-            ILogger log = null)
-        {
-            log?.LogInformationEx("In MakeLanguages", LogVerbosity.Verbose);
-
-            if (string.IsNullOrEmpty(captions))
-            {
-                return null;
-            }
-
-            var languages = captions.Split(new char[]
-            {
-                ','
-            }, StringSplitOptions.RemoveEmptyEntries);
-
-            var result = new List<LanguageInfo>();
-
-            foreach (var language in languages)
-            {
-                var parts = language.Split(new char[]
-                {
-                    '/'
-                });
-
-                result.Add(new LanguageInfo
-                {
-                    Code = parts[0].Trim(),
-                    Language = parts[1].Trim()
-                });
-            }
-
-            log?.LogInformationEx("Out MakeLanguages", LogVerbosity.Verbose);
-            return result;
-        }
-
-        private static string MakeTermText(
-            KeywordInformation keyword,
-            ILogger log)
-        {
-            log?.LogInformationEx("In MakeTermText", LogVerbosity.Verbose);
-            var term = keyword.Term;
-
-            var redirect = string.Empty;
-
-            if (!keyword.IsMainKeyword)
-            {
-                redirect += $" ({string.Format(TextHelper.GetText("TermRedirectedFrom"), keyword.Keyword)})";
-            }
-
-            var dateString = term.RecordingDate.ToShortDateString();
-
-            var builder = new StringBuilder()
-                .AppendLine("---")
-                .Append($"title: {term.Title}")
-                .AppendLine(redirect)
-                .AppendLine($"description: {string.Format(TextHelper.GetText("TermDescription"), term.Title)}")
-                .AppendLine($"author: {term.Authors.First().GitHub}")
-                .AppendLine($"ms.date: {dateString}")
-                .AppendLine($"ms.prod: {TextHelper.GetText("TermNonProductSpecific")}")
-                .AppendLine("ms.topic: glossary")
-                .AppendLine("---")
-                .AppendLine()
-                .Append(Constants.H1)
-                .Append(MakeTitleLink(keyword, log))
-                .AppendLine(redirect)
-                .AppendLine()
-                .AppendLine($"> {term.Blurb}")
-                .AppendLine()
-                .AppendLine($"> [!VIDEO https://www.youtube.com/embed/{term.YouTubeCode}]")
-                .AppendLine()
-                .AppendLine($"{Constants.H2}{TextHelper.GetText("TermDownload")}")
-                .AppendLine()
-                .AppendLine($"[{TextHelper.GetText("TermDownloadHere")}](https://msglossarystore.blob.core.windows.net/videos/{term.TermName}.{term.Language.Code}.mp4).")
-                .AppendLine();
-
-            if (term.Captions != null
-                && term.Captions.Count > 0)
-            {
-                builder
-                .AppendLine($"{Constants.H2}{TextHelper.GetText("TermLanguages")}")
-                .AppendLine()
-                .AppendLine(TextHelper.GetText("TermCaptions"))
-                .AppendLine();
-
-                foreach (var caption in keyword.Term.Captions)
-                {
-                    builder.AppendLine($"- [{caption.Language}](https://msglossarystore.blob.core.windows.net/captions/{term.TermName}.{term.Language.Code}.{caption.Code}.srt)");
-                }
-
-                builder.AppendLine()
-                    .AppendLine($"> {TextHelper.GetText("TermCaptionsLearn")}(/glossary/captions).")
-                    .AppendLine();
-            }
-
-            builder
-                .AppendLine($"{Constants.H2}{TextHelper.GetText("TermLinks")}");
-
-            foreach (var linkSection in term.Links)
-            {
-                builder.AppendLine()
-                    .AppendLine($"{Constants.H3}{linkSection.Key}")
-                    .AppendLine();
-
-                foreach (var link in linkSection.Value)
-                {
-                    builder.AppendLine(link);
-                }
-            }
-
-            builder.AppendLine()
-                .AppendLine($"{Constants.H2}{TextHelper.GetText("TermTranscript")}")
-                .AppendLine()
-                .AppendLine(term.Transcript)
-                .AppendLine();
-
-            if (term.Authors != null
-                && term.Authors.Count > 0)
-            {
-                builder
-                    .AppendLine($"{Constants.H2}{TextHelper.GetText("TermAuthors")}")
-                    .AppendLine()
-                    .Append($"{TextHelper.GetText("TermCreatedBy")} ");
-
-                foreach (var author in term.Authors)
-                {
-                    builder.Append($"[{author.Name}](http://twitter.com/{author.Twitter}), ");
-                }
-
-                builder.Remove(builder.Length - 2, 2);
-            }
-
-            builder.AppendLine();
-            log?.LogInformationEx("Out MakeTermText", LogVerbosity.Verbose);
-            return builder.ToString();
-        }
-
-        private static string MakeTermTextWithoutVideo(
-            KeywordInformation keyword,
-            ILogger log)
-        {
-            log?.LogInformationEx("In MakeTermTextWithoutVideo", LogVerbosity.Verbose);
-            var term = keyword.Term;
-
-            var redirect = string.Empty;
-
-            if (!keyword.IsMainKeyword)
-            {
-                redirect += $" ({string.Format(TextHelper.GetText("TermRedirectedFrom"), keyword.Keyword)}";
-            }
-
-            var dateString = term.RecordingDate.ToShortDateString();
-
-            var builder = new StringBuilder()
-                .AppendLine("---")
-                .Append($"title: {term.Title}")
-                .AppendLine(redirect)
-                .AppendLine($"description: {string.Format(TextHelper.GetText("TermDescription"), term.Title)}")
-                .AppendLine($"author: {term.Authors.First().GitHub}")
-                .AppendLine($"ms.date: {dateString}")
-                .AppendLine($"ms.prod: {TextHelper.GetText("TermNonProductSpecific")}")
-                .AppendLine($"ms.topic: glossary")
-                .AppendLine("---")
-                .AppendLine()
-                .Append(Constants.H1)
-                .Append(MakeTitleLink(keyword, log))
-                .AppendLine(redirect)
-                .AppendLine()
-                .AppendLine($"> {term.Blurb}")
-                .AppendLine()
-                .AppendLine($"{Constants.H2}{TextHelper.GetText("TermDefinition")}")
-                .AppendLine()
-                .AppendLine(term.Transcript)
-                .AppendLine();
-
-            builder
-                .AppendLine($"{Constants.H2}{TextHelper.GetText("TermLinks")}");
-
-            foreach (var linkSection in term.Links)
-            {
-                builder.AppendLine()
-                    .AppendLine($"{Constants.H3}{linkSection.Key}")
-                    .AppendLine();
-
-                foreach (var link in linkSection.Value)
-                {
-                    builder.AppendLine(link);
-                }
-            }
-
-            if (term.Authors != null
-                && term.Authors.Count > 0)
-            {
-                builder.AppendLine()
-                    .AppendLine($"{Constants.H2}{TextHelper.GetText("TermAuthors")}")
-                    .AppendLine()
-                    .Append($"{TextHelper.GetText("TermCreatedBy")} ");
-
-                foreach (var author in term.Authors)
-                {
-                    builder.Append($"[{author.Name}](http://twitter.com/{author.Twitter}), ");
-                }
-
-                builder.Remove(builder.Length - 2, 2);
-            }
-
-            builder.AppendLine();
-            log?.LogInformationEx("Out MakeTermTextWithoutVideo", LogVerbosity.Verbose);
-            return builder.ToString();
-        }
-
-        private static string MakeTitleLink(
-                            KeywordInformation keyword,
-            ILogger log = null)
-        {
-            log?.LogInformationEx("In MakeTitleLink", LogVerbosity.Verbose);
-            if (keyword.IsMainKeyword)
-            {
-                return $"[{keyword.Term.Title}](/glossary/term/{keyword.Term.TermName})";
-            }
-            else
-            {
-                return $"[{keyword.Term.Title}](/glossary/term/{keyword.Term.TermName}/{keyword.Keyword.MakeSafeFileName()})";
-            }
-        }
-
-        private static string MakeTocLink(
-                    KeywordInformation keyword,
-            ILogger log = null)
-        {
-            log?.LogInformationEx("In MakeTocLink", LogVerbosity.Verbose);
-
-            if (keyword.IsMainKeyword)
-            {
-                if (keyword.IsDisambiguation)
-                {
-                    return $"term/{keyword.Keyword.MakeSafeFileName()}/disambiguation";
-                }
-
-                return $"term/{keyword.Term.TermName}";
-            }
-            else
-            {
-                return $"term/{keyword.Term.TermName}/{keyword.Keyword.MakeSafeFileName()}";
-            }
-        }
-
-        public static Task<GlossaryFileInfo> CreateDisambiguationFile(
-            IList<KeywordInformation> keywords,
-            ILogger log = null)
-        {
-            log?.LogInformationEx("In CreateDisambiguationFile", LogVerbosity.Verbose);
-            var result = new GlossaryFileInfo();
-            var tcs = new TaskCompletionSource<GlossaryFileInfo>();
-
-            try
-            {
-                var firstKeyword = keywords.First();
-
-                string path = $"glossary/term/{firstKeyword.Keyword.MakeSafeFileName()}/disambiguation.md";
-
-                string text = MakeDisambiguationText(keywords, log);
-
-                result.Path = path;
-                result.Content = text;
-            }
-            catch (Exception ex)
-            {
-                log?.LogError(ex, "Error in CreateDisambiguationFile");
-                result.ErrorMessage = ex.Message;
-            }
-
-            log?.LogInformationEx("Out CreateDisambiguationFile", LogVerbosity.Verbose);
-            tcs.SetResult(result);
-            return tcs.Task;
-        }
-
-        public static Task<GlossaryFileInfo> CreateKeywordFile(
-            KeywordInformation keyword,
-            ILogger log = null)
-        {
-            log?.LogInformationEx("In CreateKeywordFile", LogVerbosity.Verbose);
-
-            var tcs = new TaskCompletionSource<GlossaryFileInfo>();
-            var result = new GlossaryFileInfo();
-
-            try
-            {
-                string path = null;
-
-                if (keyword.IsMainKeyword)
-                {
-                    path = $"glossary/term/{keyword.Term.TermName.MakeSafeFileName()}/index.md";
-                }
-                else
-                {
-                    path = $"glossary/term/{keyword.Term.TermName.MakeSafeFileName()}/{keyword.Keyword.MakeSafeFileName()}.md";
-                }
-
-                string text = null;
-
-                if (string.IsNullOrEmpty(keyword.Term.YouTubeCode))
-                {
-                    text = MakeTermTextWithoutVideo(keyword, log);
-                }
-                else
-                {
-                    text = MakeTermText(keyword, log);
-                }
-
-                result.Path = path;
-                result.Content = text;
-            }
-            catch (Exception ex)
-            {
-                log?.LogError(ex, $"Error in CreateKeywordFile for {keyword}");
-                result.ErrorMessage = ex.Message;
-            }
-
-            log?.LogInformationEx("Out CreateKeywordFile", LogVerbosity.Verbose);
-            tcs.SetResult(result);
-            return tcs.Task;
-        }
-
-        public static Task<GlossaryFileInfo> CreateTableOfContentsFile(
-            IList<KeywordInformation> keywords,
-            ILogger log = null)
-        {
-            log?.LogInformationEx("In CreateTableOfContentsFile", LogVerbosity.Verbose);
-            var result = new GlossaryFileInfo();
-            var tcs = new TaskCompletionSource<GlossaryFileInfo>();
-
-            try
-            {
-                var tocBuilder = new StringBuilder()
-                    .AppendLine($"- name: {TextHelper.GetText("TermTocTitle")}")
-                    .AppendLine("  href: index.md")
-                    .AppendLine();
-
-                var groups = keywords
-                    .GroupBy(k => k.Term.Title);
-
-                foreach (var g in groups.OrderBy(g => g.Key))
-                {
-                    var mainKeyword = g.First(k => k.IsMainKeyword);
-
-                    if (mainKeyword.IsDisambiguation)
-                    {
-                        tocBuilder
-                            .AppendLine($"- name: {mainKeyword.Keyword} ({TextHelper.GetText("TermDisambiguation")})")
-                            .AppendLine($"  href: {MakeTocLink(mainKeyword)}");
-                    }
-                    else
-                    {
-                        tocBuilder
-                            .AppendLine($"- name: {mainKeyword.Term.Title}")
-                            .AppendLine($"  href: {MakeTocLink(mainKeyword)}");
-                    }
-
-                    var count = g.Count();
-
-                    if (count > 1)
-                    {
-                        tocBuilder
-                            .AppendLine("  items:");
-
-                        foreach (var k in g.Where(k => !k.IsMainKeyword).OrderBy(k => k.Keyword))
-                        {
-                            tocBuilder
-                                .AppendLine($"  - name: {k.Keyword}")
-                                .AppendLine($"    href: {MakeTocLink(k)}");
-                        }
-                    }
-                }
-
-                result.Path = "glossary/TOC.yml";
-                result.Content = tocBuilder.ToString();
-            }
-            catch (Exception ex)
-            {
-                log?.LogError("Error in CreateTableOfContentsFile", ex);
-                result.ErrorMessage = ex.Message;
-            }
-
-            log?.LogInformationEx("Out CreateTableOfContentsFile", LogVerbosity.Verbose);
-            tcs.SetResult(result);
-            return tcs.Task;
-        }
-
-        public static async Task<TermInformation> CreateTerm(
+        public static Term ParseTerm(
             Uri uri,
+            string markdown,
             ILogger log)
         {
-            log?.LogInformationEx("In CreateTerm", LogVerbosity.Verbose);
+            log?.LogInformation("In ParseTerm");
+            log?.LogInformation($"Term: {uri}");
 
-            var term = new TermInformation
+            var term = new Term
             {
-                Uri = uri
+                Uri = uri,
             };
 
-            var termBlob = new CloudBlockBlob(uri);
-            term.TermName = Path.GetFileNameWithoutExtension(termBlob.Name);
-            term.TermName = Path.GetFileNameWithoutExtension(term.TermName);
-
-            log?.LogInformationEx($"Term: {term.TermName}", LogVerbosity.Verbose);
-
-            string oldMarkdown = await termBlob.DownloadTextAsync();
-            var markdownReader = new StringReader(oldMarkdown);
+            var markdownReader = new StringReader(markdown);
 
             string youTubeCode = null;
             string keywordsLine = null;
-            string termTitle = null;
-            string blurb = null;
+            string title = null;
+            string shortDescription = null;
             string captions = null;
             string language = null;
             string authorName = null;
@@ -539,191 +588,223 @@ namespace MsGlossaryApp.Model
             DateTime recordingDate = DateTime.MinValue;
             var isTranscript = false;
             var isLinks = false;
-            var transcript = new StringBuilder();
-            var links = new Dictionary<string, IList<string>>();
-            IList<string> currentLinksSection = null;
+            var isDocLinks = false;
+            var isLearnLinks = false;
+            var isOtherLinks = false;
             string line;
 
             while ((line = markdownReader.ReadLine()) != null)
             {
-                if (line.StartsWith(Constants.Input.TranscriptMarker))
+                line = line.Trim();
+
+                if (string.IsNullOrEmpty(line))
+                {
+                    continue;
+                }
+
+                if (line.StartsWith(Constants.TermMarkdownMarkers.TranscriptMarker))
                 {
                     isLinks = false;
+                    isDocLinks = false;
+                    isLearnLinks = false;
+                    isOtherLinks = false;
                     isTranscript = true;
                     continue;
                 }
-                else if (line.StartsWith(Constants.Input.LinksMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.LinksMarker))
                 {
                     isLinks = true;
+                    isDocLinks = false;
+                    isLearnLinks = false;
+                    isOtherLinks = false;
                     isTranscript = false;
                     continue;
                 }
-                else if (isTranscript)
-                {
-                    transcript.AppendLine(line);
-                }
                 else if (isLinks)
                 {
-                    if (string.IsNullOrEmpty(line.Trim()))
+                    if (line.StartsWith(Constants.TermMarkdownMarkers.LinksToDocsMarker))
                     {
+                        isLinks = true;
+                        isDocLinks = true;
+                        isLearnLinks = false;
+                        isOtherLinks = false;
+                        isTranscript = false;
                         continue;
                     }
-
-                    if (line.StartsWith(Constants.H3))
+                    else if (line.StartsWith(Constants.TermMarkdownMarkers.LinksToLearnMarker))
                     {
-                        currentLinksSection = new List<string>();
-                        links.Add(line.Substring(Constants.H3.Length).Trim(), currentLinksSection);
+                        isLinks = true;
+                        isDocLinks = false;
+                        isLearnLinks = true;
+                        isOtherLinks = false;
+                        isTranscript = false;
                         continue;
                     }
-
-                    currentLinksSection.Add(line);
+                    else if (line.StartsWith(Constants.TermMarkdownMarkers.LinksToOthersMarker))
+                    {
+                        isLinks = true;
+                        isDocLinks = false;
+                        isLearnLinks = false;
+                        isOtherLinks = true;
+                        isTranscript = false;
+                        continue;
+                    }
+                    else if (isDocLinks)
+                    {
+                        term.LinksToDocs.Add(line.ParseListItem().ParseLink());
+                    }
+                    else if (isLearnLinks)
+                    {
+                        term.LinksToLearn.Add(line.ParseListItem().ParseLink());
+                    }
+                    else if (isOtherLinks)
+                    {
+                        term.LinksToOthers.Add(line.ParseListItem().ParseLink());
+                    }
                 }
-                else if (line.StartsWith(Constants.H1))
+                else if (isTranscript)
                 {
-                    termTitle = line
-                        .Substring(Constants.H1.Length)
-                        .Trim();
+                    term.TranscriptLines.Add(TranscriptLine.GetEntry(line));
                 }
-                else if (line.StartsWith(Constants.Input.YouTubeMarker))
+                else if (line.IsH1())
                 {
-                    youTubeCode = line.Substring(Constants.Input.YouTubeMarker.Length).Trim();
-                    log?.LogInformationEx($"youTubeCode: {youTubeCode}", LogVerbosity.Debug);
+                    title = line.ParseH1();
                 }
-                else if (line.StartsWith(Constants.Input.KeywordsMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.YouTubeMarker))
                 {
-                    keywordsLine = line.Substring(Constants.Input.KeywordsMarker.Length).Trim();
-                    log?.LogInformationEx($"keywordsLine: {keywordsLine}", LogVerbosity.Debug);
+                    youTubeCode = line.Substring(Constants.TermMarkdownMarkers.YouTubeMarker.Length).Trim();
+                    log?.LogDebug($"youTubeCode: {youTubeCode}");
                 }
-                else if (line.StartsWith(Constants.Input.BlurbMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.KeywordsMarker))
                 {
-                    blurb = line.Substring(Constants.Input.BlurbMarker.Length).Trim();
-                    log?.LogInformationEx($"blurb: {blurb}", LogVerbosity.Debug);
+                    keywordsLine = line.Substring(Constants.TermMarkdownMarkers.KeywordsMarker.Length).Trim();
+                    log?.LogDebug($"keywordsLine: {keywordsLine}");
                 }
-                else if (line.StartsWith(Constants.Input.CaptionsMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.ShortDescriptionMarker))
                 {
-                    captions = line.Substring(Constants.Input.CaptionsMarker.Length).Trim();
-                    log?.LogInformationEx($"captions: {captions}", LogVerbosity.Debug);
+                    shortDescription = line.Substring(Constants.TermMarkdownMarkers.ShortDescriptionMarker.Length).Trim();
+                    log?.LogDebug($"blurb: {shortDescription}");
                 }
-                else if (line.StartsWith(Constants.Input.LanguageMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.CaptionsMarker))
                 {
-                    language = line.Substring(Constants.Input.LanguageMarker.Length).Trim();
-                    log?.LogInformationEx($"language: {language}", LogVerbosity.Debug);
+                    captions = line.Substring(Constants.TermMarkdownMarkers.CaptionsMarker.Length).Trim();
+                    log?.LogDebug($"captions: {captions}");
                 }
-                else if (line.StartsWith(Constants.Input.AuthorNameMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.LanguageMarker))
                 {
-                    authorName = line.Substring(Constants.Input.AuthorNameMarker.Length).Trim();
-                    log?.LogInformationEx($"authorName: {authorName}", LogVerbosity.Debug);
+                    language = line.Substring(Constants.TermMarkdownMarkers.LanguageMarker.Length).Trim();
+                    log?.LogDebug($"language: {language}");
                 }
-                else if (line.StartsWith(Constants.Input.EmailMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.AuthorNameMarker))
                 {
-                    email = line.Substring(Constants.Input.EmailMarker.Length).Trim();
-                    log?.LogInformationEx($"email: {email}", LogVerbosity.Debug);
+                    authorName = line.Substring(Constants.TermMarkdownMarkers.AuthorNameMarker.Length).Trim();
+                    log?.LogDebug($"authorName: {authorName}");
                 }
-                else if (line.StartsWith(Constants.Input.GitHubMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.EmailMarker))
                 {
-                    github = line.Substring(Constants.Input.GitHubMarker.Length).Trim();
-                    log?.LogInformationEx($"github: {github}", LogVerbosity.Debug);
+                    email = line.Substring(Constants.TermMarkdownMarkers.EmailMarker.Length).Trim();
+                    log?.LogDebug($"email: {email}");
                 }
-                else if (line.StartsWith(Constants.Input.TwitterMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.GitHubMarker))
                 {
-                    twitter = line.Substring(Constants.Input.TwitterMarker.Length).Trim();
-                    log?.LogInformationEx($"twitter: {twitter}", LogVerbosity.Debug);
+                    github = line.Substring(Constants.TermMarkdownMarkers.GitHubMarker.Length).Trim();
+                    log?.LogDebug($"github: {github}");
                 }
-                else if (line.StartsWith(Constants.Input.RecordingDateMarker))
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.TwitterMarker))
                 {
-                    var dateString = line.Substring(Constants.Input.RecordingDateMarker.Length).Trim();
-                    log?.LogInformationEx($"dateString: {dateString}", LogVerbosity.Debug);
+                    twitter = line.Substring(Constants.TermMarkdownMarkers.TwitterMarker.Length).Trim();
+                    log?.LogDebug($"twitter: {twitter}");
+                }
+                else if (line.StartsWith(Constants.TermMarkdownMarkers.RecordingDateMarker))
+                {
+                    var dateString = line.Substring(Constants.TermMarkdownMarkers.RecordingDateMarker.Length).Trim();
+                    log?.LogDebug($"dateString: {dateString}");
                     recordingDate = DateTime.ParseExact(dateString, "yyyyMMdd", CultureInfo.InvariantCulture);
                 }
             }
 
-            term.Title = termTitle;
-            term.Transcript = transcript.ToString().Trim();
-            term.Links = links;
+            term.Title = title;
+            term.FileName = Path.GetFileNameWithoutExtension(uri.LocalPath);
+            term.FileName = Path.GetFileNameWithoutExtension(term.FileName); // Remove the language extension
             term.RecordingDate = recordingDate;
             term.YouTubeCode = youTubeCode;
-            term.Blurb = blurb;
+            term.ShortDescription = shortDescription;
             term.Authors = MakeAuthors(authorName, email, github, twitter, log);
-            term.Captions = MakeLanguages(captions, log);
-            term.Language = MakeLanguages(language, log).First();
-            term.Keywords = keywordsLine.Split(new char[]
-            {
-                ','
-            }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(k => k.Trim())
-                .ToList();
+            term.Captions = ParseLanguages(captions, log);
+            term.Language = ParseLanguages(language, log).First();
+            term.Keywords = MakeKeywords(keywordsLine);
 
-            log?.LogInformationEx("Out CreateTerm", LogVerbosity.Verbose);
+            log?.LogInformation("Out CreateTerm");
             return term;
         }
 
-        public static Task<IList<KeywordInformation>> SortDisambiguations(
-            IList<KeywordInformation> keywords,
+        public static Task<IList<Keyword>> SortDisambiguations(
+            IList<Keyword> keywords,
             ILogger log = null)
         {
-            log?.LogInformationEx("In SortDisambiguations", LogVerbosity.Verbose);
+            log?.LogInformation("In SortDisambiguations");
 
-            var tcs = new TaskCompletionSource<IList<KeywordInformation>>();
+            var tcs = new TaskCompletionSource<IList<Keyword>>();
 
             var disambiguations = keywords
                 .Where(k => k.MustDisambiguate)
-                .GroupBy(k => k.Keyword.ToLower())
+                .GroupBy(k => k.KeywordName.ToLower())
                 .ToList();
 
             foreach (var group in disambiguations)
             {
                 var first = group.First();
-                var termName = first.Keyword.MakeSafeFileName();
+                var termName = first.KeywordName.MakeSafeFileName();
 
-                keywords.Add(new KeywordInformation
+                keywords.Add(new Keyword
                 {
                     IsMainKeyword = true,
-                    Keyword = first.Keyword,
+                    KeywordName = first.KeywordName,
                     MustDisambiguate = false,
-                    Term = new TermInformation
+                    Term = new Term
                     {
-                        Title = first.Keyword,
-                        TermName = "disambiguation"
+                        Title = first.KeywordName,
+                        FileName = "disambiguation"
                     },
-                    TermName = "disambiguation",
+                    TermSafeFileName = "disambiguation",
                     IsDisambiguation = true
                 });
             }
 
             tcs.SetResult(keywords);
-            log?.LogInformationEx("Out SortDisambiguations", LogVerbosity.Verbose);
+            log?.LogInformation("Out SortDisambiguations");
             return tcs.Task;
         }
 
-        public static Task<IList<KeywordInformation>> SortKeywords(
-            IList<TermInformation> allTerms,
-            TermInformation currentTerm,
+        public static Task<IList<Keyword>> SortKeywords(
+            IList<Term> allTerms,
+            Term currentTerm,
             ILogger log = null)
         {
-            log?.LogInformationEx("In SortKeywords", LogVerbosity.Verbose);
+            log?.LogInformation("In SortKeywords");
 
-            var tcs = new TaskCompletionSource<IList<KeywordInformation>>();
+            var tcs = new TaskCompletionSource<IList<Keyword>>();
 
-            var result = new List<KeywordInformation>();
+            var result = new List<Keyword>();
 
             foreach (var keyword in currentTerm.Keywords)
             {
-                var newKeyword = new KeywordInformation
+                var newKeyword = new Keyword
                 {
-                    Keyword = keyword,
-                    TermName = currentTerm.TermName
+                    KeywordName = keyword.Content,
+                    TermSafeFileName = currentTerm.FileName
                 };
 
                 var sameKeywords = allTerms
                     .SelectMany(t => t.Keywords)
-                    .Where(k => k.ToLower() == keyword.ToLower());
+                    .Where(k => k.Content.ToLower() == keyword.Content.ToLower());
 
                 if (sameKeywords.Count() > 1)
                 {
                     newKeyword.MustDisambiguate = true;
                 }
 
-                if (newKeyword.Keyword.MakeSafeFileName().ToLower() == currentTerm.TermName.ToLower())
+                if (newKeyword.KeywordName.MakeSafeFileName().ToLower() == currentTerm.FileName.ToLower())
                 {
                     newKeyword.IsMainKeyword = true;
                 }
@@ -733,23 +814,27 @@ namespace MsGlossaryApp.Model
 
             if (!result.Any(k => k.IsMainKeyword))
             {
-                var mainKeyword = new KeywordInformation
+                var mainKeyword = new Keyword
                 {
                     IsMainKeyword = true,
-                    Keyword = currentTerm.Title,
-                    TermName = currentTerm.TermName
+                    KeywordName = currentTerm.Title,
+                    TermSafeFileName = currentTerm.FileName
                 };
 
                 result.Add(mainKeyword);
             }
 
             tcs.SetResult(result);
-            log?.LogInformationEx("Out SortKeywords", LogVerbosity.Verbose);
+            log?.LogInformation("Out SortKeywords");
             return tcs.Task;
         }
 
-        public static async Task<GlossaryFileInfo> VerifyFile(GlossaryFileInfo file)
+        public static async Task<GlossaryFile> VerifyFile(
+            GlossaryFile file,
+            ILogger log = null)
         {
+            log?.LogInformation("In VerifyFile");
+
             var account = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubAccountVariableName);
             var repo = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubRepoVariableName);
             var branch = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubMainBranchNameVariableName);
@@ -761,6 +846,8 @@ namespace MsGlossaryApp.Model
                 branch,
                 file.Path);
 
+            log?.LogDebug($"Url: {url}");
+
             try
             {
                 var client = new HttpClient();
@@ -769,12 +856,18 @@ namespace MsGlossaryApp.Model
                 if (currentText != file.Content)
                 {
                     file.MustSave = true;
+                    log?.LogDebug("File must be saved");
                 }
+
+                log?.LogDebug("File must not be saved");
             }
             catch (HttpRequestException)
             {
                 file.MustSave = true;
+                log?.LogDebug("Can't find original file");
             }
+
+            log?.LogInformation("Out VerifyFile");
 
             return file;
         }

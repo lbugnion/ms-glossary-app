@@ -1,0 +1,49 @@
+﻿@page "/personal-notes"
+@inject ILogger<PersonalNotes> Log
+
+<h2>Personal notes</h2>
+
+@if (Handler.Synopsis == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="intro">
+        <p>This section is intended as a notepad where you can quickly jot down some ideas about the video. For example when doing some research online, this is a convenient place to create a bullet points list, and to consult it later when you create the script.</p>
+
+        <p><a href="https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#keywords-or-key-expressions" target="_blank">See the notes</a></p>
+    </div>
+
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+
+        <div class="edit-area">
+            @foreach (var note in Handler.Synopsis.PersonalNotes)
+            {
+                <div>
+                    <label title="Personal note">
+                        <InputText class="medium-input-text"
+                                   @bind-Value="note.Content" />
+                    </label>
+
+                    <button @onclick="(e => Handler.Delete(note))">Delete</button>
+                </div>
+
+                <hr />
+            }
+        </div>
+
+        <ValidationSummary />
+
+        <div class="bottom-buttons-area">
+            <button class="main-button"
+                    @onclick="Handler.AddItem">
+                Add a note
+            </button>
+        </div>
+
+        <Footer ReloadFromCloudClicked="@ReloadFromCloud" />
+
+    </EditForm>
+}

@@ -7,7 +7,7 @@ POST http://localhost:7071/api/add-new
     "submittername": "Laurent Bugnion",
     "submittertwitter": "@LBugnion",
     "submittergithub": "LBugnion",
-    "term":"My new term"
+    "term":"Test topic 17"
 }
 
 ### Add New Synopsis Staging
@@ -20,7 +20,7 @@ x-functions-key: OTQgPYaBCra07bwwQT4TtoTa6hP26oWm1jHoCJg2UiJjV8RRWoOMIw==
     "submittername": "Laurent Bugnion",
     "submittertwitter": "@LBugnion",
     "submittergithub": "LBugnion",
-    "term":"test-topic-09"
+    "term":"test-topic-11"
 }
 
 ### Update Homepage local
@@ -36,3 +36,165 @@ http://localhost:7071/api/update-docs
 ### Update Docs Staging
 https://msglossary-app-staging.azurewebsites.net/api/update-docs
 x-functions-key: Xq9pl6xS6uI1RVuxKaN0e2HG6ts0AKgqAbniQQXKUCaHxDEAdtC1Fw==
+
+### Get synopsis for edit local
+GET http://localhost:7071/api/synopsis
+x-glossary-user-email: lbugnion@microsoft.com
+x-glossary-file-name: test-topic-17
+
+### Get synopsis for edit test
+GET https://msglossary-app-test.azurewebsites.net/api/synopsis
+x-glossary-user-email: lbugnion@microsoft.com
+x-glossary-file-name: test-topic-17
+x-functions-key: jIzX5ysczMLK9ttfQAHORzhHNfupM6HChYMRvGj/c5Y5tTEUwnORlw==
+
+### Save synopsis local
+POST http://localhost:7071/api/synopsis
+x-glossary-user-email: lbugnion@microsoft.com
+x-glossary-file-name: test-topic-17
+x-glossary-commit-message: This is a commit message
+
+{
+  "authorsInstructions": [
+    "Enter a comma-separated list of author names, email, Twitter handle and GitHub username.",
+    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#submitted-by)"
+  ],
+  "demos": [
+    {
+      "content": "Short description of the demo."
+    }
+  ],
+  "demosInstructions": [
+    "Quick list of the demos you want to show.",
+    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#demos)"
+  ],
+  "keywordsInstructions": [
+    "List of keywords or keyphrases, comma separated.",
+    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#keywords-or-key-expressions)",
+    "For example"
+  ],
+  "linksInstructions": {
+    "Links to docs": [
+      "As part of the preparation, prepare a list of links to the documentation that you will use to prepare the content. These links will be included in the website too.",
+      "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#links-to-docs)"
+    ],
+    "Links to Learn": [
+      "As part of the preparation, prepare a list of links to the documentation that you will use to prepare the content. These links will be included in the website too.",
+      "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#links-to-learn)",
+      "For example:"
+    ],
+    "Other Links (optional)": [
+      "These can be other links to Microsoft properties or to other sites."
+    ]
+  },
+  "personalNotes": [
+    {
+      "content": "Note 1B"
+    },
+    {
+      "content": "Note 2"
+    },
+    {
+      "content": "Note 3"
+    }
+  ],
+  "personalNotesInstructions": [
+    "A bullet points list of notes you can use to keep track of things.",
+    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#personal-notes)"
+  ],
+  "phonetics": "wɜrd",
+  "phoneticsInstructions": [
+    "[https://tophonetics.com](https://tophonetics.com/)",
+    "Add the phonetics of the word or the expression.",
+    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#phonetics)"
+  ],
+  "shortDescriptionInstructions": [
+    "Please keep between 60 and 200 characters.",
+    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#short-description)"
+  ],
+  "titleInstructions": [
+    "This is a template to help you create a synopsis. [You can see an example here](https://aka.ms/glossary/sample/synopsis).",
+    "Go to [the instructions to get started with a new term!](https://github.com/lbugnion/ms-glossary/blob/master/instructions/getting-started.md)"
+  ],
+  "transcriptInstructions": [
+    "A transcript of what you are planning to say on camera, including demos etc.",
+    "[See the notes](https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#script)",
+    "When writing your script, and even though we are not working on the video yet, [keep in mind the general structure of the social videos](./getting-started-video.md).",
+    "For abbreviations, also mention the full expression in the intro and show phonetics too."
+  ],
+  "authors": [
+    {
+      "email": "lbugnion@microsoft.com",
+      "gitHub": "LBugnion",
+      "name": "Laurent Bugnion",
+      "twitter": "LBugnion"
+    },
+    {
+      "email": "scottca@microsoft.com",
+      "gitHub": "ScottCate",
+      "name": "Scott Cate",
+      "twitter": "ScottCa"
+    }
+  ],
+  "fileName": "test-topic-17",
+  "keywords": [
+    {
+      "content": "AAD"
+    },
+    {
+      "content": "Active Directory"
+    },
+    {
+      "content": "Authentication"
+    },
+    {
+      "content": "Identity"
+    }
+  ],
+  "linksToDocs": [
+    {
+      "note": null,
+      "text": "An introduction to Azure Functions",
+      "url": "https://docs.microsoft.com/azure/azure-functions/functions-overview"
+    }
+  ],
+  "linksToLearn": [
+    {
+      "note": "(*learning path*)",
+      "text": "Create serverless applications",
+      "url": "https://docs.microsoft.com/learn/paths/create-serverless-applications"
+    },
+    {
+      "note": "(*module*)",
+      "text": "Refactor Node.js and Express APIs to Serverless APIs with Azure Functions",
+      "url": "https://docs.microsoft.com/learn/modules/shift-nodejs-express-apis-serverless"
+    }
+  ],
+  "linksToOthers": [],
+  "mustSave": false,
+  "shortDescription": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut",
+  "title": "Test topic 17D",
+  "transcriptLines": [
+    {
+      "markdown": "Today's word of the day is: WORD."
+    },
+    {
+      "markdown": "Today's words of the day are: EXPRESSION."
+    },
+    {
+      "markdown": "Today's word of the day is an abbreviation: ABBREVIATION."
+    },
+    {
+      "markdown": "> Enter production notes like this. This is to help you while filming or while editing the video."
+    },
+    {
+      "markdown": "Hello and welcome to Microsoft Azure Words of the Day, the show that teaches you the Azure vocabulary!"
+    }
+  ],
+  "uri": "https://github.com/lbugnion/tests-auto-commit/blob/test-topic-17/synopsis/test-topic-17.md"
+}
+
+### Test GitHub
+
+GET https://api.github.com/repos/lbugnion/tests-auto-commit/contents/synopsis/test-topic-17.md?ref=test-topic-17
+Bearer: a07ed710ca41c2b804f498bd90b6fa6fd0f1aecb

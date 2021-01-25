@@ -1,0 +1,55 @@
+﻿@page "/keywords"
+@inject ILogger<Keywords> Log
+
+<h2>Keywords</h2>
+
+@if (Handler.Synopsis == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="intro">
+        <p>The list of keywords will be used to cross-reference items within the Glossary. They can be one word, a short expression, 2-3 words. They can also be abbreviations.</p>
+
+        <p>A given keyword or key expression can be used in multiple pages. In that case a disambiguation page will be created to help the user choose which page he wants to read.</p>
+
+        <p><a href="https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#keywords-or-key-expressions" target="_blank">See the notes and examples</a></p>
+    </div>
+
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+
+        <div class="edit-area">
+            @foreach (var keyword in Handler.Synopsis.Keywords)
+            {
+                <div>
+                    <label title="Demo description">
+                        <span class="form-label">Keyword</span>
+                        <br />
+                        <InputText class="medium-input-text"
+                                   @bind-Value="keyword.Content" />
+                    </label>
+                    <button class="small-button"
+                            @onclick="(e => Handler.Delete(keyword))">
+                        Delete
+                    </button>
+                </div>
+
+                <hr />
+            }
+        </div>
+
+        <ValidationSummary />
+
+        <div class="bottom-buttons-area">
+            <button class="main-button"
+                    @onclick="Handler.AddItem">
+                Add a keyword
+            </button>
+        </div>
+
+        <Footer ReloadFromCloudClicked="@ReloadFromCloud" />
+
+    </EditForm>
+}

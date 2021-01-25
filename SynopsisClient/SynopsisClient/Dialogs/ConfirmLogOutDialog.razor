@@ -1,0 +1,49 @@
+﻿<div class="card dialog">
+    <div class="card-body">
+        <div class="card-text">
+            <p>You are currently editing the term <strong>@CurrentTerm</strong>.</p>
+
+            <p>You asked to edit <strong>@NewTerm</strong>.</p>
+
+            <p><strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.</p>
+
+            <p>If you are uncertain, click Cancel, then navigate to Title and make sure that you commit your changes to the Cloud first.</p>
+        </div>
+        <button @onclick="OnOk">OK</button>
+        <button @onclick="OnCancel">Cancel</button>
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public string CurrentTerm
+    {
+        get;
+        set;
+    }
+
+    [Parameter]
+    public string NewTerm
+    {
+        get;
+        set;
+    }
+
+    [CascadingParameter]
+    BlazoredModalInstance ModalInstance
+    {
+        get;
+        set;
+    }
+
+    private async Task OnCancel()
+    {
+        await ModalInstance.CancelAsync();
+    }
+
+    private async Task OnOk()
+    {
+        await ModalInstance.CloseAsync(ModalResult.Ok(true));
+    }
+}

@@ -1,10 +1,10 @@
 ﻿using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace MsGlossaryApp.TestDownloadBlobs
@@ -37,7 +37,9 @@ namespace MsGlossaryApp.TestDownloadBlobs
                 blobHelper.GetContainerFromName(
                     "captions"),
                 blobHelper.GetContainerFromName(
-                    "terms")
+                    "terms"),
+                blobHelper.GetContainerFromName(
+                    "terms-testing")
             };
 
             Console.WriteLine("Ready, press any key except N to start");
@@ -87,7 +89,7 @@ namespace MsGlossaryApp.TestDownloadBlobs
                                 }
                             }
 
-                            fileName = nameParts[nameParts.Length - 1];
+                            fileName = nameParts[^1];
 
                             var file = new FileInfo(
                                 Path.Combine(

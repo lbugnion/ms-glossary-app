@@ -1,0 +1,29 @@
+﻿<div class="card dialog">
+    <div class="card-body">
+        <p class="card-text">
+            <strong style="color:red ">Caution:</strong> If you click yes, you will lose <strong>all</strong> your local changes.
+        </p>
+        <button @onclick="OnOk">Yes</button>
+        <button @onclick="OnCancel">No</button>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    BlazoredModalInstance ModalInstance
+    {
+        get;
+        set;
+    }
+
+    private async Task OnCancel()
+    {
+        await ModalInstance.CancelAsync();
+    }
+
+    private async Task OnOk()
+    {
+        await ModalInstance.CloseAsync(ModalResult.Ok(true));
+    }
+}

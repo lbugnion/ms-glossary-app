@@ -1,0 +1,51 @@
+﻿@page "/model2"
+@using System.ComponentModel.DataAnnotations;
+
+<EditForm OnValidSubmit="@HandleValidSubmit" EditContext="@_editContext">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText id="name" @bind-Value="_example.Name" />
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+@code 
+{
+    private EditContext _editContext;
+    private Example _example = new Example
+    {
+        Name = "Laurent Bugnion"
+    };
+
+    private void HandleValidSubmit()
+    {
+        Console.WriteLine("Submitted");
+    }
+
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(_example);
+        _editContext.OnFieldChanged += EditContextOnFieldChanged;
+    }
+
+    private void EditContextOnFieldChanged(object sender, FieldChangedEventArgs args)
+    {
+        Console.WriteLine("Field has changed " + args.FieldIdentifier.FieldName);
+
+        var example = (Example)args.FieldIdentifier.Model;
+
+        Console.WriteLine("New value: " + example.Name);
+    }
+
+    public class Example
+    {
+        [Required]
+        [StringLength(10, ErrorMessage = "Name is too long.")]
+        public string Name
+        {
+            get;
+            set;
+        }
+    }
+}

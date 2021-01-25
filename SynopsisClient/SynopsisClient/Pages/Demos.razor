@@ -1,0 +1,55 @@
+﻿@page "/demos"
+@inject ILogger<Demos> Log
+
+<h1>Demos</h1>
+
+@if (Handler.Synopsis == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="intro">
+        <p>We try to illustrate each term with some small "demos" (note the quote signs here...). By this we mean that the demos are not necessarily aimed at showing a technical solution, but rather to illustrate the point you are making. The demos should be short (a few seconds), for example a quick action in the Azure portal, a navigation through some items, some screenshots, etc.</p>
+
+        <p>For "on camera" scenes, you can also add some logos in overlay to make things more interesting.</p>
+
+        <p><a href="https://github.com/lbugnion/ms-glossary/blob/main/instructions/getting-started-synopsis.md#demos" target="_blank">See the notes and examples</a></p>
+    </div>
+
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+
+        <div class="edit-area">
+            @foreach (var demo in Handler.Synopsis.Demos)
+            {
+                <div>
+                    <label title="Demo description">
+                        <span class="form-label">Description</span>
+                        <br />
+                        <InputText class="medium-input-text"
+                                   @bind-Value="demo.Content" />
+                    </label>
+                    <button class="small-button"
+                            @onclick="(e => Handler.Delete(demo))">
+                        Delete
+                    </button>
+                </div>
+
+                <hr />
+            }
+        </div>
+
+        <ValidationSummary />
+
+        <div class="bottom-buttons-area">
+            <button class="main-button"
+                    @onclick="Handler.AddItem">
+                Add a demo
+            </button>
+        </div>
+
+        <Footer ReloadFromCloudClicked="@ReloadFromCloud" />
+
+    </EditForm>
+}

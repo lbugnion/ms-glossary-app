@@ -1,0 +1,27 @@
+﻿@page "/about"
+@inject Microsoft.Extensions.Configuration.IConfiguration Config
+@inject ILogger<About> Log
+
+<h2>About</h2>
+
+<div class="intro">
+
+    <p>Thanks for your interest in the Microsoft Glossary.</p>
+
+    <p>Get more information about <a href="http://aka.ms/glossary/getting-started" target="_blank">getting started here</a>.</p>
+
+    <h3>Version information</h3>
+
+    <strong>Application version</strong>
+
+    <p>@ClientVersion</p>
+
+    @*<strong>Release date</strong>
+
+    <p>@ReleaseDate</p>*@
+
+    <strong>Support</strong>
+
+    <p>For questions or support, contact <a href="mailto:ms-glossary-help@microsoft.com">ms-glossary-help@microsoft.com</a></p>
+
+</div>

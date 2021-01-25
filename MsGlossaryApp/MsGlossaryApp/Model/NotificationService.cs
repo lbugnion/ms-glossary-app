@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using MsGlossaryApp.DataModel;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace MsGlossaryApp.Model
             string message,
             ILogger log = null)
         {
-            log?.LogInformationEx("In NotificationService.Notify", LogVerbosity.Verbose);
+            log?.LogInformation("In NotificationService.Notify");
 
             message = message.Replace("\"", "\\\"");
 
@@ -35,7 +36,7 @@ namespace MsGlossaryApp.Model
             request.Content = content;
             var response = await client.SendAsync(request);
             var result = await response.Content.ReadAsStringAsync();
-            log?.LogInformationEx(result, LogVerbosity.Verbose);
+            log?.LogDebug(result);
         }
     }
 }

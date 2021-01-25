@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using MsGlossaryApp.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +10,6 @@ namespace MsGlossaryApp.Model
     public class KeywordReplacer
     {
         public const string DisambiguationLinkTemplate = "/glossary/term/{0}/disambiguation";
-        public const string KeywordLinkTemplate = "[{0}]({1})";
         public const string SingleWordCharacter = " [](){}*!&-_+=|/':;.,<>?\"";
         public const string SubtermLinkTemplate = "/glossary/term/{0}/{1}";
         public const string TermLinkTemplate = "/glossary/term/{0}";
@@ -17,12 +17,12 @@ namespace MsGlossaryApp.Model
 
         public static Task<string> Replace(
             string markdown,
-            List<KeywordInformation> keywords,
+            List<Keyword> keywords,
             ILogger log = null)
         {
             var tcs = new TaskCompletionSource<string>();
 
-            log?.LogInformationEx("In Replace", LogVerbosity.Verbose);
+            log?.LogInformation("In Replace");
             var builder = new StringBuilder(markdown);
 
             var replaced = string.Empty;
@@ -37,7 +37,7 @@ namespace MsGlossaryApp.Model
                 do
                 {
                     indexOfKeyword = markdown.IndexOf(
-                        k.Keyword,
+                        k.KeywordName,
                         previousIndexOfKeyword + 1,
                         StringComparison.InvariantCultureIgnoreCase);
 
@@ -48,8 +48,8 @@ namespace MsGlossaryApp.Model
                         continue;
                     }
 
-                    if (indexOfKeyword + k.Keyword.Length < markdown.Length
-                        && !SingleWordCharacter.Contains(markdown[indexOfKeyword + k.Keyword.Length]))
+                    if (indexOfKeyword + k.KeywordName.Length < markdown.Length
+                        && !SingleWordCharacter.Contains(markdown[indexOfKeyword + k.KeywordName.Length]))
                     {
                         previousIndexOfKeyword = indexOfKeyword;
                         continue;
@@ -59,31 +59,31 @@ namespace MsGlossaryApp.Model
                         && indexOfKeyword > indexOfTranscript)
                     {
                         // Preserve casing
-                        var oldKeyword = markdown.Substring(indexOfKeyword, k.Keyword.Length);
-                        log?.LogInformationEx($"oldKeyword: {oldKeyword}", LogVerbosity.Debug);
+                        var oldKeyword = markdown.Substring(indexOfKeyword, k.KeywordName.Length);
+                        log?.LogDebug($"oldKeyword: {oldKeyword}");
 
                         string newUrlAlone = null;
 
                         if (k.IsDisambiguation)
                         {
-                            newUrlAlone = string.Format(DisambiguationLinkTemplate, k.Keyword.MakeSafeFileName());
+                            newUrlAlone = string.Format(DisambiguationLinkTemplate, k.KeywordName.MakeSafeFileName());
                         }
                         else
                         {
-                            if (k.TermName == k.Keyword.MakeSafeFileName())
+                            if (k.TermSafeFileName == k.KeywordName.MakeSafeFileName())
                             {
-                                newUrlAlone = string.Format(TermLinkTemplate, k.TermName);
+                                newUrlAlone = string.Format(TermLinkTemplate, k.TermSafeFileName);
                             }
                             else
                             {
-                                newUrlAlone = string.Format(SubtermLinkTemplate, k.TermName, k.Keyword.MakeSafeFileName());
+                                newUrlAlone = string.Format(SubtermLinkTemplate, k.TermSafeFileName, k.KeywordName.MakeSafeFileName());
                             }
                         }
 
-                        log?.LogInformationEx($"newUrlAlone: {newUrlAlone}", LogVerbosity.Debug);
+                        log?.LogDebug($"newUrlAlone: {newUrlAlone}");
 
-                        var newUrl = string.Format(KeywordLinkTemplate, oldKeyword, newUrlAlone);
-                        log?.LogInformationEx($"newUrl: {newUrl}", LogVerbosity.Debug);
+                        var newUrl = oldKeyword.MakeLink(newUrlAlone);
+                        log?.LogDebug($"newUrl: {newUrl}");
 
                         var foundOpening = false;
                         var indexOfOpening = -1;
@@ -213,7 +213,7 @@ namespace MsGlossaryApp.Model
 
             tcs.SetResult(builder.ToString());
 
-            log?.LogInformationEx("Out Replace", LogVerbosity.Verbose);
+            log?.LogInformation("Out Replace");
             return tcs.Task;
         }
     }

@@ -4,11 +4,12 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
-using MsGlossaryApp.Model.GitHub;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -18,28 +19,6 @@ namespace MsGlossaryApp
     public static class UpdateDocs
     {
         private const string CommitMessage = "New files committed by the pipeline";
-
-        private static SavingLocations GetSavingLocation()
-        {
-            SavingLocations savingLocation = SavingLocations.GitHub;
-
-            var savingLocationString = Environment.GetEnvironmentVariable(
-                Constants.SavingLocationVariableName);
-
-            if (!string.IsNullOrEmpty(savingLocationString))
-            {
-                var success = Enum.TryParse(
-                    savingLocationString,
-                    out savingLocation);
-
-                if (!success)
-                {
-                    savingLocation = SavingLocations.GitHub;
-                }
-            }
-
-            return savingLocation;
-        }
 
         [FunctionName("UpdateDocs_HttpStart")]
         public static async Task<HttpResponseMessage> HttpStart(
@@ -60,7 +39,7 @@ namespace MsGlossaryApp
             // Function input comes from the request content.
             string instanceId = await starter.StartNewAsync(nameof(UpdateDocsRunOrchestrator), null);
 
-            log.LogInformationEx($"Started orchestration in UpdateDocs with ID = '{instanceId}'.", LogVerbosity.Normal);
+            log.LogInformation($"Started orchestration in UpdateDocs with ID = '{instanceId}'.");
 
             return starter.CreateCheckStatusResponse(req, instanceId);
         }
@@ -68,107 +47,16 @@ namespace MsGlossaryApp
         [FunctionName(nameof(UpdateDocsCommitFiles))]
         public static async Task<string> UpdateDocsCommitFiles(
             [ActivityTrigger]
-            IList<GlossaryFileInfo> files,
+            IList<GlossaryFile> files,
             ILogger log)
         {
-            log?.LogInformationEx("In UpdateDocsCommitFiles", LogVerbosity.Normal);
+            log?.LogInformation("In UpdateDocsCommitFiles");
             //return null;
 
-            var savingLocation = GetSavingLocation();
-
-            var filesToCommit = files
-                .Where(f => f.MustSave)
-                .ToList();
-
-            if (savingLocation == SavingLocations.GitHub
-                && filesToCommit.Count == 0)
-            {
-                return "No changes detected in the files to commit";
-            }
-
-            string errorMessage = null;
-
-            if ((savingLocation == SavingLocations.GitHub
-                    || savingLocation == SavingLocations.Both)
-                && filesToCommit.Count > 0)
-            {
-                log?.LogInformationEx("Committing to GitHub", LogVerbosity.Verbose);
-
-                var accountName = Environment.GetEnvironmentVariable(
-                    Constants.DocsGlossaryGitHubAccountVariableName);
-                var repoName = Environment.GetEnvironmentVariable(
-                    Constants.DocsGlossaryGitHubRepoVariableName);
-                var branchName = Environment.GetEnvironmentVariable(
-                    Constants.DocsGlossaryGitHubMainBranchNameVariableName);
-                var token = Environment.GetEnvironmentVariable(
-                    Constants.GitHubTokenVariableName);
-
-                log?.LogInformationEx($"accountName: {accountName}", LogVerbosity.Debug);
-                log?.LogInformationEx($"repoName: {repoName}", LogVerbosity.Debug);
-                log?.LogInformationEx($"branchName: {branchName}", LogVerbosity.Debug);
-                log?.LogInformationEx($"token: {token}", LogVerbosity.Debug);
-
-                // Commit only files who have changed
-                var commitContent = filesToCommit
-                    .Select(f => (f.Path, f.Content))
-                    .ToList();
-
-                var helper = new GitHubHelper();
-
-                var result = await helper.CommitFiles(
-                    accountName,
-                    repoName,
-                    branchName,
-                    token,
-                    CommitMessage,
-                    commitContent,
-                    log: log);
-
-                errorMessage = result.ErrorMessage;
-                log?.LogInformationEx("Done committing to GitHub", LogVerbosity.Verbose);
-            }
-
-            if (!string.IsNullOrEmpty(errorMessage))
-            {
-                log?.LogError($"Error when committing files: {errorMessage}");
-                return errorMessage;
-            }
-
-            if ((savingLocation == SavingLocations.Storage
-                    || savingLocation == SavingLocations.Both)
-                && files.Count > 0)
-            {
-                log?.LogInformationEx("Saving to storage", LogVerbosity.Verbose);
-
-                try
-                {
-                    var account = CloudStorageAccount.Parse(
-                        Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
-
-                    var client = account.CreateCloudBlobClient();
-                    var helper = new BlobHelper(client, log);
-                    var targetContainer = helper.GetContainerFromVariable(Constants.OutputContainerVariableName);
-
-                    // Always save all files
-                    foreach (var file in files)
-                    {
-                        var name = file.Path.Replace("/", "_");
-                        var targetBlob = targetContainer.GetBlockBlobReference(name);
-                        await targetBlob.UploadTextAsync(file.Content);
-                        log?.LogInformationEx($"Uploaded {name} to storage", LogVerbosity.Debug);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log?.LogError($"Error when committing files: {ex.Message}");
-                    return ex.Message;
-                }
-
-                log?.LogInformationEx("Done saving to storage", LogVerbosity.Verbose);
-            }
-
-            log?.LogInformationEx("Out UpdateDocsCommitFiles", LogVerbosity.Normal);
-            return null;
+            return await FileSaver.SaveFiles(
+                files,
+                CommitMessage,
+                log: log);
         }
 
         [FunctionName(nameof(UpdateDocsGetAllTerms))]
@@ -195,7 +83,7 @@ namespace MsGlossaryApp
 
                 foreach (CloudBlockBlob blob in response.Results)
                 {
-                    log?.LogInformationEx($"Found: {blob.Name}", LogVerbosity.Debug);
+                    log?.LogDebug($"Found: {blob.Name}");
                     terms.Add(blob.Uri.ToString());
                 }
             }
@@ -205,9 +93,9 @@ namespace MsGlossaryApp
         }
 
         [FunctionName(nameof(UpdateDocsMakeDisambiguation))]
-        public static async Task<GlossaryFileInfo> UpdateDocsMakeDisambiguation(
+        public static async Task<GlossaryFile> UpdateDocsMakeDisambiguation(
             [ActivityTrigger]
-            IList<KeywordInformation> keywords,
+            IList<Keyword> keywords,
             ILogger log)
         {
             var file = await TermMaker.CreateDisambiguationFile(keywords, log);
@@ -215,9 +103,9 @@ namespace MsGlossaryApp
         }
 
         [FunctionName(nameof(UpdateDocsMakeMarkdown))]
-        public static async Task<GlossaryFileInfo> UpdateDocsMakeMarkdown(
+        public static async Task<GlossaryFile> UpdateDocsMakeMarkdown(
             [ActivityTrigger]
-            KeywordInformation keyword,
+            Keyword keyword,
             ILogger log)
         {
             var file = await TermMaker.CreateKeywordFile(keyword, log);
@@ -225,39 +113,69 @@ namespace MsGlossaryApp
         }
 
         [FunctionName(nameof(UpdateDocsParseTerm))]
-        public static async Task<TermInformation> UpdateDocsParseTerm(
+        public static async Task<Term> UpdateDocsParseTerm(
             [ActivityTrigger]
             Uri termUri,
             ILogger log)
         {
-            TermInformation term = null;
+            Term term;
 
             try
             {
-                term = await TermMaker.CreateTerm(termUri, log);
+                var termBlob = new CloudBlockBlob(termUri);
+                string markdown = await termBlob.DownloadTextAsync();
+                term = TermMaker.ParseTerm(termUri, markdown, log);
+
+                var results = new List<ValidationResult>();
+                var isValid = term.TryValidate(results);
+
+                if (!isValid)
+                {
+                    await NotificationService.Notify(
+                        "Incomplete term",
+                        $"The term {term.FileName} was queued for parsing but is incomplete",
+                        log);
+
+                    log?.LogError($"Incomplete term {term.FileName}");
+
+                    foreach (var result in results)
+                    {
+                        log?.LogError(result.ErrorMessage);
+                    }
+
+                    return null;
+                }
             }
             catch (Exception ex)
             {
+                await NotificationService.Notify(
+                    "Faulty term",
+                    $"The term {termUri} was queued for parsing but is incomplete",
+                    log);
+
                 log?.LogError($"Error with term {termUri}: {ex.Message}");
+                return null;
             }
 
             return term;
         }
 
         [FunctionName(nameof(UpdateDocsReplaceKeywords))]
-        public static async Task<TermInformation> UpdateDocsReplaceKeywords(
+        public static async Task<Term> UpdateDocsReplaceKeywords(
             [ActivityTrigger]
-            (List<KeywordInformation> keywordsToReplace, TermInformation currentTerm) input,
+            (List<Keyword> keywordsToReplace, Term currentTerm) input,
             ILogger log)
         {
+            var oldTranscript = input.currentTerm.GetTranscriptMarkdown();
+
             var newTranscript = await KeywordReplacer.Replace(
-                input.currentTerm.Transcript,
+                oldTranscript,
                 input.keywordsToReplace,
                 log);
 
-            if (newTranscript != input.currentTerm.Transcript)
+            if (newTranscript != oldTranscript)
             {
-                input.currentTerm.Transcript = newTranscript;
+                input.currentTerm.SetTranscriptMarkdown(newTranscript);
                 input.currentTerm.MustSave = true;
             }
 
@@ -273,30 +191,31 @@ namespace MsGlossaryApp
                 nameof(UpdateDocsGetAllTerms),
                 null);
 
-            var allTermsTasks = new List<Task<TermInformation>>();
+            var allTermsTasks = new List<Task<Term>>();
 
             foreach (var termUrl in allTermsUrls)
             {
-                //var termUrl = allTermsUrls.First();
+                //var termUrl = allTermsUrls.First(u => u.Contains("/test.en.md"));
 
-                allTermsTasks.Add(context.CallActivityAsync<TermInformation>(
+                allTermsTasks.Add(context.CallActivityAsync<Term>(
                     nameof(UpdateDocsParseTerm),
                     new Uri(termUrl)));
             }
 
-            var allTerms = await Task.WhenAll(allTermsTasks);
+            var allTerms = (await Task.WhenAll(allTermsTasks))
+                .Where(t => t != null);
 
-            await context.CallActivityAsync<TermInformation>(
+            await context.CallActivityAsync<Term>(
                 nameof(UpdateDocsSaveTermsToSettings),
                 allTerms);
 
-            var allKeywordsTasks = new List<Task<IList<KeywordInformation>>>();
+            var allKeywordsTasks = new List<Task<IList<Keyword>>>();
 
             foreach (var term in allTerms)
             {
                 //var term = allTerms.First();
 
-                allKeywordsTasks.Add(context.CallActivityAsync<IList<KeywordInformation>>(
+                allKeywordsTasks.Add(context.CallActivityAsync<IList<Keyword>>(
                     nameof(UpdateDocsSortKeywords),
                     (allTerms, term)));
             }
@@ -304,25 +223,25 @@ namespace MsGlossaryApp
             var allKeywords = (await Task.WhenAll(allKeywordsTasks))
                 .SelectMany(i => i);
 
-            allKeywords = await context.CallActivityAsync<IList<KeywordInformation>>(
+            allKeywords = await context.CallActivityAsync<IList<Keyword>>(
                 nameof(UpdateDocsSortDisambiguations),
                 allKeywords);
 
-            var replaceKeywordsTasks = new List<Task<TermInformation>>();
+            var replaceKeywordsTasks = new List<Task<Term>>();
 
             foreach (var term in allTerms)
             {
-                // var term = allTerms.First(t => t.TermName == "aad");
+                //var term = allTerms.First(t => t.FileName == "aad");
 
                 var keywordsToReplace = allKeywords
                     .Where(k =>
-                        k.TermName != term.TermName
+                        k.TermSafeFileName != term.FileName
                         && !k.MustDisambiguate)
                     .ToList();
 
                 if (keywordsToReplace.Count > 0)
                 {
-                    replaceKeywordsTasks.Add(context.CallActivityAsync<TermInformation>(
+                    replaceKeywordsTasks.Add(context.CallActivityAsync<Term>(
                         nameof(UpdateDocsReplaceKeywords),
                         (keywordsToReplace, term)));
                 }
@@ -330,19 +249,19 @@ namespace MsGlossaryApp
 
             allTerms = await Task.WhenAll(replaceKeywordsTasks);
 
-            var filesCreationTasks = new List<Task<GlossaryFileInfo>>();
+            var filesCreationTasks = new List<Task<GlossaryFile>>();
 
             foreach (var keyword in allKeywords.Where(k => !k.IsDisambiguation))
             {
-                //var keyword = allKeywords.First(k => k.Keyword.MakeSafeFileName() == "node-js"
-                //    && k.TermName == "app-service");
+                //var keyword = allKeywords.First(k => k.KeywordName.MakeSafeFileName() == "node-js"
+                //    && k.TermSafeFileName == "app-service");
 
                 var currentTerm = allTerms
-                    .Single(testc => testc.TermName == keyword.TermName);
+                    .Single(t => t.FileName == keyword.TermSafeFileName);
 
                 keyword.Term = currentTerm;
 
-                filesCreationTasks.Add(context.CallActivityAsync<GlossaryFileInfo>(
+                filesCreationTasks.Add(context.CallActivityAsync<GlossaryFile>(
                     nameof(UpdateDocsMakeMarkdown),
                     keyword));
             }
@@ -372,9 +291,9 @@ namespace MsGlossaryApp
 
             var keywordsGroups = allKeywords
                 .Where(k => k.MustDisambiguate)
-                .GroupBy(k => k.Keyword.ToLower());
+                .GroupBy(k => k.KeywordName.ToLower());
 
-            var disambiguationTasks = new List<Task<GlossaryFileInfo>>();
+            var disambiguationTasks = new List<Task<GlossaryFile>>();
 
             foreach (var group in keywordsGroups)
             {
@@ -383,12 +302,12 @@ namespace MsGlossaryApp
                 foreach (var keyword in group)
                 {
                     var currentTerm = allTerms
-                        .Single(testc => testc.TermName == keyword.TermName);
+                        .Single(testc => testc.FileName == keyword.TermSafeFileName);
 
                     keyword.Term = currentTerm;
                 }
 
-                disambiguationTasks.Add(context.CallActivityAsync<GlossaryFileInfo>(
+                disambiguationTasks.Add(context.CallActivityAsync<GlossaryFile>(
                     nameof(UpdateDocsMakeDisambiguation),
                     group.ToList()));
             }
@@ -415,7 +334,7 @@ namespace MsGlossaryApp
 
             // Create the TOC
 
-            var toc = await context.CallActivityAsync<GlossaryFileInfo>(
+            var toc = await context.CallActivityAsync<GlossaryFile>(
                 nameof(UpdateDocsUpdateTableOfContents),
                 allKeywords);
 
@@ -430,13 +349,13 @@ namespace MsGlossaryApp
 
             filesToVerify.Add(toc);
 
-            var verifyTasks = new List<Task<GlossaryFileInfo>>();
+            var verifyTasks = new List<Task<GlossaryFile>>();
 
             foreach (var file in filesToVerify)
             {
                 //var file = filesToSave.First();
 
-                verifyTasks.Add(context.CallActivityAsync<GlossaryFileInfo>(
+                verifyTasks.Add(context.CallActivityAsync<GlossaryFile>(
                     nameof(UpdateDocsVerifyFiles),
                     file));
             }
@@ -460,7 +379,7 @@ namespace MsGlossaryApp
             }
 
             var message = "New files committed";
-            var savingLocation = GetSavingLocation();
+            var savingLocation = FileSaver.GetSavingLocation();
 
             switch (savingLocation)
             {
@@ -484,10 +403,10 @@ namespace MsGlossaryApp
         [FunctionName(nameof(UpdateDocsSaveTermsToSettings))]
         public static async Task UpdateDocsSaveTermsToSettings(
             [ActivityTrigger]
-            IList<TermInformation> terms,
+            IList<Term> terms,
             ILogger log)
         {
-            log?.LogInformationEx("In UpdateDocsSaveTermsToSettings", LogVerbosity.Normal);
+            log?.LogInformation("In UpdateDocsSaveTermsToSettings");
 
             var account = CloudStorageAccount.Parse(
                 Environment.GetEnvironmentVariable(
@@ -500,49 +419,49 @@ namespace MsGlossaryApp
 
             var blob = settingsContainer.GetBlockBlobReference(Constants.TermsSettingsFileName);
 
-            var termsNames = terms.Select(t => t.TermName).ToList();
+            var termsNames = terms.Select(t => t.FileName).ToList();
 
             var json = JsonConvert.SerializeObject(termsNames);
-            log?.LogInformationEx($"json: {json}", LogVerbosity.Debug);
+            log?.LogDebug($"json: {json}");
 
             await blob.UploadTextAsync(json);
-            log?.LogInformationEx("Out UpdateDocsSaveTermsToSettings", LogVerbosity.Normal);
+            log?.LogInformation("Out UpdateDocsSaveTermsToSettings");
         }
 
         [FunctionName(nameof(UpdateDocsSortDisambiguations))]
-        public static async Task<IList<KeywordInformation>> UpdateDocsSortDisambiguations(
+        public static async Task<IList<Keyword>> UpdateDocsSortDisambiguations(
             [ActivityTrigger]
-            IList<KeywordInformation> keywords,
+            IList<Keyword> keywords,
             ILogger log)
         {
             return await TermMaker.SortDisambiguations(keywords, log);
         }
 
         [FunctionName(nameof(UpdateDocsSortKeywords))]
-        public static async Task<IList<KeywordInformation>> UpdateDocsSortKeywords(
+        public static async Task<IList<Keyword>> UpdateDocsSortKeywords(
             [ActivityTrigger]
-            (IList<TermInformation> allTerms, TermInformation currentTerm) input,
+            (IList<Term> allTerms, Term currentTerm) input,
             ILogger log)
         {
             return await TermMaker.SortKeywords(input.allTerms, input.currentTerm, log);
         }
 
         [FunctionName(nameof(UpdateDocsUpdateTableOfContents))]
-        public static async Task<GlossaryFileInfo> UpdateDocsUpdateTableOfContents(
+        public static async Task<GlossaryFile> UpdateDocsUpdateTableOfContents(
             [ActivityTrigger]
-            IList<KeywordInformation> keywords,
+            IList<Keyword> keywords,
             ILogger log)
         {
             return await TermMaker.CreateTableOfContentsFile(keywords, log);
         }
 
         [FunctionName(nameof(UpdateDocsVerifyFiles))]
-        public static async Task<GlossaryFileInfo> UpdateDocsVerifyFiles(
+        public static async Task<GlossaryFile> UpdateDocsVerifyFiles(
             [ActivityTrigger]
-            GlossaryFileInfo file,
+            GlossaryFile file,
             ILogger log)
         {
-            return await TermMaker.VerifyFile(file);
+            return await TermMaker.VerifyFile(file, log);
         }
     }
 }

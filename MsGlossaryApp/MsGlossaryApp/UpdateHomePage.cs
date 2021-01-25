@@ -1,5 +1,6 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
 using MsGlossaryApp.Model.GitHub;
 using Newtonsoft.Json;
@@ -27,7 +28,7 @@ namespace MsGlossaryApp
             //Microsoft.AspNetCore.Http.HttpRequest req,
             ILogger log)
         {
-            log.LogInformationEx($"In UpdateHomePage", LogVerbosity.Normal);
+            log.LogInformation($"In UpdateHomePage");
             Exception error = null;
 
             try
@@ -36,9 +37,9 @@ namespace MsGlossaryApp
                 var repoName = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubRepoVariableName);
                 var branchName = Environment.GetEnvironmentVariable(Constants.DocsGlossaryGitHubMainBranchNameVariableName);
 
-                log.LogInformationEx($"accountName: {accountName}", LogVerbosity.Debug);
-                log.LogInformationEx($"repoName: {repoName}", LogVerbosity.Debug);
-                log.LogInformationEx($"branchName: {branchName}", LogVerbosity.Debug);
+                log.LogDebug($"accountName: {accountName}");
+                log.LogDebug($"repoName: {repoName}");
+                log.LogDebug($"branchName: {branchName}");
 
                 // Read the current state of the file
 
@@ -48,7 +49,7 @@ namespace MsGlossaryApp
                     repoName,
                     branchName);
 
-                log.LogInformationEx($"filePath: {filePath}", LogVerbosity.Debug);
+                log.LogDebug($"filePath: {filePath}");
 
                 var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
@@ -65,10 +66,10 @@ namespace MsGlossaryApp
                         newContentBuilder.AppendLine(line);
                     }
 
-                    log.LogInformationEx($"line: {line}", LogVerbosity.Debug);
+                    log.LogDebug($"line: {line}");
                 }
 
-                log.LogInformationEx("Obtained and read the content", LogVerbosity.Verbose);
+                log.LogInformation("Obtained and read the content");
 
                 var newContent = newContentBuilder.ToString()
                     .Trim();
@@ -79,13 +80,13 @@ namespace MsGlossaryApp
                 var settingsContainerName = Environment.GetEnvironmentVariable(Constants.SettingsContainerVariableName);
                 var termsUrl = string.Format(Constants.ListOfTermsUrlMask, blobStoreName, settingsContainerName, Constants.TermsSettingsFileName);
 
-                log.LogInformationEx($"blobStoreName: {blobStoreName}", LogVerbosity.Debug);
-                log.LogInformationEx($"settingsContainerName: {settingsContainerName}", LogVerbosity.Debug);
-                log.LogInformationEx($"termsUrl: {termsUrl}", LogVerbosity.Debug);
+                log.LogDebug($"blobStoreName: {blobStoreName}");
+                log.LogDebug($"settingsContainerName: {settingsContainerName}");
+                log.LogDebug($"termsUrl: {termsUrl}");
 
                 var termsJson = await client.GetStringAsync(termsUrl);
 
-                log.LogInformationEx("Terms JSON loaded", LogVerbosity.Verbose);
+                log.LogInformation("Terms JSON loaded");
 
                 // TODO Remove checking for test and another-test when these are removed from the repos.
                 var terms = JsonConvert.DeserializeObject<List<string>>(termsJson)
@@ -93,20 +94,20 @@ namespace MsGlossaryApp
                         && s != "another-test")
                     .ToList();
 
-                log.LogInformationEx($"{terms.Count} terms found", LogVerbosity.Debug);
+                log.LogDebug($"{terms.Count} terms found");
 
                 var random = new Random();
                 var index = random.Next(0, terms.Count - 1);
                 var randomTerm = terms[index];
 
-                log?.LogInformationEx($"New random term: {randomTerm}", LogVerbosity.Verbose);
+                log?.LogDebug($"New random term: {randomTerm}");
 
                 var include = string.Format(
                     IncludeLineMask,
                     TextHelper.GetText("TermRandomTerm"),
                     randomTerm);
 
-                log?.LogInformationEx($"include: {include}", LogVerbosity.Debug);
+                log?.LogDebug($"include: {include}");
 
                 // Line before last is the include directive
 
@@ -116,7 +117,7 @@ namespace MsGlossaryApp
                     + Environment.NewLine;
 
                 var token = Environment.GetEnvironmentVariable(Constants.GitHubTokenVariableName);
-                log?.LogInformationEx($"GitHub token: {token}", LogVerbosity.Debug);
+                log?.LogDebug($"GitHub token: {token}");
 
                 var helper = new GitHubHelper(client);
 
@@ -143,14 +144,14 @@ namespace MsGlossaryApp
                     return;
                 }
 
-                log?.LogInformationEx("Term commited to Github", LogVerbosity.Verbose);
+                log?.LogInformation("Term commited to Github");
 
                 await NotificationService.Notify(
                     "Updated homepage",
                     $"The glossary homepage was updated with term {randomTerm}",
                     log);
 
-                log?.LogInformationEx("Done updating homepage", LogVerbosity.Verbose);
+                log?.LogInformation("Done updating homepage");
             }
             catch (Exception ex)
             {
@@ -166,7 +167,7 @@ namespace MsGlossaryApp
                     log);
             }
 
-            log.LogInformationEx($"Out UpdateHomePage", LogVerbosity.Normal);
+            log.LogInformation($"Out UpdateHomePage");
         }
     }
 }

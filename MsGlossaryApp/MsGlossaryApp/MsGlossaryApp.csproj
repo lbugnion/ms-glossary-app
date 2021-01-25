@@ -13,6 +13,9 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.3" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MsGlossaryApp.DataModel\MsGlossaryApp.DataModel.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Update="Texts.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

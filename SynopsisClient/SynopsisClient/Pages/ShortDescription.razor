@@ -1,0 +1,45 @@
+﻿@page "/short-description"
+@inject ILogger<ShortDescription> Log
+
+<h2>Short description</h2>
+
+@if (Handler.Synopsis == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="intro">
+
+        <p>The short description will be used later in the social videos, in the title card</p>
+
+        <p>Please follow the rules:</p>
+
+        <ul style="font-weight: bold;">
+            <li>The Short Description is required!</li>
+            <li>Keep the Short Description between 40 and 150 characters</li>
+        </ul>
+
+        <p>For example:</p>
+
+        <img src="/images/ShortDescription.png"
+             title="Microsoft Glossary Social Video Title Card" />
+
+    </div>
+
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+
+        <div class="edit-area">
+            <InputTextArea @bind-Value="Handler.Synopsis.ShortDescription"
+                           class="medium-input-text-area" />
+
+            <hr />
+        </div>
+
+        <ValidationSummary />
+
+        <Footer ReloadFromCloudClicked="@Handler.ReloadFromCloud" />
+
+    </EditForm>
+}

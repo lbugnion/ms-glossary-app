@@ -1,0 +1,55 @@
+﻿@page "/links-others"
+@inject ILogger<LinksToOthers> Log
+
+<h2>Other Links</h2>
+
+@if (Handler.Synopsis == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="intro">
+        <p>These can be other links to Microsoft properties or to other sites.</p>
+
+        <p><strong>For docs.microsoft.com links (Documentation), use "Links to Docs".</strong></p>
+
+        <p><strong>For Microsoft Learn links, use "Links to Learn".</strong></p>
+    </div>
+
+    <EditForm EditContext="@Handler.CurrentEditContext">
+        <DataAnnotationsValidator />
+
+        <div class="edit-area">
+            @foreach (var link in Handler.Synopsis.LinksToOthers)
+            {
+                <div>
+                    <label title="Link">
+                        <span class="form-label">Link</span>
+                        <br />
+                        <InputText class="medium-input-text"
+                                   @bind-Value="link.EditingUrl" />
+                    </label>
+                    <button class="small-button"
+                            @onclick="(e => Handler.Delete(link))">
+                        Delete
+                    </button>
+                </div>
+
+                <hr />
+            }
+        </div>
+
+        <ValidationSummary />
+
+        <div class="bottom-buttons-area">
+            <button class="main-button"
+                    @onclick="Handler.AddItem">
+                Add a link
+            </button>
+        </div>
+
+        <Footer ReloadFromCloudClicked="@ReloadFromCloud" />
+
+    </EditForm>
+}

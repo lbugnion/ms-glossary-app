@@ -1,0 +1,10 @@
+﻿@page "/code-behind"
+
+<EditForm OnValidSubmit="@HandleValidSubmit" EditContext="@_editContext">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText id="name" @bind-Value="_example.Name" />
+
+    <button type="submit">Submit</button>
+</EditForm>
