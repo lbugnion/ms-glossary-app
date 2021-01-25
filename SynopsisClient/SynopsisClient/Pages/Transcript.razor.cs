@@ -53,7 +53,7 @@ namespace SynopsisClient.Pages
                 _wordsSpanClass = WordsCountGoodClass;
             }
 
-            Log.LogDebug($"{_words} words after");
+            Log.LogDebug($"{_words} words");
 
             StateHasChanged();
         }
@@ -124,9 +124,17 @@ namespace SynopsisClient.Pages
         {
             Log.LogInformation("-> ReloadFromCloud");
 
+            Handler.CurrentEditContext.OnValidationStateChanged
+                -= CurrentEditContextOnValidationStateChanged;
+
             await Handler.ReloadFromCloud();
+
+            Handler.CurrentEditContext.OnValidationStateChanged
+                += CurrentEditContextOnValidationStateChanged;
+
             DefineList();
             CountWords();
+            Log.LogInformation("ReloadFromCloud ->");
         }
     }
 }

@@ -35,18 +35,21 @@ else
 
             <div class="transcript-action-links">
                 <a href="#"
-                   @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptSimpleLine>(null))"
+                   @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptSimpleLine>(-1))"
                    @onclick:preventDefault>Add new line here</a>&nbsp;|&nbsp;
                 @*<a href="#"
                 @onclick="(e => AddImageAfter(null))"
                 @onclick:preventDefault>New image here</a>&nbsp;|&nbsp;*@
                 <a href="#"
-                   @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptNote>(null))"
+                   @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptNote>(-1))"
                    @onclick:preventDefault>Add new note here</a>
             </div>
 
-            @foreach (var line in Handler.Synopsis.TranscriptLines)
+            @for (var index = 0; index < Handler.Synopsis.TranscriptLines.Count; index++)
             {
+                var localIndex = index;
+                var line = Handler.Synopsis.TranscriptLines[index];
+
                 <div>
                     @if (line is TranscriptNote note)
                     {
@@ -78,16 +81,16 @@ else
 
                     <div class="transcript-action-links">
                         <a href="#"
-                           @onclick="(e => Handler.Delete(line))"
+                           @onclick="(e => Handler.DeleteTranscriptLine(localIndex))"
                            @onclick:preventDefault>Delete</a>&nbsp;|&nbsp;
                         <a href="#"
-                           @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptSimpleLine>(line))"
+                           @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptSimpleLine>(localIndex))"
                            @onclick:preventDefault>New line</a>&nbsp;|&nbsp;
                         @*<a href="#"
                         @onclick="(e => AddImageAfter(line))"
                         @onclick:preventDefault>New image</a>&nbsp;|&nbsp;*@
                         <a href="#"
-                           @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptNote>(line))"
+                           @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptNote>(localIndex))"
                            @onclick:preventDefault>New note</a>&nbsp;|&nbsp;
                         <span class="@_wordsSpanClass">@_words words total</span>
                     </div>

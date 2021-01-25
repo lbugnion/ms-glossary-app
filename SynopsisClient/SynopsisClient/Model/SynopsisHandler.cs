@@ -406,10 +406,11 @@ namespace SynopsisClient.Model
             Log.LogInformation("SynopsisHandler.AddItem ->");
         }
 
-        public void AddTranscriptLineAfter<T>(TranscriptLine previousLine)
+        public void AddTranscriptLineAfter<T>(int previousIndex)
             where T : TranscriptLine, new()
         {
             Log.LogInformation("-> SynopsisHandler.AddTranscriptLineAfter");
+            Log.LogDebug($"Previous index: {previousIndex}");
 
             if (_listHandler is not ListHandler<TranscriptLine> castedListHandler)
             {
@@ -417,18 +418,8 @@ namespace SynopsisClient.Model
                 return;
             }
 
-            if (previousLine == null)
-            {
-                Log.LogTrace("previousLine is null");
-                castedListHandler.InsertItemAt(0, new T());
-            }
-            else
-            {
-                Log.LogDebug($"previousLine is {previousLine}");
-                var previousIndex = castedListHandler.GetIndexOf(previousLine);
-                castedListHandler.InsertItemAt(previousIndex + 1, new T());
-            }
-
+            castedListHandler.InsertItemAt(previousIndex + 1, new T());
+            TriggerValidation();
             Log.LogInformation("SynopsisHandler.AddTranscriptLineAfter ->");
         }
 
@@ -581,6 +572,16 @@ namespace SynopsisClient.Model
             _modal = modal;
         }
 
+        public async Task DeleteTranscriptLine(int index)
+        {
+            Log.LogInformation("-> SynopsisHandler.DeleteTranscriptLine");
+            Log.LogDebug($"index: {index}");
+
+            var item = Synopsis.TranscriptLines[index];
+            await Delete(item);
+            Log.LogInformation("SynopsisHandler.DeleteTranscriptLine ->");
+        }
+
         public async Task Delete<T>(T item)
             where T : class
         {
@@ -591,6 +592,8 @@ namespace SynopsisClient.Model
                 Log.LogTrace("Asking List handler to delete");
                 _listHandler?.Delete(item);
             }
+
+            Log.LogInformation("SynopsisHandler.Delete ->");
         }
 
         public async Task DeleteLocalSynopsis()
@@ -706,7 +709,6 @@ namespace SynopsisClient.Model
 
                 var newItem = new T();
                 Items.Add(newItem);
-                _parent.TriggerValidation();
                 _parent.IsModified = true;
                 Log.LogInformation("ListHandler.AddItem ->");
             }
@@ -775,7 +777,7 @@ namespace SynopsisClient.Model
                 }
 
                 Items.Insert(index, newItem);
-                _parent.TriggerValidation();
+                //_parent.TriggerValidation();
                 _parent.IsModified = true;
                 Log.LogInformation("ListHandler.InsertItemAt ->");
             }
