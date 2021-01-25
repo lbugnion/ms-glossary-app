@@ -200,10 +200,10 @@
                     "content": "@body('HTTP')",
                     "schema": {
                         "properties": {
-                            "ref": {
+                            "filename": {
                                 "type": "string"
                             },
-                            "safeterm": {
+                            "ref": {
                                 "type": "string"
                             },
                             "shortdescription": {
@@ -238,7 +238,7 @@
             "Send_an_email_(V2)": {
                 "inputs": {
                     "body": {
-                        "Body": "<p>Thank you for submitting a new term to the Microsoft Glossary. We need your action now:<br>\n<br>\nThe new term you submitted is available here:<br>\n@{body('Parse_JSON')?['url']}<br>\n<br>\nPlease check the \"Getting started\" instructions here.<br>\n<br>\nIn case of doubt, please reply to this email and I will assist you.<br>\n<br>\nThanks again!!<br>\nLaurent<br>\n<br>\nName: @{body('Get_response_details')?['r67076393da1440d49a0e20d12516d1a9']}<br>\nTwitter: @{body('Get_response_details')?['r3a51f04a2587472c903688778835bffe']}<br>\nGitHub: @{body('Get_response_details')?['rf46f3efb9b5640268970c7f8805ec338']}<br>\nTerm: @{body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']}<br>\nDescription: @{body('Get_response_details')?['r46ea1f89309e4a2185e25fee32497f12']}<br>\nSubmitted at: @{body('Get_response_details')?['submitDate']}</p>",
+                        "Body": "<p>Thank you for submitting a new term to the Microsoft Glossary. We need your action now:<br>\n<br>\n<strong>Please check the \"Getting started\" instructions here</strong>:<br>\nhttp://aka.ms/glossary/getting-started<br>\n<br>\n<strong>You can edit the Synopsis here</strong>: http://ms-glossary-synopsis.cloud?edit=@{body('Parse_JSON')?['filename']}<br>\n<br>\nIn case of doubt, please reply to this email and we will assist you.<br>\n<br>\nThanks again!!<br>\nLaurent<br>\n<br>\nName: @{body('Get_response_details')?['r67076393da1440d49a0e20d12516d1a9']}<br>\nTwitter: @{body('Get_response_details')?['r3a51f04a2587472c903688778835bffe']}<br>\nGitHub: @{body('Get_response_details')?['rf46f3efb9b5640268970c7f8805ec338']}<br>\nTerm: @{body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']}<br>\nDescription: @{body('Get_response_details')?['r46ea1f89309e4a2185e25fee32497f12']}<br>\nSubmitted at: @{body('Get_response_details')?['submitDate']}</p>",
                         "Subject": "ACTION NEEDED: Thanks for submitting to the Microsoft Glossary",
                         "To": "@{body('Get_response_details')?['responder']}; lbugnion@microsoft.com"
                     },
