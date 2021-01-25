@@ -118,7 +118,10 @@ namespace MsGlossaryApp.DataModel
                 .ToLower()
                 .Replace(' ', '-')
                 .Replace('/', '-')
-                .Replace('.', '-');
+                .Replace('.', '-')
+                .Replace('\'', '-')
+                .Replace(',', '-')
+                .Replace("---", "-");
         }
 
         public static string MakeYouTubeVideo(this string code)
