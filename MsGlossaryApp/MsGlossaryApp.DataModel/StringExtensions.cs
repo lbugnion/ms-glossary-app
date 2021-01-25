@@ -121,6 +121,7 @@ namespace MsGlossaryApp.DataModel
                 .Replace('.', '-')
                 .Replace('\'', '-')
                 .Replace(',', '-')
+                .Replace('\\', '-')
                 .Replace("---", "-");
         }
 
