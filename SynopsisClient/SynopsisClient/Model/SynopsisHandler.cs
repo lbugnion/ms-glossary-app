@@ -600,14 +600,14 @@ namespace SynopsisClient.Model
         {
             Log.LogInformation("-> SynopsisHandler.DeleteLocalSynopsis");
             Synopsis = null;
-            await _localStorage.RemoveItemAsync(SynopsisHandler.LocalStorageKey);
+            await _localStorage.RemoveItemAsync(LocalStorageKey);
         }
 
         public void ExecuteReloadLocal()
         {
             Log.LogInformation("-> SynopsisHandler.ExecuteReloadLocal");
             // TODO Reload synopsis local without reloading the page
-            _nav.NavigateTo(_nav.Uri, forceLoad: true);
+            _nav.NavigateTo("/", forceLoad: true);
         }
 
         public async Task<bool> InitializePage()
