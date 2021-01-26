@@ -40,7 +40,7 @@ x-functions-key: Xq9pl6xS6uI1RVuxKaN0e2HG6ts0AKgqAbniQQXKUCaHxDEAdtC1Fw==
 ### Get synopsis for edit local
 GET http://localhost:7071/api/synopsis
 x-glossary-user-email: lbugnion@microsoft.com
-x-glossary-file-name: Test-topic-17
+x-glossary-file-name: Test topic 17
 
 ### Get synopsis for edit test
 GET https://msglossary-app-test.azurewebsites.net/api/synopsis
@@ -51,7 +51,7 @@ x-functions-key: jIzX5ysczMLK9ttfQAHORzhHNfupM6HChYMRvGj/c5Y5tTEUwnORlw==
 ### Get synopsis for edit staging
 GET https://msglossary-app-staging.azurewebsites.net/api/synopsis
 x-glossary-user-email: lbugnion@microsoft.com
-x-glossary-file-name: azure-portal
+x-glossary-file-name: Azure Portal
 x-functions-key: p0YQeh8yhr9HhtGTSJXXRIJC2wNbeTeS4X39aMzIGcfup1P0LfEJPw==
 
 ### Get synopsis for edit remote

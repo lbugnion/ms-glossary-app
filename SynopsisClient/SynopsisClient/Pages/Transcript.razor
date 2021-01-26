@@ -81,7 +81,7 @@ else
 
                     <div class="transcript-action-links">
                         <a href="#"
-                           @onclick="(e => Handler.DeleteTranscriptLine(localIndex))"
+                           @onclick="(e => DeleteTranscriptLine(localIndex))"
                            @onclick:preventDefault>Delete</a>&nbsp;|&nbsp;
                         <a href="#"
                            @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptSimpleLine>(localIndex))"

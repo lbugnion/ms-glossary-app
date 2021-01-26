@@ -1,8 +1,10 @@
-﻿using Blazored.Modal.Services;
+﻿using Blazored.Modal;
+using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
 using MsGlossaryApp.DataModel;
+using SynopsisClient.Dialogs;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -135,6 +137,29 @@ namespace SynopsisClient.Pages
             DefineList();
             CountWords();
             Log.LogInformation("ReloadFromCloud ->");
+        }
+
+        private async Task DeleteTranscriptLine(int index)
+        {
+            if (Handler.Synopsis.TranscriptLines.Count >= index)
+            {
+                var line = Handler.Synopsis.TranscriptLines[index];
+
+                if (line is TranscriptSimpleLine
+                    && Handler.Synopsis.TranscriptLines.Where(t => t is TranscriptSimpleLine).Count() == 1)
+                {
+                    // Last transcript simple line cannot be deleted
+
+                    var parameters = new ModalParameters();
+                    parameters.Add(nameof(MessageDialog.Message), "You need at least one line in the transcript");
+
+                    Modal.Show<MessageDialog>("Cannot delete", parameters);
+                }
+                else
+                {
+                    await Handler.DeleteTranscriptLine(index);
+                }
+            }
         }
     }
 }
