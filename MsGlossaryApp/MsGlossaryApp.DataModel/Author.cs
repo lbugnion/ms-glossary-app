@@ -13,7 +13,6 @@ namespace MsGlossaryApp.DataModel
             set;
         }
 
-        [Required]
         public string GitHub
         {
             get;
