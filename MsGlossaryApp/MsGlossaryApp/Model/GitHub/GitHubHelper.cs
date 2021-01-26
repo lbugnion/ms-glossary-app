@@ -467,10 +467,16 @@ namespace MsGlossaryApp.Model.GitHub
             string githubToken,
             ILogger log = null)
         {
-            // TODO Add logging
+            log?.LogInformation("-> GitHubHelper.GetTextFile");
+            log?.LogDebug($"accountName: {accountName}");
+            log?.LogDebug($"repoName: {repoName}");
+            log?.LogDebug($"branchName: {branchName}");
+            log?.LogDebug($"filePathWithExtension: {filePathWithExtension}");
 
             var getFileUrl = string.Format(GetMarkdownFileUrl, filePathWithExtension, branchName);
             var url = string.Format(GitHubApiBaseUrlMask, accountName, repoName, getFileUrl);
+
+            log?.LogDebug($"url: {url}");
 
             var request = new HttpRequestMessage
             {
@@ -484,6 +490,8 @@ namespace MsGlossaryApp.Model.GitHub
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
+                log?.LogError($"Error with the request: {responseText}");
+
                 return new GetTextFileResult
                 {
                     ErrorMessage = responseText
@@ -494,8 +502,13 @@ namespace MsGlossaryApp.Model.GitHub
             {
                 var result = JsonConvert.DeserializeObject<GetTextFileResult>(responseText);
 
+                log?.LogDebug($"result: {result}");
+
                 if (result.Type != "file")
                 {
+                    log?.LogError($"{filePathWithExtension} doesn't seem to be a file on GitHub");
+                    log?.LogDebug(result.Type);
+
                     return new GetTextFileResult
                     {
                         ErrorMessage = $"{filePathWithExtension} doesn't seem to be a file on GitHub"
@@ -504,6 +517,8 @@ namespace MsGlossaryApp.Model.GitHub
 
                 if (string.IsNullOrEmpty(result.EncodedContent))
                 {
+                    log?.LogError($"{filePathWithExtension} doesn't have content");
+
                     return new GetTextFileResult
                     {
                         ErrorMessage = $"{filePathWithExtension} doesn't have content"
@@ -512,6 +527,9 @@ namespace MsGlossaryApp.Model.GitHub
 
                 var bytes = Convert.FromBase64String(result.EncodedContent);
                 result.TextContent = Encoding.UTF8.GetString(bytes);
+
+                log.LogDebug($"TextContent: {result.TextContent}");
+
                 return result;
             }
             catch (Exception ex)

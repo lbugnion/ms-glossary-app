@@ -65,8 +65,8 @@ namespace MsGlossaryApp
             var result = await helper.GetTextFile(
                 accountName,
                 repoName,
-                fileName,
-                string.Format(SynopsisPathMask, fileName),
+                fileName.ToLower(),
+                string.Format(SynopsisPathMask, fileName.ToLower()),
                 token,
                 log);
 
