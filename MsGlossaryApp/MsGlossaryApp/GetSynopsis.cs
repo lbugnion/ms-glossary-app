@@ -29,6 +29,10 @@ namespace MsGlossaryApp
 
             var (userEmail, fileName, _) = req.GetUserInfoFromHeaders();
 
+            log?.LogDebug($"Original fileName {fileName}");
+
+            fileName = fileName.MakeSafeFileName();
+
             if (string.IsNullOrEmpty(userEmail))
             {
                 log?.LogError("No user email found in header");
@@ -66,7 +70,7 @@ namespace MsGlossaryApp
                 accountName,
                 repoName,
                 fileName.ToLower(),
-                string.Format(SynopsisPathMask, fileName.ToLower()),
+                string.Format(SynopsisPathMask, fileName),
                 token,
                 log);
 
