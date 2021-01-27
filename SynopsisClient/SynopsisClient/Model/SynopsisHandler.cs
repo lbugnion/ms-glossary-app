@@ -556,7 +556,8 @@ namespace SynopsisClient.Model
         public void DefineList<T>(IList<T> items)
             where T : class, new()
         {
-            Log.LogInformation("-> SynopsisHandler.DefineList");
+            Log.LogInformation("HIGHLIGHT---> SynopsisHandler.DefineList");
+            Log.LogDebug($"HIGHLIGHT--T type: {typeof(T)}");
             _listHandler = new ListHandler<T>(this, items, Log);
         }
 
@@ -585,15 +586,15 @@ namespace SynopsisClient.Model
         public async Task Delete<T>(T item)
             where T : class
         {
-            Log.LogInformation("-> SynopsisHandler.Delete");
+            Log.LogInformation("HIGHLIGHT---> SynopsisHandler.Delete");
 
             if (await Confirm<ConfirmDeleteDialog>(DeleteDialogTitle))
             {
-                Log.LogTrace("Asking List handler to delete");
+                Log.LogTrace("HIGHLIGHT--Asking List handler to delete");
                 _listHandler?.Delete(item);
             }
 
-            Log.LogInformation("SynopsisHandler.Delete ->");
+            Log.LogInformation("HIGHLIGHT--SynopsisHandler.Delete ->");
         }
 
         public async Task DeleteLocalSynopsis()
@@ -715,48 +716,51 @@ namespace SynopsisClient.Model
 
             public override void Delete<T2>(T2 item)
             {
-                Log.LogInformation("-> ListHandler.Delete");
+                Log.LogInformation("HIGHLIGHT---> ListHandler.Delete");
+
+                Log.LogDebug($"T.GetType {typeof(T)}");
+                Log.LogDebug($"T2.GetType {typeof(T2)}");
 
                 var casted = item as T;
 
                 if (casted == null)
                 {
-                    Log.LogTrace($"Casted is null");
+                    Log.LogTrace($"HIGHLIGHT--Casted is null");
                 }
                 else
                 {
-                    Log.LogTrace($"Casted is not null");
+                    Log.LogTrace($"HIGHLIGHT--Casted is not null");
                 }
 
                 if (Items == null)
                 {
-                    Log.LogTrace($"Items is null");
+                    Log.LogTrace($"HIGHLIGHT--Items is null");
                 }
                 else
                 {
-                    Log.LogTrace($"Items is not null");
+                    Log.LogTrace($"HIGHLIGHT--Items is not null");
 
                     if (Items.Contains(casted))
                     {
-                        Log.LogTrace("Items contains casted");
+                        Log.LogTrace("HIGHLIGHT--Items contains casted");
                     }
                     else
                     {
-                        Log.LogTrace("Items does NOT contain casted");
+                        Log.LogTrace("HIGHLIGHT--Items does NOT contain casted");
                     }
                 }
 
                 if (Items != null
                     && Items.Contains(casted))
                 {
-                    Log.LogTrace("Casted found in Items");
+                    Log.LogTrace("HIGHLIGHT--Casted found in Items");
                     Items.Remove(casted);
                     _parent.IsModified = true;
-                    Log.LogTrace("Item removed");
+                    Log.LogTrace("HIGHLIGHT--Item removed");
                 }
 
                 _parent.TriggerValidation();
-                Log.LogInformation("ListHandler.Delete ->");
+                Log.LogInformation("HIGHLIGHT--ListHandler.Delete ->");
             }
 
             public int GetIndexOf(T item)

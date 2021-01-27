@@ -21,7 +21,7 @@ namespace SynopsisClient.Pages
             if (Handler.Synopsis != null)
             {
                 Log.LogTrace("Synopsis is not null");
-                Handler.DefineList(Handler.Synopsis.Authors);
+                Handler.DefineList(Handler.Synopsis.Keywords);
             }
         }
 
