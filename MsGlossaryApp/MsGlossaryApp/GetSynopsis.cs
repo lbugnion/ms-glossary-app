@@ -31,7 +31,7 @@ namespace MsGlossaryApp
 
             log?.LogDebug($"Original fileName {fileName}");
 
-            fileName = fileName.MakeSafeFileName();
+            fileName = fileName.ToLower();
 
             if (string.IsNullOrEmpty(userEmail))
             {
@@ -80,6 +80,11 @@ namespace MsGlossaryApp
                     "Invalid synopsis edit request",
                     $"We got the following request: {userEmail} / {fileName}",
                     log);
+
+                if (result.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return new BadRequestObjectResult($"Not found: {fileName}. Make sure to use the file name and NOT the Synopsis title!");
+                }
 
                 return new BadRequestObjectResult(result.ErrorMessage);
             }

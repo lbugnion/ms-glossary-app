@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Net;
 
 namespace MsGlossaryApp.Model.GitHub
 {
@@ -41,6 +42,13 @@ namespace MsGlossaryApp.Model.GitHub
 
         [JsonIgnore]
         public string TextContent
+        {
+            get;
+            set;
+        }
+
+        [JsonIgnore]
+        public HttpStatusCode StatusCode
         {
             get;
             set;

@@ -108,7 +108,7 @@ namespace SynopsisClient.Model
             CurrentUser = new User
             {
                 Email = DefaultEmail,
-                SynopsisName = term
+                SynopsisName = term.Trim()
             };
 
             IsLoggedIn = false;

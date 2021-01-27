@@ -494,6 +494,7 @@ namespace MsGlossaryApp.Model.GitHub
 
                 return new GetTextFileResult
                 {
+                    StatusCode = response.StatusCode,
                     ErrorMessage = responseText
                 };
             }
