@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
+using MsGlossaryApp.Model.GitHub;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -56,37 +57,9 @@ namespace MsGlossaryApp
             var synopsis = JsonConvert.DeserializeObject<Synopsis>(requestBody);
             synopsis.CastTranscriptLines();
 
-            log?.LogDebug($"-----> {synopsis.LinksInstructions.First().Key}");
-
             // Perform validation
 
             // TODO PERFORM VALIDATION
-
-            var isAuthorValid = false;
-
-            foreach (var author in synopsis.Authors)
-            {
-                if (author.Email.ToLower() == userEmail.ToLower())
-                {
-                    isAuthorValid = true;
-                    break;
-                }
-            }
-
-            // TODO Check the password with the saved one.
-
-            if (!isAuthorValid)
-            {
-                await NotificationService.Notify(
-                    "Invalid author for synopsis save request",
-                    $"We got the following SAVE request: {userEmail} / {fileName} but author is invalid",
-                    log);
-
-                log?.LogError($"Invalid author: {userEmail} / {fileName}");
-
-                return new BadRequestObjectResult(
-                    $"Sorry but the author {userEmail} is not listed as one of the original author");
-            }
 
             // Get the markdown file
 
@@ -94,59 +67,130 @@ namespace MsGlossaryApp
                 Constants.MsGlossaryGitHubAccountVariableName);
             var repoName = Environment.GetEnvironmentVariable(
                 Constants.MsGlossaryGitHubRepoVariableName);
+            var token = Environment.GetEnvironmentVariable(
+                Constants.GitHubTokenVariableName);
 
-            var synopsisUrl = string.Format(
-                Constants.GitHubSynopsisUrlTemplate,
-                accountName,
-                repoName,
-                synopsis.FileName);
+            log?.LogDebug($"accountName {accountName}");
+            log?.LogDebug($"repoName {repoName}");
+            log?.LogDebug($"token {token}");
 
             Exception error = null;
+            var result = new SaveSynopsisResult();
 
             try
             {
                 var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
-                var oldMarkdown = await client.GetStringAsync(synopsisUrl);
+
+                var helper = new GitHubHelper(client);
+
+                var markdownResult = await helper.GetTextFile(
+                    accountName,
+                    repoName,
+                    fileName.ToLower(),
+                    string.Format(Constants.SynopsisPathMask, fileName),
+                    token,
+                    log);
+
+                if (!string.IsNullOrEmpty(markdownResult.ErrorMessage))
+                {
+                    await NotificationService.Notify(
+                        "Invalid synopsis save request",
+                        $"We got the following request: {userEmail} / {fileName}",
+                        log);
+
+                    if (markdownResult.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        return new BadRequestObjectResult($"Not found: {fileName}. Make sure to use the file name and NOT the Synopsis title!");
+                    }
+
+                    return new BadRequestObjectResult(markdownResult.ErrorMessage);
+                }
+
                 var oldSynopsis = SynopsisMaker.ParseSynopsis(
                     synopsis.Uri,
-                    oldMarkdown,
+                    markdownResult.TextContent,
                     log);
+
+                // Verify that logged in author is an existing author
+
+                var isAuthorValid = false;
+                var isLoggedInEmailStillValid = false;
+
+                foreach (var author in oldSynopsis.Authors)
+                {
+                    if (author.Email.ToLower() == userEmail.ToLower())
+                    {
+                        isAuthorValid = true;
+
+                        foreach (var newAuthor in synopsis.Authors)
+                        {
+                            if (newAuthor.Email.ToLower() == userEmail.ToLower())
+                            {
+                                isLoggedInEmailStillValid = true;
+                                break;
+                            }
+                        }
+
+                        break;
+                    }
+                }
+
+                // TODO Check the password with the saved one.
+
+                if (!isAuthorValid)
+                {
+                    await NotificationService.Notify(
+                        "Invalid author for synopsis save request",
+                        $"We got the following SAVE request: {userEmail} / {fileName} but author is invalid",
+                        log);
+
+                    log?.LogError($"Invalid author: {userEmail} / {fileName}");
+
+                    return new BadRequestObjectResult(
+                        $"Sorry but the author {userEmail} is not listed as one of the original author");
+                }
+
+                if (!isLoggedInEmailStillValid)
+                {
+                    // Inform client that a logout will be required.
+                    result.LoggedInEmailHasChanged = true;
+                }
 
                 var newFile = SynopsisMaker.PrepareNewSynopsis(synopsis, oldSynopsis, log);
 
                 if (newFile.MustSave)
                 {
                     // Save file to GitHub
-                    var result = await FileSaver.SaveFile(
+                    result.Message = await FileSaver.SaveFile(
                         newFile,
                         $"Saved changes to {newFile.Path}. {commitMessage} by {userEmail}",
                         synopsis.FileName,
                         log);
 
-                    if (!string.IsNullOrEmpty(result))
+                    if (!string.IsNullOrEmpty(result.Message))
                     {
-                        var message = $"Save request for {synopsis.FileName} received from {userEmail}, but file wasn't saved: {result}";
+                        result.Message = $"Save request for {synopsis.FileName} received from {userEmail}, but file wasn't saved: {result.Message}";
                         await NotificationService.Notify(
                             "Synopsis NOT saved to GitHub",
-                            message,
+                            result.Message,
                             log);
 
-                        log?.LogInformation(message);
-                        return new OkObjectResult(message);
+                        log?.LogInformation(result.Message);
+                        return new OkObjectResult(result);
                     }
 
                     log?.LogInformation("Synopsis was saved");
                 }
                 else
                 {
-                    var result = $"Save request for {synopsis.FileName} received from {userEmail}, but file hasn't changed";
+                    result.Message = $"Save request for {synopsis.FileName} received from {userEmail}, but file hasn't changed";
                     await NotificationService.Notify(
                         "Synopsis NOT saved to GitHub",
-                        result,
+                        result.Message,
                         log);
 
-                    log?.LogInformation("result");
+                    log?.LogInformation($"result {result.Message}");
                     return new OkObjectResult(result);
                 }
             }
@@ -157,16 +201,16 @@ namespace MsGlossaryApp
 
             if (error != null)
             {
-                var errorMessage = $"{synopsis.FileName} was NOT saved to GitHub: {error.Message} / {userEmail}";
+                result.Message = $"{synopsis.FileName} was NOT saved to GitHub: {error.Message} / {userEmail}";
 
                 await NotificationService.Notify(
                     "Synopsis NOT saved to GitHub",
-                    errorMessage,
+                    result.Message,
                     log);
 
                 log.LogError(error, $"Error saving synopsis {synopsis.FileName} to GitHub");
 
-                return new OkObjectResult(errorMessage);
+                return new OkObjectResult(result);
             }
 
             var location = FileSaver.GetSavingLocation();
@@ -196,7 +240,7 @@ namespace MsGlossaryApp
                 log);
 
             log?.LogInformation(successMessage);
-            return new OkObjectResult(string.Empty);
+            return new OkObjectResult(result);
         }
     }
 }

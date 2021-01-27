@@ -25,6 +25,7 @@
         public const string TermsContainerVariableName = "TermsContainer";
         public const string TermsSettingsFileName = "terms.en.json";
         public const string UserEmailHeaderKey = "x-glossary-user-email";
+        public const string SynopsisPathMask = "synopsis/{0}.md";
 
         public static class SynopsisMarkdownMarkers
         {
