@@ -13,8 +13,13 @@ namespace SynopsisClient.Model
         }
 
         [Required]
-        [MinLength(1)]
         public string SynopsisName
+        {
+            get;
+            set;
+        }
+
+        public bool ForceLogout
         {
             get;
             set;

@@ -1,5 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 
 namespace SynopsisClient.Model
@@ -68,9 +69,10 @@ namespace SynopsisClient.Model
 
             if (savedUser != null)
             {
-                Log.LogDebug($"Found user in storage: {savedUser.Email} / {savedUser.SynopsisName}");
+                Log.LogDebug($"HIGHLIGHT--Found user in storage: {savedUser.Email} / {savedUser.SynopsisName} / {savedUser.ForceLogout}");
                 CurrentUser.Email = savedUser.Email;
                 CurrentUser.SynopsisName = savedUser.SynopsisName;
+                CurrentUser.ForceLogout = savedUser.ForceLogout;
                 IsModified = false;
                 CannotLogOut = false;
                 IsLoggedIn = true;
@@ -139,6 +141,15 @@ namespace SynopsisClient.Model
             IsModified = true;
             CannotLogOut = true;
             IsLoggedIn = false;
+        }
+
+        public async Task SetForceLogout(bool mustForceLogout)
+        {
+            Log.LogInformation("-> UserManager.SetForceLogout");
+            Log.LogDebug($"mustForceLogout: {mustForceLogout}");
+            CurrentUser.ForceLogout = mustForceLogout;
+            await _localStorage.SetItemAsync(CurrentUserKey, CurrentUser);
+            Log.LogTrace("Saved to storage");
         }
     }
 }

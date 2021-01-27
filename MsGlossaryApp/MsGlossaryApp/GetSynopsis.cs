@@ -14,8 +14,6 @@ namespace MsGlossaryApp
 {
     public static class GetSynopsis
     {
-        private const string SynopsisPathMask = "synopsis/{0}.md";
-
         [FunctionName(nameof(GetSynopsis))]
         public static async Task<IActionResult> RunGet(
             [HttpTrigger(
@@ -70,7 +68,7 @@ namespace MsGlossaryApp
                 accountName,
                 repoName,
                 fileName.ToLower(),
-                string.Format(SynopsisPathMask, fileName),
+                string.Format(Constants.SynopsisPathMask, fileName),
                 token,
                 log);
 

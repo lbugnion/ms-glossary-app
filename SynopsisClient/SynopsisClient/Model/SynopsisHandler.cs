@@ -480,9 +480,7 @@ namespace SynopsisClient.Model
             }
 
             var commitMessage = result.Data.ToString();
-
             await ShowHideBusyDialog(true, "Saving...");
-
             await CheckSaveSynopsis();
 
             if (Synopsis == null
@@ -511,6 +509,9 @@ namespace SynopsisClient.Model
             httpRequest.Headers.Add(Constants.FileNameHeaderKey, _userManager.CurrentUser.SynopsisName);
             httpRequest.Headers.Add(Constants.CommitMessageHeaderKey, commitMessage);
             httpRequest.Headers.Add(Constants.FunctionCodeHeaderKey, functionKey);
+
+            Log.LogDebug($"LoggedInEmail: {_userManager.CurrentUser.Email}");
+            Log.LogDebug($"Author: {Synopsis.Authors[0].Email}");
 
             Log.LogTrace("Serializing Synopsis");
 
@@ -545,8 +546,29 @@ namespace SynopsisClient.Model
                 return;
             }
 
-            ShowSavedToCloudSuccessMessage = true;
-            SaveResponseMessage = await response.Content.ReadAsStringAsync();
+            try
+            {
+                var resultJson = await response.Content.ReadAsStringAsync();
+                var requestResult = JsonConvert.DeserializeObject<SaveSynopsisResult>(resultJson);
+                SaveResponseMessage = requestResult.Message;
+                ShowSavedToCloudSuccessMessage = true;
+
+                Log.LogDebug($"HIGHLIGHT--requestResult.LoggedInEmailHasChanged {requestResult.LoggedInEmailHasChanged}");
+
+                if (requestResult.LoggedInEmailHasChanged)
+                {
+                    Log.LogTrace("HIGHLIGHT--Setting ForceLogout in Handler and User");
+                    await _userManager.SetForceLogout(true);
+                }
+            }
+            catch (Exception)
+            {
+                CannotSaveErrorMessage = "Unknown error, please contact support";
+                _nav.NavigateTo("/");
+                await ShowHideBusyDialog(false);
+                return;
+            }
+
             Log.LogTrace("Synopsis was saved successfully");
             _nav.NavigateTo("/");
             await ShowHideBusyDialog(false);
@@ -556,8 +578,8 @@ namespace SynopsisClient.Model
         public void DefineList<T>(IList<T> items)
             where T : class, new()
         {
-            Log.LogInformation("HIGHLIGHT---> SynopsisHandler.DefineList");
-            Log.LogDebug($"HIGHLIGHT--T type: {typeof(T)}");
+            Log.LogInformation("-> SynopsisHandler.DefineList");
+            Log.LogDebug($"T type: {typeof(T)}");
             _listHandler = new ListHandler<T>(this, items, Log);
         }
 
@@ -586,15 +608,15 @@ namespace SynopsisClient.Model
         public async Task Delete<T>(T item)
             where T : class
         {
-            Log.LogInformation("HIGHLIGHT---> SynopsisHandler.Delete");
+            Log.LogInformation("-> SynopsisHandler.Delete");
 
             if (await Confirm<ConfirmDeleteDialog>(DeleteDialogTitle))
             {
-                Log.LogTrace("HIGHLIGHT--Asking List handler to delete");
+                Log.LogTrace("Asking List handler to delete");
                 _listHandler?.Delete(item);
             }
 
-            Log.LogInformation("HIGHLIGHT--SynopsisHandler.Delete ->");
+            Log.LogInformation("SynopsisHandler.Delete ->");
         }
 
         public async Task DeleteLocalSynopsis()
@@ -716,7 +738,7 @@ namespace SynopsisClient.Model
 
             public override void Delete<T2>(T2 item)
             {
-                Log.LogInformation("HIGHLIGHT---> ListHandler.Delete");
+                Log.LogInformation("-> ListHandler.Delete");
 
                 Log.LogDebug($"T.GetType {typeof(T)}");
                 Log.LogDebug($"T2.GetType {typeof(T2)}");
@@ -725,42 +747,42 @@ namespace SynopsisClient.Model
 
                 if (casted == null)
                 {
-                    Log.LogTrace($"HIGHLIGHT--Casted is null");
+                    Log.LogTrace($"Casted is null");
                 }
                 else
                 {
-                    Log.LogTrace($"HIGHLIGHT--Casted is not null");
+                    Log.LogTrace($"Casted is not null");
                 }
 
                 if (Items == null)
                 {
-                    Log.LogTrace($"HIGHLIGHT--Items is null");
+                    Log.LogTrace($"Items is null");
                 }
                 else
                 {
-                    Log.LogTrace($"HIGHLIGHT--Items is not null");
+                    Log.LogTrace($"Items is not null");
 
                     if (Items.Contains(casted))
                     {
-                        Log.LogTrace("HIGHLIGHT--Items contains casted");
+                        Log.LogTrace("Items contains casted");
                     }
                     else
                     {
-                        Log.LogTrace("HIGHLIGHT--Items does NOT contain casted");
+                        Log.LogTrace("Items does NOT contain casted");
                     }
                 }
 
                 if (Items != null
                     && Items.Contains(casted))
                 {
-                    Log.LogTrace("HIGHLIGHT--Casted found in Items");
+                    Log.LogTrace("Casted found in Items");
                     Items.Remove(casted);
                     _parent.IsModified = true;
-                    Log.LogTrace("HIGHLIGHT--Item removed");
+                    Log.LogTrace("Item removed");
                 }
 
                 _parent.TriggerValidation();
-                Log.LogInformation("HIGHLIGHT--ListHandler.Delete ->");
+                Log.LogInformation("ListHandler.Delete ->");
             }
 
             public int GetIndexOf(T item)
