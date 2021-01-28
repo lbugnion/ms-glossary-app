@@ -28,7 +28,7 @@ else
         <div class="transcript-words-info @_charInfoClass">
             <p>The short description must be <strong>@Constants.MinCharactersInDescription-@Constants.MaxCharactersInDescription characters</strong> long.</p>
 
-            <p>Currently your description has <strong><span class="@_charSpanClass">@_characters characters</span></strong>.</p>
+            <p>Currently your description has <strong><span id="character-count" class="@_charSpanClass">@_characters characters</span></strong>.</p>
         </div>
 
     </div>
@@ -38,6 +38,7 @@ else
 
         <div class="edit-area">
             <InputTextArea @bind-Value="Handler.Synopsis.ShortDescription"
+                           onkeyup="onDescriptionKeyUp(this)"
                            class="medium-input-text-area" />
 
             <hr />
@@ -48,4 +49,6 @@ else
         <Footer ReloadFromCloudClicked="@ReloadFromCloud" />
 
     </EditForm>
+
 }
+

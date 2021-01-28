@@ -85,10 +85,16 @@ namespace SynopsisClient.Pages
             StateHasChanged();
         }
 
+        private void KeyPress()
+        {
+            CountCharacters();
+        }
+
         private void CurrentEditContextOnValidationStateChanged(
             object sender,
             ValidationStateChangedEventArgs e)
         {
+            Log.LogTrace("HIGHLIGHT--CurrentEditContextOnValidationStateChanged");
             CountCharacters();
         }
 

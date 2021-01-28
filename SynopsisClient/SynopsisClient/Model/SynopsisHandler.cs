@@ -645,11 +645,11 @@ namespace SynopsisClient.Model
                 SaveResponseMessage = requestResult.Message;
                 ShowSavedToCloudSuccessMessage = true;
 
-                Log.LogDebug($"HIGHLIGHT--requestResult.LoggedInEmailHasChanged {requestResult.LoggedInEmailHasChanged}");
+                Log.LogDebug($"requestResult.LoggedInEmailHasChanged {requestResult.LoggedInEmailHasChanged}");
 
                 if (requestResult.LoggedInEmailHasChanged)
                 {
-                    Log.LogTrace("HIGHLIGHT--Setting ForceLogout in Handler and User");
+                    Log.LogTrace("Setting ForceLogout in Handler and User");
                     await _userManager.SetForceLogout(true);
                 }
             }

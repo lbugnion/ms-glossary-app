@@ -11,6 +11,35 @@
     <link href="SynopsisClient.styles.css" rel="stylesheet" />
     <link href="css/custom.css" rel="stylesheet" />
     <link href="css/blazored-modal.css" rel="stylesheet" />
+
+    <script type="text/javascript">
+
+        const MaxCharactersInDescription = 150;
+        const MinCharactersInDescription = 40;
+        const WordsCountBadClass = "transcript-words-count-bad";
+        const WordsCountGoodClass = "transcript-words-count-good";
+        const WordsInfoBadClass = "transcript-words-info-bad";
+        const WordsInfoGoodClass = "transcript-words-info-good";
+
+        function onDescriptionKeyUp(textarea) {
+
+            var span = document.getElementById("character-count");
+            var count = textarea.value.length;
+
+            span.childNodes[0].textContent = count;
+
+            if (count > MaxCharactersInDescription
+                || count < MinCharactersInDescription) {
+                span.className = WordsCountBadClass;
+            }
+            else {
+                span.className = WordsCountGoodClass;
+            }
+
+        }
+
+    </script>
+
 </head>
 
 <body>
@@ -23,6 +52,7 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="script/blazored.modal.js"></script>
+
 </body>
 
 </html>

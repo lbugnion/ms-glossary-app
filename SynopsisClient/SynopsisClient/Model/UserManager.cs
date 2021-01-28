@@ -69,7 +69,7 @@ namespace SynopsisClient.Model
 
             if (savedUser != null)
             {
-                Log.LogDebug($"HIGHLIGHT--Found user in storage: {savedUser.Email} / {savedUser.SynopsisName} / {savedUser.ForceLogout}");
+                Log.LogDebug($"Found user in storage: {savedUser.Email} / {savedUser.SynopsisName} / {savedUser.ForceLogout}");
                 CurrentUser.Email = savedUser.Email;
                 CurrentUser.SynopsisName = savedUser.SynopsisName;
                 CurrentUser.ForceLogout = savedUser.ForceLogout;
