@@ -34,8 +34,6 @@ namespace MsGlossaryApp.DataModel
         public bool MustSave { get; set; }
 
         [Required]
-        [MinLength(40, ErrorMessage = "The short description is too short")]
-        [MaxLength(150, ErrorMessage = "The short description is too long")]
         public string ShortDescription { get; set; }
 
         [Required]

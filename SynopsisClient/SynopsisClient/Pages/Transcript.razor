@@ -1,8 +1,8 @@
 ﻿@using MsGlossaryApp.DataModel
-@page "/transcript"
+@page "/script"
 @inject ILogger<Transcript> Log
 
-<h2>Transcript</h2>
+<h2>Script</h2>
 
 @if (Handler.Synopsis == null)
 {
@@ -21,9 +21,9 @@ else
         <p><a href="https://aka.ms/glossary/getting-started/synopsis#script" target="_blank">See the instructions</a></p>
 
         <div class="transcript-words-info @_wordsInfoClass">
-            <p>Aim for <strong>@MinWordsInTranscript-@MaxWordsInTranscript words</strong> for a <strong>2 minutes video</strong>.</p>
+            <p>Aim for <strong>@Constants.MinWordsInTranscript-@Constants.MaxWordsInTranscript words</strong> for a <strong>2 minutes video</strong>.</p>
 
-            <p>Currently your transcript has <strong><span class="@_wordsSpanClass">@_words words</span></strong>.</p>
+            <p>Currently your transcript has <strong><span class="@_wordsSpanClass"><span class="words-count">@_words words</span></span></strong>.</p>
         </div>
 
     </div>
@@ -74,8 +74,9 @@ else
                         <label title="Enter one single line of script">
                             <span class="form-label">One line of script</span>
                             <br />
-                            <InputTextArea class="medium-input-text-area"
-                                           @bind-Value="simpleLine.Line" />
+                            <InputTextArea class="medium-input-text-area simple-line"
+                                           @bind-Value="simpleLine.Line"
+                                           onkeyup="onTranscriptKeyUp(this)" />
                         </label>
                     }
 
@@ -92,7 +93,7 @@ else
                         <a href="#"
                            @onclick="(e => Handler.AddTranscriptLineAfter<TranscriptNote>(localIndex))"
                            @onclick:preventDefault>New note</a>&nbsp;|&nbsp;
-                        <span class="@_wordsSpanClass">@_words words total</span>
+                        <span class="@_wordsSpanClass"><span class="words-count">@_words words total</span></span>
                     </div>
                 </div>
             }

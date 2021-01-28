@@ -23,7 +23,7 @@ namespace SynopsisClient.Shared
 
         private async Task CheckNavigateTo(string uri, bool bypassLogin = false)
         {
-            Log.LogInformation("HIGHLIGHT---> CheckNavigateTo");
+            Log.LogInformation("-> CheckNavigateTo");
             Log.LogDebug(uri);
 
             var cannotNavigate = false;
@@ -31,7 +31,7 @@ namespace SynopsisClient.Shared
 
             if (UserManager.CurrentUser.ForceLogout)
             {
-                Log.LogTrace("HIGHLIGHT--Cannot navigate, ForceLogout is active");
+                Log.LogTrace("Cannot navigate, ForceLogout is active");
 
                 var parameters = new ModalParameters();
                 parameters.Add(nameof(MessageDialog.Message), "We cannot navigate now because a log out is required");

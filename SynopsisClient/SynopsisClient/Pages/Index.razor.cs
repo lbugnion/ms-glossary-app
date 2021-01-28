@@ -109,7 +109,7 @@ namespace SynopsisClient.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            Log.LogInformation("HIGHLIGHT---> OnInitializedAsync");
+            Log.LogInformation("-> OnInitializedAsync");
 
             Log.LogDebug($"Handler.CannotLoadErrorMessage: {Handler.CannotLoadErrorMessage}");
             Log.LogDebug($"Handler.CannotSaveErrorMessage: {Handler.CannotSaveErrorMessage}");
@@ -153,19 +153,19 @@ namespace SynopsisClient.Pages
             Log.LogTrace("Passing modal in SynopsisHandler");
             Handler.DefineModal(Modal);
 
-            Log.LogTrace("HIGHLIGHT--Checking login");
+            Log.LogTrace("Checking login");
             await UserManager.CheckLogin();
 
             if (UserManager.CurrentUser.ForceLogout)
             {
-                Log.LogTrace("HIGHLIGHT--ForceLogout is true");
+                Log.LogTrace("ForceLogout is true");
                 var parameters = new ModalParameters();
                 parameters.Add(nameof(MessageDialog.Message), "Because you changed your email address you must log out and log in again.");
                 Modal.Show<MessageDialog>("Log out required", parameters);
             }
             else
             {
-                Log.LogTrace("HIGHLIGHT--ForceLogout is false");
+                Log.LogTrace("ForceLogout is false");
             }
 
             Log.LogInformation("OnInitializedAsync ->");

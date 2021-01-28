@@ -14,6 +14,10 @@
         public const string GitHubTokenVariableName = "GitHubToken";
         public const string ImageContainerVariableName = "ImageContainer";
         public const string ListOfTermsUrlMask = "https://{0}.blob.core.windows.net/{1}/{2}";
+        public const int MaxCharactersInDescription = 150;
+        public const int MaxWordsInTranscript = 320;
+        public const int MinCharactersInDescription = 40;
+        public const int MinWordsInTranscript = 280;
         public const string MsGlossaryGitHubAccountVariableName = "MsGlossaryGitHubAccount";
         public const string MsGlossaryGitHubMainBranchName = "MsGlossaryGitHubMainBranchName";
         public const string MsGlossaryGitHubRepoVariableName = "MsGlossaryGitHubRepo";
@@ -22,10 +26,10 @@
         public const string SavingLocationVariableName = "SavingLocation";
         public const char Separator = ',';
         public const string SettingsContainerVariableName = "SettingsContainer";
+        public const string SynopsisPathMask = "synopsis/{0}.md";
         public const string TermsContainerVariableName = "TermsContainer";
         public const string TermsSettingsFileName = "terms.en.json";
         public const string UserEmailHeaderKey = "x-glossary-user-email";
-        public const string SynopsisPathMask = "synopsis/{0}.md";
 
         public static class SynopsisMarkdownMarkers
         {

@@ -2,9 +2,11 @@
 using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using MsGlossaryApp.DataModel;
 using SynopsisClient.Dialogs;
+using SynopsisClient.Model;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,16 +15,9 @@ namespace SynopsisClient.Pages
 {
     public partial class Transcript : IDisposable
     {
-        private const int MaxWordsInTranscript = 320;
-        private const int MinWordsInTranscript = 280;
-        private const string WordsCountBadClass = "transcript-words-count-bad";
-        private const string WordsCountGoodClass = "transcript-words-count-good";
-        private const string WordsInfoBadClass = "transcript-words-info-bad";
-        private const string WordsInfoGoodClass = "transcript-words-info-good";
         private int _words;
-        private string _wordsInfoClass = WordsInfoGoodClass;
-        private string _wordsSpanClass = WordsCountGoodClass;
-        private Func<int, int, int> AddFunc = (int i1, int i2) => i1 + i2;
+        private string _wordsInfoClass = ClientConstants.Css.WordsInfoGoodClass;
+        private string _wordsSpanClass = ClientConstants.Css.WordsCountGoodClass;
 
         [CascadingParameter]
         private IModalService Modal
@@ -33,26 +28,18 @@ namespace SynopsisClient.Pages
 
         private void CountWords()
         {
-            _words = Handler.Synopsis
-                .TranscriptLines
-                .Where(l => l is TranscriptSimpleLine)
-                .Select(l => l.Markdown.Split(new char[]
-                {
-                    ' '
-                }, StringSplitOptions.RemoveEmptyEntries))
-                .Select(w => w.Count())
-                .Aggregate(AddFunc);
+            _words = Handler.CountTranscriptWords();
 
-            if (_words < MinWordsInTranscript
-                || _words > MaxWordsInTranscript)
+            if (_words < Constants.MinWordsInTranscript
+                || _words > Constants.MaxWordsInTranscript)
             {
-                _wordsInfoClass = WordsInfoBadClass;
-                _wordsSpanClass = WordsCountBadClass;
+                _wordsInfoClass = ClientConstants.Css.WordsInfoBadClass;
+                _wordsSpanClass = ClientConstants.Css.WordsCountBadClass;
             }
             else
             {
-                _wordsInfoClass = WordsInfoGoodClass;
-                _wordsSpanClass = WordsCountGoodClass;
+                _wordsInfoClass = ClientConstants.Css.WordsInfoGoodClass;
+                _wordsSpanClass = ClientConstants.Css.WordsCountGoodClass;
             }
 
             Log.LogDebug($"{_words} words");
@@ -65,6 +52,66 @@ namespace SynopsisClient.Pages
             ValidationStateChangedEventArgs e)
         {
             CountWords();
+        }
+
+        private void DefineList()
+        {
+            Log.LogInformation("-> DefineList");
+
+            if (Handler.Synopsis != null)
+            {
+                Log.LogTrace("Synopsis is not null");
+                Handler.DefineList(Handler.Synopsis.TranscriptLines);
+            }
+        }
+
+        private async Task DeleteTranscriptLine(int index)
+        {
+            if (Handler.Synopsis.TranscriptLines.Count >= index)
+            {
+                var line = Handler.Synopsis.TranscriptLines[index];
+
+                if (line is TranscriptSimpleLine
+                    && Handler.Synopsis.TranscriptLines.Where(t => t is TranscriptSimpleLine).Count() == 1)
+                {
+                    // Last transcript simple line cannot be deleted
+
+                    var parameters = new ModalParameters();
+                    parameters.Add(nameof(MessageDialog.Message), "You need at least one line in the transcript");
+
+                    Modal.Show<MessageDialog>("Cannot delete", parameters);
+                }
+                else
+                {
+                    await Handler.DeleteTranscriptLine(index);
+                }
+            }
+        }
+
+        private void KeyPressed(InputText element, KeyboardEventArgs args)
+        {
+            if (args.Key == " ")
+            {
+                Log.LogTrace("Counting");
+                CountWords();
+            }
+        }
+
+        private async Task ReloadFromCloud()
+        {
+            Log.LogInformation("-> ReloadFromCloud");
+
+            Handler.CurrentEditContext.OnValidationStateChanged
+                -= CurrentEditContextOnValidationStateChanged;
+
+            await Handler.ReloadFromCloud();
+
+            Handler.CurrentEditContext.OnValidationStateChanged
+                += CurrentEditContextOnValidationStateChanged;
+
+            DefineList();
+            CountWords();
+            Log.LogInformation("ReloadFromCloud ->");
         }
 
         protected override async Task OnInitializedAsync()
@@ -109,57 +156,6 @@ namespace SynopsisClient.Pages
         {
             Handler.CurrentEditContext.OnValidationStateChanged
                 -= CurrentEditContextOnValidationStateChanged;
-        }
-
-        private void DefineList()
-        {
-            Log.LogInformation("-> DefineList");
-
-            if (Handler.Synopsis != null)
-            {
-                Log.LogTrace("Synopsis is not null");
-                Handler.DefineList(Handler.Synopsis.TranscriptLines);
-            }
-        }
-
-        private async Task ReloadFromCloud()
-        {
-            Log.LogInformation("-> ReloadFromCloud");
-
-            Handler.CurrentEditContext.OnValidationStateChanged
-                -= CurrentEditContextOnValidationStateChanged;
-
-            await Handler.ReloadFromCloud();
-
-            Handler.CurrentEditContext.OnValidationStateChanged
-                += CurrentEditContextOnValidationStateChanged;
-
-            DefineList();
-            CountWords();
-            Log.LogInformation("ReloadFromCloud ->");
-        }
-
-        private async Task DeleteTranscriptLine(int index)
-        {
-            if (Handler.Synopsis.TranscriptLines.Count >= index)
-            {
-                var line = Handler.Synopsis.TranscriptLines[index];
-
-                if (line is TranscriptSimpleLine
-                    && Handler.Synopsis.TranscriptLines.Where(t => t is TranscriptSimpleLine).Count() == 1)
-                {
-                    // Last transcript simple line cannot be deleted
-
-                    var parameters = new ModalParameters();
-                    parameters.Add(nameof(MessageDialog.Message), "You need at least one line in the transcript");
-
-                    Modal.Show<MessageDialog>("Cannot delete", parameters);
-                }
-                else
-                {
-                    await Handler.DeleteTranscriptLine(index);
-                }
-            }
         }
     }
 }

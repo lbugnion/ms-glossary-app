@@ -1,0 +1,79 @@
+﻿<div class="card dialog">
+    <div class="card-body">
+        <p class="card-text">
+            <strong style="color:red ">Warning:</strong> We found the following issues with your Synopsis.
+
+            <ul>
+                @if (ShowShortDescriptionMessage)
+                {
+                    <li>Your short description is too short</li>
+                }
+                @if (ShowLongDescriptionMessage)
+                {
+                    <li>Your short description is too long</li>
+                }
+                @if (ShowShortTranscriptMessage)
+                {
+                    <li>Your script is too short</li>
+                }
+                @if (ShowLongTranscriptMessage)
+                {
+                    <li>Your script is too long</li>
+                }
+            </ul>
+
+            <p>You can save anyway but please consider fixing these issues before you submit for review.</p>
+
+        </p>
+        <button @onclick="OnOk">OK</button>
+        <button @onclick="OnCancel">Cancel</button>
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public bool ShowShortDescriptionMessage
+    {
+        get;
+        set;
+    }
+
+    [Parameter]
+    public bool ShowLongDescriptionMessage
+    {
+        get;
+        set;
+    }
+
+    [Parameter]
+    public bool ShowShortTranscriptMessage
+    {
+        get;
+        set;
+    }
+
+    [Parameter]
+    public bool ShowLongTranscriptMessage
+    {
+        get;
+        set;
+    }
+
+    [CascadingParameter]
+    private BlazoredModalInstance ModalInstance
+    {
+        get;
+        set;
+    }
+
+    private async Task OnCancel()
+    {
+        await ModalInstance.CancelAsync();
+    }
+
+    private async Task OnOk()
+    {
+        await ModalInstance.CloseAsync(ModalResult.Ok(true));
+    }
+}
