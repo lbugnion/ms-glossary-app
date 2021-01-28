@@ -1,4 +1,5 @@
 ﻿@page "/short-description"
+@using MsGlossaryApp.DataModel
 @inject ILogger<ShortDescription> Log
 
 <h2>Short description</h2>
@@ -13,12 +14,7 @@ else
 
         <p>The short description will be used later in the social videos, in the title card</p>
 
-        <p>Please follow the rules:</p>
-
-        <ul style="font-weight: bold;">
-            <li>The Short Description is required!</li>
-            <li>Keep the Short Description between 40 and 150 characters</li>
-        </ul>
+        <p><strong>The Short Description is required!</strong></p>
 
         <p>
             For example:
@@ -28,6 +24,13 @@ else
         </p>
 
         <p><a href="https://aka.ms/glossary/getting-started/synopsis#short-description" target="_blank">See the instructions</a></p>
+
+        <div class="transcript-words-info @_charInfoClass">
+            <p>The short description must be <strong>@Constants.MinCharactersInDescription-@Constants.MaxCharactersInDescription characters</strong> long.</p>
+
+            <p>Currently your description has <strong><span class="@_charSpanClass">@_characters characters</span></strong>.</p>
+        </div>
+
     </div>
 
     <EditForm EditContext="@Handler.CurrentEditContext">
@@ -42,7 +45,7 @@ else
 
         <ValidationSummary />
 
-        <Footer ReloadFromCloudClicked="@Handler.ReloadFromCloud" />
+        <Footer ReloadFromCloudClicked="@ReloadFromCloud" />
 
     </EditForm>
 }
