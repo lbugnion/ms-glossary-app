@@ -33,6 +33,7 @@ namespace SynopsisClient.Model
         private ListHandlerBase _listHandler;
         private IModalService _modal;
 
+        private Func<int, int, int> AddFunc = (int i1, int i2) => i1 + i2;
         public const string LocalStorageKey = "Current-Synopsis";
 
         private ILogger Log
@@ -109,8 +110,65 @@ namespace SynopsisClient.Model
             _userManager = userManager;
         }
 
+        private async Task<bool> CheckConditions()
+        {
+            var isValid = true;
+            bool showShortDescriptionMessage = false,
+                 showLongDescriptionMessage = false,
+                 showShortTranscriptMessage = false,
+                 showLongTranscriptMessage = false;
+
+            if (Synopsis.ShortDescription.Length > Constants.MaxCharactersInDescription)
+            {
+                isValid = false;
+                showLongDescriptionMessage = true;
+            }
+            if (Synopsis.ShortDescription.Length < Constants.MinCharactersInDescription)
+            {
+                isValid = false;
+                showShortDescriptionMessage = true;
+            }
+
+            var transcriptLength = CountTranscriptWords();
+
+            if (transcriptLength > Constants.MaxWordsInTranscript)
+            {
+                isValid = false;
+                showLongTranscriptMessage = true;
+            }
+            if (transcriptLength < Constants.MinWordsInTranscript)
+            {
+                isValid = false;
+                showShortTranscriptMessage = true;
+            }
+
+            bool confirmed = false;
+
+            if (!isValid)
+            {
+                var parameters = new ModalParameters();
+
+                parameters.Add(
+                    nameof(ConfirmSaveCommitDialog.ShowLongDescriptionMessage),
+                    showLongDescriptionMessage);
+                parameters.Add(
+                    nameof(ConfirmSaveCommitDialog.ShowShortDescriptionMessage),
+                    showShortDescriptionMessage);
+                parameters.Add(
+                    nameof(ConfirmSaveCommitDialog.ShowLongTranscriptMessage),
+                    showLongTranscriptMessage);
+                parameters.Add(
+                    nameof(ConfirmSaveCommitDialog.ShowShortTranscriptMessage),
+                    showShortTranscriptMessage);
+
+                confirmed = await Confirm<ConfirmSaveCommitDialog>("Issues detected", parameters);
+            }
+
+            return confirmed;
+        }
+
         private async Task<bool> Confirm<TComponent>(string title, ModalParameters parameters = null)
-            where TComponent : IComponent
+                    where TComponent : IComponent
         {
             Log.LogInformation("-> SynopsisHandler.Confirm");
 
@@ -456,83 +514,6 @@ namespace SynopsisClient.Model
             Log.LogInformation("SynopsisHandler.CheckSaveSynopsis ->");
         }
 
-        private async Task<bool> CheckConditions()
-        {
-            var isValid = true;
-            bool showShortDescriptionMessage = false,
-                 showLongDescriptionMessage = false,
-                 showShortTranscriptMessage = false,
-                 showLongTranscriptMessage = false;
-
-            if (Synopsis.ShortDescription.Length > Constants.MaxCharactersInDescription)
-            {
-                isValid = false;
-                showLongDescriptionMessage = true;
-            }
-            if (Synopsis.ShortDescription.Length < Constants.MinCharactersInDescription)
-            {
-                isValid = false;
-                showShortDescriptionMessage = true;
-            }
-
-            var transcriptLength = CountTranscriptWords();
-
-            if (transcriptLength > Constants.MaxWordsInTranscript)
-            {
-                isValid = false;
-                showLongTranscriptMessage = true;
-            }
-            if (transcriptLength < Constants.MinWordsInTranscript)
-            {
-                isValid = false;
-                showShortTranscriptMessage = true;
-            }
-
-            bool confirmed = false;
-
-            if (!isValid)
-            {
-                var parameters = new ModalParameters();
-
-                parameters.Add(
-                    nameof(ConfirmSaveCommitDialog.ShowLongDescriptionMessage),
-                    showLongDescriptionMessage);
-                parameters.Add(
-                    nameof(ConfirmSaveCommitDialog.ShowShortDescriptionMessage),
-                    showShortDescriptionMessage);
-                parameters.Add(
-                    nameof(ConfirmSaveCommitDialog.ShowLongTranscriptMessage),
-                    showLongTranscriptMessage);
-                parameters.Add(
-                    nameof(ConfirmSaveCommitDialog.ShowShortTranscriptMessage),
-                    showShortTranscriptMessage);
-
-                confirmed = await Confirm<ConfirmSaveCommitDialog>("Issues detected", parameters);
-            }
-
-            return confirmed;
-        }
-
-        private Func<int, int, int> AddFunc = (int i1, int i2) => i1 + i2;
-
-        public int CountTranscriptWords()
-        {
-            if (Synopsis == null)
-            {
-                return 0;
-            }
-
-            return Synopsis
-                .TranscriptLines
-                .Where(l => l is TranscriptSimpleLine)
-                .Select(l => l.Markdown.Split(new char[]
-                {
-                    ' '
-                }, StringSplitOptions.RemoveEmptyEntries))
-                .Select(w => w.Count())
-                .Aggregate(AddFunc);
-        }
-
         public async Task CheckSaveSynopsisToCloud()
         {
             Log.LogInformation("-> SynopsisHandler.CheckSaveSynopsisToCloud");
@@ -667,6 +648,24 @@ namespace SynopsisClient.Model
             Log.LogInformation("SynopsisHandler.CheckSaveSynopsisToCloud ->");
         }
 
+        public int CountTranscriptWords()
+        {
+            if (Synopsis == null)
+            {
+                return 0;
+            }
+
+            return Synopsis
+                .TranscriptLines
+                .Where(l => l is TranscriptSimpleLine)
+                .Select(l => l.Markdown.Split(new char[]
+                {
+                    ' '
+                }, StringSplitOptions.RemoveEmptyEntries))
+                .Select(w => w.Count())
+                .Aggregate(AddFunc);
+        }
+
         public void DefineList<T>(IList<T> items)
             where T : class, new()
         {
@@ -685,16 +684,6 @@ namespace SynopsisClient.Model
         {
             Log.LogInformation("-> SynopsisHandler.DefineModal");
             _modal = modal;
-        }
-
-        public async Task DeleteTranscriptLine(int index)
-        {
-            Log.LogInformation("-> SynopsisHandler.DeleteTranscriptLine");
-            Log.LogDebug($"index: {index}");
-
-            var item = Synopsis.TranscriptLines[index];
-            await Delete(item);
-            Log.LogInformation("SynopsisHandler.DeleteTranscriptLine ->");
         }
 
         public async Task Delete<T>(T item)
@@ -716,6 +705,16 @@ namespace SynopsisClient.Model
             Log.LogInformation("-> SynopsisHandler.DeleteLocalSynopsis");
             Synopsis = null;
             await _localStorage.RemoveItemAsync(LocalStorageKey);
+        }
+
+        public async Task DeleteTranscriptLine(int index)
+        {
+            Log.LogInformation("-> SynopsisHandler.DeleteTranscriptLine");
+            Log.LogDebug($"index: {index}");
+
+            var item = Synopsis.TranscriptLines[index];
+            await Delete(item);
+            Log.LogInformation("SynopsisHandler.DeleteTranscriptLine ->");
         }
 
         public void ExecuteReloadLocal()

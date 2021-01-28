@@ -22,6 +22,56 @@ namespace SynopsisClient.Pages
             set;
         }
 
+        private void CountCharacters()
+        {
+            _characters = Handler.Synopsis.ShortDescription.Length;
+
+            if (_characters < Constants.MinCharactersInDescription
+                || _characters > Constants.MaxCharactersInDescription)
+            {
+                _charInfoClass = ClientConstants.Css.WordsInfoBadClass;
+                _charSpanClass = ClientConstants.Css.WordsCountBadClass;
+            }
+            else
+            {
+                _charInfoClass = ClientConstants.Css.WordsInfoGoodClass;
+                _charSpanClass = ClientConstants.Css.WordsCountGoodClass;
+            }
+
+            Log.LogDebug($"HIGHLIGHT--{_characters} characters");
+
+            StateHasChanged();
+        }
+
+        private void CurrentEditContextOnValidationStateChanged(
+            object sender,
+            ValidationStateChangedEventArgs e)
+        {
+            Log.LogTrace("HIGHLIGHT--CurrentEditContextOnValidationStateChanged");
+            CountCharacters();
+        }
+
+        private void KeyPress()
+        {
+            CountCharacters();
+        }
+
+        private async Task ReloadFromCloud()
+        {
+            Log.LogInformation("-> ReloadFromCloud");
+
+            Handler.CurrentEditContext.OnValidationStateChanged
+                -= CurrentEditContextOnValidationStateChanged;
+
+            await Handler.ReloadFromCloud();
+
+            Handler.CurrentEditContext.OnValidationStateChanged
+                += CurrentEditContextOnValidationStateChanged;
+
+            CountCharacters();
+            Log.LogInformation("ReloadFromCloud ->");
+        }
+
         protected override async Task OnInitializedAsync()
         {
             Log.LogInformation("-> OnInitializedAsync");
@@ -62,56 +112,6 @@ namespace SynopsisClient.Pages
         {
             Handler.CurrentEditContext.OnValidationStateChanged
                 -= CurrentEditContextOnValidationStateChanged;
-        }
-
-        private void CountCharacters()
-        {
-            _characters = Handler.Synopsis.ShortDescription.Length;
-
-            if (_characters < Constants.MinCharactersInDescription
-                || _characters > Constants.MaxCharactersInDescription)
-            {
-                _charInfoClass = ClientConstants.Css.WordsInfoBadClass;
-                _charSpanClass = ClientConstants.Css.WordsCountBadClass;
-            }
-            else
-            {
-                _charInfoClass = ClientConstants.Css.WordsInfoGoodClass;
-                _charSpanClass = ClientConstants.Css.WordsCountGoodClass;
-            }
-
-            Log.LogDebug($"HIGHLIGHT--{_characters} characters");
-
-            StateHasChanged();
-        }
-
-        private void KeyPress()
-        {
-            CountCharacters();
-        }
-
-        private void CurrentEditContextOnValidationStateChanged(
-            object sender,
-            ValidationStateChangedEventArgs e)
-        {
-            Log.LogTrace("HIGHLIGHT--CurrentEditContextOnValidationStateChanged");
-            CountCharacters();
-        }
-
-        private async Task ReloadFromCloud()
-        {
-            Log.LogInformation("-> ReloadFromCloud");
-
-            Handler.CurrentEditContext.OnValidationStateChanged
-                -= CurrentEditContextOnValidationStateChanged;
-
-            await Handler.ReloadFromCloud();
-
-            Handler.CurrentEditContext.OnValidationStateChanged
-                += CurrentEditContextOnValidationStateChanged;
-
-            CountCharacters();
-            Log.LogInformation("ReloadFromCloud ->");
         }
     }
 }

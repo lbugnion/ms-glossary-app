@@ -54,6 +54,40 @@ namespace SynopsisClient.Pages
             CountWords();
         }
 
+        private void DefineList()
+        {
+            Log.LogInformation("-> DefineList");
+
+            if (Handler.Synopsis != null)
+            {
+                Log.LogTrace("Synopsis is not null");
+                Handler.DefineList(Handler.Synopsis.TranscriptLines);
+            }
+        }
+
+        private async Task DeleteTranscriptLine(int index)
+        {
+            if (Handler.Synopsis.TranscriptLines.Count >= index)
+            {
+                var line = Handler.Synopsis.TranscriptLines[index];
+
+                if (line is TranscriptSimpleLine
+                    && Handler.Synopsis.TranscriptLines.Where(t => t is TranscriptSimpleLine).Count() == 1)
+                {
+                    // Last transcript simple line cannot be deleted
+
+                    var parameters = new ModalParameters();
+                    parameters.Add(nameof(MessageDialog.Message), "You need at least one line in the transcript");
+
+                    Modal.Show<MessageDialog>("Cannot delete", parameters);
+                }
+                else
+                {
+                    await Handler.DeleteTranscriptLine(index);
+                }
+            }
+        }
+
         private void KeyPressed(InputText element, KeyboardEventArgs args)
         {
             if (args.Key == " ")
@@ -61,6 +95,23 @@ namespace SynopsisClient.Pages
                 Log.LogTrace("Counting");
                 CountWords();
             }
+        }
+
+        private async Task ReloadFromCloud()
+        {
+            Log.LogInformation("-> ReloadFromCloud");
+
+            Handler.CurrentEditContext.OnValidationStateChanged
+                -= CurrentEditContextOnValidationStateChanged;
+
+            await Handler.ReloadFromCloud();
+
+            Handler.CurrentEditContext.OnValidationStateChanged
+                += CurrentEditContextOnValidationStateChanged;
+
+            DefineList();
+            CountWords();
+            Log.LogInformation("ReloadFromCloud ->");
         }
 
         protected override async Task OnInitializedAsync()
@@ -105,57 +156,6 @@ namespace SynopsisClient.Pages
         {
             Handler.CurrentEditContext.OnValidationStateChanged
                 -= CurrentEditContextOnValidationStateChanged;
-        }
-
-        private void DefineList()
-        {
-            Log.LogInformation("-> DefineList");
-
-            if (Handler.Synopsis != null)
-            {
-                Log.LogTrace("Synopsis is not null");
-                Handler.DefineList(Handler.Synopsis.TranscriptLines);
-            }
-        }
-
-        private async Task ReloadFromCloud()
-        {
-            Log.LogInformation("-> ReloadFromCloud");
-
-            Handler.CurrentEditContext.OnValidationStateChanged
-                -= CurrentEditContextOnValidationStateChanged;
-
-            await Handler.ReloadFromCloud();
-
-            Handler.CurrentEditContext.OnValidationStateChanged
-                += CurrentEditContextOnValidationStateChanged;
-
-            DefineList();
-            CountWords();
-            Log.LogInformation("ReloadFromCloud ->");
-        }
-
-        private async Task DeleteTranscriptLine(int index)
-        {
-            if (Handler.Synopsis.TranscriptLines.Count >= index)
-            {
-                var line = Handler.Synopsis.TranscriptLines[index];
-
-                if (line is TranscriptSimpleLine
-                    && Handler.Synopsis.TranscriptLines.Where(t => t is TranscriptSimpleLine).Count() == 1)
-                {
-                    // Last transcript simple line cannot be deleted
-
-                    var parameters = new ModalParameters();
-                    parameters.Add(nameof(MessageDialog.Message), "You need at least one line in the transcript");
-
-                    Modal.Show<MessageDialog>("Cannot delete", parameters);
-                }
-                else
-                {
-                    await Handler.DeleteTranscriptLine(index);
-                }
-            }
         }
     }
 }
