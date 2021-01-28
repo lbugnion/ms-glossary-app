@@ -167,7 +167,9 @@ namespace SynopsisClient.Model
             return confirmed;
         }
 
-        private async Task<bool> Confirm<TComponent>(string title, ModalParameters parameters = null)
+        private async Task<bool> Confirm<TComponent>(
+            string title, 
+            ModalParameters parameters = null)
                     where TComponent : IComponent
         {
             Log.LogInformation("-> SynopsisHandler.Confirm");
@@ -178,7 +180,17 @@ namespace SynopsisClient.Model
                 return false;
             }
 
-            var formModal = _modal.Show<TComponent>(title, parameters: parameters);
+            IModalReference formModal;
+
+            if (parameters == null)
+            {
+                formModal = _modal.Show<TComponent>(title);
+            }
+            else
+            {
+                formModal = _modal.Show<TComponent>(title, parameters: parameters);
+            }
+
             var result = await formModal.Result;
 
             Log.LogDebug($"Confirm: cancelled: {result.Cancelled}");
