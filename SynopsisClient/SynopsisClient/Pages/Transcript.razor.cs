@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
 using MsGlossaryApp.DataModel;
 using SynopsisClient.Dialogs;
+using SynopsisClient.Model;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,16 +14,9 @@ namespace SynopsisClient.Pages
 {
     public partial class Transcript : IDisposable
     {
-        private const int MaxWordsInTranscript = 320;
-        private const int MinWordsInTranscript = 280;
-        private const string WordsCountBadClass = "transcript-words-count-bad";
-        private const string WordsCountGoodClass = "transcript-words-count-good";
-        private const string WordsInfoBadClass = "transcript-words-info-bad";
-        private const string WordsInfoGoodClass = "transcript-words-info-good";
         private int _words;
-        private string _wordsInfoClass = WordsInfoGoodClass;
-        private string _wordsSpanClass = WordsCountGoodClass;
-        private Func<int, int, int> AddFunc = (int i1, int i2) => i1 + i2;
+        private string _wordsInfoClass = ClientConstants.Css.WordsInfoGoodClass;
+        private string _wordsSpanClass = ClientConstants.Css.WordsCountGoodClass;
 
         [CascadingParameter]
         private IModalService Modal
@@ -33,26 +27,18 @@ namespace SynopsisClient.Pages
 
         private void CountWords()
         {
-            _words = Handler.Synopsis
-                .TranscriptLines
-                .Where(l => l is TranscriptSimpleLine)
-                .Select(l => l.Markdown.Split(new char[]
-                {
-                    ' '
-                }, StringSplitOptions.RemoveEmptyEntries))
-                .Select(w => w.Count())
-                .Aggregate(AddFunc);
+            _words = Handler.CountTranscriptWords();
 
-            if (_words < MinWordsInTranscript
-                || _words > MaxWordsInTranscript)
+            if (_words < Constants.MinWordsInTranscript
+                || _words > Constants.MaxWordsInTranscript)
             {
-                _wordsInfoClass = WordsInfoBadClass;
-                _wordsSpanClass = WordsCountBadClass;
+                _wordsInfoClass = ClientConstants.Css.WordsInfoBadClass;
+                _wordsSpanClass = ClientConstants.Css.WordsCountBadClass;
             }
             else
             {
-                _wordsInfoClass = WordsInfoGoodClass;
-                _wordsSpanClass = WordsCountGoodClass;
+                _wordsInfoClass = ClientConstants.Css.WordsInfoGoodClass;
+                _wordsSpanClass = ClientConstants.Css.WordsCountGoodClass;
             }
 
             Log.LogDebug($"{_words} words");

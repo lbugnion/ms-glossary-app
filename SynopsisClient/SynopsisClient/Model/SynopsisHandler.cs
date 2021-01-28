@@ -109,16 +109,18 @@ namespace SynopsisClient.Model
             _userManager = userManager;
         }
 
-        private async Task<bool> Confirm<TComponent>(string title)
+        private async Task<bool> Confirm<TComponent>(string title, ModalParameters parameters = null)
             where TComponent : IComponent
         {
+            Log.LogInformation("-> SynopsisHandler.Confirm");
+
             if (_modal == null)
             {
                 Log.LogWarning("Modal is not set");
                 return false;
             }
 
-            var formModal = _modal.Show<TComponent>(title);
+            var formModal = _modal.Show<TComponent>(title, parameters: parameters);
             var result = await formModal.Result;
 
             Log.LogDebug($"Confirm: cancelled: {result.Cancelled}");
@@ -432,19 +434,103 @@ namespace SynopsisClient.Model
             if ((IsModified || CurrentEditContext.IsModified())
                 && !CannotSave)
             {
-                Log.LogTrace("SynopsisHandler.Must save");
+                Log.LogTrace("SynopsisHandler Must save, checking conditions");
 
-                // do NOT use the automatic serialization in _localStorage to avoid
-                // issues with Dictionary keys being forced to lower caps.
-                var json = JsonConvert.SerializeObject(Synopsis);
-                await _localStorage.SetItemAsync(LocalStorageKey, json);
-                CurrentEditContext.MarkAsUnmodified();
-                CannotSave = true;
-                IsModified = false;
-                Log.LogTrace("Saved and invoked event");
+                if (await CheckConditions())
+                {
+                    // do NOT use the automatic serialization in _localStorage to avoid
+                    // issues with Dictionary keys being forced to lower caps.
+                    var json = JsonConvert.SerializeObject(Synopsis);
+                    await _localStorage.SetItemAsync(LocalStorageKey, json);
+                    CurrentEditContext.MarkAsUnmodified();
+                    CannotSave = true;
+                    IsModified = false;
+                    Log.LogTrace("Saved and invoked event");
+                }
+                else
+                {
+                    Log.LogTrace("User cancelled");
+                }
             }
 
             Log.LogInformation("SynopsisHandler.CheckSaveSynopsis ->");
+        }
+
+        private async Task<bool> CheckConditions()
+        {
+            var isValid = true;
+            bool showShortDescriptionMessage = false,
+                 showLongDescriptionMessage = false,
+                 showShortTranscriptMessage = false,
+                 showLongTranscriptMessage = false;
+
+            if (Synopsis.ShortDescription.Length > Constants.MaxCharactersInDescription)
+            {
+                isValid = false;
+                showLongDescriptionMessage = true;
+            }
+            if (Synopsis.ShortDescription.Length < Constants.MinCharactersInDescription)
+            {
+                isValid = false;
+                showShortDescriptionMessage = true;
+            }
+
+            var transcriptLength = CountTranscriptWords();
+
+            if (transcriptLength > Constants.MaxWordsInTranscript)
+            {
+                isValid = false;
+                showLongTranscriptMessage = true;
+            }
+            if (transcriptLength < Constants.MinWordsInTranscript)
+            {
+                isValid = false;
+                showShortTranscriptMessage = true;
+            }
+
+            bool confirmed = false;
+
+            if (!isValid)
+            {
+                var parameters = new ModalParameters();
+
+                parameters.Add(
+                    nameof(ConfirmSaveCommitDialog.ShowLongDescriptionMessage),
+                    showLongDescriptionMessage);
+                parameters.Add(
+                    nameof(ConfirmSaveCommitDialog.ShowShortDescriptionMessage),
+                    showShortDescriptionMessage);
+                parameters.Add(
+                    nameof(ConfirmSaveCommitDialog.ShowLongTranscriptMessage),
+                    showLongTranscriptMessage);
+                parameters.Add(
+                    nameof(ConfirmSaveCommitDialog.ShowShortTranscriptMessage),
+                    showShortTranscriptMessage);
+
+                confirmed = await Confirm<ConfirmSaveCommitDialog>("Issues detected", parameters);
+            }
+
+            return confirmed;
+        }
+
+        private Func<int, int, int> AddFunc = (int i1, int i2) => i1 + i2;
+
+        public int CountTranscriptWords()
+        {
+            if (Synopsis == null)
+            {
+                return 0;
+            }
+
+            return Synopsis
+                .TranscriptLines
+                .Where(l => l is TranscriptSimpleLine)
+                .Select(l => l.Markdown.Split(new char[]
+                {
+                    ' '
+                }, StringSplitOptions.RemoveEmptyEntries))
+                .Select(w => w.Count())
+                .Aggregate(AddFunc);
         }
 
         public async Task CheckSaveSynopsisToCloud()
@@ -463,6 +549,12 @@ namespace SynopsisClient.Model
                     "Please save the Synopsis before you commit to the cloud");
 
                 _modal.Show<MessageDialog>("Cannot commit yet", parameters);
+                return;
+            }
+
+            if (!(await CheckConditions()))
+            {
+                Log.LogTrace("User cancelled");
                 return;
             }
 

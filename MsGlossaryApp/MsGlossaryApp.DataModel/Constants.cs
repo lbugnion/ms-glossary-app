@@ -2,6 +2,10 @@
 {
     public static class Constants
     {
+        public const int MaxWordsInTranscript = 320;
+        public const int MinWordsInTranscript = 280;
+        public const int MaxCharactersInDescription = 150;
+        public const int MinCharactersInDescription = 40;
         public const string AzureWebJobsStorageVariableName = "AzureWebJobsStorage";
         public const string BlobStoreNameVariableName = "BlobStoreName";
         public const string CommitMessageHeaderKey = "x-glossary-commit-message";

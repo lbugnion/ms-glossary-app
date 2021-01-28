@@ -1,8 +1,8 @@
 ﻿@using MsGlossaryApp.DataModel
-@page "/transcript"
+@page "/script"
 @inject ILogger<Transcript> Log
 
-<h2>Transcript</h2>
+<h2>Script</h2>
 
 @if (Handler.Synopsis == null)
 {
@@ -21,7 +21,7 @@ else
         <p><a href="https://aka.ms/glossary/getting-started/synopsis#script" target="_blank">See the instructions</a></p>
 
         <div class="transcript-words-info @_wordsInfoClass">
-            <p>Aim for <strong>@MinWordsInTranscript-@MaxWordsInTranscript words</strong> for a <strong>2 minutes video</strong>.</p>
+            <p>Aim for <strong>@Constants.MinWordsInTranscript-@Constants.MaxWordsInTranscript words</strong> for a <strong>2 minutes video</strong>.</p>
 
             <p>Currently your transcript has <strong><span class="@_wordsSpanClass">@_words words</span></strong>.</p>
         </div>
