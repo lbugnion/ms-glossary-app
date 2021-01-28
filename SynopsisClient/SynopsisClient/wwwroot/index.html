@@ -16,6 +16,8 @@
 
         const MaxCharactersInDescription = 150;
         const MinCharactersInDescription = 40;
+        const MaxWordsInTranscript = 320;
+        const MinWordsInTranscript = 280;
         const WordsCountBadClass = "transcript-words-count-bad";
         const WordsCountGoodClass = "transcript-words-count-good";
         const WordsInfoBadClass = "transcript-words-info-bad";
@@ -35,7 +37,36 @@
             else {
                 span.className = WordsCountGoodClass;
             }
+        }
 
+        function onTranscriptKeyUp() {
+
+            let editAreas = document.getElementsByClassName("simple-line");
+
+            console.debug(editAreas);
+
+            var wordsCount = 0;
+            for (var index = 0; index < editAreas.length; index++) {
+
+                var editArea = editAreas[index];
+                var words = editArea.value.trim().split(" ");
+                wordsCount += words.length; 
+            }
+
+            let wordCountsSpans = document.getElementsByClassName("words-count");
+
+            for (var index = 0; index < wordCountsSpans.length; index++) {
+
+                wordCountsSpans[index].childNodes[0].textContent = wordsCount;
+
+                if (wordsCount > MaxWordsInTranscript
+                    || wordsCount < MinWordsInTranscript) {
+                    wordCountsSpans[index].parentElement.className = WordsCountBadClass;
+                }
+                else {
+                    wordCountsSpans[index].parentElement.className = WordsCountGoodClass;
+                }
+            }
         }
 
     </script>

@@ -2,6 +2,7 @@
 using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using MsGlossaryApp.DataModel;
 using SynopsisClient.Dialogs;
@@ -51,6 +52,15 @@ namespace SynopsisClient.Pages
             ValidationStateChangedEventArgs e)
         {
             CountWords();
+        }
+
+        private void KeyPressed(InputText element, KeyboardEventArgs args)
+        {
+            if (args.Key == " ")
+            {
+                Log.LogTrace("Counting");
+                CountWords();
+            }
         }
 
         protected override async Task OnInitializedAsync()

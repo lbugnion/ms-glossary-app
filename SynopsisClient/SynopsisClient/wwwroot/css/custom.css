@@ -18,6 +18,9 @@
     color: white;
 }
 
+.simple-line {
+}
+
 .medium-input-text {
     width: 500px;
 }
@@ -125,4 +128,7 @@
 
 .transcript-words-count-bad {
     color: orange;
+}
+
+.words-count {
 }
