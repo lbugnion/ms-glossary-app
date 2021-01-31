@@ -56,6 +56,8 @@ namespace MsGlossaryApp
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var newTerm = JsonConvert.DeserializeObject<NewSynopsis>(requestBody);
 
+            newTerm.Term = newTerm.Term.Trim();
+
             log?.LogInformation("Received new term");
             log?.LogDebug($"newTerm.SubmitterName: {newTerm.SubmitterName}");
             log?.LogDebug($"newTerm.SubmitterEmail: {newTerm.SubmitterEmail}");
