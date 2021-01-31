@@ -5,14 +5,15 @@
             "Compose": {
                 "inputs": {
                     "shortdescription": "@{variables('Description')}",
-                    "submitteremail": "@{body('Get_response_details')?['responder']}",
+                    "submitteremail": "@{variables('SubmitterEmail')}",
                     "submittergithub": "@variables('SubmitterGithub')",
                     "submittername": "@{variables('SubmitterName')}",
                     "submittertwitter": "@{variables('SubmitterTwitter')}",
+                    "suggestions": "@{variables('Suggestions')}",
                     "term": "@{variables('Term')}"
                 },
                 "runAfter": {
-                    "Initialize_variable_4": [
+                    "Initialize_variable_7": [
                         "Succeeded"
                     ]
                 },
@@ -41,7 +42,7 @@
                         "x-functions-key": "dABxrU7nM7lbebsLLp58zuFsY0F9TeEQ2MdkQDvCQQaccHW9hUml3A=="
                     },
                     "method": "POST",
-                    "uri": "https://msglossary-app.azurewebsites.net/api/add-new"
+                    "uri": "http://dc0f755d259f.ngrok.io/api/add-new"
                 },
                 "runAfter": {
                     "Compose": [
@@ -53,7 +54,7 @@
             "HTTP_2": {
                 "inputs": {
                     "body": {
-                        "body": "A new term was submitted by @{body('Get_response_details')?['responder']}: @{body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']}",
+                        "body": "A new term was submitted by @{variables('SubmitterEmail')}: @{variables('Term')}",
                         "channel": "MSGlossary",
                         "title": "New term submitted"
                     },
@@ -73,7 +74,7 @@
             "HTTP_3": {
                 "inputs": {
                     "body": {
-                        "body": "An error happened on new term submitted by @{body('Get_response_details')?['responder']}: @{body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']}",
+                        "body": "An error happened on new term submitted by @{variables('SubmitterEmail')}: @{variables('Term')}",
                         "channel": "MSGlossary",
                         "title": "Error with new term"
                     },
@@ -93,7 +94,7 @@
             "HTTP_4": {
                 "inputs": {
                     "body": {
-                        "body": "An error happened on new term submitted by @{body('Get_response_details')?['responder']}: @{body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']}",
+                        "body": "An error happened on new term submitted by @{variables('SubmitterEmail')}: @{variables('Term')}",
                         "channel": "MSGlossary",
                         "title": "Error with new term"
                     },
@@ -138,7 +139,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Initialize_variable": [
+                    "Initialize_variable_6": [
                         "Succeeded"
                     ]
                 },
@@ -150,7 +151,7 @@
                         {
                             "name": "Term",
                             "type": "string",
-                            "value": "@body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']"
+                            "value": "@body('Get_response_details')?['rcaecb1d331984615b0456c93a5235ffa']"
                         }
                     ]
                 },
@@ -190,6 +191,40 @@
                 },
                 "runAfter": {
                     "Initialize_variable_2": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_6": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "SubmitterEmail",
+                            "type": "string",
+                            "value": "@body('Get_response_details')?['r7e3957f18d58443b9d79218065f4ad7b']"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_variable": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_7": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Suggestions",
+                            "type": "string",
+                            "value": "@body('Get_response_details')?['rad7ca908f9ab49fa8c0f4fb407c192e9']"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_variable_4": [
                         "Succeeded"
                     ]
                 },
@@ -238,9 +273,9 @@
             "Send_an_email_(V2)": {
                 "inputs": {
                     "body": {
-                        "Body": "<p>Thank you for submitting a new term to the Microsoft Glossary. We need your action now:<br>\n<br>\n<strong>Please check the \"Getting started\" instructions here</strong>:<br>\nhttp://aka.ms/glossary/getting-started<br>\n<br>\n<strong>You can edit the Synopsis here</strong>: https://www.ms-glossary-synopsis.cloud?edit=@{body('Parse_JSON')?['filename']}<br>\n<br>\nIn case of doubt, please reply to this email and we will assist you.<br>\n<br>\nThanks again!!<br>\nLaurent<br>\n<br>\nName: @{body('Get_response_details')?['r67076393da1440d49a0e20d12516d1a9']}<br>\nTwitter: @{body('Get_response_details')?['r3a51f04a2587472c903688778835bffe']}<br>\nGitHub: @{body('Get_response_details')?['rf46f3efb9b5640268970c7f8805ec338']}<br>\nTerm: @{body('Get_response_details')?['r00745fd41e6845c49c48e98e050fbf09']}<br>\nDescription: @{body('Get_response_details')?['r46ea1f89309e4a2185e25fee32497f12']}<br>\nSubmitted at: @{body('Get_response_details')?['submitDate']}</p>",
+                        "Body": "<p>Thank you for submitting a new term to the Microsoft Glossary. We need your action now:<br>\n<br>\n<strong>Please check the \"Getting started\" instructions here</strong>:<br>\nhttp://aka.ms/glossary/getting-started<br>\n<br>\n<strong>You can edit the Synopsis here</strong>: https://www.ms-glossary-synopsis.cloud?edit=@{body('Parse_JSON')?['filename']}<br>\n<br>\nIn case of doubt, please reply to this email and we will assist you.<br>\n<br>\nThanks again!!<br>\nLaurent<br>\n<br>\nName: @{variables('SubmitterName')}<br>\nEmail: @{variables('SubmitterEmail')}<br>\nTwitter: @{variables('SubmitterTwitter')}<br>\nGitHub: @{variables('SubmitterGithub')}<br>\nTerm: @{variables('Term')}<br>\nDescription: @{variables('Description')}<br>\nSuggestions: @{variables('Suggestions')}<br>\nSubmitted at: @{body('Get_response_details')?['submitDate']}</p>",
                         "Subject": "ACTION NEEDED: Thanks for submitting to the Microsoft Glossary",
-                        "To": "@{body('Get_response_details')?['responder']}; lbugnion@microsoft.com"
+                        "To": "@{variables('SubmitterEmail')}; lbugnion@microsoft.com"
                     },
                     "host": {
                         "connection": {
@@ -262,7 +297,7 @@
                     "body": {
                         "Body": "<p>Thank you for submitting a new term to the Microsoft Glossary. There was a small problem with your submission but don't worry, your input is saved!<br>\n<br>\nWe will contact you after we check what the issue was, so we can resolve it together.<br>\n<br>\nTake care!<br>\nLaurent</p>",
                         "Subject": "PLEASE NOTE: Issue with your Microsoft Glossary submission",
-                        "To": "@{body('Get_response_details')?['responder']}; lbugnion@microsoft.com"
+                        "To": "@{variables('SubmitterEmail')}; lbugnion@microsoft.com"
                     },
                     "host": {
                         "connection": {
@@ -286,7 +321,7 @@
                     "body": {
                         "Body": "<p>Thank you for submitting a new term to the Microsoft Glossary. There was a small problem with your submission but don't worry, your input is saved!<br>\n<br>\nWe will contact you after we check what the issue was, so we can resolve it together.<br>\n<br>\nTake care!<br>\nLaurent</p>",
                         "Subject": "PLEASE NOTE: Issue with your Microsoft Glossary submission",
-                        "To": "@{body('Get_response_details')?['responder']}; lbugnion@microsoft.com"
+                        "To": "@{variables('SubmitterEmail')}; lbugnion@microsoft.com"
                     },
                     "host": {
                         "connection": {
