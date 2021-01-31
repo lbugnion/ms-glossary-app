@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
+using MsGlossaryApp.DataModel;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -20,7 +22,10 @@ namespace MsGlossaryApp.Model.GitHub
         private const string GetMarkdownFileUrl = "contents/{0}?ref={1}";
         private const string GitHubApiBaseUrlMask = "https://api.github.com/repos/{0}/{1}/{2}";
         private const string UpdateReferenceUrl = "git/refs/heads/{0}";
+        private const string IssuesUrl = "issues?state=all&per_page=100"; // TODO Implement paging for issues
         private const string UploadBlobUrl = "git/blobs";
+        private const string AcceptHeader = "application/vnd.github.v3+json";
+        internal const string GitHubDateTimeFormat = "yyyy-MM-ddTHH:mm:ssZ";
         private readonly HttpClient _client;
 
         public GitHubHelper()
@@ -103,6 +108,7 @@ namespace MsGlossaryApp.Model.GitHub
                 };
 
                 uploadBlobRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
+                uploadBlobRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(AcceptHeader));
 
                 var uploadBlobResponse = await _client.SendAsync(uploadBlobRequest);
 
@@ -162,6 +168,7 @@ namespace MsGlossaryApp.Model.GitHub
             };
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(AcceptHeader));
 
             var response = await _client.SendAsync(request);
 
@@ -215,6 +222,7 @@ namespace MsGlossaryApp.Model.GitHub
             };
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(AcceptHeader));
 
             response = await _client.SendAsync(request);
 
@@ -265,6 +273,7 @@ namespace MsGlossaryApp.Model.GitHub
             };
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(AcceptHeader));
 
             response = await _client.SendAsync(request);
 
@@ -300,6 +309,275 @@ namespace MsGlossaryApp.Model.GitHub
             return headResult;
         }
 
+        /// <summary>
+        /// At the moment, this method creates release notes with the name "release-note-label.md"
+        /// at the root of the repository only. "label" corresponds to the 
+        /// labels passed in the createFor parameter, but URL encoded.
+        /// </summary>
+        public async Task<ReleaseNotesResult> CreateReleaseNotesMarkdown(
+            string accountName, 
+            string repoName,
+            IList<ReleaseNotesPageInfo> createFor,
+            IList<string> forMilestones,
+            string token, 
+            ILogger log = null)
+        {
+            var result = new ReleaseNotesResult();
+
+            var issuesResult = await GetIssues(accountName, repoName, token, log);
+
+            if (!string.IsNullOrEmpty(issuesResult.ErrorMessage))
+            {
+                result.ErrorMessage = issuesResult.ErrorMessage;
+                return result;
+            }
+
+            foreach (var issue in issuesResult.Issues)
+            {
+                issue.Projects = new List<string>();
+                var labelsToRemove = new List<IssueLabel>();
+
+                foreach (var label in issue.Labels)
+                {
+                    if (createFor.Any(p => p.Project == label.Name))
+                    {
+                        labelsToRemove.Add(label);
+                        issue.Projects.Add(label.Name);
+                    }
+                }
+
+                foreach (var label in labelsToRemove)
+                {
+                    issue.Labels.Remove(label);
+                }
+            }
+
+            result.CreatedPages = new List<ReleaseNotesPageInfo>();
+
+            foreach (var page in createFor)
+            {
+                result.CreatedPages.Add(page);
+
+                var issuesForPage = issuesResult.Issues
+                    .Where(i => i.Projects.Contains(page.Project))
+                    .ToList();
+
+                var markdown = CreatePageFor(
+                    accountName,
+                    repoName,
+                    page.Project,
+                    page.ProjectId,
+                    issuesForPage,
+                    forMilestones,
+                    page.Header);
+
+                page.FilePath = string.Format(
+                    GitHubConstants.ReleaseNotePageNameTemplate,
+                    page.Project.MakeSafeFileName());
+
+                page.Markdown = markdown;
+
+                page.Url =string.Format(
+                    GitHubConstants.ReleaseNoteUriTemplate,
+                    accountName,
+                    repoName,
+                    page.FilePath);
+            }
+
+            return result;
+        }
+
+        private string CreatePageFor(
+            string accountName,
+            string repoName,
+            string projectName,
+            string projectId,
+            IList<IssueInfo> issuesForPage,
+            IList<string> forMilestones,
+            IList<string> header,
+            ILogger log = null)
+        {
+            var builder = new StringBuilder()
+                .AppendLine(
+                    string.Format(
+                        GitHubConstants.ReleaseNoteTitleTemplate,
+                        projectName,
+                        string.Format(
+                            GitHubConstants.ProjectUrlTemplate,
+                            accountName,
+                            repoName,
+                            projectId)))
+                .AppendLine();
+
+            if (header != null)
+            {
+                foreach (var line in header)
+                {
+                    builder
+                        .AppendLine(line)
+                        .AppendLine();
+                }
+            }
+
+            var openIssues = issuesForPage
+                .Where(i => i.State == IssueState.Open);
+
+            var milestones = openIssues
+                .Select(i => i.Milestone)
+                .OrderByDescending(m => m.DueOnLocal)
+                .GroupBy(m => m.Title);
+
+            BuildIssuesSection(
+                builder,
+                projectName,
+                forMilestones,
+                GitHubConstants.OpenIssuesTitle,
+                GitHubConstants.OpenIssuesSectionTitleTemplate,
+                openIssues,
+                milestones);
+
+            var closedIssues = issuesForPage
+                .Where(i => i.State == IssueState.Closed);
+
+            milestones = closedIssues
+                .Select(i => i.Milestone)
+                .OrderByDescending(m => m.ClosedLocal)
+                .GroupBy(m => m.Title);
+
+            BuildIssuesSection(
+                builder,
+                projectName,
+                forMilestones,
+                GitHubConstants.ClosedIssuesTitle,
+                GitHubConstants.ClosedIssuesSectionTitleTemplate,
+                closedIssues,
+                milestones);
+
+            return builder.ToString();
+        }
+
+        private void BuildIssuesSection(
+            StringBuilder builder,
+            string projectName,
+            IList<string> forMilestones,
+            string issuesTitle,
+            string issuesSectionTitleTemplate,
+            IEnumerable<IssueInfo> issues, 
+            IEnumerable<IGrouping<string, Milestone>> milestones)
+        {
+            builder
+                .AppendLine(issuesTitle)
+                .AppendLine();
+
+            foreach (var milestonesGroup in milestones)
+            {
+                var relevantIssues = issues
+                    .Where(i => i.Milestone.Title == milestonesGroup.Key)
+                    .OrderByDescending(i => i.Number)
+                    .ToList();
+
+                if ((forMilestones != null
+                    && !forMilestones.Contains(milestonesGroup.Key))
+                    || relevantIssues.Count == 0)
+                {
+                    continue;
+                }
+
+                builder
+                    .Append(string.Format(
+                        issuesSectionTitleTemplate,
+                        milestonesGroup.Key,
+                        milestonesGroup.First().Url));
+
+                if (milestonesGroup.First().ClosedLocal > DateTime.MinValue)
+                {
+                    builder
+                        .AppendLine(
+                            string.Format(
+                                GitHubConstants.ClosedOn,
+                                milestonesGroup.First().ClosedLocal))
+                        .AppendLine();
+                }
+                else
+                {
+                    builder
+                        .AppendLine(GitHubConstants.Open)
+                        .AppendLine();
+                }
+
+                foreach (var issue in relevantIssues)
+                {
+                    var labels = string.Concat(
+                        issue.Labels
+                            .Where(l => l.Name != projectName)
+                            .Select(l => l.Name + ", "));
+
+                    labels = labels.Substring(0, labels.Length - 2);
+
+                    var status = GitHubConstants.Open;
+
+                    if (issue.ClosedLocal > DateTime.MinValue)
+                    {
+                        status = string.Format(
+                            GitHubConstants.ClosedOn,
+                            milestonesGroup.First().ClosedLocal);
+                    }
+
+                    builder
+                        .AppendLine(
+                            string.Format(
+                                GitHubConstants.IssueTemplate,
+                                labels,
+                                issue.Number,
+                                issue.Url,
+                                status,
+                                issue.Title))
+                        .AppendLine();
+                }
+            }
+        }
+
+        public async Task<IssueResult> GetIssues(
+            string accountName, 
+            string repoName, 
+            string token,
+            ILogger log = null)
+        {
+            log?.LogInformation("In GitHubHelper.CreateReleaseNotes");
+
+            var request = new HttpRequestMessage
+            {
+                RequestUri = new Uri(
+                    string.Format(
+                        GitHubApiBaseUrlMask,
+                        accountName,
+                        repoName,
+                        IssuesUrl)),
+                Method = HttpMethod.Get
+            };
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(AcceptHeader));
+
+            var response = await _client.SendAsync(request);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return new IssueResult
+                {
+                    ErrorMessage = responseContent
+                };
+            }
+
+            var issues = JsonConvert.DeserializeObject<IList<IssueInfo>>(responseContent);
+
+            return new IssueResult
+            {
+                Issues = issues
+            };
+        }
+
         public async Task<GetHeadResult> CreateNewBranch(
             string accountName,
             string repoName,
@@ -327,6 +605,7 @@ namespace MsGlossaryApp.Model.GitHub
             };
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(AcceptHeader));
 
             var response = await _client.SendAsync(request);
 
@@ -375,6 +654,7 @@ namespace MsGlossaryApp.Model.GitHub
             };
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(AcceptHeader));
 
             var response = await _client.SendAsync(request);
 
@@ -425,6 +705,7 @@ namespace MsGlossaryApp.Model.GitHub
             };
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(AcceptHeader));
 
             var response = await _client.SendAsync(request);
 
@@ -485,12 +766,21 @@ namespace MsGlossaryApp.Model.GitHub
             };
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(AcceptHeader));
+
             var response = await _client.SendAsync(request);
             var responseText = await response.Content.ReadAsStringAsync();
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                log?.LogError($"Error with the request: {responseText}");
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    log?.LogWarning($"Not found: {filePathWithExtension}");
+                }
+                else
+                {
+                    log?.LogError($"Error with the request for {filePathWithExtension}: {responseText}");
+                }
 
                 return new GetTextFileResult
                 {
