@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
@@ -20,15 +22,18 @@ namespace MsGlossaryApp
         private const string HomePageFilePath = "https://raw.githubusercontent.com/{0}/{1}/{2}/glossary/index.md";
         private const string IncludeLineMask = "[!INCLUDE [{0}:](./term/{1}/index.md)]";
 
-        [FunctionName("UpdateHomePage")]
-        public static async Task Run(
-            [TimerTrigger("0 0 6 * * *")]
-            TimerInfo myTimer,
-            //[HttpTrigger(Microsoft.Azure.WebJobs.Extensions.Http.AuthorizationLevel.Function, "get", Route = null)]
-            //Microsoft.AspNetCore.Http.HttpRequest req,
+        [FunctionName("UpdateHomePageHttp")]
+        public static async Task RunHttp(
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "update-homepage")]
+            HttpRequest req,
             ILogger log)
         {
-            log.LogInformation($"In UpdateHomePage");
+            log.LogInformation($"-> UpdateHomePageHttp");
+            await ExecuteUpdate(log);
+        }
+
+        private static async Task ExecuteUpdate(ILogger log)
+        {
             Exception error = null;
 
             try
@@ -168,8 +173,19 @@ namespace MsGlossaryApp
                     error.Message,
                     log);
             }
+        }
 
-            log.LogInformation($"Out UpdateHomePage");
+        [FunctionName("UpdateHomePage")]
+        public static async Task Run(
+            [TimerTrigger("0 0 6 * * *")]
+            TimerInfo myTimer,
+            //[HttpTrigger(Microsoft.Azure.WebJobs.Extensions.Http.AuthorizationLevel.Function, "get", Route = null)]
+            //Microsoft.AspNetCore.Http.HttpRequest req,
+            ILogger log)
+        {
+            log.LogInformation($"-> UpdateHomePage");
+            await ExecuteUpdate(log);
+            log.LogInformation($"UpdateHomePage ->");
         }
     }
 }
