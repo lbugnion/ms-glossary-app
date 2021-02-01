@@ -47,6 +47,7 @@ namespace MsGlossaryApp
 
             log?.LogDebug($"accountName {accountName}");
             log?.LogDebug($"repoName {repoName}");
+            log?.LogDebug($"mainBranchName {mainBranchName}");
             log?.LogDebug($"token {token}");
 
             var projects = Environment.GetEnvironmentVariable(
