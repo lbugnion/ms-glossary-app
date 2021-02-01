@@ -11,6 +11,7 @@ using MsGlossaryApp.Model;
 using Microsoft.Azure.Cosmos.Table;
 using MsGlossaryApp.DataModel;
 using System.Net;
+using MsGlossaryApp.Model.Pass;
 
 namespace MsGlossaryApp
 {
@@ -58,8 +59,12 @@ namespace MsGlossaryApp
             var tableClient = storageAccount.CreateCloudTableClient(
                 new TableClientConfiguration());
 
-            passInfo.PartitionKey = userEmail.ToLower();
-            passInfo.RowKey = fileName.ToLower();
+            var passEntity = new PassEntity
+            {
+                PartitionKey = userEmail.ToLower(),
+                RowKey = fileName.ToLower(),
+                Hash = passInfo.NewHash
+            };
 
             CloudTable table;
 
@@ -75,16 +80,16 @@ namespace MsGlossaryApp
             }
 
             // Try to retrieve an existing entity
-            var retrieveOperation = TableOperation.Retrieve<PassInfo>(
-                passInfo.PartitionKey, passInfo.RowKey);
+            var retrieveOperation = TableOperation.Retrieve<PassEntity>(
+                passEntity.PartitionKey, passEntity.RowKey);
 
             TableResult retrieveResult;
-            PassInfo existingPass;
+            PassEntity existingPass;
 
             try
             {
                 retrieveResult = await table.ExecuteAsync(retrieveOperation);
-                existingPass = retrieveResult.Result as PassInfo;
+                existingPass = retrieveResult.Result as PassEntity;
             }
             catch (Exception ex)
             {
@@ -95,7 +100,7 @@ namespace MsGlossaryApp
             if (existingPass == null)
             {
                 // No password defined yet for this user / filename
-                var insertOperation = TableOperation.Insert(passInfo);
+                var insertOperation = TableOperation.Insert(passEntity);
 
                 TableResult insertResult;
 
@@ -109,11 +114,35 @@ namespace MsGlossaryApp
                     return new UnprocessableEntityObjectResult($"We had an issue, please contact support");
                 }
             }
-            //else
-            //{
-            //    // Verify the old password
-            //    if (passInfo.OldHash )
-            //}
+            else
+            {
+                // Verify the old password
+                if (passInfo.OldHash != existingPass.Hash)
+                {
+                    var result = new PassResult
+                    {
+                        ErrorMessage = "Incorrect password"
+                    };
+
+                    return new BadRequestObjectResult(result);
+                }
+
+                // Replace password
+                passEntity.Hash = passInfo.NewHash;
+                var insertOperation = TableOperation.InsertOrMerge(passEntity);
+
+                TableResult insertResult;
+
+                try
+                {
+                    insertResult = await table.ExecuteAsync(insertOperation);
+                }
+                catch (Exception ex)
+                {
+                    log?.LogError(ex, "Error inserting new entity");
+                    return new UnprocessableEntityObjectResult($"We had an issue, please contact support");
+                }
+            }
 
             return new OkObjectResult("OK");
         }

@@ -1,16 +1,10 @@
 ﻿using Microsoft.Azure.Cosmos.Table;
 
-namespace MsGlossaryApp.Model
+namespace MsGlossaryApp.Model.Pass
 {
-    public class PassInfo : TableEntity
+    public class PassEntity : TableEntity
     {
-        public string OldHash
-        {
-            get;
-            set;
-        }
-
-        public string NewHash
+        public string Hash
         {
             get;
             set;
