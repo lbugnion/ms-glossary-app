@@ -53,7 +53,25 @@ namespace MsGlossaryApp
             log?.LogInformation("In UpdateDocsCommitFiles");
             //return null;
 
+            var accountName = Environment.GetEnvironmentVariable(
+                Constants.DocsGlossaryGitHubAccountVariableName);
+            var repoName = Environment.GetEnvironmentVariable(
+                Constants.DocsGlossaryGitHubRepoVariableName);
+            var branchName = Environment.GetEnvironmentVariable(
+                Constants.DocsGlossaryGitHubMainBranchNameVariableName);
+            var token = Environment.GetEnvironmentVariable(
+                Constants.GitHubTokenVariableName);
+
+            log.LogDebug($"accountName: {accountName}");
+            log.LogDebug($"repoName: {repoName}");
+            log.LogDebug($"branchName: {branchName}");
+            log.LogDebug($"token: {token}");
+
             return await FileSaver.SaveFiles(
+                accountName,
+                repoName,
+                branchName,
+                token,
                 files,
                 CommitMessage,
                 log: log);
@@ -363,7 +381,6 @@ namespace MsGlossaryApp
             var filesToSave = (await Task.WhenAll(verifyTasks))
                 .ToList();
 
-            //string error = null;
             var error = await context.CallActivityAsync<string>(
                 nameof(UpdateDocsCommitFiles),
                 filesToSave);
