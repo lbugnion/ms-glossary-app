@@ -424,7 +424,7 @@ namespace MsGlossaryApp.Model.GitHub
 
             var milestones = openIssues
                 .Select(i => i.Milestone)
-                .OrderByDescending(m => m.DueOnLocal)
+                .OrderBy(m => m.DueOnLocal)
                 .GroupBy(m => m.Title);
 
             BuildIssuesSection(
