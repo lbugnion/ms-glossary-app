@@ -23,7 +23,7 @@ namespace MsGlossaryApp
             HttpRequest req,
             ILogger log)
         {
-            log?.LogInformation("GetSynopsis");
+            log?.LogInformation("-> GetSynopsis");
 
             var (userEmail, fileName, _) = req.GetUserInfoFromHeaders();
 

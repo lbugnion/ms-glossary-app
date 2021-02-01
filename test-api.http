@@ -362,3 +362,6 @@ x-glossary-commit-message: This is a test commit message
 
 ### Update release notes ------------------------------------------------------
 GET {{function-url}}/release-notes/milestones/all
+
+### Update release notes ------------------------------------------------------
+GET {{function-url}}/release-notes/milestones/all
