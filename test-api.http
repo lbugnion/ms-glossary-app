@@ -13,7 +13,8 @@ x-functions-key: {{add-synopsis-functions-key}}
 }
 
 ### Update Homepage -----------------------------------------------------------
-{{function-url}}/UpdateHomePage
+{{function-url}}/update-homepage
+x-functions-key: {{update-homepage-functions-key}}
 
 ### Update Docs ---------------------------------------------------------------
 {{function-url}}/update-docs
