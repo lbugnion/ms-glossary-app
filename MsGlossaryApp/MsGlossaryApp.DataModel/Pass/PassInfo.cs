@@ -1,4 +1,4 @@
-﻿namespace MsGlossaryApp.Model.Pass
+﻿namespace MsGlossaryApp.DataModel.Pass
 {
     public class PassInfo
     {

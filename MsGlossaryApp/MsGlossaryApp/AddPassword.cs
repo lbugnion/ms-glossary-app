@@ -10,22 +10,22 @@ using Newtonsoft.Json;
 using MsGlossaryApp.Model;
 using Microsoft.Azure.Cosmos.Table;
 using MsGlossaryApp.DataModel;
-using System.Net;
+using MsGlossaryApp.DataModel.Pass;
 using MsGlossaryApp.Model.Pass;
 
 namespace MsGlossaryApp
 {
     public static class AddPassword
     {
-        [FunctionName("AddPassword")]
+        [FunctionName("HandlePassword")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Function, 
-                "post", 
-                Route = "add-p")] HttpRequest req,
+                AuthorizationLevel.Function,
+                "post",
+                Route = "p")] HttpRequest req,
             ILogger log)
         {
-            log?.LogInformation("-> AddPassword");
+            log?.LogInformation("-> HandlePassword");
 
             var (userEmail, fileName, _) = req.GetUserInfoFromHeaders();
 
@@ -50,131 +50,55 @@ namespace MsGlossaryApp
             log?.LogDebug($"OldHash {passInfo.OldHash}");
             log?.LogDebug($"NewHash {passInfo.NewHash}");
 
-            if (string.IsNullOrEmpty(passInfo.NewHash)
-                && string.IsNullOrEmpty(passInfo.OldHash))
+            if (string.IsNullOrEmpty(passInfo.OldHash))
             {
-                log?.LogError("No NewHash or OldHash found");
+                log?.LogError("No OldHash found");
                 return new BadRequestObjectResult("Incomplete request");
             }
 
-            var storageAccount = CloudStorageAccount.Parse(
-                Environment.GetEnvironmentVariable(Constants.AzureWebJobsStorageVariableName));
+            var connectionString = Environment.GetEnvironmentVariable(
+                Constants.AzureWebJobsStorageVariableName);
+            var handler = new PassHandler(connectionString);
+            var result = new PassResult();
 
-            var tableClient = storageAccount.CreateCloudTableClient(
-                new TableClientConfiguration());
-
-            var passEntity = new PassEntity
+            if (string.IsNullOrEmpty(passInfo.NewHash))
             {
-                PartitionKey = userEmail.ToLower(),
-                RowKey = fileName.ToLower()
-            };
-
-            CloudTable table;
-
-            try
-            {
-                table = tableClient.GetTableReference("login");
-                await table.CreateIfNotExistsAsync();
-            }
-            catch (Exception ex)
-            {
-                log?.LogError(ex, "Error interacting with table");
-                return new UnprocessableEntityObjectResult($"We had an issue, please contact support");
-            }
-
-            // Try to retrieve an existing entity
-            var retrieveOperation = TableOperation.Retrieve<PassEntity>(
-                passEntity.PartitionKey, passEntity.RowKey);
-
-            TableResult retrieveResult;
-            PassEntity existingPass;
-
-            try
-            {
-                retrieveResult = await table.ExecuteAsync(retrieveOperation);
-                existingPass = retrieveResult.Result as PassEntity;
-            }
-            catch (Exception ex)
-            {
-                log?.LogError(ex, "Error retrieving existing entity");
-                return new UnprocessableEntityObjectResult($"We had an issue, please contact support");
-            }
-
-            if (existingPass == null)
-            {
-                if (string.IsNullOrEmpty(passInfo.NewHash))
-                {
-                    log?.LogError("No NewHash found");
-                    return new BadRequestObjectResult("Incomplete request");
-                }
-
-                passEntity.Hash = passInfo.NewHash;
-
-                // No password defined yet for this user / filename
-                var insertOperation = TableOperation.Insert(passEntity);
-
-                TableResult insertResult;
+                // Verify password
 
                 try
                 {
-                    insertResult = await table.ExecuteAsync(insertOperation);
+                    var (valid, first) = await handler.Verify(userEmail, fileName, passInfo.OldHash);
+                    result.PassOk = valid;
+                    result.IsFirstLogin = first;
                 }
                 catch (Exception ex)
                 {
-                    log?.LogError(ex, "Error inserting new entity");
-                    return new UnprocessableEntityObjectResult($"We had an issue, please contact support");
+                    log?.LogError(ex, "Error interacting with table");
+
+                    result.PassOk = false;
+                    result.ErrorMessage = $"We had an issue, please contact support";
+
+                    return new UnprocessableEntityObjectResult(result);
                 }
             }
             else
             {
-                if (string.IsNullOrEmpty(passInfo.OldHash))
-                {
-                    log?.LogError("No OldHash found");
-                    return new BadRequestObjectResult("Incomplete request");
-                }
-
-                // Verify the old password
-                if (passInfo.OldHash != existingPass.Hash)
-                {
-                    var appResult = new PassResult
-                    {
-                        ErrorMessage = "Incorrect password"
-                    };
-
-                    return new BadRequestObjectResult(appResult);
-                }
-
-                if (string.IsNullOrEmpty(passInfo.NewHash))
-                {
-                    var appResult = new PassResult
-                    {
-                        PassOk = true
-                    };
-
-                    return new OkObjectResult(appResult);
-                }
-
-                // Replace password
-                passEntity.Hash = passInfo.NewHash;
-                var insertOperation = TableOperation.InsertOrMerge(passEntity);
-
-                TableResult insertResult;
+                // Change password
 
                 try
                 {
-                    insertResult = await table.ExecuteAsync(insertOperation);
+                    result.PassOk = await handler.Change(userEmail, fileName, passInfo.OldHash, passInfo.NewHash);
                 }
                 catch (Exception ex)
                 {
-                    log?.LogError(ex, "Error inserting new entity");
-                    return new UnprocessableEntityObjectResult($"We had an issue, please contact support");
+                    log?.LogError(ex, "Error interacting with table");
+
+                    result.PassOk = false;
+                    result.ErrorMessage = $"We had an issue, please contact support";
+
+                    return new UnprocessableEntityObjectResult(result);
                 }
             }
-
-            var result = new PassResult
-            {
-                PassOk = true
-            };
 
             return new OkObjectResult(result);
         }

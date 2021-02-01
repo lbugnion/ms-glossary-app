@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos.Table;
 
-namespace MsGlossaryApp.Model.Pass
+namespace MsGlossaryApp.DataModel.Pass
 {
     public class PassEntity : TableEntity
     {
@@ -11,6 +11,12 @@ namespace MsGlossaryApp.Model.Pass
         }
 
         public string FileName
+        {
+            get;
+            set;
+        }
+
+        public bool FirstLogin
         {
             get;
             set;

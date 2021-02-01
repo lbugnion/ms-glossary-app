@@ -1,4 +1,4 @@
-﻿namespace MsGlossaryApp.Model.Pass
+﻿namespace MsGlossaryApp.DataModel.Pass
 {
     public class PassResult
     {
@@ -9,6 +9,12 @@
         }
 
         public bool PassOk
+        {
+            get;
+            set;
+        }
+
+        public bool IsFirstLogin
         {
             get;
             set;

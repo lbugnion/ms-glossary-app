@@ -365,12 +365,12 @@ GET {{function-url}}/release-notes/milestones/all
 x-functions-key: {{release-notes-functions-key}}
 
 ### Add password --------------------------------------------------
-POST {{function-url}}/add-p
+POST {{function-url}}/p
 x-functions-key: {{add-p-functions-key}}
-x-glossary-user-email: lbugnion3@microsoft.com
+x-glossary-user-email: lbugnion@microsoft.com
 x-glossary-file-name: azure-portal
 
 {
-  "oldhash": "2345",
-  "newhash": "2347"
+  "oldhash": "1236",
+  "newhash": ""
 }
