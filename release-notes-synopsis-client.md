@@ -6,6 +6,10 @@ Use this application to edit a synopsis for the Microsoft Glossary.
 
 ## Known issues (still open)
 
+### Planned for [V1.7](https://github.com/lbugnion/ms-glossary-app/milestone/12) *(open)*
+
+[enhancement # 20](https://github.com/lbugnion/ms-glossary-app/issues/20) *(open)*: Add a password for users logging in.
+
 ### Planned for [Later](https://github.com/lbugnion/ms-glossary-app/milestone/8) *(open)*
 
 [enhancement # 28](https://github.com/lbugnion/ms-glossary-app/issues/28) *(open)*: Prepare for localization
@@ -16,15 +20,11 @@ Use this application to edit a synopsis for the Microsoft Glossary.
 
 [enhancement # 14](https://github.com/lbugnion/ms-glossary-app/issues/14) *(open)*: Reload Synopsis locally without refreshing the page
 
-### Planned for [V1.7](https://github.com/lbugnion/ms-glossary-app/milestone/12) *(open)*
-
-[enhancement # 20](https://github.com/lbugnion/ms-glossary-app/issues/20) *(open)*: Add a password for users logging in.
-
-### Planned for [V1.6](https://github.com/lbugnion/ms-glossary-app/milestone/11) *(open)*
-
-[enhancement # 41](https://github.com/lbugnion/ms-glossary-app/issues/41) *(open)*: Update the Synopsis client link pointing to release notes in About page
-
 ## Closed issues
+
+### Fixed issues in [V1.6](https://github.com/lbugnion/ms-glossary-app/milestone/11) *(closed on 01 Feb 2021)*
+
+[enhancement # 41](https://github.com/lbugnion/ms-glossary-app/issues/41) *(closed on 01 Feb 2021)*: Update the Synopsis client link pointing to release notes in About page
 
 ### Fixed issues in [V1.5](https://github.com/lbugnion/ms-glossary-app/milestone/7) *(closed on 31 Jan 2021)*
 

@@ -2,7 +2,7 @@
 
 ## Known issues (still open)
 
-### Planned for [V1.6](https://github.com/lbugnion/ms-glossary-app/milestone/11) *(open)*
+### Planned for [V1.7](https://github.com/lbugnion/ms-glossary-app/milestone/12) *(open)*
 
 [enhancement # 43](https://github.com/lbugnion/ms-glossary-app/issues/43) *(open)*: Create release notes automatically when events happen in the repo
 
