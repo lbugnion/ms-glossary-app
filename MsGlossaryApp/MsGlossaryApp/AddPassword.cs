@@ -47,9 +47,13 @@ namespace MsGlossaryApp
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var passInfo = JsonConvert.DeserializeObject<PassInfo>(requestBody);
 
-            if (string.IsNullOrEmpty(passInfo.NewHash))
+            log?.LogDebug($"OldHash {passInfo.OldHash}");
+            log?.LogDebug($"NewHash {passInfo.NewHash}");
+
+            if (string.IsNullOrEmpty(passInfo.NewHash)
+                && string.IsNullOrEmpty(passInfo.OldHash))
             {
-                log?.LogError("No NewHash found");
+                log?.LogError("No NewHash or OldHash found");
                 return new BadRequestObjectResult("Incomplete request");
             }
 
@@ -62,8 +66,7 @@ namespace MsGlossaryApp
             var passEntity = new PassEntity
             {
                 PartitionKey = userEmail.ToLower(),
-                RowKey = fileName.ToLower(),
-                Hash = passInfo.NewHash
+                RowKey = fileName.ToLower()
             };
 
             CloudTable table;
@@ -99,6 +102,14 @@ namespace MsGlossaryApp
 
             if (existingPass == null)
             {
+                if (string.IsNullOrEmpty(passInfo.NewHash))
+                {
+                    log?.LogError("No NewHash found");
+                    return new BadRequestObjectResult("Incomplete request");
+                }
+
+                passEntity.Hash = passInfo.NewHash;
+
                 // No password defined yet for this user / filename
                 var insertOperation = TableOperation.Insert(passEntity);
 
@@ -116,15 +127,31 @@ namespace MsGlossaryApp
             }
             else
             {
+                if (string.IsNullOrEmpty(passInfo.OldHash))
+                {
+                    log?.LogError("No OldHash found");
+                    return new BadRequestObjectResult("Incomplete request");
+                }
+
                 // Verify the old password
                 if (passInfo.OldHash != existingPass.Hash)
                 {
-                    var result = new PassResult
+                    var appResult = new PassResult
                     {
                         ErrorMessage = "Incorrect password"
                     };
 
-                    return new BadRequestObjectResult(result);
+                    return new BadRequestObjectResult(appResult);
+                }
+
+                if (string.IsNullOrEmpty(passInfo.NewHash))
+                {
+                    var appResult = new PassResult
+                    {
+                        PassOk = true
+                    };
+
+                    return new OkObjectResult(appResult);
                 }
 
                 // Replace password
@@ -144,7 +171,12 @@ namespace MsGlossaryApp
                 }
             }
 
-            return new OkObjectResult("OK");
+            var result = new PassResult
+            {
+                PassOk = true
+            };
+
+            return new OkObjectResult(result);
         }
     }
 }

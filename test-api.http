@@ -367,10 +367,10 @@ x-functions-key: {{release-notes-functions-key}}
 ### Add password --------------------------------------------------
 POST {{function-url}}/add-p
 x-functions-key: {{add-p-functions-key}}
-x-glossary-user-email: lbugnion@microsoft.com
+x-glossary-user-email: lbugnion3@microsoft.com
 x-glossary-file-name: azure-portal
 
 {
-  "oldhash": "1234",
-  "newhash": "2345"
+  "oldhash": "2345",
+  "newhash": "2347"
 }
