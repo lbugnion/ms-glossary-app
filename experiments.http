@@ -1,0 +1,21 @@
+### Getting GitHub file
+
+GET https://api.github.com/repos/lbugnion/ms-glossary-app/contents/README.md
+Bearer: {{githubtoken}}
+
+### Getting GitHub file
+
+GET https://api.github.com/repos/lbugnion/ms-glossary-app/contents/README.md
+Bearer: {{githubtoken}}
+
+### Getting GitHub issues
+### Only works on public projects
+GET https://api.github.com/repos/lbugnion/ms-glossary-app/issues?state=all&per_page=100
+Bearer: {{githubtoken}}
+Accept: application/vnd.github.v3+json
+
+### Getting GitHub projects
+### Doesn't work
+GET https://api.github.com/repos/lbugnion/ms-glossary-app/projects
+Bearer: {{githubtoken}}
+Accept: application/vnd.github.inertia-preview+json

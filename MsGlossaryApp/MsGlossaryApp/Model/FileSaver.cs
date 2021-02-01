@@ -34,25 +34,34 @@ namespace MsGlossaryApp.Model
         }
 
         public static async Task<string> SaveFile(
+            string accountName,
+            string repoName,
+            string branchName,
+            string token,
             GlossaryFile file,
             string commitMessage,
-            string branchName = null,
             ILogger log = null)
         {
             return await SaveFiles(
+                accountName,
+                repoName,
+                branchName,
+                token,
                 new List<GlossaryFile>
                 {
                     file
                 },
                 commitMessage,
-                branchName,
                 log);
         }
 
         public static async Task<string> SaveFiles(
+            string accountName,
+            string repoName,
+            string branchName,
+            string token,
             IList<GlossaryFile> files,
             string commitMessage,
-            string branchName = null,
             ILogger log = null)
         {
             var savingLocation = GetSavingLocation();
@@ -74,20 +83,6 @@ namespace MsGlossaryApp.Model
                 && filesToCommit.Count > 0)
             {
                 log?.LogInformation("Committing to GitHub");
-
-                var accountName = Environment.GetEnvironmentVariable(
-                    Constants.MsGlossaryGitHubAccountVariableName);
-                var repoName = Environment.GetEnvironmentVariable(
-                    Constants.MsGlossaryGitHubRepoVariableName);
-
-                if (string.IsNullOrEmpty(branchName))
-                {
-                    branchName = Environment.GetEnvironmentVariable(
-                        Constants.MsGlossaryGitHubMainBranchName);
-                }
-
-                var token = Environment.GetEnvironmentVariable(
-                    Constants.GitHubTokenVariableName);
 
                 log?.LogDebug($"accountName: {accountName}");
                 log?.LogDebug($"repoName: {repoName}");

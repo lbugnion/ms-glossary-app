@@ -1,4 +1,6 @@
-﻿namespace MsGlossaryApp.DataModel
+﻿using System;
+
+namespace MsGlossaryApp.DataModel
 {
     public static class Constants
     {
@@ -12,6 +14,8 @@
         public const string FunctionCodeHeaderKey = "x-functions-key";
         public const string GitHubSynopsisUrlTemplate = "https://raw.githubusercontent.com/{0}/{1}/{2}/synopsis/{2}.md";
         public const string GitHubTokenVariableName = "GitHubToken";
+        public const string CreateReleaseNotesForVariableName = "CreateReleaseNotesFor";
+        public const string ReleaseNotesFoldersVariableName = "ReleaseNotesFolders";
         public const string ImageContainerVariableName = "ImageContainer";
         public const string ListOfTermsUrlMask = "https://{0}.blob.core.windows.net/{1}/{2}";
         public const int MaxCharactersInDescription = 150;
@@ -21,6 +25,9 @@
         public const string MsGlossaryGitHubAccountVariableName = "MsGlossaryGitHubAccount";
         public const string MsGlossaryGitHubMainBranchName = "MsGlossaryGitHubMainBranchName";
         public const string MsGlossaryGitHubRepoVariableName = "MsGlossaryGitHubRepo";
+        public const string MsGlossaryAppGitHubAccountVariableName = "MsGlossaryAppGitHubAccount";
+        public const string MsGlossaryAppGitHubMainBranchName = "MsGlossaryAppGitHubMainBranchName";
+        public const string MsGlossaryAppGitHubRepoVariableName = "MsGlossaryAppGitHubRepo";
         public const string NotifyFunctionCodeVariableName = "NotifyFunctionCode";
         public const string OutputContainerVariableName = "OutputContainer";
         public const string SavingLocationVariableName = "SavingLocation";

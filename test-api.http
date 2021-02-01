@@ -1,67 +1,33 @@
-### Add New Synopsis local
-POST http://localhost:7071/api/add-new
+### Add New Synopsis ----------------------------------------------------------
+POST {{function-url}}/add-new
+x-functions-key: {{add-synopsis-functions-key}}
 
 {
-    "shortdescription": "This is a test again",
-    "submitteremail": "lbugnion@microsoft.com",
-    "submittername": "Laurent Bugnion",
-    "submittertwitter": "@LBugnion",
-    "submittergithub": "LBugnion",
-    "term":"Test topic 17"
+  "shortdescription": "This is the short description",
+  "submitteremail": "muster@microsoft.com",
+  "submittergithub": "maxmu",
+  "submittername": "Max Muster",
+  "submittertwitter": "maxmu",
+  "suggestions": "",
+  "term": "    CAP theorem / PACELC theorem "
 }
 
-### Add New Synopsis Staging
-POST https://msglossary-app-staging.azurewebsites.net/api/add-new
-x-functions-key: OTQgPYaBCra07bwwQT4TtoTa6hP26oWm1jHoCJg2UiJjV8RRWoOMIw==
+### Update Homepage -----------------------------------------------------------
+{{function-url}}/update-homepage
+x-functions-key: {{update-homepage-functions-key}}
 
-{
-    "shortdescription": "This is a test again",
-    "submitteremail": "lbugnion@microsoft.com",
-    "submittername": "Laurent Bugnion",
-    "submittertwitter": "@LBugnion",
-    "submittergithub": "LBugnion",
-    "term":"test-topic-11"
-}
+### Update Docs ---------------------------------------------------------------
+{{function-url}}/update-docs
+x-functions-key: {{update-docs-functions-key}}
 
-### Update Homepage local
-http://localhost:7071/api/UpdateHomePage
+### Get synopsis for edit -----------------------------------------------------
+GET {{function-url}}/api/synopsis
+x-glossary-user-email: {{user-email}}
+x-glossary-file-name: {{test-file-name}}
+x-functions-key: {{get-synopsis-functions-key}}
 
-### Update Docs
-https://msglossary-app.azurewebsites.net/api/update-docs
-x-functions-key: djXnjM/5wuUarZcaxmvj84bt0WGOH6g10G3PtJxpVmCFiKVsqlNm2A==
-
-### Update Docs local
-http://localhost:7071/api/update-docs
-
-### Update Docs Staging
-https://msglossary-app-staging.azurewebsites.net/api/update-docs
-x-functions-key: Xq9pl6xS6uI1RVuxKaN0e2HG6ts0AKgqAbniQQXKUCaHxDEAdtC1Fw==
-
-### Get synopsis for edit local
-GET http://localhost:7071/api/synopsis
-x-glossary-user-email: lbugnion@microsoft.com
-x-glossary-file-name: test-topic-17
-
-### Get synopsis for edit test
-GET https://msglossary-app-test.azurewebsites.net/api/synopsis
-x-glossary-user-email: lbugnion@microsoft.com
-x-glossary-file-name: test-topic-17
-x-functions-key: jIzX5ysczMLK9ttfQAHORzhHNfupM6HChYMRvGj/c5Y5tTEUwnORlw==
-
-### Get synopsis for edit staging
-GET https://msglossary-app-staging.azurewebsites.net/api/synopsis
-x-glossary-user-email: lbugnion@microsoft.com
-x-glossary-file-name: Azure Portal
-x-functions-key: p0YQeh8yhr9HhtGTSJXXRIJC2wNbeTeS4X39aMzIGcfup1P0LfEJPw==
-
-### Get synopsis for edit remote
-GET https://msglossary-app.azurewebsites.net/api/synopsis
-x-glossary-user-email: lbugnion@microsoft.com
-x-glossary-file-name: azure-portal
-x-functions-key: 6WtokG2zDiQQ3d31shbLnFxhuErqRrqZ4JOUgfeoXPun5vA7S7Mo3A==
-
-### Save synopsis local
-POST http://localhost:7071/api/synopsis
+### Save synopsis local -------------------------------------------------------
+POST {{function-url}}/api/synopsis
 x-glossary-user-email: lbugnion@microsoft.com
 x-glossary-file-name: test-topic-17
 x-glossary-commit-message: This is a commit message
@@ -206,11 +172,11 @@ x-glossary-commit-message: This is a commit message
   "uri": "https://github.com/lbugnion/tests-auto-commit/blob/test-topic-17/synopsis/test-topic-17.md"
 }
 
-### Save synopsis remote
+### Save synopsis remote ------------------------------------------------------
 POST https://msglossary-app.azurewebsites.net/api/synopsis
+x-functions-key: {{save-synopsis-functions-key}}
 x-glossary-user-email: lbugnion@microsoft.com
 x-glossary-file-name: azure-portal
-x-functions-key: hnSI8Zc5/3uH7TQEKBZs86ntUp0WPxtpS5fUmPhtjqPGuepb2Q0mHQ==
 x-glossary-commit-message: This is a test commit message
 
 {
@@ -394,7 +360,5 @@ x-glossary-commit-message: This is a test commit message
   "uri": "https://github.com/lbugnion/ms-glossary/blob/azure-portal/synopsis/azure-portal.md"
 }
 
-### Test GitHub
-
-GET https://api.github.com/repos/lbugnion/tests-auto-commit/contents/synopsis/test-topic-17.md?ref=test-topic-17
-Bearer: a07ed710ca41c2b804f498bd90b6fa6fd0f1aecb
+### Update release notes ------------------------------------------------------
+GET {{function-url}}/release-notes/milestones/all

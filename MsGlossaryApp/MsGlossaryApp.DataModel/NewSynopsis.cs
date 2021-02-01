@@ -53,6 +53,13 @@ namespace MsGlossaryApp.DataModel
             set;
         }
 
+        [JsonProperty("suggestions")]
+        public string Suggestions
+        {
+            get;
+            set;
+        }
+
         [JsonProperty("term")]
         public string Term
         {

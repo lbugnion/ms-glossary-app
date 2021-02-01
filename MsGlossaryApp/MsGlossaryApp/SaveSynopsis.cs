@@ -162,9 +162,12 @@ namespace MsGlossaryApp
                 {
                     // Save file to GitHub
                     result.Message = await FileSaver.SaveFile(
+                        accountName,
+                        repoName,
+                        synopsis.FileName,
+                        token,
                         newFile,
                         $"Saved changes to {newFile.Path}. {commitMessage} by {userEmail}",
-                        synopsis.FileName,
                         log);
 
                     if (!string.IsNullOrEmpty(result.Message))
@@ -176,7 +179,7 @@ namespace MsGlossaryApp
                             log);
 
                         log?.LogInformation(result.Message);
-                        return new OkObjectResult(result);
+                        return new UnprocessableEntityObjectResult(result);
                     }
 
                     log?.LogInformation("Synopsis was saved");
@@ -209,7 +212,7 @@ namespace MsGlossaryApp
 
                 log.LogError(error, $"Error saving synopsis {synopsis.FileName} to GitHub");
 
-                return new OkObjectResult(result);
+                return new UnprocessableEntityObjectResult(result);
             }
 
             var location = FileSaver.GetSavingLocation();
