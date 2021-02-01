@@ -409,10 +409,10 @@ namespace MsGlossaryApp
                     break;
             }
 
-            message += " without errors";
+            message += " without errors to the Docs repository (UpdateDocs)";
 
             await NotificationService.Notify(
-                "New files saved",
+                "New files saved to Docs repo",
                 message,
                 null);
         }

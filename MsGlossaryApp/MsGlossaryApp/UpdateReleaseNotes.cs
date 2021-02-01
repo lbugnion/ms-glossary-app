@@ -29,7 +29,7 @@ namespace MsGlossaryApp
             string milestones,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            log.LogInformation("-> UpdateReleaseNotes");
 
             var client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
@@ -122,6 +122,20 @@ namespace MsGlossaryApp
                 }
             }
 
+            if (glossaryFiles.Count == 0)
+            {
+                var noSaveMessage = $"No modifed release notes found for {accountName}/{repoName}";
+                log.LogWarning(noSaveMessage);
+
+                await NotificationService.Notify(
+                    "Release notes NOT saved to GitHub",
+                    noSaveMessage,
+                    log);
+
+                log.LogInformation("UpdateReleaseNotes ->");
+                return new OkObjectResult(noSaveMessage);
+            }
+
             var errorMessage = await FileSaver.SaveFiles(
                 accountName,
                 repoName,
@@ -130,7 +144,26 @@ namespace MsGlossaryApp
                 glossaryFiles, 
                 "Updated release notes");
 
-            return new OkObjectResult(errorMessage);
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                log.LogError($"Cannot save file: {errorMessage}");
+
+                await NotificationService.Notify(
+                    "Release notes NOT saved to GitHub",
+                    $"There was an error: {errorMessage}",
+                    log);
+
+                log.LogInformation("UpdateReleaseNotes ->");
+                return new UnprocessableEntityObjectResult($"There was an issue: {errorMessage}");
+            }
+
+            await NotificationService.Notify(
+                "Release notes saved to GitHub",
+                $"The release notes were saved to {accountName}/{repoName}",
+                log);
+
+            log.LogInformation("UpdateReleaseNotes ->");
+            return new OkObjectResult(result);
         }
     }
 }
