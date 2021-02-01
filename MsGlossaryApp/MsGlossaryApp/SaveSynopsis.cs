@@ -162,9 +162,12 @@ namespace MsGlossaryApp
                 {
                     // Save file to GitHub
                     result.Message = await FileSaver.SaveFile(
+                        accountName,
+                        repoName,
+                        synopsis.FileName,
+                        token,
                         newFile,
                         $"Saved changes to {newFile.Path}. {commitMessage} by {userEmail}",
-                        synopsis.FileName,
                         log);
 
                     if (!string.IsNullOrEmpty(result.Message))
