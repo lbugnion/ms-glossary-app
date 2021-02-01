@@ -123,6 +123,10 @@ namespace MsGlossaryApp
             }
 
             var errorMessage = await FileSaver.SaveFiles(
+                accountName,
+                repoName,
+                mainBranchName,
+                token,
                 glossaryFiles, 
                 "Updated release notes");
 
