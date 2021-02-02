@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Logging;
+using MsGlossaryApp.DataModel;
 using MsGlossaryApp.DataModel.Pass;
 using System;
 using System.Threading.Tasks;
@@ -123,7 +124,10 @@ namespace MsGlossaryApp.Model.Pass
             var tableClient = storageAccount.CreateCloudTableClient(
                 new TableClientConfiguration());
 
-            CloudTable table = tableClient.GetTableReference("login");
+            var tableName = Environment.GetEnvironmentVariable(
+                Constants.HashTableVariableName);
+
+            CloudTable table = tableClient.GetTableReference(tableName);
             await table.CreateIfNotExistsAsync();
 
             log?.LogInformation("GetTable ->");
