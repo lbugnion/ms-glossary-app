@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
 using MsGlossaryApp.Model.GitHub;
+using MsGlossaryApp.Model.Pass;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -29,6 +30,12 @@ namespace MsGlossaryApp
 
             var (userEmail, fileName, hash, commitMessage) = req.GetUserInfoFromHeaders();
 
+            if (string.IsNullOrEmpty(hash))
+            {
+                log?.LogError("No hash found in header");
+                return new UnauthorizedObjectResult("Unauthorized");
+            }
+            
             if (string.IsNullOrEmpty(userEmail))
             {
                 log?.LogError("No user email found in header");
@@ -50,6 +57,18 @@ namespace MsGlossaryApp
             log?.LogDebug($"userEmail {userEmail}");
             log?.LogDebug($"fileName {fileName}");
             log?.LogDebug($"commitMessage {commitMessage}");
+            log?.LogDebug($"hash {hash}");
+
+            var connectionString = Environment.GetEnvironmentVariable(
+                Constants.AzureWebJobsStorageVariableName);
+
+            var handler = new PassHandler(connectionString);
+            var (isValid, _) = await handler.Verify(userEmail, fileName, hash, log);
+
+            if (!isValid)
+            {
+                return new UnauthorizedObjectResult("Unauthorized");
+            }
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 

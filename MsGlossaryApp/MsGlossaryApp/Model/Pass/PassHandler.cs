@@ -29,11 +29,14 @@ namespace MsGlossaryApp.Model.Pass
 
             if (existingPass == null)
             {
+                log.LogWarning("No row found");
                 return (false, false);
             }
 
             var isValid = existingPass.Hash == hash;
             var first = isValid ? existingPass.FirstLogin : false;
+
+            log.LogDebug($"Valid: {isValid}");
 
             return (isValid, first);
         }

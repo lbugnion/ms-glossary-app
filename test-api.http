@@ -32,6 +32,7 @@ POST {{function-url}}/synopsis
 x-glossary-user-email: lbugnion@microsoft.com
 x-glossary-file-name: test-topic-17
 x-glossary-commit-message: This is a commit message
+x-glossary-hash: 1234
 
 {
   "authorsInstructions": [
