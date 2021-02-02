@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
 using MsGlossaryApp.Model.GitHub;
+using MsGlossaryApp.Model.Pass;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -25,11 +26,13 @@ namespace MsGlossaryApp
         {
             log?.LogInformation("-> GetSynopsis");
 
-            var (userEmail, fileName, _) = req.GetUserInfoFromHeaders();
+            var (userEmail, fileName, hash, _) = req.GetUserInfoFromHeaders();
 
-            log?.LogDebug($"Original fileName {fileName}");
-
-            fileName = fileName.ToLower();
+            if (string.IsNullOrEmpty(hash))
+            {
+                log?.LogError("No hash found in header");
+                return new UnauthorizedObjectResult("Unauthorized");
+            }
 
             if (string.IsNullOrEmpty(userEmail))
             {
@@ -43,8 +46,22 @@ namespace MsGlossaryApp
                 return new BadRequestObjectResult("No file name found in header");
             }
 
+            fileName = fileName.ToLower();
+
             log?.LogDebug($"userEmail {userEmail}");
             log?.LogDebug($"fileName {fileName}");
+            log?.LogDebug($"hash {hash}");
+
+            var connectionString = Environment.GetEnvironmentVariable(
+                Constants.AzureWebJobsStorageVariableName);
+
+            var handler = new PassHandler(connectionString);
+            var (isValid, _) = await handler.Verify(userEmail, fileName, hash, log);
+
+            if (!isValid)
+            {
+                return new UnauthorizedObjectResult("Unauthorized");
+            }
 
             // Get the markdown file
 

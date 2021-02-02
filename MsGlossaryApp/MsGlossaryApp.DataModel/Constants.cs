@@ -6,6 +6,7 @@ namespace MsGlossaryApp.DataModel
     {
         public const string AzureWebJobsStorageVariableName = "AzureWebJobsStorage";
         public const string BlobStoreNameVariableName = "BlobStoreName";
+        public const string HashHeaderKey = "x-glossary-hash";
         public const string CommitMessageHeaderKey = "x-glossary-commit-message";
         public const string DocsGlossaryGitHubAccountVariableName = "DocsGlossaryGitHubAccount";
         public const string DocsGlossaryGitHubMainBranchNameVariableName = "DocsGlossaryGitHubMainBranchName";

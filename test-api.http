@@ -21,13 +21,14 @@ x-functions-key: {{update-homepage-functions-key}}
 x-functions-key: {{update-docs-functions-key}}
 
 ### Get synopsis for edit -----------------------------------------------------
-GET {{function-url}}/api/synopsis
+GET {{function-url}}/synopsis
 x-glossary-user-email: {{user-email}}
 x-glossary-file-name: {{test-file-name}}
 x-functions-key: {{get-synopsis-functions-key}}
+x-glossary-hash: 2345
 
 ### Save synopsis local -------------------------------------------------------
-POST {{function-url}}/api/synopsis
+POST {{function-url}}/synopsis
 x-glossary-user-email: lbugnion@microsoft.com
 x-glossary-file-name: test-topic-17
 x-glossary-commit-message: This is a commit message

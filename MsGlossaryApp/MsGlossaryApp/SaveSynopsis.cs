@@ -27,7 +27,7 @@ namespace MsGlossaryApp
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            var (userEmail, fileName, commitMessage) = req.GetUserInfoFromHeaders();
+            var (userEmail, fileName, hash, commitMessage) = req.GetUserInfoFromHeaders();
 
             if (string.IsNullOrEmpty(userEmail))
             {

@@ -27,7 +27,7 @@ namespace MsGlossaryApp
         {
             log?.LogInformation("-> HandlePassword");
 
-            var (userEmail, fileName, _) = req.GetUserInfoFromHeaders();
+            var (userEmail, fileName, _, _) = req.GetUserInfoFromHeaders();
 
             log?.LogDebug($"User email {userEmail}");
             log?.LogDebug($"Original fileName {fileName}");
