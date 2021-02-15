@@ -2,14 +2,7 @@
 
 name: Create Release notes
 
-# Controls when the action will run. 
 on:
-  pull_request:
-    branches: [ main ]
-  issues:
-    types: [opened, deleted, transferred, closed, reopened, labeled, milestoned, demilestoned]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -22,3 +15,4 @@ jobs:
           url: https://msglossary-app.azurewebsites.net/api/release-notes/milestones/all
           method: get
           headers: '{ "x-functions-key": "${{ secrets.ReleaseNotesFunctionKey }}" }'
+          data: '{"AccountName": "lbugnion","RepoName": "ms-glossary-app","BranchName": "main","CommitMessage": "Updated release notes","SinglePage": false,"Projects": [{"Project": "Infrastructure","ProjectId": 4},{"Project": "Backend Functions","ProjectId": 2},{"Project": "Synopsis Client","ProjectId": 1},{"Project": "Microsoft Glossary App","IsMainPage": true}]}'
