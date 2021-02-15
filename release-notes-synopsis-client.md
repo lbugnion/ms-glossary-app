@@ -2,10 +2,6 @@
 
 ## Known issues (still open)
 
-### Planned for [V1.6 bugfix](https://github.com/lbugnion/ms-glossary-app/milestone/13) *(open)*
-
-[bug # 63](https://github.com/lbugnion/ms-glossary-app/issues/63) *(open)*: Refreshing the page fails with 404
-
 ### Planned for [V1.7](https://github.com/lbugnion/ms-glossary-app/milestone/12) *(open)*
 
 [enhancement # 61](https://github.com/lbugnion/ms-glossary-app/issues/61) *(open)*: Find a way to keep functions key out of GitHub
@@ -79,6 +75,10 @@
 [bug # 3](https://github.com/lbugnion/ms-glossary-app/issues/3) *(closed on 25 Jan 2021)*: When reloading from cloud, adding a new line doesn't work
 
 [bug # 2](https://github.com/lbugnion/ms-glossary-app/issues/2) *(closed on 25 Jan 2021)*: Adding a new note or a new line doesn't enable the Save button
+
+### Fixed issues in [V1.6 bugfix](https://github.com/lbugnion/ms-glossary-app/milestone/13) *(open)*
+
+[bug # 63](https://github.com/lbugnion/ms-glossary-app/issues/63) *(closed on 01 Jan 0001)*: Refreshing the page fails with 404
 
 ### Fixed issues in [V1.7](https://github.com/lbugnion/ms-glossary-app/milestone/12) *(open)*
 
