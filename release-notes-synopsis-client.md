@@ -1,16 +1,20 @@
 # Release notes for [Synopsis Client](https://github.com/lbugnion/ms-glossary-app/projects/1)
 
-Use this application to edit a synopsis for the Microsoft Glossary.
-
-[Production app](https://www.ms-glossary-synopsis.cloud)
-
 ## Known issues (still open)
 
 ### Planned for [V1.7](https://github.com/lbugnion/ms-glossary-app/milestone/12) *(open)*
 
+[enhancement # 61](https://github.com/lbugnion/ms-glossary-app/issues/61) *(open)*: Find a way to keep functions key out of GitHub
+
+[documentation # 55](https://github.com/lbugnion/ms-glossary-app/issues/55) *(open)*: Create captions for the Glossary pitch video and upload to YouTube
+
+[documentation # 54](https://github.com/lbugnion/ms-glossary-app/issues/54) *(open)*: Create a video about the Synopsis Client
+
 [enhancement # 20](https://github.com/lbugnion/ms-glossary-app/issues/20) *(open)*: Add a password for users logging in.
 
 ### Planned for [Later](https://github.com/lbugnion/ms-glossary-app/milestone/8) *(open)*
+
+[enhancement # 62](https://github.com/lbugnion/ms-glossary-app/issues/62) *(open)*: Add a possibility to log to the cloud
 
 [enhancement # 28](https://github.com/lbugnion/ms-glossary-app/issues/28) *(open)*: Prepare for localization
 
@@ -71,4 +75,8 @@ Use this application to edit a synopsis for the Microsoft Glossary.
 [bug # 3](https://github.com/lbugnion/ms-glossary-app/issues/3) *(closed on 25 Jan 2021)*: When reloading from cloud, adding a new line doesn't work
 
 [bug # 2](https://github.com/lbugnion/ms-glossary-app/issues/2) *(closed on 25 Jan 2021)*: Adding a new note or a new line doesn't enable the Save button
+
+### Fixed issues in [V1.7](https://github.com/lbugnion/ms-glossary-app/milestone/12) *(open)*
+
+[documentation # 57](https://github.com/lbugnion/ms-glossary-app/issues/57) *(closed on 01 Jan 0001)*: Create pitch video for the Glossary and upload to YouTube
 
