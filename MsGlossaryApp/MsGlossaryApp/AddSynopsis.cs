@@ -4,7 +4,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using MsGlossaryApp.DataModel;
-using MsGlossaryApp.Model.GitHub;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -86,14 +85,13 @@ namespace MsGlossaryApp
             newTerm.FileName = newTerm.Term.MakeSafeFileName();
             log?.LogInformation($"Safe term: {newTerm.FileName}");
 
-            var helper = new GitHubHelper(client);
+            var helper = new GitHubHelper.GitHubHelper(client);
 
             var mainHead = await helper.GetHead(
                 accountName,
                 repoName,
                 mainBranchName,
-                token,
-                log);
+                token);
 
             if (!string.IsNullOrEmpty(mainHead.ErrorMessage))
             {
@@ -107,8 +105,7 @@ namespace MsGlossaryApp
                 repoName,
                 token,
                 mainHead,
-                newTerm.FileName,
-                log);
+                newTerm.FileName);
 
             if (!string.IsNullOrEmpty(newBranch.ErrorMessage))
             {
@@ -153,8 +150,7 @@ namespace MsGlossaryApp
                 {
                     (string.Format(NewFileName, newTerm.FileName), markdownTemplate)
                 },
-                newBranch,
-                log);
+                newBranch);
 
             newTerm.Ref = newHeadResult.Ref;
             newTerm.Url = string.Format(NewSynopsisUrl, accountName, repoName, newTerm.FileName);

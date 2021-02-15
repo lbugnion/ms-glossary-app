@@ -15,8 +15,6 @@ namespace MsGlossaryApp.DataModel
         public const string FunctionCodeHeaderKey = "x-functions-key";
         public const string GitHubSynopsisUrlTemplate = "https://raw.githubusercontent.com/{0}/{1}/{2}/synopsis/{2}.md";
         public const string GitHubTokenVariableName = "GitHubToken";
-        public const string CreateReleaseNotesForVariableName = "CreateReleaseNotesFor";
-        public const string ReleaseNotesFoldersVariableName = "ReleaseNotesFolders";
         public const string ImageContainerVariableName = "ImageContainer";
         public const string ListOfTermsUrlMask = "https://{0}.blob.core.windows.net/{1}/{2}";
         public const int MaxCharactersInDescription = 150;

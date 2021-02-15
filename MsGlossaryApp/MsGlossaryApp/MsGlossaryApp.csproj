@@ -17,6 +17,11 @@
     <ProjectReference Include="..\MsGlossaryApp.DataModel\MsGlossaryApp.DataModel.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="GitHubHelper">
+      <HintPath>..\..\Dependencies\GitHubHelper.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Update="Texts.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

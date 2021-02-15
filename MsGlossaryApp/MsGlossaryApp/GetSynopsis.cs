@@ -5,7 +5,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
-using MsGlossaryApp.Model.GitHub;
 using MsGlossaryApp.Model.Pass;
 using System;
 using System.Net.Http;
@@ -79,15 +78,14 @@ namespace MsGlossaryApp
             var client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "MsGlossaryApp");
 
-            var helper = new GitHubHelper(client);
+            var helper = new GitHubHelper.GitHubHelper(client);
 
             var result = await helper.GetTextFile(
                 accountName,
                 repoName,
                 fileName.ToLower(),
                 string.Format(Constants.SynopsisPathMask, fileName),
-                token,
-                log);
+                token);
 
             if (!string.IsNullOrEmpty(result.ErrorMessage))
             {

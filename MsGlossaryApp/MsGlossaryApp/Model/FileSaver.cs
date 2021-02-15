@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;
 using MsGlossaryApp.DataModel;
-using MsGlossaryApp.Model.GitHub;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,7 +93,7 @@ namespace MsGlossaryApp.Model
                     .Select(f => (f.Path, f.Content))
                     .ToList();
 
-                var helper = new GitHubHelper();
+                var helper = new GitHubHelper.GitHubHelper();
 
                 var result = await helper.CommitFiles(
                     accountName,
@@ -102,8 +101,7 @@ namespace MsGlossaryApp.Model
                     branchName,
                     token,
                     commitMessage,
-                    commitContent,
-                    log: log);
+                    commitContent);
 
                 errorMessage = result.ErrorMessage;
                 log?.LogInformation("Done committing to GitHub");
