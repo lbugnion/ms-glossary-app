@@ -4,7 +4,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using MsGlossaryApp.DataModel;
 using MsGlossaryApp.Model;
-using MsGlossaryApp.Model.GitHub;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -124,7 +123,7 @@ namespace MsGlossaryApp
                 var token = Environment.GetEnvironmentVariable(Constants.GitHubTokenVariableName);
                 log?.LogDebug($"GitHub token: {token}");
 
-                var helper = new GitHubHelper(client);
+                var helper = new GitHubHelper.GitHubHelper(client);
 
                 var list = new List<(string, string)>
                 {
