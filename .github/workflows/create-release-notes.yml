@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: CamiloGarciaLaRotta/watermelon-http-client@v1.4
         with:
-          url: https://msglossary-app.azurewebsites.net/api/release-notes/milestones/all
-          method: get
-          headers: '{ "x-functions-key": "${{ secrets.ReleaseNotesFunctionKey }}" }'
+          url: https://release-notes-maker.azurewebsites.net/api/release-notes/milestones/all
+          method: post
+          headers: '{ "x-functions-key": "${{ secrets.ReleaseNotesFunctionKey }}", "x-releasenotesmaker-token": "${{ secrets.ReleaseNotesGitHubToken }}" }'
           data: '{"AccountName": "lbugnion","RepoName": "ms-glossary-app","BranchName": "main","CommitMessage": "Updated release notes","SinglePage": false,"Projects": [{"Project": "Infrastructure","ProjectId": 4},{"Project": "Backend Functions","ProjectId": 2},{"Project": "Synopsis Client","ProjectId": 1},{"Project": "Microsoft Glossary App","IsMainPage": true}]}'
