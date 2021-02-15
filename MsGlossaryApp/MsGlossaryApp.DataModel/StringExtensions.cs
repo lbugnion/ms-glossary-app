@@ -2,7 +2,7 @@
 
 namespace MsGlossaryApp.DataModel
 {
-    public static class MarkdownExtensions
+    public static class StringExtensions
     {
         private const string H1Marker = "# ";
         private const string H2Marker = "## ";
