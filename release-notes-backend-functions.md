@@ -2,9 +2,13 @@
 
 ## Known issues (still open)
 
+### Planned for [20210130 Passphrase handling ](https://github.com/lbugnion/ms-glossary-app/milestone/9) *(open)*
+
+[enhancement # 52](https://github.com/lbugnion/ms-glossary-app/issues/52) *(open)*: When an author changes his email, update the password table too
+
 ### Planned for [V1.7](https://github.com/lbugnion/ms-glossary-app/milestone/12) *(open)*
 
-[documentation # 55](https://github.com/lbugnion/ms-glossary-app/issues/55) *(open)*: Create captions for the Glossary pitch video and upload to YouTube
+[Documentation  no release notes # 55](https://github.com/lbugnion/ms-glossary-app/issues/55) *(open)*: Create captions for the Glossary pitch video and upload to YouTube
 
 [enhancement # 20](https://github.com/lbugnion/ms-glossary-app/issues/20) *(open)*: Add a password for users logging in.
 
@@ -44,5 +48,5 @@
 
 ### Fixed issues in [V1.7](https://github.com/lbugnion/ms-glossary-app/milestone/12) *(open)*
 
-[documentation # 57](https://github.com/lbugnion/ms-glossary-app/issues/57) *(closed on 01 Jan 0001)*: Create pitch video for the Glossary and upload to YouTube
+[Documentation  no release notes # 57](https://github.com/lbugnion/ms-glossary-app/issues/57) *(closed on 01 Jan 0001)*: Create pitch video for the Glossary and upload to YouTube
 
