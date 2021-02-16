@@ -6,9 +6,11 @@
 
 [enhancement # 61](https://github.com/lbugnion/ms-glossary-app/issues/61) *(open)*: Find a way to keep functions key out of GitHub
 
-[Documentation  no release notes # 55](https://github.com/lbugnion/ms-glossary-app/issues/55) *(open)*: Create captions for the Glossary pitch video and upload to YouTube
+[doc # 57](https://github.com/lbugnion/ms-glossary-app/issues/57) *(open)*: Create pitch video for the Glossary and upload to YouTube
 
-[Documentation  no release notes # 54](https://github.com/lbugnion/ms-glossary-app/issues/54) *(open)*: Create a video about the Synopsis Client
+[doc # 55](https://github.com/lbugnion/ms-glossary-app/issues/55) *(open)*: Create captions for the Glossary pitch video and upload to YouTube
+
+[doc # 54](https://github.com/lbugnion/ms-glossary-app/issues/54) *(open)*: Create a video about the Synopsis Client
 
 [enhancement # 20](https://github.com/lbugnion/ms-glossary-app/issues/20) *(open)*: Add a password for users logging in.
 
@@ -79,8 +81,4 @@
 ### Fixed issues in [V1.6 bugfix](https://github.com/lbugnion/ms-glossary-app/milestone/13) *(open)*
 
 [bug # 63](https://github.com/lbugnion/ms-glossary-app/issues/63) *(closed on 01 Jan 0001)*: Refreshing the page fails with 404
-
-### Fixed issues in [V1.7](https://github.com/lbugnion/ms-glossary-app/milestone/12) *(open)*
-
-[Documentation  no release notes # 57](https://github.com/lbugnion/ms-glossary-app/issues/57) *(closed on 01 Jan 0001)*: Create pitch video for the Glossary and upload to YouTube
 

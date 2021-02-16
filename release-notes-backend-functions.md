@@ -8,7 +8,9 @@
 
 ### Planned for [V1.7](https://github.com/lbugnion/ms-glossary-app/milestone/12) *(open)*
 
-[Documentation  no release notes # 55](https://github.com/lbugnion/ms-glossary-app/issues/55) *(open)*: Create captions for the Glossary pitch video and upload to YouTube
+[doc # 57](https://github.com/lbugnion/ms-glossary-app/issues/57) *(open)*: Create pitch video for the Glossary and upload to YouTube
+
+[doc # 55](https://github.com/lbugnion/ms-glossary-app/issues/55) *(open)*: Create captions for the Glossary pitch video and upload to YouTube
 
 [enhancement # 20](https://github.com/lbugnion/ms-glossary-app/issues/20) *(open)*: Add a password for users logging in.
 
@@ -45,8 +47,4 @@
 ### Fixed issues in [Ideas](https://github.com/lbugnion/ms-glossary-app/milestone/10) *(open)*
 
 [enhancement # 60](https://github.com/lbugnion/ms-glossary-app/issues/60) *(closed on 01 Jan 0001)*: Export the possibility to create release notes to its own Functions app
-
-### Fixed issues in [V1.7](https://github.com/lbugnion/ms-glossary-app/milestone/12) *(open)*
-
-[Documentation  no release notes # 57](https://github.com/lbugnion/ms-glossary-app/issues/57) *(closed on 01 Jan 0001)*: Create pitch video for the Glossary and upload to YouTube
 
